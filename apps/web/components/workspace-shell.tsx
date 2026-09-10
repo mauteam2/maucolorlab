@@ -5,8 +5,9 @@ import { type ActiveTenantContext, tenantContextSchema } from "@/lib/tenant/cont
 import { tr } from "@/lib/i18n/tr";
 import { logout } from "@/app/sign-in/actions";
 import { changeWorkspace } from "@/app/workspaces/actions";
-export function WorkspaceShell({ initial }: { initial: ActiveTenantContext }) {
-  const [context, setContext] = useState<ActiveTenantContext | null>(initial);
+export function WorkspaceShell() {
+  // Router/back-forward caches can retain old server payloads. Start concealed on every mount.
+  const [context, setContext] = useState<ActiveTenantContext | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let active = true;

@@ -33,7 +33,8 @@ authorization boundary. The selector action validates its submitted reference
 against a fresh RPC response. Cookies hold the auth session and an HttpOnly selection
 reference. No protected page is statically cached.
 
-The visible shell revalidates every 15 seconds, on focus, connectivity restoration,
+The shell starts concealed on each mount so router-cached payloads cannot flash old
+tenant identity. It revalidates every 15 seconds, on focus, connectivity restoration,
 and page restoration. It conceals context before checking, when hidden, and when
 offline. Network failure shows retry without interactive tenant content. Invalid
 references are deleted before returning to selection. Session endpoints emit

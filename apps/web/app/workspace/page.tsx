@@ -11,5 +11,5 @@ export default async function WorkspacePage() {
   const reference = (await cookies()).get(selectionCookie)?.value;
   const selected = resolveSelection(contexts, reference);
   if (!selected) redirect(reference ? "/auth/workspace-reset" : "/workspaces");
-  return <WorkspaceShell initial={selected} />;
+  return <WorkspaceShell />;
 }
