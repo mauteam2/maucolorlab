@@ -60,6 +60,9 @@ create table public.role_permissions (
     primary key (role_code, permission_code)
 );
 
+create index role_permissions_by_permission
+    on public.role_permissions (permission_code, role_code);
+
 create table public.salon_memberships (
     id uuid primary key default gen_random_uuid(),
     organization_id uuid not null references public.organizations (id) on delete restrict,
@@ -97,6 +100,15 @@ create index salon_memberships_active_user_access
     on public.salon_memberships (user_id, organization_id, location_id)
     where status = 'active';
 
+create index salon_memberships_user_history
+    on public.salon_memberships (user_id, created_at desc);
+
+create index salon_memberships_by_role
+    on public.salon_memberships (role_code, organization_id);
+
+create index salon_memberships_organization_location
+    on public.salon_memberships (organization_id, location_id);
+
 create index locations_active_by_organization
     on public.locations (organization_id, name)
     where archived_at is null;
@@ -128,6 +140,10 @@ create index audit_events_organization_timeline
 
 create index audit_events_location_timeline
     on public.audit_events (location_id, occurred_at desc, id)
+    where location_id is not null;
+
+create index audit_events_organization_location
+    on public.audit_events (organization_id, location_id)
     where location_id is not null;
 
 create or replace function app_private.set_updated_at()
