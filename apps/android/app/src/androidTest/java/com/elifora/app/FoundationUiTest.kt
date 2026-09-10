@@ -13,6 +13,6 @@ class FoundationUiTest {
     @Test
     fun showsProductIdentityAndSignedOutState() {
         composeRule.onNodeWithText("ELIFORA").assertIsDisplayed()
-        composeRule.onNodeWithText("Oturum açılmadı").assertIsDisplayed()
+        composeRule.onNodeWithText("Oturum aç").assertIsDisplayed()
     }
 }

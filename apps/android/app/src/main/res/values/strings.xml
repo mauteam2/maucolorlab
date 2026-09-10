@@ -5,5 +5,27 @@
     <string name="home_title">Renk çalışmalarınız için sakin ve güvenilir bir temel.</string>
     <string name="home_body">Teknik renk kararları ve salon operasyonları için güvenli çalışma alanı.</string>
     <string name="auth_status_signed_out">Oturum açılmadı</string>
+    <string name="auth_loading">Erişiminiz doğrulanıyor…</string>
+    <string name="auth_welcome">Çalışma alanınıza hoş geldiniz.</string>
+    <string name="auth_intro">Salonunuzun güvenli çalışma alanına giriş yapın.</string>
+    <string name="auth_email">E-posta</string>
+    <string name="auth_password">Parola</string>
+    <string name="auth_sign_in">Oturum aç</string>
+    <string name="auth_logout">Oturumu kapat</string>
+    <string name="auth_retry">Yeniden dene</string>
+    <string name="auth_invalid">E-posta veya parola hatalı. Bilgilerinizi kontrol edin.</string>
+    <string name="auth_expired">Oturumunuz sona erdi. Lütfen yeniden oturum açın.</string>
+    <string name="auth_network">Bağlantı kurulamadı. İnternet bağlantınızı kontrol edip yeniden deneyin.</string>
+    <string name="auth_configuration">Bağlantı ayarları eksik. Lütfen destek ekibinizle iletişime geçin.</string>
+    <string name="workspace_select">Çalışma alanını seçin</string>
+    <string name="workspace_ready">Çalışma alanınız hazır.</string>
+    <string name="workspace_change">Çalışma alanını değiştir</string>
+    <string name="workspace_empty">Henüz bir çalışma alanına erişiminiz yok.</string>
+    <string name="workspace_empty_detail">Salon yöneticinizden üyeliğinizi kontrol etmesini isteyin.</string>
+    <string name="workspace_invalid">Önceki çalışma alanına erişiminiz artık geçerli değil. Lütfen yeniden seçim yapın.</string>
+    <string name="role_owner">Salon Sahibi</string>
+    <string name="role_manager">Salon Yöneticisi</string>
+    <string name="role_colorist">Renk Uzmanı / Kuaför</string>
+    <string name="role_assistant">Asistan</string>
+    <string name="role_reception">Resepsiyon</string>
 </resources>
-

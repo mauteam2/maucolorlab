@@ -5,6 +5,7 @@
     <application
         android:name=".EliforaApplication"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Elifora">
@@ -18,4 +19,3 @@
         </activity>
     </application>
 </manifest>
-

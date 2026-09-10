@@ -1,17 +1,17 @@
 package com.elifora.app.di
 
+import android.content.Context
 import com.elifora.app.core.config.AppConfig
 import com.elifora.app.core.config.BuildConfigAppConfig
-import com.elifora.app.data.auth.PlaceholderAuthRepository
-import com.elifora.app.domain.auth.AuthRepository
+import com.elifora.app.data.auth.*
+import com.elifora.app.domain.auth.WorkspaceController
 
 interface AppContainer {
     val appConfig: AppConfig
-    val authRepository: AuthRepository
+    val workspaceController: WorkspaceController
 }
-
-class DefaultAppContainer : AppContainer {
+class DefaultAppContainer(context: Context) : AppContainer {
     override val appConfig: AppConfig by lazy { BuildConfigAppConfig() }
-    override val authRepository: AuthRepository by lazy { PlaceholderAuthRepository() }
+    private val repository by lazy { SupabaseAuthRepository(SupabaseTransport(appConfig), EncryptedSessionStore(context)) }
+    override val workspaceController by lazy { WorkspaceController(repository, repository, PreferenceWorkspaceStore(context)) }
 }
-

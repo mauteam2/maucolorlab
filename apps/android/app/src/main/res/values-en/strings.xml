@@ -5,5 +5,27 @@
     <string name="home_title">A calm, dependable foundation for color work.</string>
     <string name="home_body">A secure workspace for technical color decisions and salon operations.</string>
     <string name="auth_status_signed_out">Signed out</string>
+    <string name="auth_loading">Verifying your access…</string>
+    <string name="auth_welcome">Welcome to your workspace.</string>
+    <string name="auth_intro">Sign in to your salon’s secure workspace.</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_sign_in">Sign in</string>
+    <string name="auth_logout">Sign out</string>
+    <string name="auth_retry">Try again</string>
+    <string name="auth_invalid">Incorrect email or password. Check your details.</string>
+    <string name="auth_expired">Your session has expired. Please sign in again.</string>
+    <string name="auth_network">Unable to connect. Check your connection and try again.</string>
+    <string name="auth_configuration">Connection settings are missing. Please contact support.</string>
+    <string name="workspace_select">Select workspace</string>
+    <string name="workspace_ready">Your workspace is ready.</string>
+    <string name="workspace_change">Change workspace</string>
+    <string name="workspace_empty">You do not have access to a workspace yet.</string>
+    <string name="workspace_empty_detail">Ask your salon manager to check your membership.</string>
+    <string name="workspace_invalid">Your previous workspace access is no longer valid. Please select again.</string>
+    <string name="role_owner">Salon Owner</string>
+    <string name="role_manager">Salon Manager</string>
+    <string name="role_colorist">Colorist</string>
+    <string name="role_assistant">Assistant</string>
+    <string name="role_reception">Reception</string>
 </resources>
-

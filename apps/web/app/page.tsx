@@ -21,12 +21,11 @@ export default function HomePage() {
         <section className="foundation-card" aria-labelledby="foundation-title">
           <span className="status-mark" aria-hidden="true">✓</span>
           <div>
-            <h2 id="foundation-title">Temel hazırlanıyor</h2>
-            <p>Güvenli üyelik, konum erişimi ve platform altyapısı kuruldu.</p>
+            <h2 id="foundation-title">Salonunuza güvenle bağlanın</h2>
+            <p>Çalışma alanınıza salon üyeliğinizle erişin.</p>
           </div>
         </section>
       </main>
     </AppShell>
   );
 }
-

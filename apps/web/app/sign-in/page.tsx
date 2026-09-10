@@ -1,18 +1,11 @@
-import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
-
-export default function SignInPage() {
-  return (
-    <AppShell>
-      <main className="narrow-page" id="main-content">
-        <p className="eyebrow">Güvenli erişim</p>
-        <h1>Oturum açma akışı sonraki kimlik diliminde tamamlanacak.</h1>
-        <p className="lead">
-          Bu Phase 0 ekranı, korumalı çalışma alanının kimlik sınırını görünür kılar.
-        </p>
-        <Link className="text-link" href="/">Ana sayfaya dön</Link>
-      </main>
-    </AppShell>
-  );
+import { SignInForm } from "@/components/sign-in-form";
+import { tr } from "@/lib/i18n/tr";
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ reason?: string }> }) {
+  const { reason } = await searchParams;
+  return <AppShell><main className="narrow-page" id="main-content">
+    <p className="eyebrow">ELIFORA</p><h1>{tr.welcome}</h1><p className="lead">{tr.intro}</p>
+    {reason === "SESSION_EXPIRED" && <p role="alert">{tr.expired}</p>}
+    <SignInForm />
+  </main></AppShell>;
 }
-

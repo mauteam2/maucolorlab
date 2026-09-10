@@ -1,13 +1,101 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.0.1
-  description: Shared contract for future critical server-side operations.
+  version: 0.1.0
+  description: |
+    ELIFORA authentication and read-only tenant bootstrap. Auth uses Supabase Auth.
+    No tenancy creation is exposed. Contexts are server-verified display/selection
+    data; RLS must authorize every future operation independently.
 servers:
-  - url: https://api.dev.elifora.invalid
-    description: Development placeholder; no service is deployed in Phase 0.
-paths: {}
+  - url: /
+    description: ELIFORA web origin.
+paths:
+  /api/session:
+    get:
+      operationId: getVerifiedWorkspace
+      summary: Revalidate auth and the selected workspace
+      description: |
+        Uses Supabase session cookies. Reads fresh membership results on every request.
+        Responses are private, no-store. Returns no protected context on failure.
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Verified selected context
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [context, correlationId]
+                properties:
+                  context:
+                    $ref: '#/components/schemas/ActiveTenantContext'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /rest/v1/rpc/list_workspace_contexts:
+    post:
+      operationId: listWorkspaceContexts
+      summary: Read the authenticated user's usable organization/location memberships
+      servers:
+        - url: http://127.0.0.1:54321
+          description: Disposable local Supabase; configure environment origin for staging.
+      description: |
+        Direct Supabase PostgREST RPC with no parameters. SECURITY INVOKER and RLS.
+        Organization-wide memberships expand to active locations. Organizations with
+        no active locations return no usable context. Permissions come from role_permissions.
+        Supabase/PostgREST transport errors are normalized by the platform adapters;
+        the raw provider response does not implement the ELIFORA ErrorResponse envelope.
+      security:
+        - bearerAuth: []
+          publishableKey: []
+      responses:
+        '200':
+          description: Only the caller's active memberships in accessible active locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActiveTenantContext'
+        '401':
+          description: Missing or expired Supabase JWT
+        '403':
+          description: Anonymous or forbidden role
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    publishableKey:
+      type: apiKey
+      in: header
+      name: apikey
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: sb-project-ref-auth-token
+      description: Supabase SSR cookie name depends on project ref; may be chunked.
+  responses:
+    AccessError:
+      description: Stable access failure, with no tenant data
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   headers:
     CorrelationId:
       description: Identifier used to trace one operation without exposing sensitive data.
@@ -15,9 +103,46 @@ components:
         type: string
         format: uuid
   schemas:
+    ActiveTenantContext:
+      type: object
+      additionalProperties: false
+      required: [membership_id, organization_id, organization_name, location_id, location_name, role, membership_status, permissions]
+      properties:
+        membership_id:
+          type: string
+          format: uuid
+        organization_id:
+          type: string
+          format: uuid
+        organization_name:
+          type: string
+        location_id:
+          type: string
+          format: uuid
+        location_name:
+          type: string
+        role:
+          type: string
+          enum: [owner, manager, colorist, assistant, reception]
+        membership_status:
+          type: string
+          const: active
+        permissions:
+          type: array
+          items:
+            type: string
     ErrorCode:
       type: string
       enum:
+        - UNAUTHENTICATED
+        - SESSION_EXPIRED
+        - MEMBERSHIP_REQUIRED
+        - MEMBERSHIP_REVOKED
+        - TENANT_CONTEXT_INVALID
+        - FORBIDDEN
+        - INVALID_CREDENTIALS
+        - NETWORK_ERROR
+        - CONFIGURATION_ERROR
         - validation_failed
         - unauthorized
         - forbidden
