@@ -1,10 +1,13 @@
 "use server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { bootstrap } from "@/lib/tenant/bootstrap";
+import { AccessError, bootstrap } from "@/lib/tenant/bootstrap";
 import { resolveSelection, selectionCookie, workspaceReference } from "@/lib/tenant/context";
 export async function selectWorkspace(form: FormData) {
-  const contexts = await bootstrap();
+  const contexts = await bootstrap().catch((error: unknown) => {
+    if (error instanceof AccessError && error.status === 401) redirect("/sign-in?reason=" + error.code);
+    throw error;
+  });
   const selected = resolveSelection(contexts, String(form.get("reference") ?? "invalid"));
   if (!selected) {
     (await cookies()).delete(selectionCookie);

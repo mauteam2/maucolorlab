@@ -22,10 +22,10 @@ test-results/
 
 # Android / Gradle
 .gradle/
+.kotlin/
 **/build/
 captures/
 
 # Supabase local state
 supabase/.branches/
 supabase/.temp/
-

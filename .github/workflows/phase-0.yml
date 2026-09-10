@@ -55,6 +55,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run test
       - run: npm run build
+      - run: node scripts/verify-browser-bundle.mjs
+        working-directory: .
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - name: Stop local Supabase

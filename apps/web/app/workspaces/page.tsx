@@ -13,6 +13,7 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
     throw error;
   });
   const reference = (await cookies()).get(selectionCookie)?.value;
+  if (reference && !resolveSelection(contexts, reference)) redirect("/auth/workspace-reset");
   if (!query.choose && !query.reason && resolveSelection(contexts, reference)) redirect("/workspace");
   return <AppShell><main className="narrow-page" id="main-content">
     <h1>{contexts.length ? tr.select : tr.noMembership}</h1>

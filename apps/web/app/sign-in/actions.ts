@@ -4,16 +4,17 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { selectionCookie } from "@/lib/tenant/context";
-export async function signIn(_state: { code: string }, form: FormData): Promise<{ code: string }> {
+export async function signIn(_state: { code: string }, form: FormData): Promise<{ code: string; correlationId?: string }> {
+  const correlationId = crypto.randomUUID();
   const input = z.object({ email: z.email(), password: z.string().min(1).max(1024) }).safeParse({
     email: String(form.get("email") ?? "").trim(), password: form.get("password"),
   });
-  if (!input.success) return { code: "INVALID_CREDENTIALS" };
+  if (!input.success) return { code: "INVALID_CREDENTIALS", correlationId };
   try {
     const client = await createClient();
     const { error } = await client.auth.signInWithPassword(input.data);
-    if (error) return { code: error.status === 400 || error.status === 422 ? "INVALID_CREDENTIALS" : "NETWORK_ERROR" };
-  } catch { return { code: "NETWORK_ERROR" }; }
+    if (error) return { code: error.status === 400 || error.status === 422 ? "INVALID_CREDENTIALS" : "NETWORK_ERROR", correlationId };
+  } catch { return { code: "NETWORK_ERROR", correlationId }; }
   (await cookies()).delete(selectionCookie);
   redirect("/workspaces");
 }

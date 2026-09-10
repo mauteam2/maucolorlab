@@ -66,7 +66,7 @@ test("invalid credentials produce a useful error", async ({ page }) => {
   const account = await seedAccount();
   try {
     await login(page, { email: account.email, password: "incorrect-password" });
-    await expect(page.getByRole("alert")).toContainText("E-posta veya parola hatalı");
+    await expect(page.getByRole("main").getByRole("alert")).toContainText("E-posta veya parola hatalı");
     await page.goto("/workspace");
     await expect(page).toHaveURL(/\/sign-in/);
   } finally { await account.cleanup(); }
