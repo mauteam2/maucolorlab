@@ -1,0 +1,53 @@
+openapi: 3.1.0
+info:
+  title: ELIFORA Service API
+  version: 0.0.1
+  description: Shared contract for future critical server-side operations.
+servers:
+  - url: https://api.dev.elifora.invalid
+    description: Development placeholder; no service is deployed in Phase 0.
+paths: {}
+components:
+  headers:
+    CorrelationId:
+      description: Identifier used to trace one operation without exposing sensitive data.
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    ErrorCode:
+      type: string
+      enum:
+        - validation_failed
+        - unauthorized
+        - forbidden
+        - conflict
+        - domain_rule_failed
+        - internal_error
+    FieldError:
+      type: object
+      additionalProperties: false
+      required: [field, code]
+      properties:
+        field:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [code, message, correlationId]
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+        correlationId:
+          type: string
+          format: uuid
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldError'
