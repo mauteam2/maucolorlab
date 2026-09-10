@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ELIFORA</string>
+    <string name="home_eyebrow">PROFESSIONAL COLOR INTELLIGENCE</string>
+    <string name="home_title">A calm, dependable foundation for color work.</string>
+    <string name="home_body">A secure workspace for technical color decisions and salon operations.</string>
+    <string name="auth_status_signed_out">Signed out</string>
+</resources>
+

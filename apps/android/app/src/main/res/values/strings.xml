@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ELIFORA</string>
+    <string name="home_eyebrow">PROFESYONEL RENK ZEKÂSI</string>
+    <string name="home_title">Renk çalışmalarınız için sakin ve güvenilir bir temel.</string>
+    <string name="home_body">Teknik renk kararları ve salon operasyonları için güvenli çalışma alanı.</string>
+    <string name="auth_status_signed_out">Oturum açılmadı</string>
+</resources>
+
