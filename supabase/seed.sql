@@ -1,0 +1,1 @@
+-- Phase 0 deliberately has no shared sample salon or customer data.
