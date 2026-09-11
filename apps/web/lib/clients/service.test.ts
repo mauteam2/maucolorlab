@@ -31,3 +31,11 @@ it("normalizes provider authentication failures", async () => {
   mocks.rpc.mockResolvedValue({ error: { message: "provider details" }, status: 401 });
   await expect(executeClientCommand({ operation: "list", payload: {} }, "correlation")).rejects.toMatchObject({ code: "SESSION_EXPIRED", status: 401 });
 });
+it("a form opened in another workspace cannot create under a changed selection", async () => {
+  const command = { operation: "create" as const, payload: { full_name: "Person", phone: "05321234567", phone_region: "TR", request_id: "70000000-0000-4000-8000-000000000001" } };
+  await expect(executeClientCommand(command, "correlation", "old:workspace")).rejects.toMatchObject({ code: "TENANT_CONTEXT_INVALID" });
+  expect(mocks.rpc).not.toHaveBeenCalled();
+  await expect(executeClientCommand(command, "correlation")).rejects.toMatchObject({ code: "TENANT_CONTEXT_INVALID" });
+  await executeClientCommand(command, "correlation", "m:loc-a");
+  expect(mocks.rpc).toHaveBeenCalledOnce();
+});

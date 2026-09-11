@@ -74,6 +74,18 @@ paths:
   /api/clients:
     post:
       operationId: executeWebClientCommand
+      parameters:
+        - in: header
+          name: X-Workspace-Reference
+          required: false
+          description: |
+            Mandatory for create/update/archive/restore. The membership_id:location_id
+            from the form's verified context must match the freshly selected workspace.
+            Prevents another tab changing the destination of an open form. This is only
+            a precondition, never evidence of authorization. Mismatch/missing is
+            TENANT_CONTEXT_INVALID with no mutation.
+          schema:
+            type: string
       summary: List, search, create, read, update, archive or restore clients
       description: |
         Same-origin JSON request using session cookies. The server resolves the

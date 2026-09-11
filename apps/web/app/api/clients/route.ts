@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     try { body = JSON.parse(raw); } catch { throw new AccessError("VALIDATION_FAILED", 400); }
     const parsed = clientCommand.safeParse(body);
     if (!parsed.success) throw new AccessError("VALIDATION_FAILED", 400);
-    const result = await executeClientCommand(parsed.data, correlationId);
+    const result = await executeClientCommand(parsed.data, correlationId, request.headers.get("x-workspace-reference"));
     return Response.json(result, { headers, status: result.code ? errorStatus(result.code) : 200 });
   } catch (error) {
     const known = error instanceof AccessError ? error : new AccessError("NETWORK_ERROR", 503);

@@ -1,7 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { AccessError, bootstrap } from "@/lib/tenant/bootstrap";
-import { resolveSelection, selectionCookie, selectionError } from "@/lib/tenant/context";
+import { resolveSelection, selectionCookie, selectionError, workspaceReference } from "@/lib/tenant/context";
 import { createClient } from "@/lib/supabase/server";
 import { type Command, permissionFor } from "./contracts";
 
@@ -13,8 +13,12 @@ export async function verifiedClientContext(permission = "clients.read") {
   if (!context.permissions.includes(permission)) throw new AccessError("FORBIDDEN", 403);
   return context;
 }
-export async function executeClientCommand(command: Command, correlationId: string) {
+export async function executeClientCommand(command: Command, correlationId: string, expectedReference?: string | null) {
   const context = await verifiedClientContext(permissionFor(command.operation));
+  // A second tab may change the selected workspace while this form remains open.
+  // The reference is a precondition only; authorization always comes from fresh membership.
+  if (command.operation !== "list" && command.operation !== "detail" && expectedReference !== workspaceReference(context))
+    throw new AccessError("TENANT_CONTEXT_INVALID", 403);
   const client = await createClient();
   const { data, error, status } = await client.rpc("client_operation", {
     p_membership_id: context.membership_id, p_location_id: context.location_id,

@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
-select plan(63);
+select plan(69);
 insert into auth.users(id,email,raw_user_meta_data) values
  ('12000000-0000-4000-8000-000000000001','client-owner-a@elifora.test','{}'),
  ('12000000-0000-4000-8000-000000000002','client-owner-b@elifora.test','{}'),
@@ -113,6 +113,15 @@ select throws_ok($$select * from app_private.client_duplicate_reviews$$,'42501',
 select throws_ok($$select * from app_private.client_mutation_receipts$$,'42501',null,'mutation receipts are not readable by application role');
 select is((select count(*) from public.audit_events where action='client.updated'),1::bigint,'retries create no duplicate audit');
 select ok(not exists(select 1 from public.audit_events where metadata::text like '%confirmation_token%' or metadata::text like '%request_id%'),'audit excludes review tokens and raw request keys');
+insert into results values('expiry-review',pg_temp.call_client('create',jsonb_build_object('full_name','Expired Review','phone','05321234567','request_id',gen_random_uuid())));
+reset role;
+update app_private.client_duplicate_reviews set expires_at=now()-interval '1 minute' where token=(select (value->>'confirmation_token')::uuid from results where key='expiry-review');
+set local role authenticated;
+select is(pg_temp.call_client('create',jsonb_build_object('full_name','Expired Review','phone','05321234567','request_id',gen_random_uuid(),
+ 'confirmation_token',(select value->>'confirmation_token' from results where key='expiry-review')))->>'code','DUPLICATE_CONFIRMATION_INVALID','expired review cannot authorize creation');
+reset role;
+select throws_ok($$delete from public.clients where id=(select (value->'data'->>'id')::uuid from results where key='a')$$,'23514','client identity cannot be deleted','hard-delete trigger preserves history even under table owner');
+set local role authenticated;
 reset role;
 select set_config('request.jwt.claim.sub','12000000-0000-4000-8000-000000000003',true);
 set local role authenticated;
@@ -125,7 +134,20 @@ select set_config('request.jwt.claim.sub','12000000-0000-4000-8000-000000000001'
 set local role authenticated;
 select is((select count(*) from public.clients),0::bigint,'revoked membership immediately loses read access');
 select is(pg_temp.call_client('list','{}')->>'code','TENANT_CONTEXT_INVALID','revoked selected context cannot use service');
+select is(pg_temp.call_client('create',jsonb_build_object('full_name','Revoked','phone','05329990009','request_id',gen_random_uuid()))->>'code','TENANT_CONTEXT_INVALID','revoked member cannot mutate');
 reset role;
+update public.locations set archived_at=now() where id='32000000-0000-4000-8000-000000000002';
+select set_config('request.jwt.claim.sub','12000000-0000-4000-8000-000000000003',true);
+set local role authenticated;
+select is((select count(*) from public.clients),0::bigint,'archived membership location loses RLS access');
+reset role;
+update public.locations set archived_at=null where id='32000000-0000-4000-8000-000000000002';
+update public.salon_memberships set status='invited',joined_at=null where id='42000000-0000-4000-8000-000000000003';
+set local role authenticated;
+select is((select count(*) from public.clients),0::bigint,'inactive invited membership cannot read clients');
+select is(public.client_operation('42000000-0000-4000-8000-000000000003','32000000-0000-4000-8000-000000000002','list','{}')->>'code','TENANT_CONTEXT_INVALID','inactive membership cannot invoke service');
+reset role;
+update public.salon_memberships set status='active',joined_at=now() where id='42000000-0000-4000-8000-000000000003';
 update public.organizations set archived_at=now() where id='22000000-0000-4000-8000-000000000001';
 select set_config('request.jwt.claim.sub','12000000-0000-4000-8000-000000000003',true);
 set local role authenticated;

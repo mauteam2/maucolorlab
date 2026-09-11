@@ -27,7 +27,7 @@ export function ClientWorkspace({ route }: { route: string }) {
   const busy = useRef(false);
   const archiveRequest = useRef<string | null>(null);
   const call = useCallback(async (operation: string, payload: object) => {
-    const response = await fetch("/api/clients", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ operation, payload }), cache: "no-store", signal: AbortSignal.timeout(10000) });
+    const response = await fetch("/api/clients", { method: "POST", headers: { "Content-Type": "application/json", ...(scope.current ? { "X-Workspace-Reference": scope.current } : {}) }, body: JSON.stringify({ operation, payload }), cache: "no-store", signal: AbortSignal.timeout(10000) });
     const body = await response.json();
     if (response.status === 401) { window.location.replace("/sign-in?reason=SESSION_EXPIRED"); throw new Error("SESSION_EXPIRED"); }
     if (["TENANT_CONTEXT_INVALID", "NO_ACTIVE_MEMBERSHIP"].includes(body.code)) { window.location.replace("/auth/workspace-reset"); throw new Error(body.code); }
