@@ -10,15 +10,27 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.elifora.app.domain.auth.WorkspaceState
 import com.elifora.app.ui.EliforaApp
+import com.elifora.app.ui.ClientScreens
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val controller get() = (application as EliforaApplication).container.workspaceController
+    private val clients get() = (application as EliforaApplication).container.clientController
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        lifecycleScope.launch {
+            controller.state.collectLatest { state ->
+                when (state) {
+                    is WorkspaceState.Ready -> clients.bind(state.context)
+                    WorkspaceState.LoadingSession, WorkspaceState.LoadingMemberships -> clients.conceal()
+                    else -> clients.invalidate()
+                }
+            }
+        }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 controller.restore()
@@ -35,11 +47,13 @@ class MainActivity : ComponentActivity() {
                 signIn = { email, password -> lifecycleScope.launch { controller.signIn(email, password) } },
                 select = { lifecycleScope.launch { controller.select(it) } },
                 retry = { lifecycleScope.launch { controller.restore() } },
-                change = { lifecycleScope.launch { controller.changeWorkspace() } },
-                logout = { lifecycleScope.launch { controller.logout() } })
+                change = { clients.invalidate(); lifecycleScope.launch { controller.changeWorkspace() } },
+                logout = { clients.invalidate(); lifecycleScope.launch { controller.logout() } },
+                clients = { permissions -> ClientScreens(clients, permissions) })
         }
     }
     override fun onStop() {
+        clients.conceal()
         controller.conceal()
         super.onStop()
     }

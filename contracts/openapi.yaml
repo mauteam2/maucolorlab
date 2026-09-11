@@ -1,11 +1,11 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.1.0
+  version: 0.2.0
   description: |
-    ELIFORA authentication and read-only tenant bootstrap. Auth uses Supabase Auth.
-    No tenancy creation is exposed. Contexts are server-verified display/selection
-    data; RLS must authorize every future operation independently.
+    ELIFORA authentication, verified workspace, and organization client identity.
+    Auth uses Supabase Auth. Every client operation revalidates membership and
+    permission server-side, with RLS in depth. No tenancy creation is exposed.
 servers:
   - url: /
     description: ELIFORA web origin.
@@ -71,6 +71,109 @@ paths:
           description: Missing or expired Supabase JWT
         '403':
           description: Anonymous or forbidden role
+  /api/clients:
+    post:
+      operationId: executeWebClientCommand
+      summary: List, search, create, read, update, archive or restore clients
+      description: |
+        Same-origin JSON request using session cookies. The server resolves the
+        selected workspace cookie against fresh memberships; scope is never accepted
+        in the command. Every response is private, no-store with X-Correlation-ID.
+        list defaults ACTIVE, 25 rows; offset maximum 10000, limit maximum 50.
+        detail explicitly retrieves active or archived identity. Mutations require
+        request_id; update/archive/restore also require expected_version.
+        Phone is a non-unique signal. TR national formats and international +/00
+        country-code formats are normalized. Other national regions require explicit
+        country codes. Format validation does not verify number ownership or carrier.
+        Duplicate review includes active and archived same-organization candidates,
+        at most 10 masked summaries, using exact phone/name/email or birth date with
+        name prefix. A 10-minute single-use token binds actor, selected membership,
+        location, operation, exact payload and candidate versions. Submit unchanged
+        fields/request_id plus confirmation_token after explicit separate-person
+        review. Expired/changed reviews must be requested again without the token.
+        Never auto-merge. Successful retries of the identical request_id and payload
+        return the original result for 24 hours without another write/audit event.
+        Reusing the key for a different payload returns CONFLICT. Retrying an uncertain
+        mutation must retain its request_id, including confirmation_token if present.
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientCommand'
+      responses:
+        '200':
+          description: Client result plus freshly verified context
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ClientResult'
+                  - type: object
+                    required: [context]
+                    properties:
+                      context:
+                        $ref: '#/components/schemas/ActiveTenantContext'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          description: Duplicate review, invalid confirmation, version conflict or archived client
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /rest/v1/rpc/client_operation:
+    post:
+      operationId: executeNativeClientCommand
+      summary: Authenticated client service RPC used by Android and the Web server
+      servers:
+        - url: http://127.0.0.1:54321
+          description: Disposable local Supabase; never connect development to production.
+      description: |
+        p_membership_id/p_location_id are untrusted selection references. The service
+        derives organization, actor and permissions from current database membership.
+        Public wrapper is SECURITY INVOKER; private service uses a NOLOGIN NOBYPASSRLS
+        non-table-owner role. Authenticated users have no direct client mutation grants.
+        Same semantics as /api/clients. Logical errors use HTTP 200 with ErrorResponse
+        so duplicate-review issuance commits without writing a client. Native adapter
+        distinguishes data from code; Web adapter maps logical errors to HTTP statuses.
+        PostgREST transport errors are normalized separately by adapters. RPC correlation
+        is in the body (p_correlation_id), independent of gateway transport headers.
+      security:
+        - bearerAuth: []
+          publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientRpcCommand'
+      responses:
+        '200':
+          description: Logical client result or stable domain error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ClientResult'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing or expired JWT (provider envelope)
+        '403':
+          description: Anonymous or forbidden role (provider envelope)
 components:
   securitySchemes:
     bearerAuth:
@@ -88,7 +191,7 @@ components:
       description: Supabase SSR cookie name depends on project ref; may be chunked.
   responses:
     AccessError:
-      description: Stable access failure, with no tenant data
+      description: Stable failure; only duplicate review may include authorized masked candidates
       headers:
         X-Correlation-ID:
           $ref: '#/components/headers/CorrelationId'
@@ -103,6 +206,703 @@ components:
         type: string
         format: uuid
   schemas:
+    ClientStatus:
+      {
+        "type": "string",
+        "enum": [
+          "ACTIVE",
+          "ARCHIVED"
+        ]
+      }
+    ClientSummary:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "full_name",
+          "phone_masked",
+          "status",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "phone_masked": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ClientStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    DuplicateCandidate:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "full_name",
+          "phone_masked",
+          "status",
+          "updated_at",
+          "signals"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "phone_masked": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ClientStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PHONE",
+                "NAME",
+                "EMAIL",
+                "BIRTH_DATE"
+              ]
+            }
+          }
+        }
+      }
+    Client:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "organization_id",
+          "full_name",
+          "phone",
+          "phone_normalized",
+          "email",
+          "birth_date",
+          "status",
+          "version",
+          "created_at",
+          "updated_at",
+          "created_by",
+          "updated_by",
+          "creation_location_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "phone_normalized": {
+            "type": "string",
+            "pattern": "^\\+[1-9][0-9]{7,14}$"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "birth_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ClientStatus"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "creation_location_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    ClientDirectory:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "has_more",
+          "offset"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/ClientSummary"
+            }
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          }
+        }
+      }
+    ClientResult:
+      {
+        "type": "object",
+        "required": [
+          "data",
+          "correlationId"
+        ],
+        "properties": {
+          "data": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ClientDirectory"
+              },
+              {
+                "$ref": "#/components/schemas/Client"
+              }
+            ]
+          },
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    ClientListPayload:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 80,
+            "default": ""
+          },
+          "status": {
+            "$ref": "#/components/schemas/ClientStatus",
+            "default": "ACTIVE"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000,
+            "default": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 25
+          }
+        }
+      }
+    ClientDetailPayload:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "client_id"
+        ],
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    ClientCreatePayload:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "full_name",
+          "phone",
+          "request_id"
+        ],
+        "properties": {
+          "full_name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 40
+          },
+          "phone_region": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "default": "TR"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 254,
+            "description": "Optional email; null/empty clears it."
+          },
+          "birth_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "YYYY-MM-DD between 1900-01-01 and today; null/empty clears it."
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "confirmation_token": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    ClientUpdatePayload:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "client_id",
+          "expected_version",
+          "request_id",
+          "full_name",
+          "phone"
+        ],
+        "properties": {
+          "full_name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 160
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 40
+          },
+          "phone_region": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "default": "TR"
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 254,
+            "description": "Optional email; null/empty clears it."
+          },
+          "birth_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "YYYY-MM-DD between 1900-01-01 and today; null/empty clears it."
+          },
+          "client_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "confirmation_token": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    ClientLifecyclePayload:
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "client_id",
+          "expected_version",
+          "request_id"
+        ],
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    ClientCommand:
+      {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operation",
+              "payload"
+            ],
+            "properties": {
+              "operation": {
+                "type": "string",
+                "const": "list"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/ClientListPayload"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operation",
+              "payload"
+            ],
+            "properties": {
+              "operation": {
+                "type": "string",
+                "const": "detail"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/ClientDetailPayload"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operation",
+              "payload"
+            ],
+            "properties": {
+              "operation": {
+                "type": "string",
+                "const": "create"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/ClientCreatePayload"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operation",
+              "payload"
+            ],
+            "properties": {
+              "operation": {
+                "type": "string",
+                "const": "update"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/ClientUpdatePayload"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operation",
+              "payload"
+            ],
+            "properties": {
+              "operation": {
+                "type": "string",
+                "const": "archive"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/ClientLifecyclePayload"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "operation",
+              "payload"
+            ],
+            "properties": {
+              "operation": {
+                "type": "string",
+                "const": "restore"
+              },
+              "payload": {
+                "$ref": "#/components/schemas/ClientLifecyclePayload"
+              }
+            }
+          }
+        ]
+      }
+    ClientRpcCommand:
+      {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "p_membership_id",
+              "p_location_id",
+              "p_operation",
+              "p_payload",
+              "p_correlation_id"
+            ],
+            "properties": {
+              "p_membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_location_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_operation": {
+                "type": "string",
+                "const": "list"
+              },
+              "p_payload": {
+                "$ref": "#/components/schemas/ClientListPayload"
+              },
+              "p_correlation_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "p_membership_id",
+              "p_location_id",
+              "p_operation",
+              "p_payload",
+              "p_correlation_id"
+            ],
+            "properties": {
+              "p_membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_location_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_operation": {
+                "type": "string",
+                "const": "detail"
+              },
+              "p_payload": {
+                "$ref": "#/components/schemas/ClientDetailPayload"
+              },
+              "p_correlation_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "p_membership_id",
+              "p_location_id",
+              "p_operation",
+              "p_payload",
+              "p_correlation_id"
+            ],
+            "properties": {
+              "p_membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_location_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_operation": {
+                "type": "string",
+                "const": "create"
+              },
+              "p_payload": {
+                "$ref": "#/components/schemas/ClientCreatePayload"
+              },
+              "p_correlation_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "p_membership_id",
+              "p_location_id",
+              "p_operation",
+              "p_payload",
+              "p_correlation_id"
+            ],
+            "properties": {
+              "p_membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_location_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_operation": {
+                "type": "string",
+                "const": "update"
+              },
+              "p_payload": {
+                "$ref": "#/components/schemas/ClientUpdatePayload"
+              },
+              "p_correlation_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "p_membership_id",
+              "p_location_id",
+              "p_operation",
+              "p_payload",
+              "p_correlation_id"
+            ],
+            "properties": {
+              "p_membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_location_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_operation": {
+                "type": "string",
+                "const": "archive"
+              },
+              "p_payload": {
+                "$ref": "#/components/schemas/ClientLifecyclePayload"
+              },
+              "p_correlation_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "p_membership_id",
+              "p_location_id",
+              "p_operation",
+              "p_payload",
+              "p_correlation_id"
+            ],
+            "properties": {
+              "p_membership_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_location_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "p_operation": {
+                "type": "string",
+                "const": "restore"
+              },
+              "p_payload": {
+                "$ref": "#/components/schemas/ClientLifecyclePayload"
+              },
+              "p_correlation_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ]
+      }
     ActiveTenantContext:
       type: object
       additionalProperties: false
@@ -143,6 +943,12 @@ components:
         - INVALID_CREDENTIALS
         - NETWORK_ERROR
         - CONFIGURATION_ERROR
+        - VALIDATION_FAILED
+        - CONFLICT
+        - CLIENT_NOT_FOUND
+        - CLIENT_ARCHIVED
+        - DUPLICATE_CLIENT_CANDIDATES
+        - DUPLICATE_CONFIRMATION_INVALID
         - validation_failed
         - unauthorized
         - forbidden
@@ -176,3 +982,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FieldError'
+        candidates:
+          description: Present only for DUPLICATE_CLIENT_CANDIDATES; same organization, maximum 10.
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/DuplicateCandidate'
+        confirmation_token:
+          description: Present only with duplicate candidates; sensitive, never log or persist on device.
+          type: string
+          format: uuid

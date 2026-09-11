@@ -247,6 +247,29 @@ h1 {
   text-underline-offset: 0.25em;
 }
 
+.clients-page { padding-top: 2rem; }
+.clients-page nav { margin-bottom: 2.5rem; font-size: .875rem; }
+.clients-page h1 { overflow-wrap: anywhere; }
+.client-heading, .client-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.client-heading { justify-content: space-between; }
+.client-search { display: grid; gap: .75rem; margin: 2rem 0; }
+.client-search input, .client-search select { min-height: 3rem; padding: .75rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); font: inherit; max-width: 100%; }
+.client-search input { flex: 1; min-width: 10rem; }
+.client-list { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: .75rem; }
+.client-list a { display: grid; gap: .5rem; padding: 1.25rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); text-decoration: none; overflow-wrap: anywhere; }
+.client-list a:hover { border-color: var(--color-primary); }
+.client-list span, .client-list small { color: var(--color-text-muted); }
+.client-notice { padding: 1.5rem; margin: 1.5rem 0; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.client-notice h2 { margin-top: 0; font-size: 1.25rem; }
+.client-notice p { line-height: 1.6; }
+.client-form fieldset { display: grid; gap: .75rem; margin: 0; padding: 0; border: 0; min-width: 0; }
+.client-form legend { margin-bottom: 1.25rem; color: var(--color-text-muted); }
+.client-form small { color: var(--color-text-muted); line-height: 1.5; }
+.client-details { display: grid; grid-template-columns: minmax(6rem, 1fr) minmax(0, 2fr); gap: 1.25rem; padding: 1.5rem; background: var(--color-surface); border-radius: var(--radius-md); border: 1px solid var(--color-border); margin: 2rem 0; }
+.client-details dt { color: var(--color-text-muted); }
+.client-details dd { margin: 0; overflow-wrap: anywhere; }
+.client-status { color: var(--color-primary); font-weight: 650; }
+
 @media (max-width: 36rem) {
   .site-header {
     min-height: 4rem;

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AppShell } from "./app-shell";
 import { type ActiveTenantContext, tenantContextSchema } from "@/lib/tenant/context";
 import { tr } from "@/lib/i18n/tr";
@@ -40,6 +41,7 @@ export function WorkspaceShell() {
   return <AppShell><main className="narrow-page" id="main-content">
     {context ? <><p className="eyebrow">{context.organization_name} · {context.location_name}</p>
       <h1>{tr.ready}</h1><p className="lead">{tr.roles[context.role]}</p>
+      {context.permissions.includes("clients.read") && <Link prefetch={false} className="button button-primary" href="/workspace/clients">Müşteriler</Link>}
       <form action={changeWorkspace}><button className="button button-secondary">{tr.change}</button></form></>
       : <p role="status">{failed ? tr.network : tr.loading}</p>}
     {failed && <a href="/workspace" className="text-link">{tr.retry}</a>}

@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
-select plan(43);
+select plan(63);
 insert into auth.users(id,email,raw_user_meta_data) values
  ('12000000-0000-4000-8000-000000000001','client-owner-a@elifora.test','{}'),
  ('12000000-0000-4000-8000-000000000002','client-owner-b@elifora.test','{}'),
@@ -87,6 +87,32 @@ insert into results values('restored',pg_temp.call_client('restore',jsonb_build_
  'client_id',(select value->'data'->>'id' from results where key='a'),'expected_version',2,'request_id',gen_random_uuid())));
 select is((select value->'data'->>'status' from results where key='restored'),'ACTIVE','restore returns active identity');
 select is((select count(*) from public.audit_events where action in ('client.archived','client.restored')),2::bigint,'archive and restore history retained');
+-- Phone edits use the same review protocol and preserve optimistic concurrency/audit.
+insert into results values('edit-payload',jsonb_build_object('client_id',(select value->'data'->>'id' from results where key='international'),
+ 'expected_version',1,'full_name','International Client','phone','+905321234567','request_id','72000000-0000-4000-8000-000000000020'));
+insert into results values('edit-review',pg_temp.call_client('update',(select value from results where key='edit-payload')));
+select is((select value->>'code' from results where key='edit-review'),'DUPLICATE_CLIENT_CANDIDATES','phone change must be reviewed');
+select is((select phone_normalized from public.clients where id=(select (value->'data'->>'id')::uuid from results where key='international')),'+447700900123','review does not mutate old phone');
+insert into results values('edit-confirmed-payload',(select value from results where key='edit-payload')||jsonb_build_object('confirmation_token',(select value->>'confirmation_token' from results where key='edit-review')));
+insert into results values('edited',pg_temp.call_client('update',(select value from results where key='edit-confirmed-payload')));
+select is((select value->'data'->>'phone_normalized' from results where key='edited'),'+905321234567','explicit reviewed phone update succeeds');
+select is((select value->'data'->>'version' from results where key='edited'),'2','update increments version');
+select is((select metadata->'old'->>'phone' from public.audit_events where action='client.updated'),'+447700900123','update audit retains old phone');
+select is((select metadata->'new'->>'phone' from public.audit_events where action='client.updated'),'+905321234567','update audit retains new phone');
+select is(pg_temp.call_client('update',(select value from results where key='edit-confirmed-payload'))->'data'->>'version','2','confirmed update retry is idempotent');
+select is(pg_temp.call_client('update',(select value from results where key='edit-confirmed-payload')||jsonb_build_object('request_id',gen_random_uuid(),'expected_version',2))->>'code','DUPLICATE_CONFIRMATION_INVALID','consumed confirmation cannot be replayed with a new request');
+select is(pg_temp.call_client('update',(select value from results where key='edit-payload')||jsonb_build_object('request_id',gen_random_uuid()))->>'code','CONFLICT','stale version cannot overwrite changes');
+select is(pg_temp.call_client('update',(select value from results where key='edit-confirmed-payload')||'{"full_name":"Altered"}'::jsonb)->>'code','CONFLICT','idempotency key cannot authorize another payload');
+select is(pg_temp.call_client('create',jsonb_build_object('full_name','Other Name','phone','05329990001','email','elif@example.test','request_id',gen_random_uuid()))->>'code','DUPLICATE_CLIENT_CANDIDATES','email independently signals duplicates');
+select is(pg_temp.call_client('create',jsonb_build_object('full_name','  ELİF  YILMAZ','phone','05329990002','request_id',gen_random_uuid()))->>'code','DUPLICATE_CLIENT_CANDIDATES','exact normalized name independently signals duplicates');
+select is(pg_temp.call_client('create',jsonb_build_object('full_name','Elif Other','phone','05329990003','birth_date','1990-05-01','request_id',gen_random_uuid()))->'candidates'->0->'signals'->>0,'BIRTH_DATE','birth date plus name prefix contributes a review signal');
+select is(pg_temp.call_client('create',jsonb_build_object('full_name','Invalid Phone','phone','0532INVALID','request_id',gen_random_uuid()))->>'code','VALIDATION_FAILED','service rejects malformed phone');
+select is(pg_temp.call_client('create',jsonb_build_object('full_name','Invalid Date','phone','05329990004','birth_date','2999-01-01','request_id',gen_random_uuid()))->>'code','VALIDATION_FAILED','future birth dates rejected');
+select throws_ok($$delete from public.clients$$,'42501',null,'normal role cannot hard delete');
+select throws_ok($$select * from app_private.client_duplicate_reviews$$,'42501',null,'review tokens are not readable by application role');
+select throws_ok($$select * from app_private.client_mutation_receipts$$,'42501',null,'mutation receipts are not readable by application role');
+select is((select count(*) from public.audit_events where action='client.updated'),1::bigint,'retries create no duplicate audit');
+select ok(not exists(select 1 from public.audit_events where metadata::text like '%confirmation_token%' or metadata::text like '%request_id%'),'audit excludes review tokens and raw request keys');
 reset role;
 select set_config('request.jwt.claim.sub','12000000-0000-4000-8000-000000000003',true);
 set local role authenticated;
