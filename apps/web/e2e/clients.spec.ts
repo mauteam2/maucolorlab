@@ -138,5 +138,6 @@ test("periodic permission checks retain form focus and draft", async ({ page }) 
   const name = page.getByLabel("Ad Soyad *"); await name.fill("Draft Person");
   const refresh = page.waitForResponse(response => response.url().endsWith("/api/clients") && response.request().postDataJSON().operation === "list", { timeout: 20000 });
   await refresh;
+  await expect(page.getByRole("button", { name: "Müşteri Oluştur" })).toBeEnabled();
   await expect(name).toBeFocused(); await expect(name).toHaveValue("Draft Person");
 });

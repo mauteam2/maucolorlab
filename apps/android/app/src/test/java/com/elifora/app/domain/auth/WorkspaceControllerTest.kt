@@ -33,7 +33,7 @@ class WorkspaceControllerTest {
         current.restore(); gate = CompletableDeferred()
         val refresh = launch { current.refresh() }; yield()
         assertEquals(WorkspaceState.Ready(a), current.state.value)
-        rows = emptyList(); gate!!.complete(Unit); refresh.join()
+        rows = emptyList(); gate.complete(Unit); refresh.join()
         assertTrue(current.state.value is WorkspaceState.NoMembership)
     }
     @Test fun missingSessionClearsReference() = runBlocking {
