@@ -179,7 +179,6 @@ declare
  v_client public.clients%rowtype; v_old public.clients%rowtype;
  v_request uuid; v_token uuid; v_name text; v_phone text; v_email text; v_birth date;
  v_hash text; v_candidate_hash text; v_receipt app_private.client_mutation_receipts%rowtype;
- v_review app_private.client_duplicate_reviews%rowtype;
  v_candidates jsonb; v_data jsonb; v_response jsonb; v_query text; v_digits text;
  v_offset integer; v_limit integer; v_status text; v_confirmed boolean:=false;
 begin
@@ -297,7 +296,7 @@ begin
   if jsonb_array_length(v_candidates)>0 then
    v_token:=nullif(p_payload->>'confirmation_token','')::uuid;
    if v_token is not null then
-    select * into v_review from app_private.client_duplicate_reviews r where r.token=v_token and r.organization_id=v_org
+    perform 1 from app_private.client_duplicate_reviews r where r.token=v_token and r.organization_id=v_org
       and r.actor_id=v_actor and r.membership_id=p_membership_id and r.location_id=p_location_id and r.operation=p_operation
       and r.expires_at>now() and r.payload_hash=encode(extensions.digest((p_payload-'request_id'-'confirmation_token')::text,'sha256'),'hex')
       and r.candidates_hash=v_candidate_hash;
