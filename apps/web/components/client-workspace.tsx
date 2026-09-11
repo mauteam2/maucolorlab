@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "./app-shell";
 import { type ActiveTenantContext, tenantContextSchema, workspaceReference } from "@/lib/tenant/context";
 import { type Candidate, type Client, type Directory, clientDetail, clientDirectory, duplicateCandidate, clientErrorText } from "@/lib/clients/contracts";
+import { formatClientDate as date } from "@/lib/clients/display";
 
 type Draft = { full_name: string; phone: string; email: string; birth_date: string; request_id: string; expected_version?: number };
 type Review = { candidates: Candidate[]; token: string };
-const date = (value: string) => new Date(value).toLocaleDateString("tr-TR");
 export function ClientWorkspace({ route }: { route: string }) {
   const router = useRouter();
   const [context, setContext] = useState<ActiveTenantContext | null>(null);
