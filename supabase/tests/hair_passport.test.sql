@@ -162,7 +162,11 @@ select throws_ok($$insert into public.hair_observations(organization_id,client_i
 select throws_ok($$insert into public.hair_physical_tests(organization_id,client_id,passport_id,evidence_id,test_type,result_state,result,performed_by,performed_at) values('a1000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000031','a1000000-0000-4000-8000-000000000041','a1000000-0000-4000-8000-000000000063','POROSITY','KNOWN','High absorption','a1000000-0000-4000-8000-000000000021',now())$$,'42501',null,'hair_physical_tests has no direct application write');
 select throws_ok($$insert into public.hair_history_events(organization_id,client_id,passport_id,evidence_id,category,description) values('a1000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000031','a1000000-0000-4000-8000-000000000041','a1000000-0000-4000-8000-000000000061','COLOR','Synthetic prior color')$$,'42501',null,'hair_history_events has no direct application write');
 select throws_ok($$insert into public.hair_history_regions(organization_id,client_id,passport_id,history_event_id,region_id) values('a1000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000031','a1000000-0000-4000-8000-000000000041','a1000000-0000-4000-8000-000000000091','a1000000-0000-4000-8000-000000000051')$$,'42501',null,'hair_history_regions has no direct application write');
-select throws_ok($$set role elifora_hair_writer$$,'42501',null,'application cannot elevate to internal writer');
+-- SET ROLE checks session_user, which remains the privileged postgres test runner.
+-- Test the exact SET capability for both the API gateway and application role.
+select ok(not pg_has_role('authenticator','elifora_hair_writer','SET')
+ and not pg_has_role('authenticated','elifora_hair_writer','SET'),
+ 'application gateway and authenticated cannot elevate to internal writer');
 reset role;
 select set_config('request.jwt.claim.sub','a1000000-0000-4000-8000-000000000021',true);
 set local role anon;
