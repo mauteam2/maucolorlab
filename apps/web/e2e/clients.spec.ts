@@ -133,3 +133,10 @@ test("concurrent creates and confirmations cannot skip duplicate review", async 
   expect(confirmations.find(result => result.status === 409)?.body.code).toBe("DUPLICATE_CONFIRMATION_INVALID");
   expect((await command(page, "list", {})).body.data.items).toHaveLength(2);
 });
+test("periodic permission checks retain form focus and draft", async ({ page }) => {
+  await start(page); await page.goto("/workspace/clients/new");
+  const name = page.getByLabel("Ad Soyad *"); await name.fill("Draft Person");
+  const refresh = page.waitForResponse(response => response.url().endsWith("/api/clients") && response.request().postDataJSON().operation === "list", { timeout: 20000 });
+  await refresh;
+  await expect(name).toBeFocused(); await expect(name).toHaveValue("Draft Person");
+});

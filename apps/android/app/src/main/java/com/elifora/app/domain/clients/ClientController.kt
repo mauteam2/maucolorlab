@@ -20,7 +20,8 @@ class ClientController(private val repository: ClientRepository) {
     private val mutex = Mutex()
     fun conceal() { generation++; mutable.value = ClientState.Loading }
     fun invalidate() { conceal(); context = null; content = null; lastCommand = ClientCommand.ListClients() }
-    suspend fun bind(next: ActiveTenantContext) {
+    suspend fun bind(next: ActiveTenantContext, keepVisible: Boolean = false) {
+        if (keepVisible && mutable.value is ClientState.Saving) return
         if (context?.reference != next.reference || context?.organizationId != next.organizationId) invalidate()
         context = next
         val previous = content
@@ -32,7 +33,7 @@ class ClientController(private val repository: ClientRepository) {
             is ClientContent.Empty -> previous.filter
             null -> ClientCommand.ListClients()
         }
-        run(check, resume = previous)
+        run(check, resume = previous, keepVisible = keepVisible)
     }
     suspend fun list(query: String = "", status: ClientStatus = ClientStatus.ACTIVE, offset: Int = 0) = run(ClientCommand.ListClients(query, status, offset))
     suspend fun open(id: String) = run(ClientCommand.Detail(id))
@@ -67,13 +68,13 @@ class ClientController(private val repository: ClientRepository) {
         if (context?.permissions?.contains(permission) == true) return true
         mutable.value = ClientState.Error(ClientFailure("FORBIDDEN")); return false
     }
-    private suspend fun run(command: ClientCommand, resume: ClientContent? = null) {
+    private suspend fun run(command: ClientCommand, resume: ClientContent? = null, keepVisible: Boolean = false) {
         val selected = context ?: return
         val permission = when (command) { is ClientCommand.Save -> if (command.draft.clientId == null) "clients.create" else "clients.update"; is ClientCommand.Lifecycle -> "clients.archive"; else -> "clients.read" }
         if (!allowed(permission)) return
         val current = ++generation
         if (resume == null) lastCommand = command
-        mutable.value = if (command is ClientCommand.Save || command is ClientCommand.Lifecycle) ClientState.Saving else ClientState.Loading
+        if (!keepVisible) mutable.value = if (command is ClientCommand.Save || command is ClientCommand.Lifecycle) ClientState.Saving else ClientState.Loading
         mutex.withLock {
             if (current != generation) return
             try {

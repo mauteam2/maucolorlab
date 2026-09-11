@@ -19,6 +19,7 @@ export function ClientWorkspace({ route }: { route: string }) {
   const [archive, setArchive] = useState(false);
   const [visible, setVisible] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [error, setError] = useState<{ code: string; correlationId?: string } | null>(null);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState({ query: "", status: "ACTIVE", offset: 0 });
@@ -43,17 +44,18 @@ export function ClientWorkspace({ route }: { route: string }) {
     }
     return body;
   }, []);
-  const verify = useCallback(async () => {
+  const verify = useCallback(async (keepVisible = false) => {
     if (busy.current || document.hidden || !navigator.onLine) return;
     busy.current = true;
+    setChecking(true);
     const current = ++generation.current;
-    setVisible(false);
+    if (!keepVisible) setVisible(false);
     try {
       const body = await call(route === "directory" || route === "new" ? "list" : "detail", route === "directory" ? { ...filter, limit: 25 } : route === "new" ? { limit: 1 } : { client_id: route });
       if (current !== generation.current || document.hidden || !navigator.onLine) return;
-      if (body.code) { setError(body); return; }
+      if (body.code) { setVisible(false); setError(body); return; }
       const next = tenantContextSchema.parse(body.context);
-      if (route === "new" && !next.permissions.includes("clients.create")) { setError({ code: "FORBIDDEN" }); return; }
+      if (route === "new" && !next.permissions.includes("clients.create")) { setVisible(false); setError({ code: "FORBIDDEN" }); return; }
       setContext(next);
       if (route === "directory") setDirectory(clientDirectory.parse(body.data));
       else if (route !== "new") {
@@ -63,19 +65,20 @@ export function ClientWorkspace({ route }: { route: string }) {
       }
       else setDraft(previous => previous ?? { full_name: "", phone: "", email: "", birth_date: "", request_id: crypto.randomUUID() });
       setError(null); setVisible(true);
-    } catch { if (current === generation.current) setError({ code: "NETWORK_ERROR" }); }
-    finally { busy.current = false; }
+    } catch { if (current === generation.current) { setVisible(false); setError({ code: "NETWORK_ERROR" }); } }
+    finally { busy.current = false; setChecking(false); }
   }, [route, filter, call]);
   useEffect(() => {
     let mounted = true;
     const invalidate = () => { generation.current++; };
+    const foreground = () => { void verify(); };
     const hide = () => { generation.current++; setVisible(false); if (!document.hidden) void verify(); };
     const offline = () => { generation.current++; setVisible(false); setError({ code: "NETWORK_ERROR" }); };
-    const timer = window.setInterval(() => void verify(), 15000);
+    const timer = window.setInterval(() => void verify(true), 15000);
     queueMicrotask(() => { if (mounted) void verify(); });
-    window.addEventListener("focus", verify); window.addEventListener("online", verify); window.addEventListener("pageshow", verify);
+    window.addEventListener("focus", foreground); window.addEventListener("online", foreground); window.addEventListener("pageshow", foreground);
     window.addEventListener("offline", offline); document.addEventListener("visibilitychange", hide);
-    return () => { mounted = false; invalidate(); clearInterval(timer); window.removeEventListener("focus", verify); window.removeEventListener("online", verify); window.removeEventListener("pageshow", verify); window.removeEventListener("offline", offline); document.removeEventListener("visibilitychange", hide); };
+    return () => { mounted = false; invalidate(); clearInterval(timer); window.removeEventListener("focus", foreground); window.removeEventListener("online", foreground); window.removeEventListener("pageshow", foreground); window.removeEventListener("offline", offline); document.removeEventListener("visibilitychange", hide); };
   }, [verify]);
   async function mutate(operation: string, payload: object) {
     if (busy.current) return;
@@ -116,11 +119,11 @@ export function ClientWorkspace({ route }: { route: string }) {
         <div className="client-heading"><h1>Müşteriler</h1>{context?.permissions.includes("clients.create") && <Link prefetch={false} className="button button-primary" href="/workspace/clients/new">Yeni müşteri</Link>}</div>
         <p className="lead">Salonunuzun müşteri rehberi.</p>
         <form className="client-search" onSubmit={event => { event.preventDefault(); setFilter({ ...filter, query, offset: 0 }); }}>
-          <label htmlFor="client-search">Ad soyad veya telefon</label><div className="client-actions"><input id="client-search" value={query} onChange={event => setQuery(event.target.value)} maxLength={80} type="search" /><button className="button button-secondary">Ara</button></div>
-          <label htmlFor="client-status">Kayıt durumu</label><select id="client-status" value={filter.status} onChange={event => setFilter({ ...filter, status: event.target.value, offset: 0 })}><option value="ACTIVE">Aktif müşteriler</option><option value="ARCHIVED">Arşivlenen müşteriler</option></select>
+          <label htmlFor="client-search">Ad soyad veya telefon</label><div className="client-actions"><input id="client-search" value={query} onChange={event => setQuery(event.target.value)} maxLength={80} type="search" /><button className="button button-secondary" disabled={checking}>Ara</button></div>
+          <label htmlFor="client-status">Kayıt durumu</label><select disabled={checking} id="client-status" value={filter.status} onChange={event => setFilter({ ...filter, status: event.target.value, offset: 0 })}><option value="ACTIVE">Aktif müşteriler</option><option value="ARCHIVED">Arşivlenen müşteriler</option></select>
         </form>
         {directory?.items.length === 0 ? <div className="client-notice"><h2>{filter.query ? "Eşleşen müşteri bulunamadı" : "Henüz müşteri yok"}</h2><p>{filter.query ? "Adı veya telefon numarasını kontrol edin." : "İlk müşterinizi yalnızca ad soyad ve telefonla oluşturun."}</p></div> : <ul className="client-list">{directory?.items.map(item => <li key={item.id}><Link prefetch={false} href={`/workspace/clients/${item.id}`}><strong>{item.full_name}</strong><span>{item.phone_masked}</span><small>{item.status === "ARCHIVED" ? "Arşivde · " : ""}Güncelleme: {date(item.updated_at)}</small></Link></li>)}</ul>}
-        <div className="client-actions"><button className="button button-secondary" disabled={!filter.offset} onClick={() => setFilter({ ...filter, offset: Math.max(0, filter.offset - 25) })}>Önceki</button><span>Sayfa {filter.offset / 25 + 1}</span><button className="button button-secondary" disabled={!directory?.has_more || filter.offset >= 10000} onClick={() => setFilter({ ...filter, offset: filter.offset + 25 })}>Sonraki</button></div>
+        <div className="client-actions"><button className="button button-secondary" disabled={checking || !filter.offset} onClick={() => setFilter({ ...filter, offset: Math.max(0, filter.offset - 25) })}>Önceki</button><span>Sayfa {filter.offset / 25 + 1}</span><button className="button button-secondary" disabled={checking || !directory?.has_more || filter.offset >= 10000} onClick={() => setFilter({ ...filter, offset: filter.offset + 25 })}>Sonraki</button></div>
       </> : <>
         <h1>{route === "new" ? "Yeni müşteri" : draft ? "Müşteriyi düzenle" : client?.full_name}</h1>
         {draft ? <form className="auth-form client-form" onSubmit={event => { event.preventDefault(); save(); }}>
@@ -130,20 +133,20 @@ export function ClientWorkspace({ route }: { route: string }) {
             <label htmlFor="email">E-posta</label><input id="email" type="email" autoComplete="email" maxLength={254} value={draft.email} onChange={event => changeField("email", event.target.value)} />
             <label htmlFor="birth-date">Doğum Tarihi</label><input id="birth-date" type="date" min="1900-01-01" max={new Date().toISOString().slice(0, 10)} value={draft.birth_date} onChange={event => changeField("birth_date", event.target.value)} />
           </fieldset>
-          {!review && <button className="button button-primary" disabled={saving}>{saving ? "Kaydediliyor…" : route === "new" ? "Müşteri Oluştur" : "Değişiklikleri kaydet"}</button>}
-          {route !== "new" && <button type="button" disabled={saving} className="button button-secondary" onClick={() => { setDraft(null); setReview(null); setError(null); }}>Vazgeç</button>}
+          {!review && <button className="button button-primary" disabled={saving || checking}>{saving ? "Kaydediliyor…" : route === "new" ? "Müşteri Oluştur" : "Değişiklikleri kaydet"}</button>}
+          {route !== "new" && <button type="button" disabled={saving || checking} className="button button-secondary" onClick={() => { setDraft(null); setReview(null); setError(null); }}>Vazgeç</button>}
         </form> : client && <>
           <p className="client-status">{client.status === "ACTIVE" ? "Aktif müşteri" : "Arşivde"}</p>
           <dl className="client-details"><dt>Telefon</dt><dd>{client.phone}</dd><dt>E-posta</dt><dd>{client.email ?? "Eklenmedi"}</dd><dt>Doğum Tarihi</dt><dd>{client.birth_date ? date(client.birth_date) : "Eklenmedi"}</dd><dt>Oluşturma</dt><dd>{date(client.created_at)}</dd><dt>Son güncelleme</dt><dd>{date(client.updated_at)}</dd></dl>
-          <div className="client-actions">{client.status === "ACTIVE" && context?.permissions.includes("clients.update") && <button className="button button-primary" disabled={saving} onClick={() => setDraft({ full_name: client.full_name, phone: client.phone, email: client.email ?? "", birth_date: client.birth_date ?? "", expected_version: client.version, request_id: crypto.randomUUID() })}>Düzenle</button>}
-          {context?.permissions.includes("clients.archive") && <button className="button button-secondary" disabled={saving} onClick={() => {
+          <div className="client-actions">{client.status === "ACTIVE" && context?.permissions.includes("clients.update") && <button className="button button-primary" disabled={saving || checking} onClick={() => setDraft({ full_name: client.full_name, phone: client.phone, email: client.email ?? "", birth_date: client.birth_date ?? "", expected_version: client.version, request_id: crypto.randomUUID() })}>Düzenle</button>}
+          {context?.permissions.includes("clients.archive") && <button className="button button-secondary" disabled={saving || checking} onClick={() => {
             archiveRequest.current ??= crypto.randomUUID();
             if (client.status === "ACTIVE") setArchive(true);
             else void mutate("restore", { client_id: client.id, expected_version: client.version, request_id: archiveRequest.current });
           }}>{client.status === "ACTIVE" ? "Arşivle" : "Arşivden çıkar"}</button>}</div>
-          {archive && <section className="client-notice" aria-label="Arşiv onayı"><h2>Müşteri arşivlensin mi?</h2><p>Kayıt korunur ve aktif müşteri listesinden kaldırılır. Daha sonra arşivden çıkarabilirsiniz.</p><div className="client-actions"><button className="button button-primary" disabled={saving} onClick={() => void mutate("archive", { client_id: client.id, expected_version: client.version, request_id: archiveRequest.current })}>Evet, arşivle</button><button className="button button-secondary" disabled={saving} onClick={() => setArchive(false)}>Vazgeç</button></div></section>}
+          {archive && <section className="client-notice" aria-label="Arşiv onayı"><h2>Müşteri arşivlensin mi?</h2><p>Kayıt korunur ve aktif müşteri listesinden kaldırılır. Daha sonra arşivden çıkarabilirsiniz.</p><div className="client-actions"><button className="button button-primary" disabled={saving || checking} onClick={() => void mutate("archive", { client_id: client.id, expected_version: client.version, request_id: archiveRequest.current })}>Evet, arşivle</button><button className="button button-secondary" disabled={saving || checking} onClick={() => setArchive(false)}>Vazgeç</button></div></section>}
         </>}
-        {review && <section className="client-notice" aria-label="Benzer müşteri incelemesi"><h2>Benzer müşteri bulundu</h2><p>Mevcut kaydı açın veya farklı bir kişi olduğunu doğrulayın. Kayıtlar birleştirilmez.</p><ul className="client-list">{review.candidates.map(candidate => <li key={candidate.id}><Link prefetch={false} href={`/workspace/clients/${candidate.id}`}><strong>{candidate.full_name}</strong><span>{candidate.phone_masked}</span><small>{candidate.signals.includes("PHONE") ? "Aynı telefon · " : "Benzer bilgiler · "}{candidate.status === "ARCHIVED" ? "Arşivde · " : ""}Son güncelleme: {date(candidate.updated_at)}</small><span>Mevcut müşteriyi aç</span></Link></li>)}</ul><div className="client-actions"><button className="button button-primary" disabled={saving} onClick={() => save(review.token)}>Farklı kişi olduğunu onaylıyorum</button><button className="button button-secondary" disabled={saving} onClick={() => { setReview(null); setError(null); }}>Bilgileri gözden geçir</button></div></section>}
+        {review && <section className="client-notice" aria-label="Benzer müşteri incelemesi"><h2>Benzer müşteri bulundu</h2><p>Mevcut kaydı açın veya farklı bir kişi olduğunu doğrulayın. Kayıtlar birleştirilmez.</p><ul className="client-list">{review.candidates.map(candidate => <li key={candidate.id}><Link prefetch={false} href={`/workspace/clients/${candidate.id}`}><strong>{candidate.full_name}</strong><span>{candidate.phone_masked}</span><small>{candidate.signals.includes("PHONE") ? "Aynı telefon · " : "Benzer bilgiler · "}{candidate.status === "ARCHIVED" ? "Arşivde · " : ""}Son güncelleme: {date(candidate.updated_at)}</small><span>Mevcut müşteriyi aç</span></Link></li>)}</ul><div className="client-actions"><button className="button button-primary" disabled={saving || checking} onClick={() => save(review.token)}>Farklı kişi olduğunu onaylıyorum</button><button className="button button-secondary" disabled={saving || checking} onClick={() => { setReview(null); setError(null); }}>Bilgileri gözden geçir</button></div></section>}
       </>}
     </>}
   </main></AppShell>;

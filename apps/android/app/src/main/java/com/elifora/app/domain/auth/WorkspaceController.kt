@@ -61,6 +61,13 @@ class WorkspaceController(
             WorkspaceState.SignedOut()
         } else bootstrap()
     }
+    /** Periodic foreground check keeps a verified form mounted; denial still clears it. */
+    suspend fun refresh() = operation(keepReady = mutableState.value is WorkspaceState.Ready) {
+        if (!auth.restore()) {
+            store.reference = null
+            WorkspaceState.SignedOut()
+        } else bootstrap(keepReady = mutableState.value is WorkspaceState.Ready)
+    }
     suspend fun signIn(email: String, password: String) = operation {
         choosing = false
         store.reference = null
@@ -86,8 +93,8 @@ class WorkspaceController(
             try { auth.logout() } finally { mutableState.value = WorkspaceState.SignedOut() }
         }
     }
-    private suspend fun bootstrap(requested: String? = store.reference): WorkspaceState {
-        mutableState.value = WorkspaceState.LoadingMemberships
+    private suspend fun bootstrap(requested: String? = store.reference, keepReady: Boolean = false): WorkspaceState {
+        if (!keepReady) mutableState.value = WorkspaceState.LoadingMemberships
         val contexts = workspaces.list().filter { it.membershipStatus == "active" }
         val selected = requested?.let { ref -> contexts.find { it.reference == ref } }
         if (requested != null && selected == null) {
@@ -103,9 +110,9 @@ class WorkspaceController(
         }
         return WorkspaceState.SelectingWorkspace(contexts)
     }
-    private suspend fun operation(block: suspend () -> WorkspaceState) {
+    private suspend fun operation(keepReady: Boolean = false, block: suspend () -> WorkspaceState) {
         val current = ++generation
-        mutableState.value = WorkspaceState.LoadingSession
+        if (!keepReady) mutableState.value = WorkspaceState.LoadingSession
         mutex.withLock {
             if (current != generation) return
             try {

@@ -105,7 +105,9 @@ normalized. Generic error schemas are reused, with optional review metadata.
 
 Web routes check session, workspace and permissions on the server; protected client
 data loads through a no-store authenticated endpoint. Screens start concealed and
-revalidate on foreground/focus/online events and every 15 seconds. Stale in-flight
+revalidate on foreground/focus/online events and every 15 seconds. Periodic checks
+keep already-verified forms mounted to preserve keyboard focus; an error/denial
+conceals them, while foreground restoration starts concealed. Stale in-flight
 results cannot restore concealed data. Client drafts and review tokens remain only
 in memory. Native lifecycle coordination similarly conceals on background, invalidates
 on logout/workspace loss, and revalidates before showing retained drafts. There is no

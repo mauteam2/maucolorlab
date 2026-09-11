@@ -26,6 +26,16 @@ class WorkspaceControllerTest {
     private val controller = WorkspaceController(auth, WorkspaceRepository { listFailure?.let { throw it }; rows }, store)
 
     @Test fun initialStateIsLoading() { assertEquals(WorkspaceState.LoadingSession, controller.state.value) }
+    @Test fun periodicRefreshKeepsReadyUntilDecisionAndStillRevokes() = runBlocking {
+        auth.signedIn = true
+        var gate: CompletableDeferred<Unit>? = null
+        val current = WorkspaceController(auth, WorkspaceRepository { gate?.await(); rows }, store)
+        current.restore(); gate = CompletableDeferred()
+        val refresh = launch { current.refresh() }; yield()
+        assertEquals(WorkspaceState.Ready(a), current.state.value)
+        rows = emptyList(); gate!!.complete(Unit); refresh.join()
+        assertTrue(current.state.value is WorkspaceState.NoMembership)
+    }
     @Test fun missingSessionClearsReference() = runBlocking {
         store.reference = a.reference
         controller.restore()

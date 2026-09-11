@@ -38,7 +38,10 @@ class MainActivity : ComponentActivity() {
                     delay(15000)
                     if (controller.state.value is WorkspaceState.Ready ||
                         controller.state.value is WorkspaceState.SelectingWorkspace ||
-                        controller.state.value is WorkspaceState.NoMembership) controller.restore()
+                        controller.state.value is WorkspaceState.NoMembership) {
+                        controller.refresh()
+                        (controller.state.value as? WorkspaceState.Ready)?.let { clients.bind(it.context, keepVisible = true) }
+                    }
                 }
             }
         }

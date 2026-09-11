@@ -124,4 +124,11 @@ class ClientControllerTest {
         reply = ClientReply.Saved(client.copy(status = ClientStatus.ARCHIVED, version = 2)); controller.bind(context)
         assertEquals(ClientStatus.ARCHIVED, (content() as ClientContent.Detail).client.status)
     }
+    @Test fun periodicRefreshPreservesEditingButDenialConcealsIt() = runBlocking {
+        editing(); val draft = content(); pending = CompletableDeferred()
+        val refresh = launch { controller.bind(context, keepVisible = true) }; yield()
+        assertEquals(draft, content())
+        failure = ClientFailure("TENANT_CONTEXT_INVALID"); pending!!.complete(Unit); refresh.join()
+        assertTrue(controller.state.value is ClientState.Error)
+    }
 }
