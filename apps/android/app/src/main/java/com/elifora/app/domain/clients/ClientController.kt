@@ -89,6 +89,9 @@ class ClientController(private val repository: ClientRepository) {
                 }
                 val draft = when (resume) { is ClientContent.Editing -> resume.draft; is ClientContent.DuplicateReview -> resume.draft; else -> null }
                 if (draft != null && !allowed(if (draft.clientId == null) "clients.create" else "clients.update")) { content = null; return }
+                if (draft?.clientId != null && reply is ClientReply.Saved && reply.client.status == ClientStatus.ARCHIVED) {
+                    show(ClientContent.Detail(reply.client)); return
+                }
                 show(if (draft != null) resume!! else next)
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (failure: ClientFailure) { if (current == generation) fail(failure) }

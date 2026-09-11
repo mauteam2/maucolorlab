@@ -119,4 +119,9 @@ class ClientControllerTest {
         assertEquals("FORBIDDEN", (controller.state.value as ClientState.Error).failure.code)
         controller.requestArchive(client); assertEquals(1, commands.size)
     }
+    @Test fun archivedWhileBackgroundedCannotRestoreEditForm() = runBlocking {
+        controller.bind(context); controller.edit(client); controller.conceal()
+        reply = ClientReply.Saved(client.copy(status = ClientStatus.ARCHIVED, version = 2)); controller.bind(context)
+        assertEquals(ClientStatus.ARCHIVED, (content() as ClientContent.Detail).client.status)
+    }
 }

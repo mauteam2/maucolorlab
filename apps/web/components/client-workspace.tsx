@@ -27,14 +27,18 @@ export function ClientWorkspace({ route }: { route: string }) {
   const busy = useRef(false);
   const archiveRequest = useRef<string | null>(null);
   const call = useCallback(async (operation: string, payload: object) => {
+    const concealAccess = () => {
+      generation.current++; setVisible(false); setContext(null); setDirectory(null);
+      setClient(null); setDraft(null); setReview(null); setArchive(false);
+    };
     const response = await fetch("/api/clients", { method: "POST", headers: { "Content-Type": "application/json", ...(scope.current ? { "X-Workspace-Reference": scope.current } : {}) }, body: JSON.stringify({ operation, payload }), cache: "no-store", signal: AbortSignal.timeout(10000) });
     const body = await response.json();
-    if (response.status === 401) { window.location.replace("/sign-in?reason=SESSION_EXPIRED"); throw new Error("SESSION_EXPIRED"); }
-    if (["TENANT_CONTEXT_INVALID", "MEMBERSHIP_REQUIRED", "MEMBERSHIP_REVOKED"].includes(body.code)) { window.location.replace("/auth/workspace-reset"); throw new Error(body.code); }
+    if (response.status === 401) { concealAccess(); window.location.replace("/sign-in?reason=SESSION_EXPIRED"); throw new Error("SESSION_EXPIRED"); }
+    if (["TENANT_CONTEXT_INVALID", "MEMBERSHIP_REQUIRED", "MEMBERSHIP_REVOKED"].includes(body.code)) { concealAccess(); window.location.replace("/auth/workspace-reset"); throw new Error(body.code); }
     if (body.context) {
       const next = tenantContextSchema.parse(body.context);
       const reference = workspaceReference(next);
-      if (scope.current && scope.current !== reference) { window.location.replace("/workspace/clients"); throw new Error("TENANT_CONTEXT_INVALID"); }
+      if (scope.current && scope.current !== reference) { concealAccess(); window.location.replace("/workspace/clients"); throw new Error("TENANT_CONTEXT_INVALID"); }
       scope.current = reference;
     }
     return body;
@@ -52,7 +56,11 @@ export function ClientWorkspace({ route }: { route: string }) {
       if (route === "new" && !next.permissions.includes("clients.create")) { setError({ code: "FORBIDDEN" }); return; }
       setContext(next);
       if (route === "directory") setDirectory(clientDirectory.parse(body.data));
-      else if (route !== "new") setClient(clientDetail.parse(body.data));
+      else if (route !== "new") {
+        const loaded = clientDetail.parse(body.data); setClient(loaded);
+        if (!next.permissions.includes("clients.update") || loaded.status === "ARCHIVED") { setDraft(null); setReview(null); }
+        if (!next.permissions.includes("clients.archive")) setArchive(false);
+      }
       else setDraft(previous => previous ?? { full_name: "", phone: "", email: "", birth_date: "", request_id: crypto.randomUUID() });
       setError(null); setVisible(true);
     } catch { if (current === generation.current) setError({ code: "NETWORK_ERROR" }); }
