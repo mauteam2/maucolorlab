@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
-select plan(232);
+select plan(244);
 -- Synthetic identities share a phone across tenants intentionally.
 insert into auth.users(id,email,raw_user_meta_data) values
  ('a1000000-0000-4000-8000-000000000021','hair-owner-a@elifora.test','{}'),('a1000000-0000-4000-8000-000000000022','hair-owner-b@elifora.test','{}'),
@@ -36,6 +36,18 @@ set local role elifora_hair_writer;
 select lives_ok($$insert into public.hair_passports(organization_id,client_id,id) values('a1000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000032','a1000000-0000-4000-8000-000000000042')$$,'B creates its own passport through permission path');
 select lives_ok($$insert into public.hair_regions(organization_id,client_id,passport_id,region_type,id) values('a1000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000032','a1000000-0000-4000-8000-000000000042','ROOT','a1000000-0000-4000-8000-000000000052')$$,'B creates own region');
 select lives_ok($$insert into public.hair_evidence(organization_id,client_id,passport_id,source_type,id) values('a1000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000032','a1000000-0000-4000-8000-000000000042','HISTORICAL','a1000000-0000-4000-8000-000000000062')$$,'B creates own evidence');
+select lives_ok($$insert into public.hair_observations(organization_id,client_id,passport_id,evidence_id) values('a1000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000032','a1000000-0000-4000-8000-000000000042','a1000000-0000-4000-8000-000000000062')$$,'B has an actual observation for isolation tests');
+select lives_ok($$insert into public.hair_evidence(organization_id,client_id,passport_id,id,source_type) values('a1000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000032','a1000000-0000-4000-8000-000000000042','a1000000-0000-4000-8000-000000000064','PHYSICAL_TEST')$$,'B physical evidence fixture');
+select lives_ok($$insert into public.hair_physical_tests(organization_id,client_id,passport_id,evidence_id,test_type,result_state,performed_by,performed_at) values('a1000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000032','a1000000-0000-4000-8000-000000000042','a1000000-0000-4000-8000-000000000064','STRAND','UNKNOWN','a1000000-0000-4000-8000-000000000022',now())$$,'B has an actual physical test for isolation tests');
+select lives_ok($$insert into public.hair_history_events(organization_id,client_id,passport_id,id,evidence_id,category,description) values('a1000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000032','a1000000-0000-4000-8000-000000000042','a1000000-0000-4000-8000-000000000092','a1000000-0000-4000-8000-000000000062','COLOR','B synthetic history')$$,'B has actual history for isolation tests');
+select lives_ok($$insert into public.hair_history_regions(organization_id,client_id,passport_id,history_event_id,region_id) values('a1000000-0000-4000-8000-000000000002','a1000000-0000-4000-8000-000000000032','a1000000-0000-4000-8000-000000000042','a1000000-0000-4000-8000-000000000092','a1000000-0000-4000-8000-000000000052')$$,'B has actual region linkage for isolation tests');
+select ok((select count(*)>0 from public.hair_passports where organization_id='a1000000-0000-4000-8000-000000000002'),'B fixture populates hair_passports before isolation denial');
+select ok((select count(*)>0 from public.hair_regions where organization_id='a1000000-0000-4000-8000-000000000002'),'B fixture populates hair_regions before isolation denial');
+select ok((select count(*)>0 from public.hair_evidence where organization_id='a1000000-0000-4000-8000-000000000002'),'B fixture populates hair_evidence before isolation denial');
+select ok((select count(*)>0 from public.hair_observations where organization_id='a1000000-0000-4000-8000-000000000002'),'B fixture populates hair_observations before isolation denial');
+select ok((select count(*)>0 from public.hair_physical_tests where organization_id='a1000000-0000-4000-8000-000000000002'),'B fixture populates hair_physical_tests before isolation denial');
+select ok((select count(*)>0 from public.hair_history_events where organization_id='a1000000-0000-4000-8000-000000000002'),'B fixture populates hair_history_events before isolation denial');
+select ok((select count(*)>0 from public.hair_history_regions where organization_id='a1000000-0000-4000-8000-000000000002'),'B fixture populates hair_history_regions before isolation denial');
 reset role;
 select set_config('request.jwt.claim.sub','a1000000-0000-4000-8000-000000000021',true);
 set local role elifora_hair_writer;
@@ -101,7 +113,7 @@ select throws_ok($$update public.hair_regions set organization_id='a1000000-0000
 select throws_ok($$update public.hair_regions set client_id='a1000000-0000-4000-8000-000000000033' where id='a1000000-0000-4000-8000-000000000051'$$,'23514',null,'hair_regions client immutable');
 select throws_ok($$update public.hair_regions set created_by='a1000000-0000-4000-8000-000000000022' where id='a1000000-0000-4000-8000-000000000051'$$,'23514',null,'hair_regions creator immutable');
 select throws_ok($$update public.hair_regions set passport_id='a1000000-0000-4000-8000-000000000043' where id='a1000000-0000-4000-8000-000000000051'$$,'23514',null,'region cannot move passport');
-select is((with changed as (update public.hair_passports set status='ARCHIVED' where id='a1000000-0000-4000-8000-000000000042' returning id) select count(*) from changed),0::bigint,'foreign passport update affects no rows');
+with changed as (update public.hair_passports set status='ARCHIVED' where id='a1000000-0000-4000-8000-000000000042' returning id) select is((select count(*) from changed),0::bigint,'foreign passport update affects no rows');
 select throws_ok($$insert into public.hair_evidence(organization_id,client_id,passport_id,source_type,confidence_state,confidence) values('a1000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000031','a1000000-0000-4000-8000-000000000041','HISTORICAL','KNOWN',-0.1)$$,'23514',null,'confidence rejects -0.1');
 select throws_ok($$insert into public.hair_evidence(organization_id,client_id,passport_id,source_type,confidence_state,confidence) values('a1000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000031','a1000000-0000-4000-8000-000000000041','HISTORICAL','KNOWN',1.1)$$,'23514',null,'confidence rejects 1.1');
 select throws_ok($$insert into public.hair_evidence(organization_id,client_id,passport_id,source_type,confidence_state,confidence) values('a1000000-0000-4000-8000-000000000001','a1000000-0000-4000-8000-000000000031','a1000000-0000-4000-8000-000000000041','HISTORICAL','KNOWN','NaN')$$,'23514',null,'confidence rejects ''NaN''');
