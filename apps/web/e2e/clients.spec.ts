@@ -102,7 +102,7 @@ test("changing selected location in another tab cannot redirect an open creation
   const account = await seedAccount(2); await login(page, account);
   await page.getByRole("button", { name: /Studio E2E.*Bolu/ }).click(); await expectReady(page);
   await page.goto("/workspace/clients/new"); await fill(page, "Unsent Person", "05327778899");
-  await page.context().addCookies([{ name: "elifora-workspace", value: `${account.membershipId}:${account.locations[1].id}`, url: "http://127.0.0.1:4173" }]);
+  await page.context().addCookies([{ name: "elifora-workspace", value: `${account.membershipId}:${account.locations[1]!.id}`, url: "http://127.0.0.1:4173" }]);
   await page.getByRole("button", { name: "Müşteri Oluştur" }).click();
   await expect(page).toHaveURL(/\/workspaces/);
   await page.getByRole("button", { name: /Studio E2E.*Bolu/ }).click(); await expectReady(page);
@@ -128,7 +128,7 @@ test("concurrent creates and confirmations cannot skip duplicate review", async 
   const pending = ["Concurrent Three", "Concurrent Four"].map(full_name => ({ full_name, phone: "05326667788", request_id: randomUUID() }));
   const reviews = await Promise.all(pending.map(payload => command(page, "create", payload)));
   expect(reviews.every(result => result.body.code === "DUPLICATE_CLIENT_CANDIDATES")).toBe(true);
-  const confirmations = await Promise.all(pending.map((payload, index) => command(page, "create", { ...payload, confirmation_token: reviews[index].body.confirmation_token })));
+  const confirmations = await Promise.all(pending.map((payload, index) => command(page, "create", { ...payload, confirmation_token: reviews[index]!.body.confirmation_token })));
   expect(confirmations.map(result => result.status).sort()).toEqual([200, 409]);
   expect(confirmations.find(result => result.status === 409)?.body.code).toBe("DUPLICATE_CONFIRMATION_INVALID");
   expect((await command(page, "list", {})).body.data.items).toHaveLength(2);
