@@ -30,7 +30,7 @@ export function ClientWorkspace({ route }: { route: string }) {
     const response = await fetch("/api/clients", { method: "POST", headers: { "Content-Type": "application/json", ...(scope.current ? { "X-Workspace-Reference": scope.current } : {}) }, body: JSON.stringify({ operation, payload }), cache: "no-store", signal: AbortSignal.timeout(10000) });
     const body = await response.json();
     if (response.status === 401) { window.location.replace("/sign-in?reason=SESSION_EXPIRED"); throw new Error("SESSION_EXPIRED"); }
-    if (["TENANT_CONTEXT_INVALID", "NO_ACTIVE_MEMBERSHIP"].includes(body.code)) { window.location.replace("/auth/workspace-reset"); throw new Error(body.code); }
+    if (["TENANT_CONTEXT_INVALID", "MEMBERSHIP_REQUIRED", "MEMBERSHIP_REVOKED"].includes(body.code)) { window.location.replace("/auth/workspace-reset"); throw new Error(body.code); }
     if (body.context) {
       const next = tenantContextSchema.parse(body.context);
       const reference = workspaceReference(next);

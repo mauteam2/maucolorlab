@@ -54,7 +54,11 @@ The test runner rejects any API URL other than `http://127.0.0.1:54321`.
 The status file contains local credentials: never commit it or print it in CI logs.
 The Next.js child process is not passed the status-file setting, and application
 code never imports the fixture helper. Test traces are disabled to avoid saving
-session cookies. Each test creates synthetic users/salons and deletes them afterward.
+session cookies. Auth tests create synthetic users/salons and delete them afterward.
+Client identity tests retain synthetic clients and their audit history until the
+disposable database is stopped with `supabase stop --no-backup`; hard deletion is
+not enabled for fixture cleanup. CI retains only selected synthetic client-screen
+captures for seven days, never auth traces or session-state files.
 
 CI starts local Supabase and configures these settings automatically. Missing local
 credentials fail the real auth suite rather than silently skipping it. To run only

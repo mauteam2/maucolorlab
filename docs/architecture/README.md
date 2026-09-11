@@ -19,3 +19,6 @@ Android / Web
 
 Phase 0 establishes identity, organizations, locations, memberships, permissions, audit events, client shells, shared error contracts, tests, and CI. Product workflows remain outside this phase.
 
+Phase 1A adds real authentication and verified workspace selection. Phase 1B adds
+organization-owned client identity, directory/search and explicit duplicate review;
+see [ADR 0008](adr-0008-client-identity-and-duplicate-review.md).

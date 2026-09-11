@@ -32,5 +32,6 @@ describe("client command boundary", () => {
   it("maps permissions and duplicate review to a non-fatal conflict", () => {
     expect(permissionFor("restore")).toBe("clients.archive"); expect(permissionFor("detail")).toBe("clients.read");
     expect(errorStatus("DUPLICATE_CLIENT_CANDIDATES")).toBe(409); expect(errorStatus("CLIENT_NOT_FOUND")).toBe(404);
+    expect(errorStatus("MEMBERSHIP_REVOKED")).toBe(403); expect(errorStatus("MEMBERSHIP_REQUIRED")).toBe(403);
   });
 });
