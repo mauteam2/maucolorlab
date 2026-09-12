@@ -34,7 +34,7 @@ select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000021'
 
 insert into results values('created',pg_temp.mutate('create_passport','{"request_id": "b4000000-0000-4000-8000-000000000901", "technical": {"natural_level": {"state": "KNOWN", "value": 5}, "porosity": {"state": "UNKNOWN", "value": null}, "technical_notes": "Synthetic note"}}'::jsonb));
 select is((select value#>>'{data,core,state}' from results where name='created'),'UNVERIFIED','authorized creation has explicit unverified state');
-select is((select jsonb_agg(value->>'type' order by value->>'type') from results r,lateral jsonb_array_elements(r.value#>'{data,regions}') where r.name='created'),'["ENDS","MID_LENGTHS","ROOT"]'::jsonb,'creates exactly three standard regions');
+select is((select jsonb_agg(region.dto->>'type' order by region.dto->>'type') from results r,lateral jsonb_array_elements(r.value#>'{data,regions}') region(dto) where r.name='created'),'["ENDS","MID_LENGTHS","ROOT"]'::jsonb,'creates exactly three standard regions');
 select is(pg_temp.mutate('create_passport','{"request_id": "b4000000-0000-4000-8000-000000000901", "technical": {"natural_level": {"state": "KNOWN", "value": 5}, "porosity": {"state": "UNKNOWN", "value": null}, "technical_notes": "Synthetic note"}}'::jsonb),(select value from results where name='created'),'retry returns original result and identifiers');
 select is((select count(*) from public.audit_events where correlation_id='b4000000-0000-4000-8000-000000000900'),4::bigint,'retry does not duplicate creation audit');
 select is(pg_temp.mutate('create_passport','{}'::jsonb)->>'code','HAIR_PASSPORT_ALREADY_EXISTS','second current passport rejected');
