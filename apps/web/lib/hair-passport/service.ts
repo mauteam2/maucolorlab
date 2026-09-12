@@ -19,7 +19,7 @@ export async function readHairPassport(clientId: string, options: HairReadOption
  if (!parsed.success || parsed.data.correlationId !== correlationId) throw new AccessError("NETWORK_ERROR", 503);
  if ("code" in parsed.data) throw new AccessError(parsed.data.code, hairReadErrorStatus(parsed.data.code));
  const snapshot = parsed.data.data;
- if (snapshot.passport.client_id !== clientId ||
+ if (snapshot.passport.client_id !== request.data.client_id ||
   (!request.data.options.include_archived && (snapshot.passport.client_status === "ARCHIVED" || snapshot.passport.status === "ARCHIVED")) ||
   snapshot.physical_tests.offset !== request.data.options.tests_offset ||
   snapshot.history.offset !== request.data.options.history_offset ||

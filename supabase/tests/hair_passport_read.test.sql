@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
-select plan(77);
+select plan(79);
 -- Synthetic identities share a phone across tenants intentionally.
 insert into auth.users(id,email,raw_user_meta_data) values
  ('b3000000-0000-4000-8000-000000000021','hair-read-owner-a@elifora.test','{}'),('b3000000-0000-4000-8000-000000000022','hair-read-owner-b@elifora.test','{}'),
@@ -246,6 +246,10 @@ select is((select count(*) from public.audit_events),(select n+1 from audit_befo
 set local role authenticated;
 select is(public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000033','{"page_size":1.0}')#>>'{data,history,page_size}','1','integer-valued JSON numbers match the contract');
 select is(public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000033','{"page_size":1.5}')->>'code','VALIDATION_FAILED','fractional page sizes are rejected');
+reset role;
+set local role authenticated;
+select throws_ok($$select public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000033','{}',null)$$,'22023',null,'explicit null correlation violates the RPC argument contract');
+select ok((public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000033')->>'correlationId')::uuid is not null,'omitted correlation uses the call-site UUID default');
 reset role;
 select * from finish();
 rollback;

@@ -60,3 +60,7 @@ it("invalid client identifier never reaches database", async () => {
  await expect(readHairPassport("forged", {}, correlation)).rejects.toMatchObject({ code: "VALIDATION_FAILED" });
  expect(mocks.rpc).not.toHaveBeenCalled();
 });
+it("normalizes a valid uppercase UUID before request and response comparison", async () => {
+ expect(await readHairPassport(clientId.toUpperCase(), {}, correlation)).toEqual(readFixtures.populated);
+ expect(mocks.rpc).toHaveBeenCalledWith("hair_passport_snapshot", expect.objectContaining({ p_client_id: clientId }));
+});

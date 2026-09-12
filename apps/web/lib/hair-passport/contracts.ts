@@ -21,7 +21,7 @@ export const hairReadOptions = z.strictObject({
  history_offset: z.number().int().min(0).max(10000).default(0),
 });
 export type HairReadOptions = z.input<typeof hairReadOptions>;
-export const hairReadRequest = z.strictObject({ client_id: uuid, options: hairReadOptions.default({ include_archived: false, page_size: 50, tests_offset: 0, history_offset: 0 }) });
+export const hairReadRequest = z.strictObject({ client_id: uuid.transform(value => value.toLowerCase()), options: hairReadOptions.default({ include_archived: false, page_size: 50, tests_offset: 0, history_offset: 0 }) });
 
 export const hairEvidence = z.strictObject({
  id: uuid, source: z.enum(["AI_ESTIMATE","PROFESSIONAL_VERIFIED","PHYSICAL_TEST","HISTORICAL","IMPORTED_UNVERIFIED"]),

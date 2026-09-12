@@ -18,6 +18,9 @@ CLIENT_NOT_FOUND. An authorized client with no passport returns
 HAIR_PASSPORT_NOT_FOUND. Revocation is checked on every call with current database
 membership data, independently of JWT lifetime. No technical data accompanies an
 error. Existing shared error and correlation conventions are reused.
+Omitted RPC correlation IDs use a call-site UUID default. Explicit null is an
+invalid RPC argument (provider error); generating random values inside the STABLE
+read body is avoided so its volatility declaration remains accurate.
 
 The Web server adapter reuses verified workspace bootstrap, then invokes this
 RPC with the authenticated Supabase client. GET `/api/clients/{clientId}/hair-passport`
