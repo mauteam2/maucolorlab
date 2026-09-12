@@ -3,7 +3,8 @@ import { AccessError } from "@/lib/tenant/bootstrap";
 import { mutateHairPassport } from "./mutation-service";
 import type { HairMutationOperation } from "./mutations";
 
-export async function hairMutationResponse(request: Request, params: Promise<{ clientId: string; regionId?: string }>, operation: HairMutationOperation) {
+type MutationExecutor = (input: unknown, correlationId: string, expectedReference?: string | null) => Promise<{ data: unknown; correlationId: string }>;
+export async function hairMutationResponse(request: Request, params: Promise<{ clientId: string; regionId?: string }>, operation: HairMutationOperation | "add_observation", execute: MutationExecutor = mutateHairPassport) {
  const correlationId = crypto.randomUUID();
  const headers = { "Cache-Control": "private, no-store", "X-Correlation-ID": correlationId };
  try {
@@ -28,7 +29,7 @@ export async function hairMutationResponse(request: Request, params: Promise<{ c
   let body: unknown;
   try { body = JSON.parse(await new Blob(chunks as BlobPart[]).text()); } catch { throw new AccessError("VALIDATION_FAILED", 400); }
   const { clientId, regionId } = await params;
-  const result = await mutateHairPassport({ operation, client_id: clientId, ...(operation === "update_region" ? { region_id: regionId } : {}), payload: body }, correlationId, request.headers.get("x-workspace-reference"));
+  const result = await execute({ operation, client_id: clientId, ...(operation === "update_region" ? { region_id: regionId } : {}), payload: body }, correlationId, request.headers.get("x-workspace-reference"));
   return Response.json(result, { headers });
  } catch (error) {
   const known = error instanceof AccessError ? error : new AccessError("NETWORK_ERROR", 503);

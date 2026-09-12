@@ -1,0 +1,620 @@
+{
+  "valid": [
+    {
+      "operation": "add_observation",
+      "client_id": "b7000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "b7000000-0000-4000-8000-000000000101",
+        "expected_version": 1,
+        "technical": {
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          }
+        },
+        "evidence": {
+          "source": "AI_ESTIMATE",
+          "confidence": {
+            "state": "KNOWN",
+            "value": 0.75
+          }
+        }
+      }
+    },
+    {
+      "operation": "add_observation",
+      "client_id": "b7000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "b7000000-0000-4000-8000-000000000102",
+        "expected_version": 1,
+        "technical": {
+          "porosity": {
+            "state": "UNKNOWN",
+            "value": null
+          }
+        },
+        "evidence": {
+          "source": "IMPORTED_UNVERIFIED"
+        },
+        "region_id": "b7000000-0000-4000-8000-000000000051"
+      }
+    },
+    {
+      "operation": "add_observation",
+      "client_id": "b7000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "b7000000-0000-4000-8000-000000000103",
+        "expected_version": 1,
+        "technical": {
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          }
+        },
+        "evidence": {
+          "source": "PROFESSIONAL_VERIFIED",
+          "attestation": "PERSONALLY_ASSESSED"
+        }
+      }
+    },
+    {
+      "operation": "add_observation",
+      "client_id": "b7000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "b7000000-0000-4000-8000-000000000104",
+        "expected_version": 1,
+        "technical": {
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          }
+        },
+        "evidence": {
+          "source": "PHYSICAL_TEST",
+          "observed_at": {
+            "state": "KNOWN",
+            "value": "2020-01-01T00:00:00Z"
+          },
+          "context": "Synthetic external provenance"
+        }
+      }
+    },
+    {
+      "operation": "add_observation",
+      "client_id": "b7000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "b7000000-0000-4000-8000-000000000105",
+        "expected_version": 1,
+        "technical": {
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          }
+        },
+        "evidence": {
+          "source": "HISTORICAL",
+          "observed_at": {
+            "state": "KNOWN",
+            "value": "2020-01-01T00:00:00Z"
+          },
+          "context": "Synthetic external provenance"
+        }
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "name": "known missing value",
+      "payload": {
+        "technical": {
+          "natural_level": {
+            "state": "KNOWN",
+            "value": null
+          }
+        }
+      }
+    },
+    {
+      "name": "contradictory unknown",
+      "payload": {
+        "technical": {
+          "porosity": {
+            "state": "UNKNOWN",
+            "value": "HIGH"
+          }
+        }
+      }
+    },
+    {
+      "name": "empty assessment",
+      "payload": {
+        "technical": {}
+      }
+    },
+    {
+      "name": "confidence out of bounds",
+      "payload": {
+        "evidence": {
+          "source": "AI_ESTIMATE",
+          "confidence": {
+            "state": "KNOWN",
+            "value": -0.1
+          }
+        }
+      }
+    },
+    {
+      "name": "confidence unknown with value",
+      "payload": {
+        "evidence": {
+          "source": "AI_ESTIMATE",
+          "confidence": {
+            "state": "UNKNOWN",
+            "value": 0.5
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid source",
+      "payload": {
+        "evidence": {
+          "source": "OTHER"
+        }
+      }
+    },
+    {
+      "name": "source string cannot verify",
+      "payload": {
+        "evidence": {
+          "source": "PROFESSIONAL_VERIFIED"
+        }
+      }
+    },
+    {
+      "name": "forged verifier",
+      "payload": {
+        "evidence": {
+          "source": "PROFESSIONAL_VERIFIED",
+          "attestation": "PERSONALLY_ASSESSED",
+          "verified_by": "b7000000-0000-4000-8000-000000000022"
+        }
+      }
+    },
+    {
+      "name": "forged professional time",
+      "payload": {
+        "evidence": {
+          "source": "PROFESSIONAL_VERIFIED",
+          "attestation": "PERSONALLY_ASSESSED",
+          "observed_at": {
+            "state": "KNOWN",
+            "value": "2020-01-01T00:00:00Z"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing provenance",
+      "payload": {
+        "evidence": null
+      }
+    },
+    {
+      "name": "forged ownership",
+      "payload": {
+        "organization_id": "b7000000-0000-4000-8000-000000000002"
+      }
+    },
+    {
+      "name": "fractional version",
+      "payload": {
+        "expected_version": 1.5
+      }
+    }
+  ],
+  "results": [
+    {
+      "correlationId": "b7000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "b7000000-0000-4000-8000-000000000031",
+        "passport_id": "b7000000-0000-4000-8000-000000000041",
+        "target_version": 2,
+        "observation": {
+          "id": "b7000000-0000-4000-8000-000000000300",
+          "region_id": null,
+          "recorded_at": "2026-09-12T09:00:00Z",
+          "recorded_by": "b7000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "b7000000-0000-4000-8000-000000000200",
+            "source": "AI_ESTIMATE",
+            "observed_at": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "confidence": {
+              "state": "KNOWN",
+              "value": 0.75
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-12T09:00:00Z",
+            "recorded_by": "b7000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "b7000000-0000-4000-8000-000000000011",
+            "context": null
+          },
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          },
+          "perceived_level": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "grey_ratio": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "thickness": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "density": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "porosity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "elasticity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "tone": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "cosmetic_color_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "bleach_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "chemical_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        }
+      }
+    },
+    {
+      "correlationId": "b7000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "b7000000-0000-4000-8000-000000000031",
+        "passport_id": "b7000000-0000-4000-8000-000000000041",
+        "target_version": 2,
+        "observation": {
+          "id": "b7000000-0000-4000-8000-000000000301",
+          "region_id": "b7000000-0000-4000-8000-000000000051",
+          "recorded_at": "2026-09-12T09:00:00Z",
+          "recorded_by": "b7000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "b7000000-0000-4000-8000-000000000201",
+            "source": "IMPORTED_UNVERIFIED",
+            "observed_at": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "confidence": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-12T09:00:00Z",
+            "recorded_by": "b7000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "b7000000-0000-4000-8000-000000000011",
+            "context": null
+          },
+          "natural_level": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "perceived_level": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "grey_ratio": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "thickness": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "density": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "porosity": {
+            "state": "UNKNOWN",
+            "value": null
+          },
+          "elasticity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "tone": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "cosmetic_color_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "bleach_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "chemical_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        }
+      }
+    },
+    {
+      "correlationId": "b7000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "b7000000-0000-4000-8000-000000000031",
+        "passport_id": "b7000000-0000-4000-8000-000000000041",
+        "target_version": 2,
+        "observation": {
+          "id": "b7000000-0000-4000-8000-000000000302",
+          "region_id": null,
+          "recorded_at": "2026-09-12T09:00:00Z",
+          "recorded_by": "b7000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "b7000000-0000-4000-8000-000000000202",
+            "source": "PROFESSIONAL_VERIFIED",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-12T09:00:00Z"
+            },
+            "confidence": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "verified_by": "b7000000-0000-4000-8000-000000000021",
+            "recorded_at": "2026-09-12T09:00:00Z",
+            "recorded_by": "b7000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "b7000000-0000-4000-8000-000000000011",
+            "context": null
+          },
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          },
+          "perceived_level": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "grey_ratio": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "thickness": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "density": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "porosity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "elasticity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "tone": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "cosmetic_color_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "bleach_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "chemical_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        }
+      }
+    },
+    {
+      "correlationId": "b7000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "b7000000-0000-4000-8000-000000000031",
+        "passport_id": "b7000000-0000-4000-8000-000000000041",
+        "target_version": 2,
+        "observation": {
+          "id": "b7000000-0000-4000-8000-000000000303",
+          "region_id": null,
+          "recorded_at": "2026-09-12T09:00:00Z",
+          "recorded_by": "b7000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "b7000000-0000-4000-8000-000000000203",
+            "source": "PHYSICAL_TEST",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2020-01-01T00:00:00Z"
+            },
+            "confidence": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-12T09:00:00Z",
+            "recorded_by": "b7000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "b7000000-0000-4000-8000-000000000011",
+            "context": "Synthetic external provenance"
+          },
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          },
+          "perceived_level": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "grey_ratio": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "thickness": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "density": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "porosity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "elasticity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "tone": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "cosmetic_color_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "bleach_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "chemical_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        }
+      }
+    },
+    {
+      "correlationId": "b7000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "b7000000-0000-4000-8000-000000000031",
+        "passport_id": "b7000000-0000-4000-8000-000000000041",
+        "target_version": 2,
+        "observation": {
+          "id": "b7000000-0000-4000-8000-000000000304",
+          "region_id": null,
+          "recorded_at": "2026-09-12T09:00:00Z",
+          "recorded_by": "b7000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "b7000000-0000-4000-8000-000000000204",
+            "source": "HISTORICAL",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2020-01-01T00:00:00Z"
+            },
+            "confidence": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-12T09:00:00Z",
+            "recorded_by": "b7000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "b7000000-0000-4000-8000-000000000011",
+            "context": "Synthetic external provenance"
+          },
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          },
+          "perceived_level": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "grey_ratio": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "thickness": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "density": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "porosity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "elasticity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "tone": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "cosmetic_color_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "bleach_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "chemical_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        }
+      }
+    }
+  ],
+  "actor": "b7000000-0000-4000-8000-000000000021",
+  "location": "b7000000-0000-4000-8000-000000000011"
+}

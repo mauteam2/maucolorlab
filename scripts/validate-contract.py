@@ -94,3 +94,19 @@ for name in ("created", "enriched", "region"):
 assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/regions"]) == {"post"}
 assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/regions/{regionId}"]) == {"patch"}
 print(f"PASS: Hair core mutation contract: {len(mutations['valid'])} commands/RPC requests, {len(mutations['invalid'])} rejection cases, 3 results")
+
+observations = json.loads((root / "contracts/fixtures/hair-observation-mutation.json").read_text(encoding="utf-8"))
+def observation_validator(schema):
+    return Draft202012Validator({"$ref": "#/components/schemas/" + schema, "components": contract["components"]}, format_checker=FormatChecker())
+for command in observations["valid"]:
+    observation_validator("HairAddObservationCommand").validate(command)
+    observation_validator("HairObservationRpcRequest").validate({"p_membership_id": identifier, "p_location_id": identifier,
+        "p_client_id": command["client_id"], "p_payload": command["payload"]})
+for case in observations["invalid"]:
+    command = copy.deepcopy(observations["valid"][0])
+    command["payload"].update(case["payload"])
+    assert list(observation_validator("HairAddObservationCommand").iter_errors(command)), case["name"]
+for result in observations["results"]:
+    observation_validator("HairAddObservationResult").validate(result)
+assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/observations"]) == {"post"}
+print(f"PASS: Observation/evidence contract: {len(observations['valid'])} commands and RPCs, {len(observations['invalid'])} rejections, {len(observations['results'])} existing-format observations")

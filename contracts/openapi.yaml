@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.4.0
+  version: 0.5.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -562,6 +562,100 @@ paths:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/HairMutationResult'
+                - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/expired JWT; provider envelope
+        '403':
+          description: Anonymous/forbidden role; provider envelope
+  /api/clients/{clientId}/hair-passport/observations:
+    post:
+      operationId: addClientHairObservation
+      summary: Atomically append a technical observation and its evidence
+      description: 'Server-only JSON mutation using fresh selected membership and hair_passport.add_observation. Requires clients.read
+        and hair_passport.read for parent access and result mapping. Same-origin and X-Workspace-Reference checks, 32768-byte
+        limit and no query parameters match core mutations. Observation, evidence, target selection, audit and receipt commit
+        atomically. Reuses existing organization/actor/request_id 24-hour receipts: same request replays original data with
+        current correlation; changed payload or stale target version returns CONFLICT. Current authorization and parent lifecycle
+        are checked before replay. Client/passport/region archive errors match core mutation behavior. Responses are private,
+        no-store. No standalone evidence, test or history write endpoint.'
+      security:
+      - sessionCookie: []
+      parameters:
+      - in: path
+        name: clientId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+        description: Selected membership:location precondition; fresh server membership remains the authority.
+      - in: header
+        name: Origin
+        required: true
+        schema:
+          type: string
+          format: uri
+        description: Must exactly match application origin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairAddObservationRequest'
+      responses:
+        '200':
+          description: Committed mutation result or successful retry
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HairAddObservationResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /rest/v1/rpc/hair_observation_operation:
+    post:
+      operationId: addHairObservationRpc
+      summary: Authenticated observation/evidence service RPC
+      description: SECURITY INVOKER wrapper delegates to the existing NOLOGIN/NOBYPASSRLS writer. Ownership derives from selected
+        membership and client/passport, never caller metadata. Membership permission is rechecked after the organization lock
+        and before retry replay. add_observation permits only selecting this statement's new immutable observation; it does
+        not grant core editing. Logical errors use ErrorResponse in HTTP 200. No AI provider calls. Explicit null correlation
+        is invalid; omitted correlation uses the database call-site UUID default.
+      servers:
+      - url: http://127.0.0.1:54321
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairObservationRpcRequest'
+      responses:
+        '200':
+          description: Mutation or stable logical error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/HairAddObservationResult'
                 - $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Missing/expired JWT; provider envelope
@@ -1517,6 +1611,182 @@ components:
           p_correlation_id:
             type: string
             format: uuid
+    HairObservationEvidenceInput:
+      oneOf:
+      - type: object
+        additionalProperties: false
+        required:
+        - source
+        - attestation
+        properties:
+          source:
+            const: PROFESSIONAL_VERIFIED
+          attestation:
+            const: PERSONALLY_ASSESSED
+          confidence:
+            $ref: '#/components/schemas/HairConfidence'
+          context:
+            anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 2000
+              pattern: \S
+            - type: 'null'
+          relevant_until:
+            anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+      - type: object
+        additionalProperties: false
+        required:
+        - source
+        properties:
+          source:
+            enum:
+            - AI_ESTIMATE
+            - PHYSICAL_TEST
+            - HISTORICAL
+            - IMPORTED_UNVERIFIED
+          observed_at:
+            $ref: '#/components/schemas/HairObservedAt'
+          confidence:
+            $ref: '#/components/schemas/HairConfidence'
+          context:
+            anyOf:
+            - type: string
+              minLength: 1
+              maxLength: 2000
+              pattern: \S
+            - type: 'null'
+          relevant_until:
+            anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        allOf:
+        - if:
+            required:
+            - relevant_until
+            properties:
+              relevant_until:
+                type: string
+          then:
+            required:
+            - observed_at
+            properties:
+              observed_at:
+                properties:
+                  state:
+                    const: KNOWN
+      description: Evidence is mandatory even for unknown/not-assessed fields. Confidence defaults to UNKNOWN, never computed.
+        Professional source requires a new personal-assessment declaration; verifier and observation time are stamped from authenticated
+        actor and database statement time. Caller verifier/actor/location/supersedes fields are rejected. Other sources are recorded
+        provenance declarations, not proof that an AI provider or an internal physical-test workflow ran. Optional observed_at
+        defaults to UNKNOWN; KNOWN requires a finite ISO date-time no later than server recording, relevant_until requires a known
+        earlier/equal observed_at. Rows are immutable.
+    HairAddObservationRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - request_id
+      - expected_version
+      - technical
+      - evidence
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        expected_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740990
+        region_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+        replace_unverified:
+          type: boolean
+        technical:
+          allOf:
+          - $ref: '#/components/schemas/HairTechnicalPatch'
+          minProperties: 1
+        evidence:
+          $ref: '#/components/schemas/HairObservationEvidenceInput'
+      description: 'New complete assessment, not a patch of prior evidence: omitted fields become NOT_ASSESSED and notes null.
+        expected_version refers to the passport or selected region. Selecting over an UNVERIFIED core requires replace_unverified=true;
+        values are never copied into the new evidence. Selection increments that target version once. Prior current observation/evidence
+        are linked through supersedes_id automatically. No source ranking or confidence calculation.'
+    HairAddObservationCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - operation
+      - client_id
+      - payload
+      properties:
+        operation:
+          const: add_observation
+        client_id:
+          type: string
+          format: uuid
+        payload:
+          $ref: '#/components/schemas/HairAddObservationRequest'
+    HairAddObservationResult:
+      type: object
+      additionalProperties: false
+      required:
+      - correlationId
+      - data
+      properties:
+        correlationId:
+          type: string
+          format: uuid
+        data:
+          type: object
+          additionalProperties: false
+          required:
+          - client_id
+          - passport_id
+          - target_version
+          - observation
+          properties:
+            client_id:
+              type: string
+              format: uuid
+            passport_id:
+              type: string
+              format: uuid
+            target_version:
+              type: integer
+              minimum: 2
+              maximum: 9007199254740991
+            observation:
+              $ref: '#/components/schemas/HairObservation'
+    HairObservationRpcRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - p_membership_id
+      - p_location_id
+      - p_client_id
+      - p_payload
+      properties:
+        p_membership_id:
+          type: string
+          format: uuid
+        p_location_id:
+          type: string
+          format: uuid
+        p_client_id:
+          type: string
+          format: uuid
+        p_payload:
+          $ref: '#/components/schemas/HairAddObservationRequest'
+        p_correlation_id:
+          type: string
+          format: uuid
     HairObservation:
       type: "object"
       additionalProperties: false
@@ -2556,6 +2826,9 @@ components:
         - HAIR_REGION_NOT_FOUND
         - HAIR_REGION_ALREADY_EXISTS
         - INVALID_TECHNICAL_STATE
+        - INVALID_OBSERVATION
+        - INVALID_EVIDENCE
+        - INVALID_CONFIDENCE
         - HAIR_PASSPORT_NOT_FOUND
         - CLIENT_ARCHIVED
         - DUPLICATE_CLIENT_CANDIDATES

@@ -26,3 +26,6 @@ see [ADR 0008](adr-0008-client-identity-and-duplicate-review.md).
 Hair Passport foundation and reads are covered by [ADR 0009](adr-0009-hair-passport-database-foundation.md)
 and [ADR 0010](adr-0010-hair-passport-read-service.md). Phase 1C-2B1 adds only
 passport/core and region mutations; see [ADR 0011](adr-0011-hair-passport-core-mutations.md).
+
+Phase 1C-2B2A adds atomic observation/evidence appends and current selection;
+see [ADR 0012](adr-0012-observation-evidence-mutations.md).
