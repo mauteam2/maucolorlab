@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.3.0
+  version: 0.4.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -190,7 +190,7 @@ paths:
     get:
       operationId: "getClientHairPassport"
       summary: "Read an authorized organization client technical snapshot"
-      description: "Read-only server adapter. Session and selected workspace cookie are freshly verified; no organization or passport ID is accepted. Responses, including failures, are private, no-store with matching body/header correlation IDs. Current whole-hair and regional observations include their evidence. Test and history pages are independent. Archived clients/passports require include_archived=true; otherwise their respective NOT_FOUND error is returned. No UI or mutation is exposed."
+      description: "Read-only server adapter. Session and selected workspace cookie are freshly verified; no organization or passport ID is accepted. Responses, including failures, are private, no-store with matching body/header correlation IDs. Current whole-hair and regional observations include their evidence. Test and history pages are independent. Archived clients/passports require include_archived=true; otherwise their respective NOT_FOUND error is returned. This GET remains read-only. UNVERIFIED values are mutable core state and carry no evidence claim."
       security:
         -
           sessionCookie: []
@@ -257,6 +257,122 @@ paths:
           $ref: "#/components/responses/AccessError"
         '503':
           $ref: "#/components/responses/AccessError"
+    post:
+      operationId: createClientHairPassport
+      summary: createClientHairPassport
+      description: 'Server-only core mutation with fresh selected workspace authorization. JSON body is limited to 32768 bytes;
+        no query parameters. Caller ownership metadata is rejected. request_id is scoped to organization and actor for 24 hours:
+        identical retry returns original data; changed request returns CONFLICT. Updates require expected_version. Archived clients
+        return CLIENT_ARCHIVED, archived passports reject writes, archived regions return HAIR_REGION_NOT_FOUND. All HTTP responses
+        are private, no-store with matching body/header correlation IDs. No evidence, observation, physical-test or history writes.'
+      security:
+      - sessionCookie: []
+      parameters:
+      - in: path
+        name: clientId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+        description: Selected membership:location precondition; fresh server membership remains the authority.
+      - in: header
+        name: Origin
+        required: true
+        schema:
+          type: string
+          format: uri
+        description: Must exactly match application origin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairCreatePassportRequest'
+      responses:
+        '200':
+          description: Committed mutation result or successful retry
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HairMutationResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+    patch:
+      operationId: updateClientHairPassportCore
+      summary: updateClientHairPassportCore
+      description: 'Server-only core mutation with fresh selected workspace authorization. JSON body is limited to 32768 bytes;
+        no query parameters. Caller ownership metadata is rejected. request_id is scoped to organization and actor for 24 hours:
+        identical retry returns original data; changed request returns CONFLICT. Updates require expected_version. Archived clients
+        return CLIENT_ARCHIVED, archived passports reject writes, archived regions return HAIR_REGION_NOT_FOUND. All HTTP responses
+        are private, no-store with matching body/header correlation IDs. No evidence, observation, physical-test or history writes.'
+      security:
+      - sessionCookie: []
+      parameters:
+      - in: path
+        name: clientId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+        description: Selected membership:location precondition; fresh server membership remains the authority.
+      - in: header
+        name: Origin
+        required: true
+        schema:
+          type: string
+          format: uri
+        description: Must exactly match application origin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairUpdatePassportRequest'
+      responses:
+        '200':
+          description: Committed mutation result or successful retry
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HairMutationResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
   /rest/v1/rpc/hair_passport_snapshot:
     post:
       operationId: "readHairPassportSnapshotRpc"
@@ -291,6 +407,166 @@ paths:
           description: "Missing/expired JWT; provider envelope"
         '403':
           description: "Anonymous/forbidden role; provider envelope"
+  /api/clients/{clientId}/hair-passport/regions:
+    post:
+      operationId: createClientHairRegion
+      summary: createClientHairRegion
+      description: 'Server-only core mutation with fresh selected workspace authorization. JSON body is limited to 32768 bytes;
+        no query parameters. Caller ownership metadata is rejected. request_id is scoped to organization and actor for 24 hours:
+        identical retry returns original data; changed request returns CONFLICT. Updates require expected_version. Archived
+        clients return CLIENT_ARCHIVED, archived passports reject writes, archived regions return HAIR_REGION_NOT_FOUND. All
+        HTTP responses are private, no-store with matching body/header correlation IDs. No evidence, observation, physical-test
+        or history writes.'
+      security:
+      - sessionCookie: []
+      parameters:
+      - in: path
+        name: clientId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+        description: Selected membership:location precondition; fresh server membership remains the authority.
+      - in: header
+        name: Origin
+        required: true
+        schema:
+          type: string
+          format: uri
+        description: Must exactly match application origin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairCreateRegionRequest'
+      responses:
+        '200':
+          description: Committed mutation result or successful retry
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HairMutationResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /api/clients/{clientId}/hair-passport/regions/{regionId}:
+    patch:
+      operationId: updateClientHairRegion
+      summary: updateClientHairRegion
+      description: 'Server-only core mutation with fresh selected workspace authorization. JSON body is limited to 32768 bytes;
+        no query parameters. Caller ownership metadata is rejected. request_id is scoped to organization and actor for 24 hours:
+        identical retry returns original data; changed request returns CONFLICT. Updates require expected_version. Archived
+        clients return CLIENT_ARCHIVED, archived passports reject writes, archived regions return HAIR_REGION_NOT_FOUND. All
+        HTTP responses are private, no-store with matching body/header correlation IDs. No evidence, observation, physical-test
+        or history writes.'
+      security:
+      - sessionCookie: []
+      parameters:
+      - in: path
+        name: clientId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: path
+        name: regionId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+        description: Selected membership:location precondition; fresh server membership remains the authority.
+      - in: header
+        name: Origin
+        required: true
+        schema:
+          type: string
+          format: uri
+        description: Must exactly match application origin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairUpdateRegionRequest'
+      responses:
+        '200':
+          description: Committed mutation result or successful retry
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HairMutationResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /rest/v1/rpc/hair_core_operation:
+    post:
+      operationId: mutateHairCoreRpc
+      summary: Four authenticated core mutations behind the existing internal RLS writer role
+      description: Public SECURITY INVOKER wrapper delegates to the existing NOLOGIN NOBYPASSRLS hair writer. Selected membership,
+        role permission, location, active organization and client are rechecked after the organization lock and before receipt
+        replay. Organization is never caller supplied. Logical errors use ErrorResponse in HTTP 200; provider authorization
+        errors are normalized separately. Creation requires hair_passport.create; other operations require hair_passport.update.
+        Existing hair_passport.read and clients.read RLS remain prerequisites. Correlation defaults to a generated UUID when
+        omitted; explicit null is invalid.
+      servers:
+      - url: http://127.0.0.1:54321
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairCoreRpcRequest'
+      responses:
+        '200':
+          description: Mutation or stable logical error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/HairMutationResult'
+                - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/expired JWT; provider envelope
+        '403':
+          description: Anonymous/forbidden role; provider envelope
 components:
   securitySchemes:
     bearerAuth:
@@ -772,6 +1048,475 @@ components:
               verified_by:
                 type: "null"
       description: "Provenance only. Confidence is numeric 0–1 or explicitly UNKNOWN. No Case Confidence calculation. Observation must precede recording; relevant_until requires a known observation and cannot precede it."
+    HairTechnicalState:
+      type: object
+      additionalProperties: false
+      required:
+      - natural_level
+      - perceived_level
+      - grey_ratio
+      - thickness
+      - density
+      - porosity
+      - elasticity
+      - tone
+      - cosmetic_color_history
+      - bleach_history
+      - chemical_history
+      - technical_notes
+      - integrity_notes
+      properties:
+        natural_level:
+          $ref: '#/components/schemas/HairLevelField'
+        perceived_level:
+          $ref: '#/components/schemas/HairLevelField'
+        grey_ratio:
+          $ref: '#/components/schemas/HairRatioField'
+        thickness:
+          $ref: '#/components/schemas/HairThicknessField'
+        density:
+          $ref: '#/components/schemas/HairDensityField'
+        porosity:
+          $ref: '#/components/schemas/HairPorosityField'
+        elasticity:
+          $ref: '#/components/schemas/HairElasticityField'
+        tone:
+          $ref: '#/components/schemas/HairToneField'
+        cosmetic_color_history:
+          $ref: '#/components/schemas/HairSummaryField'
+        bleach_history:
+          $ref: '#/components/schemas/HairSummaryField'
+        chemical_history:
+          $ref: '#/components/schemas/HairSummaryField'
+        technical_notes:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 4000
+            pattern: \S
+          - type: 'null'
+        integrity_notes:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 2000
+            pattern: \S
+          - type: 'null'
+    HairTechnicalPatch:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        natural_level:
+          $ref: '#/components/schemas/HairLevelField'
+        perceived_level:
+          $ref: '#/components/schemas/HairLevelField'
+        grey_ratio:
+          $ref: '#/components/schemas/HairRatioField'
+        thickness:
+          $ref: '#/components/schemas/HairThicknessField'
+        density:
+          $ref: '#/components/schemas/HairDensityField'
+        porosity:
+          $ref: '#/components/schemas/HairPorosityField'
+        elasticity:
+          $ref: '#/components/schemas/HairElasticityField'
+        tone:
+          $ref: '#/components/schemas/HairToneField'
+        cosmetic_color_history:
+          $ref: '#/components/schemas/HairSummaryField'
+        bleach_history:
+          $ref: '#/components/schemas/HairSummaryField'
+        chemical_history:
+          $ref: '#/components/schemas/HairSummaryField'
+        technical_notes:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 4000
+            pattern: \S
+          - type: 'null'
+        integrity_notes:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 2000
+            pattern: \S
+          - type: 'null'
+      description: Partial unverified technical state. Omission preserves the previous value. Explicit state/value pairs clear
+        or change a field. Notes may be explicitly null. No evidence or verification is implied.
+    HairCreatePassportRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - request_id
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        technical:
+          $ref: '#/components/schemas/HairTechnicalPatch'
+    HairUpdatePassportRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - request_id
+      - expected_version
+      - technical
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        expected_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        technical:
+          allOf:
+          - $ref: '#/components/schemas/HairTechnicalPatch'
+          minProperties: 1
+    HairCreateRegionRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - request_id
+      - region_type
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        region_type:
+          $ref: '#/components/schemas/HairRegionType'
+        label:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 120
+            pattern: \S
+          - type: 'null'
+        technical:
+          $ref: '#/components/schemas/HairTechnicalPatch'
+      allOf:
+      - if:
+          properties:
+            region_type:
+              const: CUSTOM
+        then:
+          required:
+          - label
+          properties:
+            label:
+              type: string
+    HairUpdateRegionRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - request_id
+      - expected_version
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        expected_version:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        label:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 120
+            pattern: \S
+          - type: 'null'
+        technical:
+          $ref: '#/components/schemas/HairTechnicalPatch'
+      anyOf:
+      - required:
+        - label
+      - required:
+        - technical
+        properties:
+          technical:
+            minProperties: 1
+    HairMutationCommand:
+      oneOf:
+      - type: object
+        additionalProperties: false
+        required:
+        - operation
+        - client_id
+        - payload
+        properties:
+          operation:
+            const: create_passport
+          client_id:
+            type: string
+            format: uuid
+          payload:
+            $ref: '#/components/schemas/HairCreatePassportRequest'
+      - type: object
+        additionalProperties: false
+        required:
+        - operation
+        - client_id
+        - payload
+        properties:
+          operation:
+            const: update_passport
+          client_id:
+            type: string
+            format: uuid
+          payload:
+            $ref: '#/components/schemas/HairUpdatePassportRequest'
+      - type: object
+        additionalProperties: false
+        required:
+        - operation
+        - client_id
+        - payload
+        properties:
+          operation:
+            const: create_region
+          client_id:
+            type: string
+            format: uuid
+          payload:
+            $ref: '#/components/schemas/HairCreateRegionRequest'
+      - type: object
+        additionalProperties: false
+        required:
+        - operation
+        - client_id
+        - region_id
+        - payload
+        properties:
+          operation:
+            const: update_region
+          client_id:
+            type: string
+            format: uuid
+          region_id:
+            type: string
+            format: uuid
+          payload:
+            $ref: '#/components/schemas/HairUpdateRegionRequest'
+    HairMutationResult:
+      type: object
+      additionalProperties: false
+      required:
+      - correlationId
+      - data
+      properties:
+        correlationId:
+          type: string
+          format: uuid
+        data:
+          oneOf:
+          - type: object
+            additionalProperties: false
+            required:
+            - kind
+            - passport
+            - core
+            - regions
+            properties:
+              kind:
+                const: PASSPORT
+              passport:
+                type: object
+                additionalProperties: false
+                required:
+                - id
+                - client_id
+                - status
+                - client_status
+                - version
+                - created_at
+                - updated_at
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  client_id:
+                    type: string
+                    format: uuid
+                  status:
+                    const: ACTIVE
+                  client_status:
+                    const: ACTIVE
+                  version:
+                    type: integer
+                    minimum: 1
+                    maximum: 9007199254740991
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+              core:
+                $ref: '#/components/schemas/HairAssessment'
+              regions:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HairRegion'
+          - type: object
+            additionalProperties: false
+            required:
+            - kind
+            - client_id
+            - passport_id
+            - region
+            properties:
+              kind:
+                const: REGION
+              client_id:
+                type: string
+                format: uuid
+              passport_id:
+                type: string
+                format: uuid
+              region:
+                $ref: '#/components/schemas/HairRegion'
+      description: Committed result, replayed unchanged for 24 hours except current correlationId. Passport create returns version
+        1 and exactly ROOT/MID_LENGTHS/ENDS; passport update returns an empty regions array and expected_version + 1. Region create
+        returns version 1; update returns expected_version + 1. Active resources only. No evidence/test/history collections in
+        mutation receipts.
+    HairCoreRpcRequest:
+      oneOf:
+      - type: object
+        additionalProperties: false
+        required:
+        - p_membership_id
+        - p_location_id
+        - p_client_id
+        - p_operation
+        - p_payload
+        properties:
+          p_membership_id:
+            type: string
+            format: uuid
+          p_location_id:
+            type: string
+            format: uuid
+          p_client_id:
+            type: string
+            format: uuid
+          p_operation:
+            const: create_passport
+          p_payload:
+            $ref: '#/components/schemas/HairCreatePassportRequest'
+          p_correlation_id:
+            type: string
+            format: uuid
+      - type: object
+        additionalProperties: false
+        required:
+        - p_membership_id
+        - p_location_id
+        - p_client_id
+        - p_operation
+        - p_payload
+        properties:
+          p_membership_id:
+            type: string
+            format: uuid
+          p_location_id:
+            type: string
+            format: uuid
+          p_client_id:
+            type: string
+            format: uuid
+          p_operation:
+            const: update_passport
+          p_payload:
+            $ref: '#/components/schemas/HairUpdatePassportRequest'
+          p_correlation_id:
+            type: string
+            format: uuid
+      - type: object
+        additionalProperties: false
+        required:
+        - p_membership_id
+        - p_location_id
+        - p_client_id
+        - p_operation
+        - p_payload
+        properties:
+          p_membership_id:
+            type: string
+            format: uuid
+          p_location_id:
+            type: string
+            format: uuid
+          p_client_id:
+            type: string
+            format: uuid
+          p_operation:
+            const: create_region
+          p_payload:
+            $ref: '#/components/schemas/HairCreateRegionRequest'
+          p_correlation_id:
+            type: string
+            format: uuid
+      - type: object
+        additionalProperties: false
+        required:
+        - p_membership_id
+        - p_location_id
+        - p_client_id
+        - p_operation
+        - p_payload
+        properties:
+          p_membership_id:
+            type: string
+            format: uuid
+          p_location_id:
+            type: string
+            format: uuid
+          p_client_id:
+            type: string
+            format: uuid
+          p_operation:
+            const: update_region
+          p_payload:
+            type: object
+            additionalProperties: false
+            required:
+            - request_id
+            - expected_version
+            - region_id
+            properties:
+              request_id:
+                type: string
+                format: uuid
+              expected_version:
+                type: integer
+                minimum: 1
+                maximum: 9007199254740991
+              label:
+                anyOf:
+                - type: string
+                  minLength: 1
+                  maxLength: 120
+                  pattern: \S
+                - type: 'null'
+              technical:
+                $ref: '#/components/schemas/HairTechnicalPatch'
+              region_id:
+                type: string
+                format: uuid
+            anyOf:
+            - required:
+              - label
+            - required:
+              - technical
+              properties:
+                technical:
+                  minProperties: 1
+          p_correlation_id:
+            type: string
+            format: uuid
     HairObservation:
       type: "object"
       additionalProperties: false
@@ -862,6 +1607,16 @@ components:
               const: "ASSESSED"
             observation:
               $ref: "#/components/schemas/HairObservation"
+        - type: object
+          additionalProperties: false
+          required:
+          - state
+          - values
+          properties:
+            state:
+              const: UNVERIFIED
+            values:
+              $ref: '#/components/schemas/HairTechnicalState'
     HairRegion:
       type: "object"
       additionalProperties: false
@@ -1797,6 +2552,10 @@ components:
         - VALIDATION_FAILED
         - CONFLICT
         - CLIENT_NOT_FOUND
+        - HAIR_PASSPORT_ALREADY_EXISTS
+        - HAIR_REGION_NOT_FOUND
+        - HAIR_REGION_ALREADY_EXISTS
+        - INVALID_TECHNICAL_STATE
         - HAIR_PASSPORT_NOT_FOUND
         - CLIENT_ARCHIVED
         - DUPLICATE_CLIENT_CANDIDATES

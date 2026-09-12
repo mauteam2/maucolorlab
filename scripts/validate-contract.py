@@ -63,7 +63,7 @@ for mutation in fixtures["invalid"]:
 for failure in fixtures["errors"]:
     error_validator.validate(failure)
 assert "HAIR_PASSPORT_NOT_FOUND" in errors
-assert set(contract["paths"]["/api/clients/{clientId}/hair-passport"]) == {"get"}
+assert set(contract["paths"]["/api/clients/{clientId}/hair-passport"]) == {"get", "post", "patch"}
 hair_rpc = Draft202012Validator(
     {"$ref": "#/components/schemas/HairPassportRpcRequest", "components": contract["components"]},
     format_checker=FormatChecker(),
@@ -73,3 +73,24 @@ hair_rpc.validate(request)
 for options in ({"passport_id": identifier}, {"organization_id": identifier}, {"page_size": 101}, {"include_archived": "true"}):
     assert list(hair_rpc.iter_errors(request | {"p_options": options})), options
 print(f"PASS: Hair Passport read contract: 2 snapshots, {len(fixtures['invalid'])} malformed payloads, {len(fixtures['errors'])} errors, and bounded read-only requests")
+
+mutations = json.loads((root / "contracts/fixtures/hair-core-mutation.json").read_text(encoding="utf-8"))
+mutation_validator = Draft202012Validator(
+    {"$ref": "#/components/schemas/HairMutationCommand", "components": contract["components"]}, format_checker=FormatChecker())
+mutation_result = Draft202012Validator(
+    {"$ref": "#/components/schemas/HairMutationResult", "components": contract["components"]}, format_checker=FormatChecker())
+core_rpc = Draft202012Validator(
+    {"$ref": "#/components/schemas/HairCoreRpcRequest", "components": contract["components"]}, format_checker=FormatChecker())
+for command in mutations["valid"]:
+    mutation_validator.validate(command)
+    core_rpc.validate({"p_membership_id": identifier, "p_location_id": identifier, "p_client_id": command["client_id"],
+                       "p_operation": command["operation"], "p_payload": command["payload"] | ({"region_id": command["region_id"]} if "region_id" in command else {})})
+for case in mutations["invalid"]:
+    command = copy.deepcopy(mutations["valid"][case["base"]])
+    command["payload"].update(case["payload"])
+    assert list(mutation_validator.iter_errors(command)), case["name"]
+for name in ("created", "enriched", "region"):
+    mutation_result.validate(mutations[name])
+assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/regions"]) == {"post"}
+assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/regions/{regionId}"]) == {"patch"}
+print(f"PASS: Hair core mutation contract: {len(mutations['valid'])} commands/RPC requests, {len(mutations['invalid'])} rejection cases, 3 results")

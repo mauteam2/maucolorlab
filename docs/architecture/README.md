@@ -22,3 +22,7 @@ Phase 0 establishes identity, organizations, locations, memberships, permissions
 Phase 1A adds real authentication and verified workspace selection. Phase 1B adds
 organization-owned client identity, directory/search and explicit duplicate review;
 see [ADR 0008](adr-0008-client-identity-and-duplicate-review.md).
+
+Hair Passport foundation and reads are covered by [ADR 0009](adr-0009-hair-passport-database-foundation.md)
+and [ADR 0010](adr-0010-hair-passport-read-service.md). Phase 1C-2B1 adds only
+passport/core and region mutations; see [ADR 0011](adr-0011-hair-passport-core-mutations.md).

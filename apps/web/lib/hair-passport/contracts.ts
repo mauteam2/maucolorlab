@@ -39,8 +39,7 @@ export const hairEvidence = z.strictObject({
   ctx.addIssue({ code: "custom", message: "Invalid evidence relevance" });
 });
 
-export const hairObservation = z.strictObject({
- id: uuid, region_id: uuid.nullable(), ...recorded, evidence: hairEvidence,
+export const hairTechnicalState = z.strictObject({
  natural_level: level, perceived_level: level, grey_ratio: measured(z.number().min(0).max(1)),
  thickness: measured(z.enum(["FINE","MEDIUM","COARSE"])),
  density: measured(z.enum(["LOW","MEDIUM","HIGH"])),
@@ -50,9 +49,13 @@ export const hairObservation = z.strictObject({
  bleach_history: measured(boundedText(2000)), chemical_history: measured(boundedText(2000)),
  technical_notes: boundedText(4000).nullable(), integrity_notes: boundedText(2000).nullable(),
 });
+export const hairObservation = z.strictObject({
+ id: uuid, region_id: uuid.nullable(), ...recorded, evidence: hairEvidence, ...hairTechnicalState.shape,
+});
 export const hairAssessment = z.discriminatedUnion("state", [
  z.strictObject({ state: z.literal("NOT_ASSESSED"), observation: z.null() }),
  z.strictObject({ state: z.literal("ASSESSED"), observation: hairObservation }),
+ z.strictObject({ state: z.literal("UNVERIFIED"), values: hairTechnicalState }),
 ]);
 export const hairRegion = z.strictObject({
  id: uuid, type: z.enum(["ROOT","MID_LENGTHS","ENDS","FACE_FRAME","CROWN","NAPE","BANDED_AREA","BLEACHED_AREA","HIGHLIGHTED_AREA","CUSTOM"]), label: boundedText(120).nullable(),

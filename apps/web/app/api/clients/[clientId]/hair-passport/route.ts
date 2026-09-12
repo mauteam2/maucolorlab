@@ -1,6 +1,14 @@
 import { AccessError } from "@/lib/tenant/bootstrap";
 import { readHairPassport } from "@/lib/hair-passport/service";
 import { hairReadOptions } from "@/lib/hair-passport/contracts";
+import { hairMutationResponse } from "@/lib/hair-passport/mutation-http";
+
+export function POST(request: Request, { params }: { params: Promise<{ clientId: string }> }) {
+ return hairMutationResponse(request, params, "create_passport");
+}
+export function PATCH(request: Request, { params }: { params: Promise<{ clientId: string }> }) {
+ return hairMutationResponse(request, params, "update_passport");
+}
 
 export async function GET(request: Request, { params }: { params: Promise<{ clientId: string }> }) {
  const correlationId = crypto.randomUUID();

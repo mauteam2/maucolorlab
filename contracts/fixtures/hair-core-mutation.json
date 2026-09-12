@@ -1,0 +1,362 @@
+{
+  "valid": [
+    {
+      "operation": "create_passport",
+      "client_id": "b5000000-0000-4000-8000-000000000001",
+      "payload": {
+        "request_id": "b5000000-0000-4000-8000-000000000002"
+      }
+    },
+    {
+      "operation": "create_passport",
+      "client_id": "b5000000-0000-4000-8000-000000000001",
+      "payload": {
+        "request_id": "b5000000-0000-4000-8000-000000000002",
+        "technical": {
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          },
+          "porosity": {
+            "state": "UNKNOWN",
+            "value": null
+          }
+        }
+      }
+    },
+    {
+      "operation": "update_passport",
+      "client_id": "b5000000-0000-4000-8000-000000000001",
+      "payload": {
+        "request_id": "b5000000-0000-4000-8000-000000000002",
+        "expected_version": 1,
+        "technical": {
+          "natural_level": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "technical_notes": null
+        }
+      }
+    },
+    {
+      "operation": "create_region",
+      "client_id": "b5000000-0000-4000-8000-000000000001",
+      "payload": {
+        "request_id": "b5000000-0000-4000-8000-000000000002",
+        "region_type": "CUSTOM",
+        "label": "Synthetic band"
+      }
+    },
+    {
+      "operation": "update_region",
+      "client_id": "b5000000-0000-4000-8000-000000000001",
+      "region_id": "b5000000-0000-4000-8000-000000000003",
+      "payload": {
+        "request_id": "b5000000-0000-4000-8000-000000000002",
+        "expected_version": 1,
+        "label": "Revised band",
+        "technical": {
+          "tone": {
+            "state": "NOT_APPLICABLE",
+            "value": null
+          }
+        }
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "name": "forged ownership",
+      "base": 0,
+      "payload": {
+        "organization_id": "b5000000-0000-4000-8000-000000000009"
+      }
+    },
+    {
+      "name": "known without value",
+      "base": 1,
+      "payload": {
+        "technical": {
+          "natural_level": {
+            "state": "KNOWN",
+            "value": null
+          }
+        }
+      }
+    },
+    {
+      "name": "unsupported not applicable",
+      "base": 1,
+      "payload": {
+        "technical": {
+          "natural_level": {
+            "state": "NOT_APPLICABLE",
+            "value": null
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown retaining value",
+      "base": 1,
+      "payload": {
+        "technical": {
+          "porosity": {
+            "state": "UNKNOWN",
+            "value": "HIGH"
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid enum",
+      "base": 1,
+      "payload": {
+        "technical": {
+          "density": {
+            "state": "KNOWN",
+            "value": "INVALID"
+          }
+        }
+      }
+    },
+    {
+      "name": "out of range",
+      "base": 1,
+      "payload": {
+        "technical": {
+          "grey_ratio": {
+            "state": "KNOWN",
+            "value": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "null technical",
+      "base": 1,
+      "payload": {
+        "technical": null
+      }
+    },
+    {
+      "name": "empty update",
+      "base": 2,
+      "payload": {
+        "technical": {}
+      }
+    },
+    {
+      "name": "fractional version",
+      "base": 2,
+      "payload": {
+        "expected_version": 1.5
+      }
+    },
+    {
+      "name": "custom without label",
+      "base": 3,
+      "payload": {
+        "label": null
+      }
+    },
+    {
+      "name": "region identity move",
+      "base": 4,
+      "payload": {
+        "passport_id": "b5000000-0000-4000-8000-000000000009"
+      }
+    },
+    {
+      "name": "blank note",
+      "base": 1,
+      "payload": {
+        "technical": {
+          "technical_notes": " "
+        }
+      }
+    }
+  ],
+  "created": {
+    "correlationId": "b5000000-0000-4000-8000-000000000005",
+    "data": {
+      "kind": "PASSPORT",
+      "passport": {
+        "id": "b5000000-0000-4000-8000-000000000004",
+        "client_id": "b5000000-0000-4000-8000-000000000001",
+        "status": "ACTIVE",
+        "client_status": "ACTIVE",
+        "version": 1,
+        "created_at": "2026-09-12T10:00:00Z",
+        "updated_at": "2026-09-12T10:00:00Z"
+      },
+      "core": {
+        "state": "NOT_ASSESSED",
+        "observation": null
+      },
+      "regions": [
+        {
+          "id": "b5000000-0000-4000-8000-000000000010",
+          "type": "ROOT",
+          "label": null,
+          "status": "ACTIVE",
+          "version": 1,
+          "updated_at": "2026-09-12T10:00:00Z",
+          "assessment": {
+            "state": "NOT_ASSESSED",
+            "observation": null
+          }
+        },
+        {
+          "id": "b5000000-0000-4000-8000-000000000011",
+          "type": "MID_LENGTHS",
+          "label": null,
+          "status": "ACTIVE",
+          "version": 1,
+          "updated_at": "2026-09-12T10:00:00Z",
+          "assessment": {
+            "state": "NOT_ASSESSED",
+            "observation": null
+          }
+        },
+        {
+          "id": "b5000000-0000-4000-8000-000000000012",
+          "type": "ENDS",
+          "label": null,
+          "status": "ACTIVE",
+          "version": 1,
+          "updated_at": "2026-09-12T10:00:00Z",
+          "assessment": {
+            "state": "NOT_ASSESSED",
+            "observation": null
+          }
+        }
+      ]
+    }
+  },
+  "enriched": {
+    "correlationId": "b5000000-0000-4000-8000-000000000005",
+    "data": {
+      "kind": "PASSPORT",
+      "passport": {
+        "id": "b5000000-0000-4000-8000-000000000004",
+        "client_id": "b5000000-0000-4000-8000-000000000001",
+        "status": "ACTIVE",
+        "client_status": "ACTIVE",
+        "version": 1,
+        "created_at": "2026-09-12T10:00:00Z",
+        "updated_at": "2026-09-12T10:00:00Z"
+      },
+      "core": {
+        "state": "UNVERIFIED",
+        "values": {
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          },
+          "perceived_level": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "grey_ratio": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "thickness": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "density": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "porosity": {
+            "state": "UNKNOWN",
+            "value": null
+          },
+          "elasticity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "tone": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "cosmetic_color_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "bleach_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "chemical_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        }
+      },
+      "regions": [
+        {
+          "id": "b5000000-0000-4000-8000-000000000010",
+          "type": "ROOT",
+          "label": null,
+          "status": "ACTIVE",
+          "version": 1,
+          "updated_at": "2026-09-12T10:00:00Z",
+          "assessment": {
+            "state": "NOT_ASSESSED",
+            "observation": null
+          }
+        },
+        {
+          "id": "b5000000-0000-4000-8000-000000000011",
+          "type": "MID_LENGTHS",
+          "label": null,
+          "status": "ACTIVE",
+          "version": 1,
+          "updated_at": "2026-09-12T10:00:00Z",
+          "assessment": {
+            "state": "NOT_ASSESSED",
+            "observation": null
+          }
+        },
+        {
+          "id": "b5000000-0000-4000-8000-000000000012",
+          "type": "ENDS",
+          "label": null,
+          "status": "ACTIVE",
+          "version": 1,
+          "updated_at": "2026-09-12T10:00:00Z",
+          "assessment": {
+            "state": "NOT_ASSESSED",
+            "observation": null
+          }
+        }
+      ]
+    }
+  },
+  "region": {
+    "correlationId": "b5000000-0000-4000-8000-000000000005",
+    "data": {
+      "kind": "REGION",
+      "client_id": "b5000000-0000-4000-8000-000000000001",
+      "passport_id": "b5000000-0000-4000-8000-000000000004",
+      "region": {
+        "id": "b5000000-0000-4000-8000-000000000003",
+        "type": "CUSTOM",
+        "label": "Synthetic band",
+        "status": "ACTIVE",
+        "version": 1,
+        "updated_at": "2026-09-12T10:00:00Z",
+        "assessment": {
+          "state": "NOT_ASSESSED",
+          "observation": null
+        }
+      }
+    }
+  }
+}
