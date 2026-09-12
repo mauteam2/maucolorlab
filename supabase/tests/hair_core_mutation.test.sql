@@ -36,7 +36,11 @@ insert into results values('created',pg_temp.mutate('create_passport','{"request
 select is((select value#>>'{data,core,state}' from results where name='created'),'UNVERIFIED','authorized creation has explicit unverified state');
 select is((select jsonb_agg(region.dto->>'type' order by region.dto->>'type') from results r,lateral jsonb_array_elements(r.value#>'{data,regions}') region(dto) where r.name='created'),'["ENDS","MID_LENGTHS","ROOT"]'::jsonb,'creates exactly three standard regions');
 select is(pg_temp.mutate('create_passport','{"request_id": "b4000000-0000-4000-8000-000000000901", "technical": {"natural_level": {"state": "KNOWN", "value": 5}, "porosity": {"state": "UNKNOWN", "value": null}, "technical_notes": "Synthetic note"}}'::jsonb),(select value from results where name='created'),'retry returns original result and identifiers');
+-- Organization-level audit is intentionally hidden from this location-scoped actor.
+-- Inspect persisted audit as the test supervisor; every mutation still runs authenticated.
+reset role;
 select is((select count(*) from public.audit_events where correlation_id='b4000000-0000-4000-8000-000000000900'),4::bigint,'retry does not duplicate creation audit');
+set local role authenticated;
 select is(pg_temp.mutate('create_passport','{}'::jsonb)->>'code','HAIR_PASSPORT_ALREADY_EXISTS','second current passport rejected');
 select is(pg_temp.mutate('create_passport','{"request_id": "b4000000-0000-4000-8000-000000000901", "technical": {}}'::jsonb)->>'code','CONFLICT','request key cannot represent changed payload');
 select is(pg_temp.mutate('create_passport','{}'::jsonb,'b4000000-0000-4000-8000-000000000032')->>'code','CLIENT_NOT_FOUND','foreign client is inaccessible');
@@ -48,7 +52,9 @@ select is((select value#>>'{data,passport,version}' from results where name='upd
 select is(pg_temp.mutate('update_passport','{"request_id": "b4000000-0000-4000-8000-000000000902", "expected_version": 1, "technical": {"porosity": {"state": "NOT_APPLICABLE", "value": null}}}'::jsonb),(select value from results where name='updated'),'successful update retry precedes stale version check');
 select is(pg_temp.mutate('update_passport','{"expected_version": 1, "technical": {"technical_notes": "Stale"}}'::jsonb)->>'code','CONFLICT','stale edit cannot overwrite current state');
 select is(pg_temp.mutate('update_passport','{"expected_version": 2, "technical": {"natural_level": {"state": "NOT_ASSESSED", "value": null}, "technical_notes": null}}'::jsonb)#>'{data,core,values,natural_level}','{"state":"NOT_ASSESSED","value":null}'::jsonb,'explicit not-assessed clears a known value');
+reset role;
 select ok(exists(select 1 from public.audit_events where action='hair_passport.updated' and metadata->'changed_fields' ?& array['natural_level_state','natural_level','technical_notes']) and not exists(select 1 from public.audit_events where metadata::text like '%Synthetic note%'),'audit contains changed fields without raw notes');
+set local role authenticated;
 select is(pg_temp.mutate('update_passport','{"expected_version": 3, "technical": {"tone": {"state": "UNKNOWN", "value": null}}, "organization_id": "b4000000-0000-4000-8000-000000000002"}'::jsonb)->>'code','VALIDATION_FAILED','update cannot rewrite organization_id');
 select is(pg_temp.mutate('update_passport','{"expected_version": 3, "technical": {"tone": {"state": "UNKNOWN", "value": null}}, "client_id": "b4000000-0000-4000-8000-000000000002"}'::jsonb)->>'code','VALIDATION_FAILED','update cannot rewrite client_id');
 select is(pg_temp.mutate('update_passport','{"expected_version": 3, "technical": {"tone": {"state": "UNKNOWN", "value": null}}, "created_by": "b4000000-0000-4000-8000-000000000002"}'::jsonb)->>'code','VALIDATION_FAILED','update cannot rewrite created_by');
