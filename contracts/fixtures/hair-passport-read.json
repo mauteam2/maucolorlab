@@ -1,0 +1,539 @@
+{
+  "empty": {
+    "correlationId": "b2000000-0000-4000-8000-000000000201",
+    "data": {
+      "passport": {
+        "id": "b2000000-0000-4000-8000-000000000041",
+        "client_id": "b2000000-0000-4000-8000-000000000031",
+        "status": "ACTIVE",
+        "client_status": "ACTIVE",
+        "version": 1,
+        "created_at": "2026-09-10T12:00:00+00:00",
+        "updated_at": "2026-09-10T12:00:00+00:00"
+      },
+      "core": {
+        "state": "NOT_ASSESSED",
+        "observation": null
+      },
+      "regions": [],
+      "physical_tests": {
+        "items": [],
+        "offset": 0,
+        "page_size": 50,
+        "has_more": false,
+        "next_offset": null
+      },
+      "history": {
+        "items": [],
+        "offset": 0,
+        "page_size": 50,
+        "has_more": false,
+        "next_offset": null
+      }
+    }
+  },
+  "populated": {
+    "correlationId": "b2000000-0000-4000-8000-000000000201",
+    "data": {
+      "passport": {
+        "id": "b2000000-0000-4000-8000-000000000041",
+        "client_id": "b2000000-0000-4000-8000-000000000031",
+        "status": "ACTIVE",
+        "client_status": "ACTIVE",
+        "version": 1,
+        "created_at": "2026-09-10T12:00:00+00:00",
+        "updated_at": "2026-09-10T12:00:00+00:00"
+      },
+      "core": {
+        "state": "ASSESSED",
+        "observation": {
+          "id": "b2000000-0000-4000-8000-000000000071",
+          "region_id": null,
+          "recorded_at": "2026-09-10T12:00:00+00:00",
+          "recorded_by": "b2000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "b2000000-0000-4000-8000-000000000061",
+            "source": "AI_ESTIMATE",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-10T12:00:00+00:00"
+            },
+            "confidence": {
+              "state": "KNOWN",
+              "value": 0.75
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-10T12:00:00+00:00",
+            "recorded_by": "b2000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "b2000000-0000-4000-8000-000000000011",
+            "context": null
+          },
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 5
+          },
+          "perceived_level": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "grey_ratio": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "thickness": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "density": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "porosity": {
+            "state": "UNKNOWN",
+            "value": null
+          },
+          "elasticity": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "tone": {
+            "state": "NOT_APPLICABLE",
+            "value": null
+          },
+          "cosmetic_color_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "bleach_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "chemical_history": {
+            "state": "NOT_ASSESSED",
+            "value": null
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        }
+      },
+      "regions": [
+        {
+          "id": "b2000000-0000-4000-8000-000000000051",
+          "type": "ROOT",
+          "label": null,
+          "status": "ACTIVE",
+          "version": 2,
+          "updated_at": "2026-09-10T12:00:00+00:00",
+          "assessment": {
+            "state": "ASSESSED",
+            "observation": {
+              "id": "b2000000-0000-4000-8000-000000000072",
+              "region_id": "b2000000-0000-4000-8000-000000000051",
+              "recorded_at": "2026-09-10T12:00:00+00:00",
+              "recorded_by": "b2000000-0000-4000-8000-000000000021",
+              "supersedes_id": null,
+              "evidence": {
+                "id": "b2000000-0000-4000-8000-000000000062",
+                "source": "PROFESSIONAL_VERIFIED",
+                "observed_at": {
+                  "state": "KNOWN",
+                  "value": "2026-09-10T12:00:00+00:00"
+                },
+                "confidence": {
+                  "state": "KNOWN",
+                  "value": 0.75
+                },
+                "verified_by": "b2000000-0000-4000-8000-000000000021",
+                "recorded_at": "2026-09-10T12:00:00+00:00",
+                "recorded_by": "b2000000-0000-4000-8000-000000000021",
+                "supersedes_id": null,
+                "relevant_until": null,
+                "location_id": "b2000000-0000-4000-8000-000000000011",
+                "context": null
+              },
+              "natural_level": {
+                "state": "KNOWN",
+                "value": 5
+              },
+              "perceived_level": {
+                "state": "NOT_ASSESSED",
+                "value": null
+              },
+              "grey_ratio": {
+                "state": "NOT_ASSESSED",
+                "value": null
+              },
+              "thickness": {
+                "state": "NOT_ASSESSED",
+                "value": null
+              },
+              "density": {
+                "state": "NOT_ASSESSED",
+                "value": null
+              },
+              "porosity": {
+                "state": "UNKNOWN",
+                "value": null
+              },
+              "elasticity": {
+                "state": "NOT_ASSESSED",
+                "value": null
+              },
+              "tone": {
+                "state": "NOT_APPLICABLE",
+                "value": null
+              },
+              "cosmetic_color_history": {
+                "state": "NOT_ASSESSED",
+                "value": null
+              },
+              "bleach_history": {
+                "state": "NOT_ASSESSED",
+                "value": null
+              },
+              "chemical_history": {
+                "state": "NOT_ASSESSED",
+                "value": null
+              },
+              "technical_notes": null,
+              "integrity_notes": null
+            }
+          }
+        }
+      ],
+      "physical_tests": {
+        "items": [
+          {
+            "id": "b2000000-0000-4000-8000-000000000081",
+            "region_id": "b2000000-0000-4000-8000-000000000051",
+            "type": "STRAND",
+            "result": {
+              "state": "KNOWN",
+              "value": "Synthetic test result"
+            },
+            "performed_by": "b2000000-0000-4000-8000-000000000021",
+            "performed_at": "2026-09-10T12:00:00+00:00",
+            "recorded_at": "2026-09-10T12:00:00+00:00",
+            "recorded_by": "b2000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "notes": null,
+            "evidence": {
+              "id": "b2000000-0000-4000-8000-000000000063",
+              "source": "PHYSICAL_TEST",
+              "observed_at": {
+                "state": "KNOWN",
+                "value": "2026-09-10T12:00:00+00:00"
+              },
+              "confidence": {
+                "state": "KNOWN",
+                "value": 0.75
+              },
+              "verified_by": null,
+              "recorded_at": "2026-09-10T12:00:00+00:00",
+              "recorded_by": "b2000000-0000-4000-8000-000000000021",
+              "supersedes_id": null,
+              "relevant_until": null,
+              "location_id": "b2000000-0000-4000-8000-000000000011",
+              "context": null
+            }
+          }
+        ],
+        "offset": 0,
+        "page_size": 50,
+        "has_more": false,
+        "next_offset": null
+      },
+      "history": {
+        "items": [
+          {
+            "id": "b2000000-0000-4000-8000-000000000091",
+            "category": "COLOR",
+            "performed_on": {
+              "state": "APPROXIMATE",
+              "value": "2025-01-01"
+            },
+            "product": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "description": "Synthetic history",
+            "attributed_salon": null,
+            "attributed_professional": null,
+            "location_id": null,
+            "region_ids": [
+              "b2000000-0000-4000-8000-000000000051"
+            ],
+            "recorded_at": "2026-09-10T12:00:00+00:00",
+            "recorded_by": "b2000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "evidence": {
+              "id": "b2000000-0000-4000-8000-000000000064",
+              "source": "IMPORTED_UNVERIFIED",
+              "observed_at": {
+                "state": "KNOWN",
+                "value": "2026-09-10T12:00:00+00:00"
+              },
+              "confidence": {
+                "state": "KNOWN",
+                "value": 0.75
+              },
+              "verified_by": null,
+              "recorded_at": "2026-09-10T12:00:00+00:00",
+              "recorded_by": "b2000000-0000-4000-8000-000000000021",
+              "supersedes_id": null,
+              "relevant_until": null,
+              "location_id": "b2000000-0000-4000-8000-000000000011",
+              "context": null
+            }
+          }
+        ],
+        "offset": 0,
+        "page_size": 50,
+        "has_more": false,
+        "next_offset": null
+      }
+    }
+  },
+  "invalid": [
+    {
+      "name": "unknown with value",
+      "path": [
+        "data",
+        "core",
+        "observation",
+        "porosity",
+        "value"
+      ],
+      "value": "HIGH"
+    },
+    {
+      "name": "known without value",
+      "path": [
+        "data",
+        "core",
+        "observation",
+        "natural_level",
+        "value"
+      ],
+      "value": null
+    },
+    {
+      "name": "confidence out of range",
+      "path": [
+        "data",
+        "core",
+        "observation",
+        "evidence",
+        "confidence",
+        "value"
+      ],
+      "value": 1.1
+    },
+    {
+      "name": "confidence coerced from string",
+      "path": [
+        "data",
+        "core",
+        "observation",
+        "evidence",
+        "confidence",
+        "value"
+      ],
+      "value": "0.75"
+    },
+    {
+      "name": "unknown evidence source",
+      "path": [
+        "data",
+        "core",
+        "observation",
+        "evidence",
+        "source"
+      ],
+      "value": "GUESSED"
+    },
+    {
+      "name": "AI marked verified",
+      "path": [
+        "data",
+        "core",
+        "observation",
+        "evidence",
+        "verified_by"
+      ],
+      "value": "b2000000-0000-4000-8000-000000000021"
+    },
+    {
+      "name": "professional without verifier",
+      "path": [
+        "data",
+        "regions",
+        "0",
+        "assessment",
+        "observation",
+        "evidence",
+        "verified_by"
+      ],
+      "value": null
+    },
+    {
+      "name": "missing field state",
+      "path": [
+        "data",
+        "core",
+        "observation",
+        "density",
+        "state"
+      ],
+      "remove": true
+    },
+    {
+      "name": "unknown region type",
+      "path": [
+        "data",
+        "regions",
+        "0",
+        "type"
+      ],
+      "value": "SCALP_UI"
+    },
+    {
+      "name": "invalid test type",
+      "path": [
+        "data",
+        "physical_tests",
+        "items",
+        "0",
+        "type"
+      ],
+      "value": "RISK"
+    },
+    {
+      "name": "test uses AI evidence",
+      "path": [
+        "data",
+        "physical_tests",
+        "items",
+        "0",
+        "evidence",
+        "source"
+      ],
+      "value": "AI_ESTIMATE"
+    },
+    {
+      "name": "history missing category",
+      "path": [
+        "data",
+        "history",
+        "items",
+        "0",
+        "category"
+      ],
+      "remove": true
+    },
+    {
+      "name": "invalid history date",
+      "path": [
+        "data",
+        "history",
+        "items",
+        "0",
+        "performed_on",
+        "value"
+      ],
+      "value": "2026-99-01"
+    },
+    {
+      "name": "raw ownership field",
+      "path": [
+        "data",
+        "passport",
+        "organization_id"
+      ],
+      "value": "b2000000-0000-4000-8000-000000000001"
+    },
+    {
+      "name": "unknown mapped to empty string",
+      "path": [
+        "data",
+        "core",
+        "observation",
+        "porosity",
+        "value"
+      ],
+      "value": ""
+    },
+    {
+      "name": "missing empty section",
+      "path": [
+        "data",
+        "history"
+      ],
+      "remove": true
+    },
+    {
+      "name": "unassessed holds observation",
+      "path": [
+        "data",
+        "core",
+        "state"
+      ],
+      "value": "NOT_ASSESSED"
+    }
+  ],
+  "errors": [
+    {
+      "code": "UNAUTHENTICATED",
+      "message": "UNAUTHENTICATED",
+      "correlationId": "b2000000-0000-4000-8000-000000000201"
+    },
+    {
+      "code": "SESSION_EXPIRED",
+      "message": "SESSION_EXPIRED",
+      "correlationId": "b2000000-0000-4000-8000-000000000201"
+    },
+    {
+      "code": "MEMBERSHIP_REQUIRED",
+      "message": "MEMBERSHIP_REQUIRED",
+      "correlationId": "b2000000-0000-4000-8000-000000000201"
+    },
+    {
+      "code": "MEMBERSHIP_REVOKED",
+      "message": "MEMBERSHIP_REVOKED",
+      "correlationId": "b2000000-0000-4000-8000-000000000201"
+    },
+    {
+      "code": "TENANT_CONTEXT_INVALID",
+      "message": "TENANT_CONTEXT_INVALID",
+      "correlationId": "b2000000-0000-4000-8000-000000000201"
+    },
+    {
+      "code": "FORBIDDEN",
+      "message": "FORBIDDEN",
+      "correlationId": "b2000000-0000-4000-8000-000000000201"
+    },
+    {
+      "code": "CLIENT_NOT_FOUND",
+      "message": "CLIENT_NOT_FOUND",
+      "correlationId": "b2000000-0000-4000-8000-000000000201"
+    },
+    {
+      "code": "HAIR_PASSPORT_NOT_FOUND",
+      "message": "HAIR_PASSPORT_NOT_FOUND",
+      "correlationId": "b2000000-0000-4000-8000-000000000201"
+    },
+    {
+      "code": "VALIDATION_FAILED",
+      "message": "VALIDATION_FAILED",
+      "correlationId": "b2000000-0000-4000-8000-000000000201"
+    },
+    {
+      "code": "NETWORK_ERROR",
+      "message": "NETWORK_ERROR",
+      "correlationId": "b2000000-0000-4000-8000-000000000201"
+    }
+  ]
+}

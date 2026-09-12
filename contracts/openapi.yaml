@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.2.0
+  version: 0.3.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -186,6 +186,111 @@ paths:
           description: Missing or expired JWT (provider envelope)
         '403':
           description: Anonymous or forbidden role (provider envelope)
+  /api/clients/{clientId}/hair-passport:
+    get:
+      operationId: "getClientHairPassport"
+      summary: "Read an authorized organization client technical snapshot"
+      description: "Read-only server adapter. Session and selected workspace cookie are freshly verified; no organization or passport ID is accepted. Responses, including failures, are private, no-store with matching body/header correlation IDs. Current whole-hair and regional observations include their evidence. Test and history pages are independent. Archived clients/passports require include_archived=true; otherwise their respective NOT_FOUND error is returned. No UI or mutation is exposed."
+      security:
+        -
+          sessionCookie: []
+      parameters:
+        -
+          in: "path"
+          name: "clientId"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+        -
+          in: "query"
+          name: "include_archived"
+          required: false
+          schema:
+            type: "boolean"
+            default: false
+            description: "Explicit historical access to an archived client or passport; authorization remains mandatory."
+        -
+          in: "query"
+          name: "page_size"
+          required: false
+          schema:
+            type: "integer"
+            minimum: 1
+            maximum: 100
+            default: 50
+        -
+          in: "query"
+          name: "tests_offset"
+          required: false
+          schema:
+            type: "integer"
+            minimum: 0
+            maximum: 10000
+            default: 0
+        -
+          in: "query"
+          name: "history_offset"
+          required: false
+          schema:
+            type: "integer"
+            minimum: 0
+            maximum: 10000
+            default: 0
+      responses:
+        '200':
+          description: "Validated technical snapshot with explicit states and provenance"
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HairPassportReadResult"
+        '400':
+          $ref: "#/components/responses/AccessError"
+        '401':
+          $ref: "#/components/responses/AccessError"
+        '403':
+          $ref: "#/components/responses/AccessError"
+        '404':
+          $ref: "#/components/responses/AccessError"
+        '503':
+          $ref: "#/components/responses/AccessError"
+  /rest/v1/rpc/hair_passport_snapshot:
+    post:
+      operationId: "readHairPassportSnapshotRpc"
+      summary: "Read-only authenticated Hair Passport service RPC"
+      servers:
+        -
+          url: "http://127.0.0.1:54321"
+          description: "Disposable local Supabase; configure environment origin for staging."
+      description: "SECURITY INVOKER, stable and RLS-protected. Membership and location are selection references, never authority. Verifies the selected membership owner, active organization/location and that selected role has hair_passport.read. Existing clients.read RLS must also authorize client lookup. Organization is derived from membership; client/passport IDs cannot cross tenants. No mutation or audit write occurs. Logical errors use the shared ErrorResponse in HTTP 200. Native consumers must validate the read model and normalize provider errors separately; RPC correlation is carried in p_correlation_id and the response body."
+      security:
+        -
+          bearerAuth: []
+          publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HairPassportRpcRequest"
+      responses:
+        '200':
+          description: "Technical snapshot or shared logical error"
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  -
+                    $ref: "#/components/schemas/HairPassportReadResult"
+                  -
+                    $ref: "#/components/schemas/ErrorResponse"
+        '401':
+          description: "Missing/expired JWT; provider envelope"
+        '403':
+          description: "Anonymous/forbidden role; provider envelope"
 components:
   securitySchemes:
     bearerAuth:
@@ -218,6 +323,946 @@ components:
         type: string
         format: uuid
   schemas:
+    HairThickness:
+      type: "string"
+      enum: ["FINE","MEDIUM","COARSE"]
+    HairDensity:
+      type: "string"
+      enum: ["LOW","MEDIUM","HIGH"]
+    HairPorosity:
+      type: "string"
+      enum: ["LOW","MEDIUM","HIGH"]
+    HairElasticity:
+      type: "string"
+      enum: ["LOW","NORMAL","HIGH"]
+    HairRegionType:
+      type: "string"
+      enum: ["ROOT","MID_LENGTHS","ENDS","FACE_FRAME","CROWN","NAPE","BANDED_AREA","BLEACHED_AREA","HIGHLIGHTED_AREA","CUSTOM"]
+    HairEvidenceSource:
+      type: "string"
+      enum: ["AI_ESTIMATE","PROFESSIONAL_VERIFIED","PHYSICAL_TEST","HISTORICAL","IMPORTED_UNVERIFIED"]
+    HairTestType:
+      type: "string"
+      enum: ["POROSITY","ELASTICITY","STRAND"]
+    HairHistoryCategory:
+      type: "string"
+      enum: ["COLOR","BLEACH_LIGHTENING","TONER_GLOSS","PERM","RELAXER_STRAIGHTENING","KERATIN_SMOOTHING","OTHER_CHEMICAL"]
+    HairLevelField:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              type: "number"
+              minimum: 1
+              maximum: 10
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_ASSESSED"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+    HairRatioField:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              type: "number"
+              minimum: 0
+              maximum: 1
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_ASSESSED"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_APPLICABLE"
+            value:
+              type: "null"
+    HairThicknessField:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              $ref: "#/components/schemas/HairThickness"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_ASSESSED"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_APPLICABLE"
+            value:
+              type: "null"
+    HairDensityField:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              $ref: "#/components/schemas/HairDensity"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_ASSESSED"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_APPLICABLE"
+            value:
+              type: "null"
+    HairPorosityField:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              $ref: "#/components/schemas/HairPorosity"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_ASSESSED"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_APPLICABLE"
+            value:
+              type: "null"
+    HairElasticityField:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              $ref: "#/components/schemas/HairElasticity"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_ASSESSED"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_APPLICABLE"
+            value:
+              type: "null"
+    HairToneField:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              type: "string"
+              minLength: 1
+              maxLength: 120
+              pattern: "\\S"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_ASSESSED"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_APPLICABLE"
+            value:
+              type: "null"
+    HairSummaryField:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              type: "string"
+              minLength: 1
+              maxLength: 2000
+              pattern: "\\S"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_ASSESSED"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_APPLICABLE"
+            value:
+              type: "null"
+    HairConfidence:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              type: "number"
+              minimum: 0
+              maximum: 1
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+    HairObservedAt:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              type: "string"
+              format: "date-time"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+    HairEvidence:
+      type: "object"
+      additionalProperties: false
+      required: ["id","source","observed_at","confidence","verified_by","recorded_at","recorded_by","supersedes_id","relevant_until","location_id","context"]
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        source:
+          $ref: "#/components/schemas/HairEvidenceSource"
+        observed_at:
+          $ref: "#/components/schemas/HairObservedAt"
+        confidence:
+          $ref: "#/components/schemas/HairConfidence"
+        verified_by:
+          anyOf:
+            -
+              type: "string"
+              format: "uuid"
+            -
+              type: "null"
+        recorded_at:
+          type: "string"
+          format: "date-time"
+        recorded_by:
+          type: "string"
+          format: "uuid"
+        supersedes_id:
+          anyOf:
+            -
+              type: "string"
+              format: "uuid"
+            -
+              type: "null"
+        relevant_until:
+          anyOf:
+            -
+              type: "string"
+              format: "date-time"
+            -
+              type: "null"
+        location_id:
+          anyOf:
+            -
+              type: "string"
+              format: "uuid"
+            -
+              type: "null"
+        context:
+          anyOf:
+            -
+              type: "string"
+              minLength: 1
+              maxLength: 2000
+              pattern: "\\S"
+            -
+              type: "null"
+      allOf:
+        -
+          if:
+            properties:
+              source:
+                const: "PROFESSIONAL_VERIFIED"
+          then:
+            properties:
+              verified_by:
+                type: "string"
+                format: "uuid"
+              observed_at:
+                properties:
+                  state:
+                    const: "KNOWN"
+          else:
+            properties:
+              verified_by:
+                type: "null"
+      description: "Provenance only. Confidence is numeric 0–1 or explicitly UNKNOWN. No Case Confidence calculation. Observation must precede recording; relevant_until requires a known observation and cannot precede it."
+    HairObservation:
+      type: "object"
+      additionalProperties: false
+      required: ["id","region_id","recorded_at","recorded_by","supersedes_id","evidence","natural_level","perceived_level","grey_ratio","thickness","density","porosity","elasticity","tone","cosmetic_color_history","bleach_history","chemical_history","technical_notes","integrity_notes"]
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        region_id:
+          anyOf:
+            -
+              type: "string"
+              format: "uuid"
+            -
+              type: "null"
+        recorded_at:
+          type: "string"
+          format: "date-time"
+        recorded_by:
+          type: "string"
+          format: "uuid"
+        supersedes_id:
+          anyOf:
+            -
+              type: "string"
+              format: "uuid"
+            -
+              type: "null"
+        evidence:
+          $ref: "#/components/schemas/HairEvidence"
+        natural_level:
+          $ref: "#/components/schemas/HairLevelField"
+        perceived_level:
+          $ref: "#/components/schemas/HairLevelField"
+        grey_ratio:
+          $ref: "#/components/schemas/HairRatioField"
+        thickness:
+          $ref: "#/components/schemas/HairThicknessField"
+        density:
+          $ref: "#/components/schemas/HairDensityField"
+        porosity:
+          $ref: "#/components/schemas/HairPorosityField"
+        elasticity:
+          $ref: "#/components/schemas/HairElasticityField"
+        tone:
+          $ref: "#/components/schemas/HairToneField"
+        cosmetic_color_history:
+          $ref: "#/components/schemas/HairSummaryField"
+        bleach_history:
+          $ref: "#/components/schemas/HairSummaryField"
+        chemical_history:
+          $ref: "#/components/schemas/HairSummaryField"
+        technical_notes:
+          anyOf:
+            -
+              type: "string"
+              minLength: 1
+              maxLength: 4000
+              pattern: "\\S"
+            -
+              type: "null"
+        integrity_notes:
+          anyOf:
+            -
+              type: "string"
+              minLength: 1
+              maxLength: 2000
+              pattern: "\\S"
+            -
+              type: "null"
+    HairAssessment:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","observation"]
+          properties:
+            state:
+              const: "NOT_ASSESSED"
+            observation:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","observation"]
+          properties:
+            state:
+              const: "ASSESSED"
+            observation:
+              $ref: "#/components/schemas/HairObservation"
+    HairRegion:
+      type: "object"
+      additionalProperties: false
+      required: ["id","type","label","status","version","updated_at","assessment"]
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        type:
+          $ref: "#/components/schemas/HairRegionType"
+        label:
+          anyOf:
+            -
+              type: "string"
+              minLength: 1
+              maxLength: 120
+              pattern: "\\S"
+            -
+              type: "null"
+        status:
+          $ref: "#/components/schemas/ClientStatus"
+        version:
+          type: "integer"
+          minimum: 1
+          maximum: 9007199254740991
+        updated_at:
+          type: "string"
+          format: "date-time"
+        assessment:
+          $ref: "#/components/schemas/HairAssessment"
+      allOf:
+        -
+          if:
+            properties:
+              type:
+                const: "CUSTOM"
+          then:
+            properties:
+              label:
+                type: "string"
+                minLength: 1
+                maxLength: 120
+                pattern: "\\S"
+      description: "Includes active and archived technical regions, ordered by creation time then ID. An assessed observation must have this region_id."
+    HairTestResult:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              type: "string"
+              minLength: 1
+              maxLength: 1000
+              pattern: "\\S"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_APPLICABLE"
+            value:
+              type: "null"
+    HairPhysicalTest:
+      type: "object"
+      additionalProperties: false
+      required: ["id","region_id","type","result","performed_by","performed_at","recorded_at","recorded_by","supersedes_id","notes","evidence"]
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        region_id:
+          anyOf:
+            -
+              type: "string"
+              format: "uuid"
+            -
+              type: "null"
+        type:
+          $ref: "#/components/schemas/HairTestType"
+        result:
+          $ref: "#/components/schemas/HairTestResult"
+        performed_by:
+          type: "string"
+          format: "uuid"
+        performed_at:
+          type: "string"
+          format: "date-time"
+        recorded_at:
+          type: "string"
+          format: "date-time"
+        recorded_by:
+          type: "string"
+          format: "uuid"
+        supersedes_id:
+          anyOf:
+            -
+              type: "string"
+              format: "uuid"
+            -
+              type: "null"
+        notes:
+          anyOf:
+            -
+              type: "string"
+              minLength: 1
+              maxLength: 2000
+              pattern: "\\S"
+            -
+              type: "null"
+        evidence:
+          $ref: "#/components/schemas/HairEvidence"
+      allOf:
+        -
+          properties:
+            evidence:
+              properties:
+                source:
+                  const: "PHYSICAL_TEST"
+      description: "Performed time cannot follow recording. region_id, when present, identifies a returned region."
+    HairHistoryDate:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              enum: ["EXACT","APPROXIMATE"]
+            value:
+              type: "string"
+              format: "date"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+    HairProduct:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "KNOWN"
+            value:
+              type: "string"
+              minLength: 1
+              maxLength: 500
+              pattern: "\\S"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "UNKNOWN"
+            value:
+              type: "null"
+        -
+          type: "object"
+          additionalProperties: false
+          required: ["state","value"]
+          properties:
+            state:
+              const: "NOT_APPLICABLE"
+            value:
+              type: "null"
+    HairHistoryEvent:
+      type: "object"
+      additionalProperties: false
+      required: ["id","category","performed_on","product","description","attributed_salon","attributed_professional","location_id","region_ids","recorded_at","recorded_by","supersedes_id","evidence"]
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        category:
+          $ref: "#/components/schemas/HairHistoryCategory"
+        performed_on:
+          $ref: "#/components/schemas/HairHistoryDate"
+        product:
+          $ref: "#/components/schemas/HairProduct"
+        description:
+          type: "string"
+          minLength: 1
+          maxLength: 2000
+          pattern: "\\S"
+        attributed_salon:
+          anyOf:
+            -
+              type: "string"
+              minLength: 1
+              maxLength: 160
+              pattern: "\\S"
+            -
+              type: "null"
+        attributed_professional:
+          anyOf:
+            -
+              type: "string"
+              minLength: 1
+              maxLength: 160
+              pattern: "\\S"
+            -
+              type: "null"
+        location_id:
+          anyOf:
+            -
+              type: "string"
+              format: "uuid"
+            -
+              type: "null"
+        region_ids:
+          type: "array"
+          uniqueItems: true
+          items:
+            type: "string"
+            format: "uuid"
+        recorded_at:
+          type: "string"
+          format: "date-time"
+        recorded_by:
+          type: "string"
+          format: "uuid"
+        supersedes_id:
+          anyOf:
+            -
+              type: "string"
+              format: "uuid"
+            -
+              type: "null"
+        evidence:
+          $ref: "#/components/schemas/HairEvidence"
+    HairPhysicalTestPage:
+      type: "object"
+      additionalProperties: false
+      required: ["items","offset","page_size","has_more","next_offset"]
+      properties:
+        items:
+          type: "array"
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/HairPhysicalTest"
+        offset:
+          type: "integer"
+          minimum: 0
+          maximum: 10000
+        page_size:
+          type: "integer"
+          minimum: 1
+          maximum: 100
+        has_more:
+          type: "boolean"
+        next_offset:
+          anyOf:
+            -
+              type: "integer"
+              minimum: 1
+              maximum: 10100
+            -
+              type: "null"
+      description: "has_more uses one lookahead row. next_offset equals offset + page_size when has_more, otherwise null. At most page_size items. Offsets are bounded to 10000; each request reads a fresh snapshot, so concurrent appends can shift subsequent pages."
+    HairHistoryPage:
+      type: "object"
+      additionalProperties: false
+      required: ["items","offset","page_size","has_more","next_offset"]
+      properties:
+        items:
+          type: "array"
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/HairHistoryEvent"
+        offset:
+          type: "integer"
+          minimum: 0
+          maximum: 10000
+        page_size:
+          type: "integer"
+          minimum: 1
+          maximum: 100
+        has_more:
+          type: "boolean"
+        next_offset:
+          anyOf:
+            -
+              type: "integer"
+              minimum: 1
+              maximum: 10100
+            -
+              type: "null"
+      description: "has_more uses one lookahead row. next_offset equals offset + page_size when has_more, otherwise null. At most page_size items. Offsets are bounded to 10000; each request reads a fresh snapshot, so concurrent appends can shift subsequent pages."
+    HairPassportSnapshot:
+      type: "object"
+      additionalProperties: false
+      required: ["passport","core","regions","physical_tests","history"]
+      properties:
+        passport:
+          type: "object"
+          additionalProperties: false
+          required: ["id","client_id","status","client_status","version","created_at","updated_at"]
+          properties:
+            id:
+              type: "string"
+              format: "uuid"
+            client_id:
+              type: "string"
+              format: "uuid"
+            status:
+              $ref: "#/components/schemas/ClientStatus"
+            client_status:
+              $ref: "#/components/schemas/ClientStatus"
+            version:
+              type: "integer"
+              minimum: 1
+              maximum: 9007199254740991
+            created_at:
+              type: "string"
+              format: "date-time"
+            updated_at:
+              type: "string"
+              format: "date-time"
+        core:
+          $ref: "#/components/schemas/HairAssessment"
+        regions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/HairRegion"
+        physical_tests:
+          $ref: "#/components/schemas/HairPhysicalTestPage"
+        history:
+          $ref: "#/components/schemas/HairHistoryPage"
+    HairPassportReadResult:
+      type: "object"
+      additionalProperties: false
+      required: ["data","correlationId"]
+      properties:
+        data:
+          $ref: "#/components/schemas/HairPassportSnapshot"
+        correlationId:
+          type: "string"
+          format: "uuid"
+    HairPassportReadOptions:
+      type: "object"
+      additionalProperties: false
+      properties:
+        include_archived:
+          type: "boolean"
+          default: false
+          description: "Explicit historical access to an archived client or passport; authorization remains mandatory."
+        page_size:
+          type: "integer"
+          minimum: 1
+          maximum: 100
+          default: 50
+        tests_offset:
+          type: "integer"
+          minimum: 0
+          maximum: 10000
+          default: 0
+        history_offset:
+          type: "integer"
+          minimum: 0
+          maximum: 10000
+          default: 0
+    HairPassportRpcRequest:
+      type: "object"
+      additionalProperties: false
+      required: ["p_membership_id","p_location_id","p_client_id"]
+      properties:
+        p_membership_id:
+          type: "string"
+          format: "uuid"
+        p_location_id:
+          type: "string"
+          format: "uuid"
+        p_client_id:
+          type: "string"
+          format: "uuid"
+        p_options:
+          $ref: "#/components/schemas/HairPassportReadOptions"
+        p_correlation_id:
+          type: "string"
+          format: "uuid"
     ClientStatus:
       type: string
       enum:
@@ -752,6 +1797,7 @@ components:
         - VALIDATION_FAILED
         - CONFLICT
         - CLIENT_NOT_FOUND
+        - HAIR_PASSPORT_NOT_FOUND
         - CLIENT_ARCHIVED
         - DUPLICATE_CLIENT_CANDIDATES
         - DUPLICATE_CONFIRMATION_INVALID

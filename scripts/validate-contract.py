@@ -33,3 +33,43 @@ for operation, payload in (("list", {}), ("detail", {"client_id": identifier}), 
 for command in ({"operation": "create", "payload": identity | {"organization_id": identifier}}, {"operation": "update", "payload": identity}, {"operation": "list", "payload": {"limit": 51}}):
     assert list(validator.iter_errors(command)), "Contract accepted an unsafe client command"
 print("PASS: OpenAPI, workflow YAML, shared vocabulary, and six client commands with rejection cases")
+
+# Shared Hair Passport fixtures exercise the same domain shapes as the server mapper.
+import copy
+import json
+
+fixtures = json.loads((root / "contracts/fixtures/hair-passport-read.json").read_text(encoding="utf-8"))
+hair_validator = Draft202012Validator(
+    {"$ref": "#/components/schemas/HairPassportReadResult", "components": contract["components"]},
+    format_checker=FormatChecker(),
+)
+error_validator = Draft202012Validator(
+    {"$ref": "#/components/schemas/ErrorResponse", "components": contract["components"]},
+    format_checker=FormatChecker(),
+)
+for name in ("empty", "populated"):
+    hair_validator.validate(fixtures[name])
+for mutation in fixtures["invalid"]:
+    payload = copy.deepcopy(fixtures["populated"])
+    target = payload
+    for key in mutation["path"][:-1]:
+        target = target[int(key)] if isinstance(target, list) else target[key]
+    key = mutation["path"][-1]
+    if mutation.get("remove"):
+        del target[key]
+    else:
+        target[key] = mutation["value"]
+    assert list(hair_validator.iter_errors(payload)), mutation["name"]
+for failure in fixtures["errors"]:
+    error_validator.validate(failure)
+assert "HAIR_PASSPORT_NOT_FOUND" in errors
+assert set(contract["paths"]["/api/clients/{clientId}/hair-passport"]) == {"get"}
+hair_rpc = Draft202012Validator(
+    {"$ref": "#/components/schemas/HairPassportRpcRequest", "components": contract["components"]},
+    format_checker=FormatChecker(),
+)
+request = {"p_membership_id": identifier, "p_location_id": identifier, "p_client_id": identifier}
+hair_rpc.validate(request)
+for options in ({"passport_id": identifier}, {"organization_id": identifier}, {"page_size": 101}, {"include_archived": "true"}):
+    assert list(hair_rpc.iter_errors(request | {"p_options": options})), options
+print(f"PASS: Hair Passport read contract: 2 snapshots, {len(fixtures['invalid'])} malformed payloads, {len(fixtures['errors'])} errors, and bounded read-only requests")
