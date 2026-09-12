@@ -18,6 +18,10 @@ CLIENT_NOT_FOUND. An authorized client with no passport returns
 HAIR_PASSPORT_NOT_FOUND. Revocation is checked on every call with current database
 membership data, independently of JWT lifetime. No technical data accompanies an
 error. Existing shared error and correlation conventions are reused.
+When RLS hides a selected membership, the RPC follows workspace bootstrap:
+no usable contexts yields MEMBERSHIP_REVOKED; another usable context yields
+TENANT_CONTEXT_INVALID. This avoids disclosing whether an arbitrary reference
+identifies a hidden revoked row. Revocation still denies the very next read.
 Omitted RPC correlation IDs use a call-site UUID default. Explicit null is an
 invalid RPC argument (provider error); generating random values inside the STABLE
 read body is avoided so its volatility declaration remains accurate.

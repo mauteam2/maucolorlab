@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
-select plan(79);
+select plan(81);
 -- Synthetic identities share a phone across tenants intentionally.
 insert into auth.users(id,email,raw_user_meta_data) values
  ('b3000000-0000-4000-8000-000000000021','hair-read-owner-a@elifora.test','{}'),('b3000000-0000-4000-8000-000000000022','hair-read-owner-b@elifora.test','{}'),
@@ -179,7 +179,7 @@ update public.salon_memberships set status='revoked',revoked_at=now() where id='
 reset role;
 select set_config('request.jwt.claim.sub','b3000000-0000-4000-8000-000000000021',true);
 set local role authenticated;
-select is((select (public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000031','{}','b3000000-0000-4000-8000-000000000201'))->>'code'),'MEMBERSHIP_REVOKED','revoked is checked on every RPC with same JWT');
+select is((select (public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000031','{}','b3000000-0000-4000-8000-000000000201'))->>'code'),'TENANT_CONTEXT_INVALID','hidden revoked selection with another usable context is invalid');
 select ok(not ((public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000031','{}','b3000000-0000-4000-8000-000000000201')) ? 'data'),'revoked returns no protected payload');
 reset role;
 update public.salon_memberships set status='active',joined_at=now(),revoked_at=null where id='b3000000-0000-4000-8000-000000000111';
@@ -206,7 +206,7 @@ update public.organizations set archived_at=now() where id='b3000000-0000-4000-8
 reset role;
 select set_config('request.jwt.claim.sub','b3000000-0000-4000-8000-000000000021',true);
 set local role authenticated;
-select is((select (public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000031','{}','b3000000-0000-4000-8000-000000000201'))->>'code'),'TENANT_CONTEXT_INVALID','org_archived is checked on every RPC with same JWT');
+select is((select (public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000031','{}','b3000000-0000-4000-8000-000000000201'))->>'code'),'MEMBERSHIP_REVOKED','org_archived is checked on every RPC with same JWT');
 select ok(not ((public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000031','{}','b3000000-0000-4000-8000-000000000201')) ? 'data'),'org_archived returns no protected payload');
 reset role;
 update public.organizations set archived_at=null where id='b3000000-0000-4000-8000-000000000001';
@@ -219,6 +219,15 @@ select is((select (public.hair_passport_snapshot('b3000000-0000-4000-8000-000000
 select ok(not ((public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000031','{}','b3000000-0000-4000-8000-000000000201')) ? 'data'),'permission_removed returns no protected payload');
 reset role;
 insert into public.role_permissions(role_code,permission_code) values('owner','hair_passport.read');
+-- Lose the final two usable memberships without changing the authenticated JWT.
+update public.salon_memberships set status='revoked',revoked_at=now()
+ where id in ('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000115');
+set local role authenticated;
+select is(public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000031')->>'code','MEMBERSHIP_REVOKED','loss of all usable memberships matches workspace bootstrap');
+select ok(not (public.hair_passport_snapshot('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000011','b3000000-0000-4000-8000-000000000031') ? 'data'),'revoked final membership exposes no technical data');
+reset role;
+update public.salon_memberships set status='active',revoked_at=null
+ where id in ('b3000000-0000-4000-8000-000000000111','b3000000-0000-4000-8000-000000000115');
 update public.clients set status='ARCHIVED' where id='b3000000-0000-4000-8000-000000000031';
 reset role;
 select set_config('request.jwt.claim.sub','b3000000-0000-4000-8000-000000000021',true);
