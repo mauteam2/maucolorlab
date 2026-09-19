@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.5.0
+  version: 0.6.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -656,6 +656,100 @@ paths:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/HairAddObservationResult'
+                - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/expired JWT; provider envelope
+        '403':
+          description: Anonymous/forbidden role; provider envelope
+  /api/clients/{clientId}/hair-passport/tests:
+    post:
+      operationId: addClientHairPhysicalTest
+      summary: Record a live physical test and its provenance
+      description: Requires fresh selected membership with hair_passport.add_test, clients.read and hair_passport.read.
+        Same-origin JSON, workspace reference, 32768-byte body limit and no query parameters. Append test, physical
+        evidence, audit and existing 24-hour receipt in one transaction. Same organization/actor/request_id and payload
+        replay original data with current correlation ID; changed payload/context/operation conflicts. Authorization
+        and active parent/location/region are checked before replay. After 24-hour expiry the same request may append
+        a new fact. No expected_version is needed because no assessment pointer or mutable version changes. Existing
+        paginated GET exposes the test. Responses are private, no-store; matching X-Correlation-ID is server-generated.
+      security:
+      - sessionCookie: []
+      parameters:
+      - in: path
+        name: clientId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+        description: Selected membership:location precondition; fresh server membership remains the authority.
+      - in: header
+        name: Origin
+        required: true
+        schema:
+          type: string
+          format: uri
+        description: Must exactly match application origin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairAddPhysicalTestRequest'
+      responses:
+        '200':
+          description: Committed mutation result or successful retry
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HairAddPhysicalTestResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /rest/v1/rpc/hair_physical_test_operation:
+    post:
+      operationId: addHairPhysicalTestRpc
+      summary: Authenticated live physical-test recording RPC
+      description: SECURITY INVOKER wrapper delegates to the existing NOLOGIN/NOBYPASSRLS writer. Selected add_test
+        permission and active ownership are checked again after the organization advisory lock and before receipt
+        replay. Performer is auth.uid(), performed time is statement_timestamp(). Evidence is PHYSICAL_TEST with known
+        observed time, unknown confidence and no verifier. Logical errors use ErrorResponse in HTTP 200. Explicit
+        null correlation is invalid; omission uses the call-site UUID default.
+      servers:
+      - url: http://127.0.0.1:54321
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairPhysicalTestRpcRequest'
+      responses:
+        '200':
+          description: Mutation or stable logical error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/HairAddPhysicalTestResult'
                 - $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Missing/expired JWT; provider envelope
@@ -1787,6 +1881,105 @@ components:
         p_correlation_id:
           type: string
           format: uuid
+    HairAddPhysicalTestRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - request_id
+      - type
+      - result
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/HairTestType'
+        region_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+        location_id:
+          type: string
+          format: uuid
+        result:
+          $ref: '#/components/schemas/HairTestResult'
+        notes:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 2000
+            pattern: \S
+          - type: 'null'
+      description: Current live recording only. Uses existing POROSITY/ELASTICITY/STRAND and required KNOWN/UNKNOWN/NOT_APPLICABLE
+        state/value results; bare strings, missing values and contradictory states are invalid. Phase 1C-1 defines bounded
+        textual facts for KNOWN, not per-test outcome enums. No safety interpretation. Optional location must be an
+        accessible active same-organization location; omission uses selected workspace. Performer, ownership, timestamps
+        and PHYSICAL_TEST evidence are server-derived. No correction, import or observation is created.
+    HairAddPhysicalTestCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - operation
+      - client_id
+      - payload
+      properties:
+        operation:
+          const: add_physical_test
+        client_id:
+          type: string
+          format: uuid
+        payload:
+          $ref: '#/components/schemas/HairAddPhysicalTestRequest'
+    HairAddPhysicalTestResult:
+      type: object
+      additionalProperties: false
+      required:
+      - correlationId
+      - data
+      properties:
+        correlationId:
+          type: string
+          format: uuid
+        data:
+          type: object
+          additionalProperties: false
+          required:
+          - client_id
+          - passport_id
+          - test
+          properties:
+            client_id:
+              type: string
+              format: uuid
+            passport_id:
+              type: string
+              format: uuid
+            test:
+              $ref: '#/components/schemas/HairPhysicalTest'
+    HairPhysicalTestRpcRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - p_membership_id
+      - p_location_id
+      - p_client_id
+      - p_payload
+      properties:
+        p_membership_id:
+          type: string
+          format: uuid
+        p_location_id:
+          type: string
+          format: uuid
+        p_client_id:
+          type: string
+          format: uuid
+        p_payload:
+          $ref: '#/components/schemas/HairAddPhysicalTestRequest'
+        p_correlation_id:
+          type: string
+          format: uuid
     HairObservation:
       type: "object"
       additionalProperties: false
@@ -2810,35 +3003,38 @@ components:
     ErrorCode:
       type: string
       enum:
-        - UNAUTHENTICATED
-        - SESSION_EXPIRED
-        - MEMBERSHIP_REQUIRED
-        - MEMBERSHIP_REVOKED
-        - TENANT_CONTEXT_INVALID
-        - FORBIDDEN
-        - INVALID_CREDENTIALS
-        - NETWORK_ERROR
-        - CONFIGURATION_ERROR
-        - VALIDATION_FAILED
-        - CONFLICT
-        - CLIENT_NOT_FOUND
-        - HAIR_PASSPORT_ALREADY_EXISTS
-        - HAIR_REGION_NOT_FOUND
-        - HAIR_REGION_ALREADY_EXISTS
-        - INVALID_TECHNICAL_STATE
-        - INVALID_OBSERVATION
-        - INVALID_EVIDENCE
-        - INVALID_CONFIDENCE
-        - HAIR_PASSPORT_NOT_FOUND
-        - CLIENT_ARCHIVED
-        - DUPLICATE_CLIENT_CANDIDATES
-        - DUPLICATE_CONFIRMATION_INVALID
-        - validation_failed
-        - unauthorized
-        - forbidden
-        - conflict
-        - domain_rule_failed
-        - internal_error
+      - UNAUTHENTICATED
+      - SESSION_EXPIRED
+      - MEMBERSHIP_REQUIRED
+      - MEMBERSHIP_REVOKED
+      - TENANT_CONTEXT_INVALID
+      - FORBIDDEN
+      - INVALID_CREDENTIALS
+      - NETWORK_ERROR
+      - CONFIGURATION_ERROR
+      - VALIDATION_FAILED
+      - CONFLICT
+      - CLIENT_NOT_FOUND
+      - HAIR_PASSPORT_ALREADY_EXISTS
+      - HAIR_REGION_NOT_FOUND
+      - HAIR_REGION_ALREADY_EXISTS
+      - INVALID_TECHNICAL_STATE
+      - INVALID_OBSERVATION
+      - INVALID_EVIDENCE
+      - INVALID_CONFIDENCE
+      - HAIR_PASSPORT_NOT_FOUND
+      - CLIENT_ARCHIVED
+      - DUPLICATE_CLIENT_CANDIDATES
+      - DUPLICATE_CONFIRMATION_INVALID
+      - validation_failed
+      - unauthorized
+      - forbidden
+      - conflict
+      - domain_rule_failed
+      - internal_error
+      - INVALID_PHYSICAL_TEST
+      - INVALID_TEST_RESULT
+      - LOCATION_NOT_FOUND
     FieldError:
       type: object
       additionalProperties: false

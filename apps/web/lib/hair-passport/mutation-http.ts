@@ -4,7 +4,7 @@ import { mutateHairPassport } from "./mutation-service";
 import type { HairMutationOperation } from "./mutations";
 
 type MutationExecutor = (input: unknown, correlationId: string, expectedReference?: string | null) => Promise<{ data: unknown; correlationId: string }>;
-export async function hairMutationResponse(request: Request, params: Promise<{ clientId: string; regionId?: string }>, operation: HairMutationOperation | "add_observation", execute: MutationExecutor = mutateHairPassport) {
+export async function hairMutationResponse(request: Request, params: Promise<{ clientId: string; regionId?: string }>, operation: HairMutationOperation | "add_observation" | "add_physical_test", execute: MutationExecutor = mutateHairPassport) {
  const correlationId = crypto.randomUUID();
  const headers = { "Cache-Control": "private, no-store", "X-Correlation-ID": correlationId };
  try {

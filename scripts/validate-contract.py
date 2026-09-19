@@ -110,3 +110,17 @@ for result in observations["results"]:
     observation_validator("HairAddObservationResult").validate(result)
 assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/observations"]) == {"post"}
 print(f"PASS: Observation/evidence contract: {len(observations['valid'])} commands and RPCs, {len(observations['invalid'])} rejections, {len(observations['results'])} existing-format observations")
+
+physical_tests = json.loads((root / "contracts/fixtures/hair-physical-test-mutation.json").read_text(encoding="utf-8"))
+for command in physical_tests["valid"]:
+    observation_validator("HairAddPhysicalTestCommand").validate(command)
+    observation_validator("HairPhysicalTestRpcRequest").validate({"p_membership_id": identifier, "p_location_id": identifier,
+        "p_client_id": command["client_id"], "p_payload": command["payload"]})
+for case in physical_tests["invalid"]:
+    command = copy.deepcopy(physical_tests["valid"][0])
+    command["payload"].update(case["payload"])
+    assert list(observation_validator("HairAddPhysicalTestCommand").iter_errors(command)), case["name"]
+for result in physical_tests["results"]:
+    observation_validator("HairAddPhysicalTestResult").validate(result)
+assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/tests"]) == {"post"}
+print(f"PASS: Physical-test contract: {len(physical_tests['valid'])} commands and RPCs, {len(physical_tests['invalid'])} rejections, {len(physical_tests['results'])} existing-format tests")

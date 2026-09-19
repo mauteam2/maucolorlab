@@ -1,0 +1,260 @@
+{
+  "actor": "b7000000-0000-4000-8000-000000000021",
+  "location": "b7000000-0000-4000-8000-000000000011",
+  "valid": [
+    {
+      "operation": "add_physical_test",
+      "client_id": "b7000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "b7000000-0000-4000-8000-000000000901",
+        "type": "POROSITY",
+        "result": {
+          "state": "KNOWN",
+          "value": "HIGH"
+        }
+      }
+    },
+    {
+      "operation": "add_physical_test",
+      "client_id": "b7000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "b7000000-0000-4000-8000-000000000902",
+        "type": "ELASTICITY",
+        "result": {
+          "state": "KNOWN",
+          "value": "NORMAL"
+        },
+        "region_id": "b7000000-0000-4000-8000-000000000051"
+      }
+    },
+    {
+      "operation": "add_physical_test",
+      "client_id": "b7000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "b7000000-0000-4000-8000-000000000903",
+        "type": "STRAND",
+        "result": {
+          "state": "KNOWN",
+          "value": "Synthetic strand remained intact"
+        },
+        "location_id": "b7000000-0000-4000-8000-000000000011",
+        "notes": "Synthetic live measurement"
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "name": "unsupported type",
+      "payload": {
+        "type": "POROSITY_TEST"
+      }
+    },
+    {
+      "name": "bare result",
+      "payload": {
+        "result": "HIGH"
+      }
+    },
+    {
+      "name": "missing known value",
+      "payload": {
+        "result": {
+          "state": "KNOWN"
+        }
+      }
+    },
+    {
+      "name": "contradictory unknown",
+      "payload": {
+        "result": {
+          "state": "UNKNOWN",
+          "value": "HIGH"
+        }
+      }
+    },
+    {
+      "name": "unassessed result",
+      "payload": {
+        "result": {
+          "state": "NOT_ASSESSED",
+          "value": null
+        }
+      }
+    },
+    {
+      "name": "numeric result",
+      "payload": {
+        "result": {
+          "state": "KNOWN",
+          "value": 5
+        }
+      }
+    },
+    {
+      "name": "forged performer",
+      "payload": {
+        "performed_by": "b7000000-0000-4000-8000-000000000021"
+      }
+    },
+    {
+      "name": "forged organization",
+      "payload": {
+        "organization_id": "b7000000-0000-4000-8000-000000000021"
+      }
+    },
+    {
+      "name": "forged timestamp",
+      "payload": {
+        "performed_at": "2020-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "forged evidence",
+      "payload": {
+        "evidence": {
+          "source": "PROFESSIONAL_VERIFIED"
+        }
+      }
+    },
+    {
+      "name": "invalid location",
+      "payload": {
+        "location_id": "bad"
+      }
+    },
+    {
+      "name": "oversized result",
+      "payload": {
+        "result": {
+          "state": "KNOWN",
+          "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      }
+    }
+  ],
+  "results": [
+    {
+      "correlationId": "b7000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "b7000000-0000-4000-8000-000000000031",
+        "passport_id": "b7000000-0000-4000-8000-000000000041",
+        "test": {
+          "id": "b7000000-0000-4000-8000-000000000801",
+          "region_id": null,
+          "type": "POROSITY",
+          "result": {
+            "state": "KNOWN",
+            "value": "HIGH"
+          },
+          "notes": null,
+          "performed_by": "b7000000-0000-4000-8000-000000000021",
+          "performed_at": "2026-09-12T09:00:00Z",
+          "recorded_at": "2026-09-12T09:00:00Z",
+          "recorded_by": "b7000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "b7000000-0000-4000-8000-000000000200",
+            "source": "PHYSICAL_TEST",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-12T09:00:00Z"
+            },
+            "confidence": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-12T09:00:00Z",
+            "recorded_by": "b7000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "b7000000-0000-4000-8000-000000000011",
+            "context": null
+          }
+        }
+      }
+    },
+    {
+      "correlationId": "b7000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "b7000000-0000-4000-8000-000000000031",
+        "passport_id": "b7000000-0000-4000-8000-000000000041",
+        "test": {
+          "id": "b7000000-0000-4000-8000-000000000802",
+          "region_id": "b7000000-0000-4000-8000-000000000051",
+          "type": "ELASTICITY",
+          "result": {
+            "state": "KNOWN",
+            "value": "NORMAL"
+          },
+          "notes": null,
+          "performed_by": "b7000000-0000-4000-8000-000000000021",
+          "performed_at": "2026-09-12T09:00:00Z",
+          "recorded_at": "2026-09-12T09:00:00Z",
+          "recorded_by": "b7000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "b7000000-0000-4000-8000-000000000200",
+            "source": "PHYSICAL_TEST",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-12T09:00:00Z"
+            },
+            "confidence": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-12T09:00:00Z",
+            "recorded_by": "b7000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "b7000000-0000-4000-8000-000000000011",
+            "context": null
+          }
+        }
+      }
+    },
+    {
+      "correlationId": "b7000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "b7000000-0000-4000-8000-000000000031",
+        "passport_id": "b7000000-0000-4000-8000-000000000041",
+        "test": {
+          "id": "b7000000-0000-4000-8000-000000000803",
+          "region_id": null,
+          "type": "STRAND",
+          "result": {
+            "state": "KNOWN",
+            "value": "Synthetic strand remained intact"
+          },
+          "notes": "Synthetic live measurement",
+          "performed_by": "b7000000-0000-4000-8000-000000000021",
+          "performed_at": "2026-09-12T09:00:00Z",
+          "recorded_at": "2026-09-12T09:00:00Z",
+          "recorded_by": "b7000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "b7000000-0000-4000-8000-000000000200",
+            "source": "PHYSICAL_TEST",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-12T09:00:00Z"
+            },
+            "confidence": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-12T09:00:00Z",
+            "recorded_by": "b7000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "b7000000-0000-4000-8000-000000000011",
+            "context": null
+          }
+        }
+      }
+    }
+  ]
+}
