@@ -124,3 +124,17 @@ for result in physical_tests["results"]:
     observation_validator("HairAddPhysicalTestResult").validate(result)
 assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/tests"]) == {"post"}
 print(f"PASS: Physical-test contract: {len(physical_tests['valid'])} commands and RPCs, {len(physical_tests['invalid'])} rejections, {len(physical_tests['results'])} existing-format tests")
+
+history = json.loads((root / "contracts/fixtures/hair-history-mutation.json").read_text(encoding="utf-8"))
+for command in history["valid"]:
+    observation_validator("HairAddHistoryCommand").validate(command)
+    observation_validator("HairHistoryRpcRequest").validate({"p_membership_id": identifier, "p_location_id": identifier,
+        "p_client_id": command["client_id"], "p_payload": command["payload"]})
+for case in history["invalid"]:
+    command = copy.deepcopy(history["valid"][0])
+    command["payload"].update(case["payload"])
+    assert list(observation_validator("HairAddHistoryCommand").iter_errors(command)), case["name"]
+for result in history["results"]:
+    observation_validator("HairAddHistoryResult").validate(result)
+assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/history"]) == {"post"}
+print(f"PASS: Technical-history contract: {len(history['valid'])} commands and RPCs, {len(history['invalid'])} rejections, {len(history['results'])} existing-format events")

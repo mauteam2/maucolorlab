@@ -1,0 +1,171 @@
+{
+  "actor": "c8000000-0000-4000-8000-000000000021",
+  "location": "c8000000-0000-4000-8000-000000000011",
+  "region_a": "c8000000-0000-4000-8000-000000000051",
+  "region_b": "c8000000-0000-4000-8000-000000000052",
+  "valid": [
+    {
+      "operation": "add_history",
+      "client_id": "c8000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "c8000000-0000-4000-8000-000000000901",
+        "category": "COLOR",
+        "performed_on": { "state": "EXACT", "value": "2025-06-15" },
+        "product": { "state": "KNOWN", "value": "Synthetic permanent color" },
+        "description": "Synthetic prior color service",
+        "evidence": { "source": "HISTORICAL", "confidence": { "state": "KNOWN", "value": 0.8 } }
+      }
+    },
+    {
+      "operation": "add_history",
+      "client_id": "c8000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "c8000000-0000-4000-8000-000000000902",
+        "category": "BLEACH_LIGHTENING",
+        "performed_on": { "state": "APPROXIMATE", "value": "2024-09-01" },
+        "product": { "state": "UNKNOWN", "value": null },
+        "description": "Synthetic approximate lightening history",
+        "region_ids": [
+          "c8000000-0000-4000-8000-000000000052",
+          "c8000000-0000-4000-8000-000000000051",
+          "c8000000-0000-4000-8000-000000000051"
+        ],
+        "location_id": "c8000000-0000-4000-8000-000000000011",
+        "attributed_salon": "Synthetic Salon",
+        "evidence": { "source": "IMPORTED_UNVERIFIED", "context": "Synthetic client recollection" }
+      }
+    },
+    {
+      "operation": "add_history",
+      "client_id": "c8000000-0000-4000-8000-000000000031",
+      "payload": {
+        "request_id": "c8000000-0000-4000-8000-000000000903",
+        "category": "TONER_GLOSS",
+        "performed_on": { "state": "UNKNOWN", "value": null },
+        "product": { "state": "NOT_APPLICABLE", "value": null },
+        "description": "Synthetic event with unknown date",
+        "region_ids": ["c8000000-0000-4000-8000-000000000051"],
+        "attributed_professional": "Synthetic Professional",
+        "evidence": { "source": "HISTORICAL" }
+      }
+    }
+  ],
+  "invalid": [
+    { "name": "unsupported category", "payload": { "category": "HAIRCUT" } },
+    { "name": "bare date", "payload": { "performed_on": "2025-06-15" } },
+    { "name": "missing exact date", "payload": { "performed_on": { "state": "EXACT", "value": null } } },
+    { "name": "unknown date with value", "payload": { "performed_on": { "state": "UNKNOWN", "value": "2025-06-15" } } },
+    { "name": "invalid date precision", "payload": { "performed_on": { "state": "MONTH", "value": "2025-06-15" } } },
+    { "name": "known product missing", "payload": { "product": { "state": "KNOWN", "value": null } } },
+    { "name": "unknown product with value", "payload": { "product": { "state": "UNKNOWN", "value": "Synthetic" } } },
+    { "name": "professional evidence", "payload": { "evidence": { "source": "PROFESSIONAL_VERIFIED" } } },
+    { "name": "forged actor", "payload": { "created_by": "c8000000-0000-4000-8000-000000000022" } },
+    { "name": "forged ownership", "payload": { "organization_id": "c8000000-0000-4000-8000-000000000002" } },
+    { "name": "forged correction", "payload": { "supersedes_id": "c8000000-0000-4000-8000-000000000801" } },
+    { "name": "invalid location", "payload": { "location_id": "bad" } }
+  ],
+  "results": [
+    {
+      "correlationId": "c8000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "c8000000-0000-4000-8000-000000000031",
+        "passport_id": "c8000000-0000-4000-8000-000000000041",
+        "history": {
+          "id": "c8000000-0000-4000-8000-000000000801",
+          "category": "COLOR",
+          "performed_on": { "state": "EXACT", "value": "2025-06-15" },
+          "product": { "state": "KNOWN", "value": "Synthetic permanent color" },
+          "description": "Synthetic prior color service",
+          "attributed_salon": null,
+          "attributed_professional": null,
+          "location_id": null,
+          "region_ids": [],
+          "recorded_at": "2026-09-24T09:00:00Z",
+          "recorded_by": "c8000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "c8000000-0000-4000-8000-000000000201",
+            "source": "HISTORICAL",
+            "observed_at": { "state": "UNKNOWN", "value": null },
+            "confidence": { "state": "KNOWN", "value": 0.8 },
+            "verified_by": null,
+            "recorded_at": "2026-09-24T09:00:00Z",
+            "recorded_by": "c8000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": null,
+            "context": null
+          }
+        }
+      }
+    },
+    {
+      "correlationId": "c8000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "c8000000-0000-4000-8000-000000000031",
+        "passport_id": "c8000000-0000-4000-8000-000000000041",
+        "history": {
+          "id": "c8000000-0000-4000-8000-000000000802",
+          "category": "BLEACH_LIGHTENING",
+          "performed_on": { "state": "APPROXIMATE", "value": "2024-09-01" },
+          "product": { "state": "UNKNOWN", "value": null },
+          "description": "Synthetic approximate lightening history",
+          "attributed_salon": "Synthetic Salon",
+          "attributed_professional": null,
+          "location_id": "c8000000-0000-4000-8000-000000000011",
+          "region_ids": ["c8000000-0000-4000-8000-000000000051", "c8000000-0000-4000-8000-000000000052"],
+          "recorded_at": "2026-09-24T09:00:00Z",
+          "recorded_by": "c8000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "c8000000-0000-4000-8000-000000000202",
+            "source": "IMPORTED_UNVERIFIED",
+            "observed_at": { "state": "UNKNOWN", "value": null },
+            "confidence": { "state": "UNKNOWN", "value": null },
+            "verified_by": null,
+            "recorded_at": "2026-09-24T09:00:00Z",
+            "recorded_by": "c8000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "c8000000-0000-4000-8000-000000000011",
+            "context": "Synthetic client recollection"
+          }
+        }
+      }
+    },
+    {
+      "correlationId": "c8000000-0000-4000-8000-000000000900",
+      "data": {
+        "client_id": "c8000000-0000-4000-8000-000000000031",
+        "passport_id": "c8000000-0000-4000-8000-000000000041",
+        "history": {
+          "id": "c8000000-0000-4000-8000-000000000803",
+          "category": "TONER_GLOSS",
+          "performed_on": { "state": "UNKNOWN", "value": null },
+          "product": { "state": "NOT_APPLICABLE", "value": null },
+          "description": "Synthetic event with unknown date",
+          "attributed_salon": null,
+          "attributed_professional": "Synthetic Professional",
+          "location_id": null,
+          "region_ids": ["c8000000-0000-4000-8000-000000000051"],
+          "recorded_at": "2026-09-24T09:00:00Z",
+          "recorded_by": "c8000000-0000-4000-8000-000000000021",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "c8000000-0000-4000-8000-000000000203",
+            "source": "HISTORICAL",
+            "observed_at": { "state": "UNKNOWN", "value": null },
+            "confidence": { "state": "UNKNOWN", "value": null },
+            "verified_by": null,
+            "recorded_at": "2026-09-24T09:00:00Z",
+            "recorded_by": "c8000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": null,
+            "context": null
+          }
+        }
+      }
+    }
+  ]
+}

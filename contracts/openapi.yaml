@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.6.0
+  version: 0.7.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -750,6 +750,90 @@ paths:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/HairAddPhysicalTestResult'
+                - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing/expired JWT; provider envelope
+        '403':
+          description: Anonymous/forbidden role; provider envelope
+  /api/clients/{clientId}/hair-passport/history:
+    post:
+      operationId: addClientHairHistory
+      summary: Append a structured historical hair event and provenance
+      description: Requires fresh selected membership with hair_passport.add_history, clients.read and hair_passport.read. The event, deduplicated region links, HISTORICAL or IMPORTED_UNVERIFIED evidence, audit and existing 24-hour receipt commit atomically. The existing paginated Hair Passport GET exposes the new event. Dates retain EXACT, APPROXIMATE or UNKNOWN precision; no risk interpretation is performed. Responses are private, no-store with a matching server correlation ID.
+      security:
+      - sessionCookie: []
+      parameters:
+      - in: path
+        name: clientId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+        description: Selected membership:location precondition; current database membership remains authoritative.
+      - in: header
+        name: Origin
+        required: true
+        schema:
+          type: string
+          format: uri
+        description: Must exactly match application origin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairAddHistoryRequest'
+      responses:
+        '200':
+          description: Committed mutation result or successful retry
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HairAddHistoryResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /rest/v1/rpc/hair_history_operation:
+    post:
+      operationId: addHairHistoryRpc
+      summary: Authenticated append-only technical-history RPC
+      description: SECURITY INVOKER wrapper delegates to the existing NOLOGIN/NOBYPASSRLS writer. Selected add_history permission and active ownership are rechecked after the organization lock and before receipt replay. Actor and recording time are server-derived. Logical errors use ErrorResponse in HTTP 200.
+      servers:
+      - url: http://127.0.0.1:54321
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HairHistoryRpcRequest'
+      responses:
+        '200':
+          description: Mutation or stable logical error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/HairAddHistoryResult'
                 - $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Missing/expired JWT; provider envelope
@@ -1980,6 +2064,123 @@ components:
         p_correlation_id:
           type: string
           format: uuid
+    HairHistoryEvidenceInput:
+      type: object
+      additionalProperties: false
+      required: [source]
+      properties:
+        source:
+          enum: [HISTORICAL, IMPORTED_UNVERIFIED]
+        confidence:
+          $ref: '#/components/schemas/HairConfidence'
+        context:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 2000
+            pattern: \S
+          - type: 'null'
+      description: Historical provenance only. Observation time remains UNKNOWN because date precision is represented on the event. Caller cannot provide verifier, actor, location, timestamps, relevance or supersedes fields.
+    HairAddHistoryRequest:
+      type: object
+      additionalProperties: false
+      required: [request_id, category, performed_on, product, description, evidence]
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        category:
+          $ref: '#/components/schemas/HairHistoryCategory'
+        performed_on:
+          $ref: '#/components/schemas/HairHistoryDate'
+        product:
+          $ref: '#/components/schemas/HairProduct'
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          pattern: \S
+        region_ids:
+          type: array
+          maxItems: 100
+          items:
+            type: string
+            format: uuid
+          description: Empty or omitted means whole hair. Duplicate supplied IDs are accepted once and the result is sorted.
+        location_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+        attributed_salon:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 160
+            pattern: \S
+          - type: 'null'
+        attributed_professional:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 160
+            pattern: \S
+          - type: 'null'
+        evidence:
+          $ref: '#/components/schemas/HairHistoryEvidenceInput'
+      description: Append-only history input. Ownership and recording actor/time are derived server-side. Date precision and product unknown/not-applicable states are preserved without inference. No correction or risk interpretation is created.
+    HairAddHistoryCommand:
+      type: object
+      additionalProperties: false
+      required: [operation, client_id, payload]
+      properties:
+        operation:
+          const: add_history
+        client_id:
+          type: string
+          format: uuid
+        payload:
+          $ref: '#/components/schemas/HairAddHistoryRequest'
+    HairAddHistoryResult:
+      type: object
+      additionalProperties: false
+      required: [correlationId, data]
+      properties:
+        correlationId:
+          type: string
+          format: uuid
+        data:
+          type: object
+          additionalProperties: false
+          required: [client_id, passport_id, history]
+          properties:
+            client_id:
+              type: string
+              format: uuid
+            passport_id:
+              type: string
+              format: uuid
+            history:
+              $ref: '#/components/schemas/HairHistoryEvent'
+    HairHistoryRpcRequest:
+      type: object
+      additionalProperties: false
+      required: [p_membership_id, p_location_id, p_client_id, p_payload]
+      properties:
+        p_membership_id:
+          type: string
+          format: uuid
+        p_location_id:
+          type: string
+          format: uuid
+        p_client_id:
+          type: string
+          format: uuid
+        p_payload:
+          $ref: '#/components/schemas/HairAddHistoryRequest'
+        p_correlation_id:
+          type: string
+          format: uuid
     HairObservation:
       type: "object"
       additionalProperties: false
@@ -3035,6 +3236,9 @@ components:
       - INVALID_PHYSICAL_TEST
       - INVALID_TEST_RESULT
       - LOCATION_NOT_FOUND
+      - INVALID_HISTORY_EVENT
+      - INVALID_HISTORY_CATEGORY
+      - INVALID_HISTORY_DATE
     FieldError:
       type: object
       additionalProperties: false
