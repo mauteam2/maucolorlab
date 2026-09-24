@@ -207,9 +207,9 @@ begin
   or (p_payload ? 'region_ids' and jsonb_typeof(p_payload->'region_ids') is distinct from 'array')
   or (p_payload ? 'location_id' and jsonb_typeof(p_payload->'location_id') not in ('string','null'))
   or (p_payload ? 'attributed_salon' and (jsonb_typeof(p_payload->'attributed_salon') not in ('string','null')
-   or (jsonb_typeof(p_payload->'attributed_salon')='string' and (char_length(trim(p_payload->>'attributed_salon'))=0 or char_length(p_payload->>'attributed_salon')>160)))
+   or (jsonb_typeof(p_payload->'attributed_salon')='string' and (char_length(trim(p_payload->>'attributed_salon'))=0 or char_length(p_payload->>'attributed_salon')>160))))
   or (p_payload ? 'attributed_professional' and (jsonb_typeof(p_payload->'attributed_professional') not in ('string','null')
-   or (jsonb_typeof(p_payload->'attributed_professional')='string' and (char_length(trim(p_payload->>'attributed_professional'))=0 or char_length(p_payload->>'attributed_professional')>160))) then
+   or (jsonb_typeof(p_payload->'attributed_professional')='string' and (char_length(trim(p_payload->>'attributed_professional'))=0 or char_length(p_payload->>'attributed_professional')>160)))) then
   return app_private.client_error('INVALID_HISTORY_EVENT',p_correlation_id);
  end if;
  v_request:=(p_payload->>'request_id')::uuid; v_category:=p_payload->>'category'; v_location:=(p_payload->>'location_id')::uuid;
