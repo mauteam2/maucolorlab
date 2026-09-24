@@ -187,7 +187,8 @@ declare
  v_actor uuid:=auth.uid(); v_org uuid; v_context jsonb; v_status text; v_request uuid; v_location uuid;
  v_passport public.hair_passports%rowtype; v_event public.hair_history_events%rowtype; v_evidence public.hair_evidence%rowtype;
  v_hash text; v_receipt app_private.hair_core_mutation_receipts%rowtype; v_result jsonb;
- v_category text; v_date_state text; v_date date; v_product_state text; v_product text; v_regions uuid[]:='{}'; v_region_json jsonb:='[]';
+ v_category text; v_date_state text; v_date date; v_product_state text; v_product text;
+ v_regions uuid[]:='{}'::uuid[]; v_region_json jsonb:='[]'::jsonb;
 begin
  if p_correlation_id is null then raise exception using errcode='22004',message='correlation identifier is required'; end if;
  if v_actor is null then return app_private.client_error('UNAUTHENTICATED',p_correlation_id); end if;
