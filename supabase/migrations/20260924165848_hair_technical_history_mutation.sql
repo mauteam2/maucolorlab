@@ -25,13 +25,16 @@ begin
    or new.created_by<>old.created_by or new.created_at<>old.created_at then
    raise exception using errcode='23514',message='technical ownership is immutable';
   end if;
-  if TG_TABLE_NAME='hair_regions' and (new.passport_id<>old.passport_id or new.region_type<>old.region_type) then
-   raise exception using errcode='23514',message='region identity is immutable';
+  if TG_TABLE_NAME='hair_regions' then
+   if new.passport_id<>old.passport_id or new.region_type<>old.region_type then
+    raise exception using errcode='23514',message='region identity is immutable';
+   end if;
   end if;
  end if;
- if TG_OP='INSERT' and TG_TABLE_NAME='hair_regions'
-  and app_private.can_initialize_hair_region(new.organization_id,new.passport_id,new.region_type) then
-  v_permission:='hair_passport.create';
+ if TG_OP='INSERT' and TG_TABLE_NAME='hair_regions' then
+  if app_private.can_initialize_hair_region(new.organization_id,new.passport_id,new.region_type) then
+   v_permission:='hair_passport.create';
+  end if;
  end if;
  -- Each append permission can create only its own evidence class.
  if TG_OP='INSERT' and TG_TABLE_NAME='hair_evidence' then
