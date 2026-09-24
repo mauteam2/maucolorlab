@@ -118,12 +118,6 @@ begin
     raise exception using errcode='23514',message='physical test evidence and performer required';
    end if;
   end if;
- elsif TG_TABLE_NAME='hair_history_events' then
-  select e.source_type into v_source from public.hair_evidence e
-   where e.organization_id=new.organization_id and e.passport_id=v_passport and e.id=new.evidence_id;
-  if v_source not in ('HISTORICAL','IMPORTED_UNVERIFIED') then
-   raise exception using errcode='23514',message='historical evidence required';
-  end if;
  end if;
  return new;
 end $$;
