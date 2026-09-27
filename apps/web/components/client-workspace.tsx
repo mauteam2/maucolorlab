@@ -6,6 +6,7 @@ import { AppShell } from "./app-shell";
 import { type ActiveTenantContext, tenantContextSchema, workspaceReference } from "@/lib/tenant/context";
 import { type Candidate, type Client, type Directory, clientDetail, clientDirectory, duplicateCandidate, clientErrorText } from "@/lib/clients/contracts";
 import { formatClientDate as date } from "@/lib/clients/display";
+import { hairTr } from "@/lib/i18n/hair-tr";
 
 type Draft = { full_name: string; phone: string; email: string; birth_date: string; request_id: string; expected_version?: number };
 type Review = { candidates: Candidate[]; token: string };
@@ -137,6 +138,7 @@ export function ClientWorkspace({ route }: { route: string }) {
           {route !== "new" && <button type="button" disabled={saving || checking} className="button button-secondary" onClick={() => { setDraft(null); setReview(null); setError(null); }}>Vazgeç</button>}
         </form> : client && <>
           <p className="client-status">{client.status === "ACTIVE" ? "Aktif müşteri" : "Arşivde"}</p>
+          {context?.permissions.includes("hair_passport.read") && <nav className="hp-tabs" aria-label={hairTr.navigation}><span aria-current="page">{hairTr.overview}</span><Link prefetch={false} href={`/workspace/clients/${client.id}/hair-passport`}>{hairTr.title}</Link></nav>}
           <dl className="client-details"><dt>Telefon</dt><dd>{client.phone}</dd><dt>E-posta</dt><dd>{client.email ?? "Eklenmedi"}</dd><dt>Doğum Tarihi</dt><dd>{client.birth_date ? date(client.birth_date) : "Eklenmedi"}</dd><dt>Oluşturma</dt><dd>{date(client.created_at)}</dd><dt>Son güncelleme</dt><dd>{date(client.updated_at)}</dd></dl>
           <div className="client-actions">{client.status === "ACTIVE" && context?.permissions.includes("clients.update") && <button className="button button-primary" disabled={saving || checking} onClick={() => setDraft({ full_name: client.full_name, phone: client.phone, email: client.email ?? "", birth_date: client.birth_date ?? "", expected_version: client.version, request_id: crypto.randomUUID() })}>Düzenle</button>}
           {context?.permissions.includes("clients.archive") && <button className="button button-secondary" disabled={saving || checking} onClick={() => {
