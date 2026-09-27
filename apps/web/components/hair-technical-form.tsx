@@ -11,15 +11,14 @@ export function HairTechnicalForm({ draft, change, errors, prefix }: { draft: Te
  function update(key: TechnicalKey, next: Partial<TechnicalDraft["values"][TechnicalKey]>) {
   change({ ...draft, values: { ...draft.values, [key]: { ...draft.values[key], ...next } } });
  }
- return <div className="hp-form-fields">
+ return <><p id={`${prefix}-help`} className="hp-muted">{e.fieldHelp}</p><div className="hp-form-fields">
   {technicalFields.map(({ key, kind }) => {
    const id = `${prefix}-${key}`, field = draft.values[key];
    const states: TechnicalState[] = kind === "level" ? ["KNOWN", "UNKNOWN", "NOT_ASSESSED"] : ["KNOWN", "UNKNOWN", "NOT_ASSESSED", "NOT_APPLICABLE"];
    const choices = key in enumValues ? enumValues[key as keyof typeof enumValues] : null;
    return <div className="hp-form-field" key={key}>
     <label htmlFor={`${id}-state`}>{t.fields[key]}</label>
-    <span id={`${id}-help`} className="hp-muted">{e.fieldHelp}</span>
-    <select id={`${id}-state`} aria-label={`${t.fields[key]} · ${e.state}`} aria-describedby={`${id}-help`} value={field.state} onChange={event => update(key, { state: event.target.value as TechnicalState })}>
+    <select id={`${id}-state`} aria-label={`${t.fields[key]} · ${e.state}`} aria-describedby={`${prefix}-help`} value={field.state} onChange={event => update(key, { state: event.target.value as TechnicalState })}>
      {states.map(state => <option key={state} value={state}>{t.states[state]}</option>)}
     </select>
     {field.state === "KNOWN" && <>
@@ -36,5 +35,5 @@ export function HairTechnicalForm({ draft, change, errors, prefix }: { draft: Te
    <textarea id={`${prefix}-${key}`} value={draft[key]} maxLength={key === "technical_notes" ? 4000 : 2000} onChange={event => change({ ...draft, [key]: event.target.value })} aria-invalid={Boolean(errors[key])} />
    {errors[key] && <span role="alert" className="hp-field-error">{errors[key]}</span>}
   </div>)}
- </div>;
+ </div></>;
 }

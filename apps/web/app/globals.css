@@ -348,3 +348,4 @@ h1 {
 .hp-mutation-error { padding: 1rem; margin-top: 1rem; border-left: 3px solid #a4453f; background: #fff8f5; }
 .hp-notice { padding: 1rem; border-left: 3px solid #567556; background: #f4f8f2; }
 @media (max-width: 700px) { .hp-form-fields { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .hp-form-actions { position: sticky; bottom: 0; z-index: 2; padding: .75rem 0; border-top: 1px solid var(--color-border); background: var(--color-surface); } }
