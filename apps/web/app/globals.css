@@ -336,6 +336,11 @@ h1 {
 .hp-editor h2 { margin-top: 0; }
 .hp-editor h2:focus { outline: 2px solid #69425b; outline-offset: .3rem; }
 .hp-physical-test-editor h3:focus { outline: 2px solid #69425b; outline-offset: .3rem; }
+.hp-history-editor h3:focus { outline: 2px solid #69425b; outline-offset: .3rem; }
+.hp-history-regions { margin-top: 1.25rem; padding: 1rem; border: 1px solid var(--color-border); border-radius: .55rem; }
+.hp-history-regions legend { padding: 0 .35rem; font-weight: 600; }
+.hp-history-region-options { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; }
+.hp-history-region-options .hp-check { margin-top: 0; }
 .hp-form-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
 .hp-form-field { min-width: 0; display: flex; flex-direction: column; gap: .45rem; }
 .hp-form-field label { font-weight: 600; }

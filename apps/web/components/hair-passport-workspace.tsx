@@ -6,6 +6,7 @@ import { HairPassportOverview } from "./hair-passport-overview";
 import { HairTechnicalForm } from "./hair-technical-form";
 import { HairObservationForm } from "./hair-observation-form";
 import { HairPhysicalTestForm } from "./hair-physical-test-form";
+import { HairHistoryForm } from "./hair-history-form";
 import { loadPassport, PassportLoadError } from "@/lib/hair-passport/load";
 import { sendHairMutation, PassportMutationError } from "@/lib/hair-passport/mutate";
 import { DraftValidationError, initialTechnicalDraft, technicalChanges, type TechnicalDraft } from "@/lib/hair-passport/editor";
@@ -13,15 +14,18 @@ import { newObservationDraft, observationCommandFromDraft, ObservationDraftError
 import { sendObservation } from "@/lib/hair-passport/observation-mutate";
 import { newPhysicalTestDraft, physicalTestCommandFromDraft, PhysicalTestDraftError, type PhysicalTestDraft } from "@/lib/hair-passport/physical-test-editor";
 import { sendPhysicalTest } from "@/lib/hair-passport/physical-test-mutate";
+import { newHistoryDraft, historyCommandFromDraft, HistoryDraftError, type HistoryDraft } from "@/lib/hair-passport/history-editor";
+import { sendHistory } from "@/lib/hair-passport/history-mutate";
 import type { HairSnapshot } from "@/lib/hair-passport/contracts";
 import type { HairMutationCommand } from "@/lib/hair-passport/mutations";
-import { hairTr as t, hairEditTr as e, hairObservationTr as o, hairPhysicalTestTr as p } from "@/lib/i18n/hair-tr";
+import { hairTr as t, hairEditTr as e, hairObservationTr as o, hairPhysicalTestTr as p, hairHistoryTr as h } from "@/lib/i18n/hair-tr";
 
 type EditorKind = "create" | "core" | "new-region" | "region";
 type Region = HairSnapshot["regions"][number];
 type Editor = { kind: EditorKind; regionId?: string; expectedVersion?: number; base: TechnicalDraft; draft: TechnicalDraft; regionType: Region["type"]; label: string; initialLabel: string; requestId: string };
 type ObservationEditor = { draft: ObservationDraft; requestId: string; expectedVersion: number };
 type PhysicalTestEditor = { draft: PhysicalTestDraft; requestId: string };
+type HistoryEditor = { draft: HistoryDraft; requestId: string };
 const regionChoices: Region["type"][] = ["FACE_FRAME", "CROWN", "NAPE", "BANDED_AREA", "BLEACHED_AREA", "HIGHLIGHTED_AREA", "CUSTOM"];
 const recoverable = ["CONFLICT", "HAIR_PASSPORT_ALREADY_EXISTS", "HAIR_PASSPORT_NOT_FOUND", "HAIR_REGION_NOT_FOUND"];
 
@@ -38,6 +42,10 @@ export function HairPassportWorkspace({ clientId }: { clientId: string }) {
  const [physicalTestError, setPhysicalTestError] = useState<string | null>(null);
  const [physicalTestFieldError, setPhysicalTestFieldError] = useState<string | null>(null);
  const [physicalTestSaved, setPhysicalTestSaved] = useState(false);
+ const [history, setHistory] = useState<HistoryEditor | null>(null);
+ const [historyError, setHistoryError] = useState<string | null>(null);
+ const [historyFieldError, setHistoryFieldError] = useState<string | null>(null);
+ const [historySaved, setHistorySaved] = useState(false);
  const [saving, setSaving] = useState(false);
  const [mutationError, setMutationError] = useState<string | null>(null);
  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -57,11 +65,12 @@ export function HairPassportWorkspace({ clientId }: { clientId: string }) {
    setEditor(currentEditor => loaded.client.status === "ARCHIVED" || currentEditor && !loaded.permissions.includes(currentEditor.kind === "create" ? "hair_passport.create" : "hair_passport.update") ? null : currentEditor);
    setObservation(current => loaded.client.status === "ARCHIVED" || !loaded.permissions.includes("hair_passport.add_observation") ? null : current);
    setPhysicalTest(current => loaded.client.status === "ARCHIVED" || !loaded.permissions.includes("hair_passport.add_test") ? null : current);
+   setHistory(current => loaded.client.status === "ARCHIVED" || !loaded.permissions.includes("hair_passport.add_history") ? null : current);
    return true;
   } catch (cause) {
    if (current !== generation.current) return false;
    const code = cause instanceof PassportLoadError ? cause.code : "NETWORK_ERROR";
-   setData(null); setError(code); setEditor(null); setObservation(null); setPhysicalTest(null); setSaved(false); setObservationSaved(false); setPhysicalTestSaved(false);
+   setData(null); setError(code); setEditor(null); setObservation(null); setPhysicalTest(null); setHistory(null); setSaved(false); setObservationSaved(false); setPhysicalTestSaved(false); setHistorySaved(false);
    if (["SESSION_EXPIRED", "UNAUTHENTICATED"].includes(code)) window.location.replace("/sign-in?reason=SESSION_EXPIRED");
    if (["MEMBERSHIP_REVOKED", "MEMBERSHIP_REQUIRED", "TENANT_CONTEXT_INVALID"].includes(code)) window.location.replace("/auth/workspace-reset");
    return false;
@@ -70,7 +79,7 @@ export function HairPassportWorkspace({ clientId }: { clientId: string }) {
  useEffect(() => {
   const generationRef = generation, controllerRef = controller;
   const refresh = () => { void verify(); };
-  const hide = () => { ++generationRef.current; controllerRef.current?.abort(); setData(null); setSaved(false); setObservationSaved(false); setPhysicalTestSaved(false); };
+  const hide = () => { ++generationRef.current; controllerRef.current?.abort(); setData(null); setSaved(false); setObservationSaved(false); setPhysicalTestSaved(false); setHistorySaved(false); };
   const visibility = () => { hide(); if (!document.hidden) refresh(); };
   const offline = () => { hide(); setError("NETWORK_ERROR"); };
   const timer = window.setInterval(refresh, 15000);
@@ -85,6 +94,40 @@ export function HairPassportWorkspace({ clientId }: { clientId: string }) {
  useEffect(() => { if (observationOpen && data) document.getElementById("hp-observation-title")?.focus(); }, [observationOpen, data]);
  const physicalTestOpen = Boolean(physicalTest);
  useEffect(() => { if (physicalTestOpen && data) document.getElementById("hp-physical-test-title")?.focus(); }, [physicalTestOpen, data]);
+ const historyOpen = Boolean(history);
+ useEffect(() => { if (historyOpen && data) document.getElementById("hp-history-title")?.focus(); }, [historyOpen, data]);
+
+ function beginHistory() {
+  if (!data?.snapshot) return;
+  setHistory({ draft: newHistoryDraft(), requestId: crypto.randomUUID() });
+  setHistoryError(null); setHistoryFieldError(null); setHistorySaved(false); setSaved(false);
+ }
+ function changeHistory(draft: HistoryDraft) {
+  setHistory({ draft, requestId: crypto.randomUUID() });
+  setHistoryError(null); setHistoryFieldError(null); setHistorySaved(false);
+ }
+ async function saveHistory(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+  if (!data?.snapshot || !history || saving || data.client.status !== "ACTIVE") return;
+  setHistoryError(null); setHistoryFieldError(null); setHistorySaved(false);
+  let command;
+  try {
+   if (history.draft.regionIds.some(id => !data.snapshot!.regions.some(region => region.id === id && region.status === "ACTIVE"))) throw new HistoryDraftError("region");
+   command = historyCommandFromDraft(clientId, history.requestId, history.draft);
+  } catch (cause) { setHistoryFieldError(cause instanceof HistoryDraftError ? cause.field : "description"); return; }
+  setSaving(true);
+  const request = new AbortController(); const timeout = window.setTimeout(() => request.abort(), 15000);
+  try {
+   await sendHistory(command, data.workspaceReference, request.signal);
+   setHistory(null);
+   const firstPage = { ...page, history_offset: 0 };
+   if (await verify(firstPage)) { setPage(firstPage); setHistorySaved(true); }
+  } catch (cause) {
+   const code = cause instanceof PassportMutationError ? cause.code : "NETWORK_ERROR";
+   setHistoryError(code);
+   if (["FORBIDDEN", "MEMBERSHIP_REVOKED", "TENANT_CONTEXT_INVALID", "SESSION_EXPIRED", "UNAUTHENTICATED", "CLIENT_ARCHIVED"].includes(code)) { setHistory(null); void verify(); }
+  } finally { clearTimeout(timeout); setSaving(false); }
+ }
 
  function beginPhysicalTest() {
   if (!data?.snapshot) return;
@@ -205,6 +248,7 @@ export function HairPassportWorkspace({ clientId }: { clientId: string }) {
  const canEdit = Boolean(active && data?.permissions.includes("hair_passport.update"));
  const canAddObservation = Boolean(active && data?.snapshot && data.permissions.includes("hair_passport.add_observation"));
  const canAddTest = Boolean(active && data?.snapshot && data.permissions.includes("hair_passport.add_test"));
+ const canAddHistory = Boolean(active && data?.snapshot && data.permissions.includes("hair_passport.add_history"));
  const dirty = Boolean(editor && (editor.kind === "create" || editor.kind === "new-region" || JSON.stringify(editor.base) !== JSON.stringify(editor.draft) || editor.label !== editor.initialLabel));
  const availableRegions = regionChoices.filter(type => type === "CUSTOM" || !data?.snapshot?.regions.some(region => region.type === type && region.status === "ACTIVE"));
  return <AppShell><main id="main-content" className="hp-page">
@@ -216,6 +260,7 @@ export function HairPassportWorkspace({ clientId }: { clientId: string }) {
    {saved && <p className="hp-notice" role="status">{e.saved}</p>}
    {observationSaved && <p className="hp-notice" role="status">{o.saved}</p>}
    {physicalTestSaved && <p className="hp-notice" role="status">{p.saved}</p>}
+   {historySaved && <p className="hp-notice" role="status">{h.saved}</p>}
    {!data.snapshot && <section className="hp-empty"><h2>{t.emptyTitle}</h2><p>{t.empty}</p>{canCreate && !editor && <button className="button button-primary" onClick={() => begin("create")}>{e.create}</button>}</section>}
    {editor && <section className="hp-editor" aria-labelledby="hp-editor-title"><h2 id="hp-editor-title" tabIndex={-1}>{editor.kind === "create" ? e.createTitle : editor.kind === "core" ? e.coreTitle : editor.kind === "region" ? e.regionTitle : e.newRegionTitle}</h2>
     <form onSubmit={save} noValidate aria-busy={saving}>
@@ -228,7 +273,11 @@ export function HairPassportWorkspace({ clientId }: { clientId: string }) {
      <div className="hp-form-actions"><button className="button button-primary" disabled={saving || !dirty}>{saving ? e.saving : e.save}</button><button type="button" className="button button-secondary" disabled={saving} onClick={() => { setEditor(null); setMutationError(null); setFieldErrors({}); }}>{e.cancel}</button></div>
     </form>
    </section>}
-   {data.snapshot && <HairPassportOverview snapshot={data.snapshot} change={(kind, offset) => { setData(null); setPage(previous => ({ ...previous, [kind]: offset })); }} canEdit={canEdit && !editor && !observation && !physicalTest && !saving} onEditCore={() => begin("core")} onAddRegion={() => begin("new-region")} onEditRegion={id => begin("region", data.snapshot?.regions.find(region => region.id === id))} canAddObservation={canAddObservation && !editor && !observation && !physicalTest && !saving} onAddObservation={beginObservation} observationForm={observation && <HairObservationForm snapshot={data.snapshot} draft={observation.draft} change={changeObservation} save={saveObservation} cancel={() => { setObservation(null); setObservationError(null); setObservationFieldError(null); }} saving={saving} error={observationError} fieldError={observationFieldError} reload={() => { setObservation(null); void verify(); }} />} canAddTest={canAddTest && !editor && !observation && !physicalTest && !saving} onAddTest={beginPhysicalTest} testForm={physicalTest && <HairPhysicalTestForm snapshot={data.snapshot} draft={physicalTest.draft} change={changePhysicalTest} save={savePhysicalTest} cancel={() => { setPhysicalTest(null); setPhysicalTestError(null); setPhysicalTestFieldError(null); }} saving={saving} error={physicalTestError} fieldError={physicalTestFieldError} reload={() => { setPhysicalTest(null); void verify(); }} />} />}
+   {data.snapshot && <HairPassportOverview snapshot={data.snapshot} change={(kind, offset) => { setData(null); setPage(previous => ({ ...previous, [kind]: offset })); }}
+    canEdit={canEdit && !editor && !observation && !physicalTest && !history && !saving} onEditCore={() => begin("core")} onAddRegion={() => begin("new-region")} onEditRegion={id => begin("region", data.snapshot?.regions.find(region => region.id === id))}
+    canAddObservation={canAddObservation && !editor && !observation && !physicalTest && !history && !saving} onAddObservation={beginObservation} observationForm={observation && <HairObservationForm snapshot={data.snapshot} draft={observation.draft} change={changeObservation} save={saveObservation} cancel={() => { setObservation(null); setObservationError(null); setObservationFieldError(null); }} saving={saving} error={observationError} fieldError={observationFieldError} reload={() => { setObservation(null); void verify(); }} />}
+    canAddTest={canAddTest && !editor && !observation && !physicalTest && !history && !saving} onAddTest={beginPhysicalTest} testForm={physicalTest && <HairPhysicalTestForm snapshot={data.snapshot} draft={physicalTest.draft} change={changePhysicalTest} save={savePhysicalTest} cancel={() => { setPhysicalTest(null); setPhysicalTestError(null); setPhysicalTestFieldError(null); }} saving={saving} error={physicalTestError} fieldError={physicalTestFieldError} reload={() => { setPhysicalTest(null); void verify(); }} />}
+    canAddHistory={canAddHistory && !editor && !observation && !physicalTest && !history && !saving} onAddHistory={beginHistory} historyForm={history && <HairHistoryForm snapshot={data.snapshot} draft={history.draft} change={changeHistory} save={saveHistory} cancel={() => { setHistory(null); setHistoryError(null); setHistoryFieldError(null); }} saving={saving} error={historyError} fieldError={historyFieldError} reload={() => { setHistory(null); void verify(); }} />} />}
   </>}
  </main></AppShell>;
 }

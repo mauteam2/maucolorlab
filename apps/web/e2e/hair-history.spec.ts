@@ -1,0 +1,86 @@
+import { expect, test, type Page } from "@playwright/test";
+import { randomUUID } from "node:crypto";
+import { seedAccount, login, expectReady } from "./local-auth";
+
+async function setup(page: Page) {
+ const account = await seedAccount(); await login(page, account); await expectReady(page);
+ const session = await (await page.request.get("/api/session")).json();
+ const response = await page.request.post("/api/clients", { headers: { origin: "http://127.0.0.1:4173", "x-workspace-reference": `${session.context.membership_id}:${session.context.location_id}` }, data: { operation: "create", payload: { full_name: "Sentetik Teknik Geçmiş Profili", phone: "05327776655", request_id: randomUUID() } } });
+ expect(response.ok()).toBeTruthy();
+ const client = (await response.json()).data;
+ return { account, url: `/workspace/clients/${client.id}/hair-passport` };
+}
+
+test("records exact, approximate and unknown history without replacing older events", async ({ page }, info) => {
+ test.setTimeout(150000);
+ await page.setViewportSize(info.project.name === "chromium" ? { width: 1440, height: 1000 } : { width: 390, height: 844 });
+ const { account, url } = await setup(page);
+ await page.goto(url);
+ await page.getByRole("button", { name: "Hair Passport Oluştur" }).click();
+ await page.getByRole("button", { name: "Kaydet" }).click();
+ const add = page.getByRole("button", { name: "Geçmiş Kaydı Ekle" });
+ const form = page.locator(".hp-history-editor");
+ await expect(add).toBeVisible();
+ await page.screenshot({ path: info.outputPath("client-hair-history-empty.png"), fullPage: true });
+ await add.click();
+ await expect(form.getByRole("heading", { name: "Yeni teknik geçmiş kaydı" })).toBeFocused();
+ await page.screenshot({ path: info.outputPath("client-hair-history-form.png"), fullPage: true });
+ await form.getByRole("button", { name: "Kaydet" }).click();
+ await expect(form.getByRole("alert")).toContainText("İşlem için bir açıklama girin");
+ await page.screenshot({ path: info.outputPath("client-hair-history-validation.png"), fullPage: true });
+ await form.getByLabel("Tarih bilgisi").selectOption("EXACT");
+ await form.getByLabel("Kesin işlem tarihi").fill("2024-04-12");
+ await form.getByLabel("Ürün bilgisi durumu").selectOption("KNOWN");
+ await form.getByLabel("Ürün bilgisi", { exact: true }).fill("Sentetik boya");
+ await form.getByLabel("İşlem açıklaması / teknik not").fill("Önceki boya işlemi");
+ await form.getByLabel("Dip", { exact: true }).check();
+ await page.screenshot({ path: info.outputPath("client-hair-history-exact.png"), fullPage: true });
+ await form.getByRole("button", { name: "Kaydet" }).click();
+ await expect(page.locator("#hp-history .hp-records > li")).toHaveCount(1);
+ await page.screenshot({ path: info.outputPath("client-hair-history-saved.png"), fullPage: true });
+ await add.click();
+ await form.getByLabel("İşlem türü").selectOption("BLEACH_LIGHTENING");
+ await form.getByLabel("Tarih bilgisi").selectOption("APPROXIMATE");
+ await form.getByLabel("Yaklaşık işlem tarihi").fill("2024-09-17");
+ await form.getByLabel("İşlem açıklaması / teknik not").fill("Yaklaşık tarihli açıcı işlemi");
+ await form.getByLabel("Dip", { exact: true }).check();
+ await form.getByLabel("Uçlar", { exact: true }).check();
+ await form.getByLabel("Geçmiş bilgisinin kaynağı").selectOption("IMPORTED_UNVERIFIED");
+ await form.getByLabel("Kaynak açıklaması (isteğe bağlı)").fill("Müşteri anlatımı");
+ await page.screenshot({ path: info.outputPath("client-hair-history-approximate-multi-region-unknown-product.png"), fullPage: true });
+ await form.getByRole("button", { name: "Kaydet" }).click();
+ await expect(page.locator("#hp-history .hp-records > li")).toHaveCount(2);
+ await add.click();
+ await form.getByLabel("İşlem türü").selectOption("TONER_GLOSS");
+ await form.getByLabel("Ürün bilgisi durumu").selectOption("NOT_APPLICABLE");
+ await form.getByLabel("İşlem açıklaması / teknik not").fill("Tarihi bilinmeyen toner işlemi");
+ await form.getByRole("button", { name: "Kaydet" }).click();
+ await expect(page.locator("#hp-history .hp-records > li")).toHaveCount(3);
+ await page.reload();
+ await expect(page.locator("#hp-history .hp-records > li")).toHaveCount(3);
+ for (const name of ["Boya", "Açma / Açıcı İşlemi", "Toner / Gloss"]) await expect(page.locator("#hp-history").getByRole("heading", { name })).toBeVisible();
+ await expect(page.locator("#hp-history")).toContainText("Dip · Uçlar");
+ await expect(page.locator("#hp-history")).toContainText("Yaklaşık");
+ expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+ await page.screenshot({ path: info.outputPath("client-hair-history-populated.png"), fullPage: true });
+ const assistant = await account.addMember("assistant");
+ await page.context().clearCookies(); await login(page, assistant); await expectReady(page);
+ await page.goto(url);
+ await expect(page.locator("#hp-history .hp-records > li")).toHaveCount(3);
+ await expect(add).toHaveCount(0);
+});
+
+test("revoked membership cannot save an open technical history form", async ({ page }, info) => {
+ test.setTimeout(90000);
+ await page.setViewportSize(info.project.name === "chromium" ? { width: 1440, height: 1000 } : { width: 390, height: 844 });
+ const { account, url } = await setup(page);
+ await page.goto(url);
+ await page.getByRole("button", { name: "Hair Passport Oluştur" }).click();
+ await page.getByRole("button", { name: "Kaydet" }).click();
+ await page.getByRole("button", { name: "Geçmiş Kaydı Ekle" }).click();
+ await page.getByLabel("İşlem açıklaması / teknik not").fill("Önceki boya işlemi");
+ await account.revoke();
+ await page.locator(".hp-history-editor").getByRole("button", { name: "Kaydet" }).click();
+ await expect(page.getByRole("heading", { name: "Sentetik Teknik Geçmiş Profili" })).toHaveCount(0);
+ await expect(page).toHaveURL(/\/workspaces/, { timeout: 25000 });
+});
