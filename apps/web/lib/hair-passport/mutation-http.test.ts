@@ -22,6 +22,13 @@ it("denies absent, malformed and foreign origins", async () => {
  for (const origin of ["", "invalid", "https://foreign.test", "http://elifora.test"]) expect((await POST(request("{}", { origin }), { params })).status).toBe(403);
  expect(mutate).not.toHaveBeenCalled();
 });
+it("accepts the public Host when Next normalizes the request URL to an internal host", async () => {
+ const req = new Request("https://internal.invalid/api/clients/client-id/hair-passport", {
+  method: "POST", headers: { origin: "https://elifora.test", host: "elifora.test", "content-type": "application/json" }, body: "{}",
+ });
+ expect((await POST(req, { params })).status).toBe(200);
+ expect(mutate).toHaveBeenCalledOnce();
+});
 it("rejects non-JSON, malformed and oversized bodies", async () => {
  for (const req of [request("{}", { "content-type": "text/plain" }), request("{"), request('"' + "x".repeat(32768) + '"')]) expect((await POST(req, { params })).status).toBe(400);
  expect(mutate).not.toHaveBeenCalled();

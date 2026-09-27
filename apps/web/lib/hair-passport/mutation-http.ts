@@ -9,7 +9,11 @@ export async function hairMutationResponse(request: Request, params: Promise<{ c
  const headers = { "Cache-Control": "private, no-store", "X-Correlation-ID": correlationId };
  try {
   let sameOrigin = false;
-  try { sameOrigin = new URL(request.headers.get("origin") ?? "").origin === new URL(request.url).origin; } catch { /* malformed origin is denied */ }
+  try {
+   const origin = new URL(request.headers.get("origin") ?? "");
+   const url = new URL(request.url);
+   sameOrigin = origin.protocol === url.protocol && origin.host === (request.headers.get("host") ?? url.host);
+  } catch { /* malformed origin is denied */ }
   if (!sameOrigin) throw new AccessError("FORBIDDEN", 403);
   if (request.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase() !== "application/json" || new URL(request.url).search)
    throw new AccessError("VALIDATION_FAILED", 400);
