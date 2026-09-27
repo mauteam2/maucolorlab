@@ -24,7 +24,7 @@ test("real passport navigation, regions, tests, history pagination and revoked a
  for (let i = 0; i < 11; i++) await append("/history", { category: "BLEACH_LIGHTENING", performed_on: i === 0 ? { state: "UNKNOWN", value: null } : { state: "APPROXIMATE", value: "2025-06-01" }, product: { state: "UNKNOWN", value: null }, description: `Sentetik geçmiş kaydı ${i}`, evidence: { source: "IMPORTED_UNVERIFIED" } });
  await page.goto(url); await page.getByRole("link", { name: "Saç Pasaportu", exact: true }).click();
  await expect(page.getByRole("heading", { name: client.full_name })).toBeVisible();
- for (const name of ["Dip", "Boylar", "Uçlar"]) await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
+ for (const name of ["Dip", "Orta Uzunluklar", "Uçlar"]) await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
  await expect(page.getByRole("heading", { name: /Özel bölge/ })).toBeVisible();
  await expect(page.getByText("Sentetik tutam gözlemi")).toBeVisible();
  await expect(page.getByText(/Yaklaşık ·/).first()).toBeVisible();

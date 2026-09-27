@@ -20,6 +20,7 @@ export async function seedAccount(locationCount = 1) {
   const { data, error } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
   if (error || !data.user) throw new Error("Local test user creation failed");
   const userId = data.user.id;
+  const extraUserIds: string[] = [];
   const check = (result: { error: unknown }) => { if (result.error) throw new Error("Local tenancy fixture failed"); };
   check(await admin.from("organizations").insert({ id: organizationId, name: "Studio E2E", slug: `e2e-${id}`, base_currency: "TRY" }));
   const locations = Array.from({ length: locationCount }, (_, i) => ({
@@ -32,6 +33,16 @@ export async function seedAccount(locationCount = 1) {
   }));
   return {
     email, password, membershipId, locations,
+    async addMember(roleCode: "assistant" | "colorist" | "manager") {
+      const memberEmail = `e2e-${randomUUID()}@elifora.test`;
+      const memberPassword = `E2e-${randomUUID()}!`;
+      const { data: member, error: memberError } = await admin.auth.admin.createUser({ email: memberEmail, password: memberPassword, email_confirm: true });
+      if (memberError || !member.user) throw new Error("Local test member creation failed");
+      extraUserIds.push(member.user.id);
+      const memberId = randomUUID();
+      check(await admin.from("salon_memberships").insert({ id: memberId, organization_id: organizationId, user_id: member.user.id, location_id: null, role_code: roleCode, status: "active", joined_at: new Date().toISOString() }));
+      return { email: memberEmail, password: memberPassword, membershipId: memberId };
+    },
     async revoke() {
       check(await admin.from("salon_memberships").update({ status: "revoked", revoked_at: new Date().toISOString() }).eq("id", membershipId));
     },
@@ -40,6 +51,7 @@ export async function seedAccount(locationCount = 1) {
       check(await admin.from("locations").delete().eq("organization_id", organizationId));
       check(await admin.from("organizations").delete().eq("id", organizationId));
       check(await admin.auth.admin.deleteUser(userId));
+      for (const extraUserId of extraUserIds) check(await admin.auth.admin.deleteUser(extraUserId));
     },
   };
 }

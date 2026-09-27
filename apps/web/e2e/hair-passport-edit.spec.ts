@@ -1,0 +1,81 @@
+import { expect, test, type Page } from "@playwright/test";
+import { randomUUID } from "node:crypto";
+import { seedAccount, login, expectReady } from "./local-auth";
+
+async function setup(page: Page) {
+ const account = await seedAccount(); await login(page, account); await expectReady(page);
+ const session = await (await page.request.get("/api/session")).json();
+ const response = await page.request.post("/api/clients", { headers: { origin: "http://127.0.0.1:4173", "x-workspace-reference": `${session.context.membership_id}:${session.context.location_id}` }, data: { operation: "create", payload: { full_name: "Sentetik Teknik Profil", phone: "05329998877", request_id: randomUUID() } } });
+ expect(response.ok()).toBeTruthy();
+ const client = (await response.json()).data;
+ return { account, client, url: `/workspace/clients/${client.id}/hair-passport` };
+}
+
+test("create, edit core states, add and edit regions, then read back as read-only member", async ({ page }, info) => {
+ test.setTimeout(120000);
+ await page.setViewportSize(info.project.name === "chromium" ? { width: 1440, height: 1000 } : { width: 390, height: 844 });
+ const { account, url } = await setup(page);
+ await page.goto(url);
+ await expect(page.getByRole("button", { name: "Hair Passport Oluştur" })).toBeVisible();
+ await page.screenshot({ path: info.outputPath("client-hair-edit-empty.png"), fullPage: true });
+ await page.getByRole("button", { name: "Hair Passport Oluştur" }).click();
+ await expect(page.getByRole("heading", { name: "Saç Pasaportu oluştur" })).toBeVisible();
+ await page.getByRole("button", { name: "Kaydet" }).click();
+ for (const name of ["Dip", "Orta Uzunluklar", "Uçlar"]) await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
+ await expect(page.locator("#hp-regions article")).toHaveCount(3);
+ await page.getByRole("button", { name: "Genel durumu düzenle" }).click();
+ const form = page.locator(".hp-editor");
+ await form.getByLabel("Doğal seviye · Bilgi durumu").selectOption("KNOWN");
+ await form.getByLabel("Doğal seviye · Değer").fill("5");
+ await form.getByLabel("Görünür seviye · Bilgi durumu").selectOption("KNOWN");
+ await form.getByLabel("Görünür seviye · Değer").fill("7");
+ await form.getByLabel("Beyaz oranı · Bilgi durumu").selectOption("KNOWN");
+ await form.getByLabel("Beyaz oranı · Değer").fill("25");
+ await page.screenshot({ path: info.outputPath("client-hair-edit-core-form.png"), fullPage: true });
+ await form.getByRole("button", { name: "Kaydet" }).click();
+ await expect(page.getByText("Değişiklikler kaydedildi ve güncel bilgiler yüklendi.")).toBeVisible();
+ await expect(page.locator("#hp-core")).toContainText("5");
+ await page.getByRole("button", { name: "Genel durumu düzenle" }).click();
+ await form.getByLabel("Doğal seviye · Bilgi durumu").selectOption("UNKNOWN");
+ await form.getByLabel("Görünür seviye · Bilgi durumu").selectOption("NOT_ASSESSED");
+ await form.getByRole("button", { name: "Kaydet" }).click();
+ await expect(page.locator("#hp-core")).toContainText("Bilinmiyor");
+ await expect(page.locator("#hp-core")).toContainText("Henüz değerlendirilmedi");
+ await expect(page.locator("#hp-core")).toContainText("%25");
+ await page.getByRole("button", { name: "Teknik bölge ekle" }).click();
+ await form.getByLabel("Bölge türü").selectOption("CUSTOM");
+ await form.getByRole("button", { name: "Kaydet" }).click();
+ await expect(form.getByRole("alert")).toContainText("Özel bölge için geçerli bir ad girin.");
+ await page.screenshot({ path: info.outputPath("client-hair-edit-validation.png"), fullPage: true });
+ await form.getByLabel("Bölge adı").fill("Ön açma alanı");
+ await page.screenshot({ path: info.outputPath("client-hair-edit-region-create.png"), fullPage: true });
+ await form.getByRole("button", { name: "Kaydet" }).click();
+ await expect(page.getByRole("heading", { name: "Özel bölge · Ön açma alanı" })).toBeVisible();
+ await page.getByRole("button", { name: "Özel bölge · Ön açma alanı · Bölgeyi düzenle" }).click();
+ await form.getByLabel("Gözeneklilik · Bilgi durumu").selectOption("KNOWN");
+ await form.getByLabel("Gözeneklilik · Değer").selectOption("HIGH");
+ await page.screenshot({ path: info.outputPath("client-hair-edit-region-form.png"), fullPage: true });
+ await form.getByRole("button", { name: "Kaydet" }).click();
+ await expect(page.locator("#hp-regions article").filter({ hasText: "Ön açma alanı" })).toContainText("Yüksek");
+ await page.reload();
+ await expect(page.locator("#hp-core")).toContainText("Bilinmiyor");
+ await expect(page.locator("#hp-regions article").filter({ hasText: "Ön açma alanı" })).toContainText("Yüksek");
+ expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+ const assistant = await account.addMember("assistant");
+ await page.context().clearCookies(); await login(page, assistant); await expectReady(page);
+ await page.goto(url);
+ await expect(page.getByRole("heading", { name: "Özel bölge · Ön açma alanı" })).toBeVisible();
+ await expect(page.getByRole("button", { name: /Oluştur|düzenle|ekle|Kaydet/i })).toHaveCount(0);
+});
+
+test("revoked membership cannot save an open core edit", async ({ page }, info) => {
+ test.setTimeout(90000);
+ await page.setViewportSize(info.project.name === "chromium" ? { width: 1440, height: 1000 } : { width: 390, height: 844 });
+ const { account, url } = await setup(page);
+ await page.goto(url); await page.getByRole("button", { name: "Hair Passport Oluştur" }).click(); await page.getByRole("button", { name: "Kaydet" }).click();
+ await page.getByRole("button", { name: "Genel durumu düzenle" }).click();
+ await page.getByLabel("Doğal seviye · Bilgi durumu").selectOption("KNOWN"); await page.getByLabel("Doğal seviye · Değer").fill("5");
+ await account.revoke(); await page.getByRole("button", { name: "Kaydet" }).click();
+ await expect(page.getByRole("heading", { name: "Sentetik Teknik Profil" })).toHaveCount(0);
+ await expect(page).toHaveURL(/\/workspaces/, { timeout: 25000 });
+});

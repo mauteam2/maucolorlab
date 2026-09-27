@@ -26,5 +26,5 @@ export async function loadPassport(clientId: string, options: HairReadOptions, s
  if (!last.permissions.includes("hair_passport.read")) throw new PassportLoadError("FORBIDDEN");
  const snapshot = "data" in result ? result.data : null;
  if (snapshot && (snapshot.passport.client_id !== clientId || snapshot.passport.client_status !== client.status || snapshot.physical_tests.offset !== (options.tests_offset ?? 0) || snapshot.history.offset !== (options.history_offset ?? 0) || snapshot.physical_tests.page_size !== 10 || snapshot.history.page_size !== 10)) throw new PassportLoadError("NETWORK_ERROR");
- return { client, snapshot };
+ return { client, snapshot, permissions: last.permissions, workspaceReference: reference };
 }

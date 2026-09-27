@@ -328,3 +328,23 @@ h1 {
 .hp-pager button:disabled { cursor: default; }
 @media (max-width: 1000px) { .hp-regions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .hp-regions { grid-template-columns: 1fr; } .hp-regions .hp-values { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hp-empty { padding: 1.25rem; } .hp-header { margin-top: 1.5rem; } }
+
+.hp-section-heading { display: flex; align-items: start; justify-content: space-between; flex-wrap: wrap; gap: .75rem; }
+.hp-section-heading h2 { margin-top: 0; }
+.hp-text-button { border: 0; padding: .15rem 0; color: #69425b; text-decoration: underline; background: none; cursor: pointer; font: inherit; font-size: .8rem; }
+.hp-editor { margin: 2rem 0; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--color-border); border-radius: 1rem; background: var(--color-surface); }
+.hp-editor h2 { margin-top: 0; }
+.hp-editor h2:focus { outline: 2px solid #69425b; outline-offset: .3rem; }
+.hp-form-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+.hp-form-field { min-width: 0; display: flex; flex-direction: column; gap: .45rem; }
+.hp-form-field label { font-weight: 600; }
+.hp-form-field input, .hp-form-field select, .hp-form-field textarea { width: 100%; min-width: 0; padding: .7rem .8rem; border: 1px solid var(--color-border); border-radius: .55rem; background: #fff; color: var(--color-text); font: inherit; }
+.hp-form-field textarea { min-height: 5rem; resize: vertical; }
+.hp-form-field [aria-invalid="true"] { border-color: #a4453f; }
+.hp-field-error { color: #8e332e; font-size: .85rem; font-weight: 600; }
+.hp-form-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.hp-optional { margin-top: 1.5rem; }
+.hp-optional summary { cursor: pointer; color: #69425b; font-weight: 600; }
+.hp-mutation-error { padding: 1rem; margin-top: 1rem; border-left: 3px solid #a4453f; background: #fff8f5; }
+.hp-notice { padding: 1rem; border-left: 3px solid #567556; background: #f4f8f2; }
+@media (max-width: 700px) { .hp-form-fields { grid-template-columns: 1fr; } }
