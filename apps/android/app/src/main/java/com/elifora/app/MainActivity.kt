@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val controller get() = (application as EliforaApplication).container.workspaceController
     private val clients get() = (application as EliforaApplication).container.clientController
+    private val passports get() = (application as EliforaApplication).container.hairPassportController
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -25,9 +26,9 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             controller.state.collectLatest { state ->
                 when (state) {
-                    is WorkspaceState.Ready -> clients.bind(state.context)
-                    WorkspaceState.LoadingSession, WorkspaceState.LoadingMemberships -> clients.conceal()
-                    else -> clients.invalidate()
+                    is WorkspaceState.Ready -> { passports.conceal(); clients.bind(state.context); passports.bind(state.context) }
+                    WorkspaceState.LoadingSession, WorkspaceState.LoadingMemberships -> { clients.conceal(); passports.conceal() }
+                    else -> { clients.invalidate(); passports.invalidate() }
                 }
             }
         }
@@ -39,8 +40,9 @@ class MainActivity : ComponentActivity() {
                     if (controller.state.value is WorkspaceState.Ready ||
                         controller.state.value is WorkspaceState.SelectingWorkspace ||
                         controller.state.value is WorkspaceState.NoMembership) {
+                        passports.conceal()
                         controller.refresh()
-                        (controller.state.value as? WorkspaceState.Ready)?.let { clients.bind(it.context, keepVisible = true) }
+                        (controller.state.value as? WorkspaceState.Ready)?.let { clients.bind(it.context, keepVisible = true); passports.bind(it.context) }
                     }
                 }
             }
@@ -50,13 +52,14 @@ class MainActivity : ComponentActivity() {
                 signIn = { email, password -> lifecycleScope.launch { controller.signIn(email, password) } },
                 select = { lifecycleScope.launch { controller.select(it) } },
                 retry = { lifecycleScope.launch { controller.restore() } },
-                change = { clients.invalidate(); lifecycleScope.launch { controller.changeWorkspace() } },
-                logout = { clients.invalidate(); lifecycleScope.launch { controller.logout() } },
-                clients = { permissions -> ClientScreens(clients, permissions) })
+                change = { clients.invalidate(); passports.invalidate(); lifecycleScope.launch { controller.changeWorkspace() } },
+                logout = { clients.invalidate(); passports.invalidate(); lifecycleScope.launch { controller.logout() } },
+                clients = { permissions -> ClientScreens(clients, passports, permissions) })
         }
     }
     override fun onStop() {
         clients.conceal()
+        passports.conceal()
         controller.conceal()
         super.onStop()
     }

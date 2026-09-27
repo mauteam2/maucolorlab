@@ -84,6 +84,9 @@ class SupabaseAuthRepository(
     suspend fun clientOperation(body: String): HttpReply = mutex.withLock {
         authenticated("POST", "/rest/v1/rpc/client_operation", body)
     }
+    suspend fun hairPassportSnapshot(body: String): HttpReply = mutex.withLock {
+        authenticated("POST", "/rest/v1/rpc/hair_passport_snapshot", body)
+    }
     override suspend fun signIn(email: String, password: String) = mutex.withLock {
         val reply = transport.request("POST", "/auth/v1/token?grant_type=password", null,
             JSONObject().put("email", email).put("password", password).toString())
