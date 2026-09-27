@@ -29,6 +29,13 @@
         "page_size": 50,
         "has_more": false,
         "next_offset": null
+      },
+      "observations": {
+        "items": [],
+        "offset": 0,
+        "page_size": 50,
+        "has_more": false,
+        "next_offset": null
       }
     }
   },
@@ -288,6 +295,158 @@
               "location_id": "b2000000-0000-4000-8000-000000000011",
               "context": null
             }
+          }
+        ],
+        "offset": 0,
+        "page_size": 50,
+        "has_more": false,
+        "next_offset": null
+      },
+      "observations": {
+        "items": [
+          {
+            "id": "b2000000-0000-4000-8000-000000000071",
+            "region_id": null,
+            "recorded_at": "2026-09-10T12:00:00+00:00",
+            "recorded_by": "b2000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "evidence": {
+              "id": "b2000000-0000-4000-8000-000000000061",
+              "source": "AI_ESTIMATE",
+              "observed_at": {
+                "state": "KNOWN",
+                "value": "2026-09-10T12:00:00+00:00"
+              },
+              "confidence": {
+                "state": "KNOWN",
+                "value": 0.75
+              },
+              "verified_by": null,
+              "recorded_at": "2026-09-10T12:00:00+00:00",
+              "recorded_by": "b2000000-0000-4000-8000-000000000021",
+              "supersedes_id": null,
+              "relevant_until": null,
+              "location_id": "b2000000-0000-4000-8000-000000000011",
+              "context": null
+            },
+            "natural_level": {
+              "state": "KNOWN",
+              "value": 5
+            },
+            "perceived_level": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "grey_ratio": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "thickness": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "density": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "porosity": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "elasticity": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "tone": {
+              "state": "NOT_APPLICABLE",
+              "value": null
+            },
+            "cosmetic_color_history": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "bleach_history": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "chemical_history": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "technical_notes": null,
+            "integrity_notes": null
+          },
+          {
+            "id": "b2000000-0000-4000-8000-000000000072",
+            "region_id": "b2000000-0000-4000-8000-000000000051",
+            "recorded_at": "2026-09-10T12:00:00+00:00",
+            "recorded_by": "b2000000-0000-4000-8000-000000000021",
+            "supersedes_id": null,
+            "evidence": {
+              "id": "b2000000-0000-4000-8000-000000000062",
+              "source": "PROFESSIONAL_VERIFIED",
+              "observed_at": {
+                "state": "KNOWN",
+                "value": "2026-09-10T12:00:00+00:00"
+              },
+              "confidence": {
+                "state": "KNOWN",
+                "value": 0.75
+              },
+              "verified_by": "b2000000-0000-4000-8000-000000000021",
+              "recorded_at": "2026-09-10T12:00:00+00:00",
+              "recorded_by": "b2000000-0000-4000-8000-000000000021",
+              "supersedes_id": null,
+              "relevant_until": null,
+              "location_id": "b2000000-0000-4000-8000-000000000011",
+              "context": null
+            },
+            "natural_level": {
+              "state": "KNOWN",
+              "value": 5
+            },
+            "perceived_level": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "grey_ratio": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "thickness": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "density": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "porosity": {
+              "state": "UNKNOWN",
+              "value": null
+            },
+            "elasticity": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "tone": {
+              "state": "NOT_APPLICABLE",
+              "value": null
+            },
+            "cosmetic_color_history": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "bleach_history": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "chemical_history": {
+              "state": "NOT_ASSESSED",
+              "value": null
+            },
+            "technical_notes": null,
+            "integrity_notes": null
           }
         ],
         "offset": 0,

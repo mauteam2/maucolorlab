@@ -343,9 +343,16 @@ h1 {
 .hp-form-field [aria-invalid="true"] { border-color: #a4453f; }
 .hp-field-error { color: #8e332e; font-size: .85rem; font-weight: 600; }
 .hp-form-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.hp-observation-editor { margin: 1.25rem 0; }
+.hp-observation-editor h3 { margin-top: 0; font-size: 1.25rem; }
+.hp-observation-editor h3:focus { outline: 2px solid #69425b; outline-offset: .3rem; }
+.hp-observation-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.hp-check { display: flex; align-items: start; gap: .75rem; margin-top: 1.5rem; font-weight: 600; }
+.hp-check input { width: 1.1rem; height: 1.1rem; flex: none; margin-top: .2rem; accent-color: #69425b; }
 .hp-optional { margin-top: 1.5rem; }
 .hp-optional summary { cursor: pointer; color: #69425b; font-weight: 600; }
 .hp-mutation-error { padding: 1rem; margin-top: 1rem; border-left: 3px solid #a4453f; background: #fff8f5; }
 .hp-notice { padding: 1rem; border-left: 3px solid #567556; background: #f4f8f2; }
 @media (max-width: 700px) { .hp-form-fields { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .hp-observation-fields { grid-template-columns: 1fr; } }
 @media (max-width: 700px) { .hp-form-actions { position: sticky; bottom: 0; z-index: 2; padding: .75rem 0; border-top: 1px solid var(--color-border); background: var(--color-surface); } }

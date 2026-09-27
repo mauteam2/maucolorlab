@@ -2,10 +2,12 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, expect, it, vi } from "vitest";
 vi.mock("@/lib/hair-passport/load", () => ({ loadPassport: vi.fn(), PassportLoadError: class extends Error { constructor(public code: string) { super(code); } } }));
 vi.mock("@/lib/hair-passport/mutate", () => ({ sendHairMutation: vi.fn(), PassportMutationError: class extends Error { constructor(public code: string) { super(code); } } }));
+vi.mock("@/lib/hair-passport/observation-mutate", () => ({ sendObservation: vi.fn() }));
 import { loadPassport, PassportLoadError } from "@/lib/hair-passport/load";
 import { sendHairMutation, PassportMutationError } from "@/lib/hair-passport/mutate";
+import { sendObservation } from "@/lib/hair-passport/observation-mutate";
 import { HairPassportWorkspace } from "./hair-passport-workspace";
-import { hairTr as t, hairEditTr as e } from "@/lib/i18n/hair-tr";
+import { hairTr as t, hairEditTr as e, hairObservationTr as o } from "@/lib/i18n/hair-tr";
 import { readFixtures } from "@/test/hair-passport-fixtures";
 const loaded = { client: { full_name: "Sentetik müşteri", status: "ARCHIVED" }, snapshot: null, permissions: ["hair_passport.create", "hair_passport.update"], workspaceReference: "selection" } as Awaited<ReturnType<typeof loadPassport>>;
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
@@ -35,6 +37,52 @@ it("keeps active read-only users free of mutation controls", async () => {
  render(<HairPassportWorkspace clientId="test" />);
  await screen.findByText(t.emptyTitle);
  expect(screen.queryByRole("button", { name: e.create })).toBeNull();
+});
+it("shows observation entry only with active mutation permission", async () => {
+ const clientId = readFixtures.populated.data.passport.client_id;
+ const base = { ...loaded, client: { ...loaded.client, status: "ACTIVE" as const }, snapshot: readFixtures.populated.data };
+ vi.mocked(loadPassport).mockResolvedValueOnce({ ...base, permissions: ["hair_passport.read"] } as typeof loaded);
+ render(<HairPassportWorkspace clientId={clientId} />);
+ await screen.findByRole("heading", { name: t.observations });
+ expect(screen.queryByRole("button", { name: o.add })).toBeNull();
+ cleanup();
+ vi.mocked(loadPassport).mockResolvedValue({ ...base, permissions: ["hair_passport.read", "hair_passport.add_observation"] } as typeof loaded);
+ render(<HairPassportWorkspace clientId={clientId} />);
+ expect(await screen.findByRole("button", { name: o.add })).toBeVisible();
+});
+it("requires attestation, sends one professional observation and reloads confirmed history", async () => {
+ const clientId = readFixtures.populated.data.passport.client_id;
+ const base = { ...loaded, client: { ...loaded.client, status: "ACTIVE" as const }, snapshot: readFixtures.populated.data, permissions: ["hair_passport.read", "hair_passport.add_observation"] } as typeof loaded;
+ const next = structuredClone(base);
+ next.snapshot!.observations.items.unshift({ ...next.snapshot!.observations.items[0]!, id: "b2000000-0000-4000-8000-000000000099" });
+ vi.mocked(loadPassport).mockResolvedValueOnce(base).mockResolvedValue(next);
+ vi.mocked(sendObservation).mockResolvedValue({} as Awaited<ReturnType<typeof sendObservation>>);
+ render(<HairPassportWorkspace clientId={clientId} />);
+ fireEvent.click(await screen.findByRole("button", { name: o.add }));
+ fireEvent.change(screen.getByLabelText(o.value), { target: { value: "5" } });
+ fireEvent.click(screen.getByRole("button", { name: e.save }));
+ expect(await screen.findByRole("alert")).toHaveTextContent(o.validation.verified);
+ fireEvent.click(screen.getByLabelText(o.verify));
+ fireEvent.click(screen.getByRole("button", { name: e.save }));
+ expect(await screen.findByText(o.saved)).toBeVisible();
+ expect(vi.mocked(sendObservation).mock.calls[0]![0]).toMatchObject({ operation: "add_observation", payload: { technical: { natural_level: { state: "KNOWN", value: 5 } }, evidence: { source: "PROFESSIONAL_VERIFIED", attestation: "PERSONALLY_ASSESSED" } } });
+ expect(screen.getAllByRole("listitem").length).toBeGreaterThan(1);
+});
+it("reuses request ID after uncertain network failure and rechecks revoked access", async () => {
+ const clientId = readFixtures.populated.data.passport.client_id;
+ const base = { ...loaded, client: { ...loaded.client, status: "ACTIVE" as const }, snapshot: readFixtures.populated.data, permissions: ["hair_passport.read", "hair_passport.add_observation"] } as typeof loaded;
+ vi.mocked(loadPassport).mockResolvedValue(base);
+ vi.mocked(sendObservation).mockRejectedValueOnce(new PassportMutationError("NETWORK_ERROR")).mockRejectedValueOnce(new PassportMutationError("FORBIDDEN"));
+ render(<HairPassportWorkspace clientId={clientId} />);
+ fireEvent.click(await screen.findByRole("button", { name: o.add }));
+ fireEvent.change(screen.getByLabelText(o.value), { target: { value: "5" } });
+ fireEvent.click(screen.getByLabelText(o.verify));
+ fireEvent.click(screen.getByRole("button", { name: e.save }));
+ expect(await screen.findByText(o.errors.NETWORK_ERROR)).toBeVisible();
+ fireEvent.click(screen.getByRole("button", { name: e.save }));
+ expect(vi.mocked(sendObservation).mock.calls[0]![0].payload.request_id).toBe(vi.mocked(sendObservation).mock.calls[1]![0].payload.request_id);
+ expect(await screen.findByRole("button", { name: o.add })).toBeVisible();
+ expect(screen.queryByText(o.saved)).toBeNull();
 });
 it("shows a version conflict and safe reload action without a saved notice", async () => {
  const active = { ...loaded, client: { ...loaded.client, status: "ACTIVE" as const } };

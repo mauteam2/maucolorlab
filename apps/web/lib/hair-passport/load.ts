@@ -18,13 +18,13 @@ export async function loadPassport(clientId: string, options: HairReadOptions, s
  if (workspaceReference(tenantContextSchema.parse(detail.context)) !== reference) throw new PassportLoadError("TENANT_CONTEXT_INVALID");
  const client = clientDetail.parse(detail.data);
  if (client.id !== clientId || client.organization_id !== first.organization_id) throw new PassportLoadError("NETWORK_ERROR");
- const query = new URLSearchParams({ page_size: "10", tests_offset: String(options.tests_offset ?? 0), history_offset: String(options.history_offset ?? 0), include_archived: String(client.status === "ARCHIVED") });
+ const query = new URLSearchParams({ page_size: "10", tests_offset: String(options.tests_offset ?? 0), history_offset: String(options.history_offset ?? 0), observations_offset: String(options.observations_offset ?? 0), include_archived: String(client.status === "ARCHIVED") });
  const result = hairReadResult.parse(await json(`/api/clients/${clientId}/hair-passport?${query}`));
  if ("code" in result && result.code !== "HAIR_PASSPORT_NOT_FOUND") throw new PassportLoadError(result.code);
  const last = tenantContextSchema.parse((await json("/api/session")).context);
  if (workspaceReference(last) !== reference) throw new PassportLoadError("TENANT_CONTEXT_INVALID");
  if (!last.permissions.includes("hair_passport.read")) throw new PassportLoadError("FORBIDDEN");
  const snapshot = "data" in result ? result.data : null;
- if (snapshot && (snapshot.passport.client_id !== clientId || snapshot.passport.client_status !== client.status || snapshot.physical_tests.offset !== (options.tests_offset ?? 0) || snapshot.history.offset !== (options.history_offset ?? 0) || snapshot.physical_tests.page_size !== 10 || snapshot.history.page_size !== 10)) throw new PassportLoadError("NETWORK_ERROR");
+ if (snapshot && (snapshot.passport.client_id !== clientId || snapshot.passport.client_status !== client.status || snapshot.physical_tests.offset !== (options.tests_offset ?? 0) || snapshot.history.offset !== (options.history_offset ?? 0) || snapshot.observations.offset !== (options.observations_offset ?? 0) || snapshot.physical_tests.page_size !== 10 || snapshot.history.page_size !== 10 || snapshot.observations.page_size !== 10)) throw new PassportLoadError("NETWORK_ERROR");
  return { client, snapshot, permissions: last.permissions, workspaceReference: reference };
 }

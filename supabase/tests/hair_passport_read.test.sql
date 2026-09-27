@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
-select plan(81);
+select plan(86);
 -- Synthetic identities share a phone across tenants intentionally.
 insert into auth.users(id,email,raw_user_meta_data) values
  ('b3000000-0000-4000-8000-000000000021','hair-read-owner-a@elifora.test','{}'),('b3000000-0000-4000-8000-000000000022','hair-read-owner-b@elifora.test','{}'),
@@ -92,6 +92,8 @@ insert into public.hair_physical_tests(id,organization_id,client_id,passport_id,
  values('b3000000-0000-4000-8000-000000000083','b3000000-0000-4000-8000-000000000001','b3000000-0000-4000-8000-000000000031','b3000000-0000-4000-8000-000000000041','b3000000-0000-4000-8000-000000000161','POROSITY','UNKNOWN','b3000000-0000-4000-8000-000000000021',now()-interval '1 day');
 insert into public.hair_history_events(id,organization_id,client_id,passport_id,evidence_id,category,description,date_precision,performed_on)
  values('b3000000-0000-4000-8000-000000000093','b3000000-0000-4000-8000-000000000001','b3000000-0000-4000-8000-000000000031','b3000000-0000-4000-8000-000000000041','b3000000-0000-4000-8000-000000000061','BLEACH_LIGHTENING','Older bleach history','EXACT','2024-01-01');
+insert into public.hair_observations(id,organization_id,client_id,passport_id,evidence_id,natural_level_state,natural_level)
+ values('b3000000-0000-4000-8000-000000000371','b3000000-0000-4000-8000-000000000001','b3000000-0000-4000-8000-000000000031','b3000000-0000-4000-8000-000000000041','b3000000-0000-4000-8000-000000000061','KNOWN',4);
 reset role;
 truncate audit_before;
 insert into audit_before select count(*) from public.audit_events;
@@ -106,6 +108,11 @@ select is((select value#>>'{data,passport,client_id}' from read_results where na
 select is((select value#>>'{data,passport,id}' from read_results where name='own'),'b3000000-0000-4000-8000-000000000041'::text,'passport belongs to selected client');
 select is((select value#>>'{correlationId}' from read_results where name='own'),'b3000000-0000-4000-8000-000000000201'::text,'correlation preserved');
 select is((select value#>>'{data,core,state}' from read_results where name='own'),'ASSESSED','current core observation returned');
+select is((select jsonb_array_length(value#>'{data,observations,items}') from read_results where name='own'),3,'all append-only observations are visible');
+select ok((select value#>'{data,observations,items}' from read_results where name='own') @> '[{"id":"b3000000-0000-4000-8000-000000000371"}]'::jsonb,'older observation remains visible after current pointer changes');
+select is((select value#>>'{data,observations,has_more}' from read_results where name='first'),'true','observation page uses lookahead');
+select is((select value#>>'{data,observations,next_offset}' from read_results where name='first'),'1','observation page exposes next offset');
+select is((select value#>'{data,observations,items}' from read_results where name='empty'),'[]'::jsonb,'empty observation page is an array');
 select is((select value#>'{data,core,observation,natural_level}' from read_results where name='own'),'{"state":"KNOWN","value":5}'::jsonb,'known technical value survives JSON');
 select is((select value#>'{data,core,observation,porosity}' from read_results where name='own'),'{"state":"UNKNOWN","value":null}'::jsonb,'explicit unknown survives JSON');
 select is((select value#>'{data,core,observation,density}' from read_results where name='own'),'{"state":"NOT_ASSESSED","value":null}'::jsonb,'not assessed survives JSON');

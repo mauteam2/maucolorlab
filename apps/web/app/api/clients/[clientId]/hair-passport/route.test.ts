@@ -17,14 +17,14 @@ it("returns a no-store read response with matching correlation identifiers", asy
  expect(body.correlationId).toBe(response.headers.get("x-correlation-id"));
  expect(response.headers.get("cache-control")).toBe("private, no-store");
  expect(read).toHaveBeenCalledWith(readFixtures.empty.data.passport.client_id,
-  { include_archived: false, page_size: 50, tests_offset: 0, history_offset: 0 }, body.correlationId);
+  { include_archived: false, page_size: 50, tests_offset: 0, history_offset: 0, observations_offset: 0 }, body.correlationId);
 });
 it("passes explicit history and independent pagination", async () => {
- await GET(request("?include_archived=true&page_size=1&tests_offset=2&history_offset=3"), { params });
+ await GET(request("?include_archived=true&page_size=1&tests_offset=2&history_offset=3&observations_offset=4"), { params });
  expect(read).toHaveBeenCalledWith(readFixtures.empty.data.passport.client_id,
-  { include_archived: true, page_size: 1, tests_offset: 2, history_offset: 3 }, expect.any(String));
+  { include_archived: true, page_size: 1, tests_offset: 2, history_offset: 3, observations_offset: 4 }, expect.any(String));
 });
-it.each(["?organization_id=1", "?passport_id=1", "?include_archived=1", "?page_size=0", "?page_size=101", "?tests_offset=-1", "?history_offset=1.5", "?page_size=1&page_size=2"])("rejects unsafe query %s", async query => {
+it.each(["?organization_id=1", "?passport_id=1", "?include_archived=1", "?page_size=0", "?page_size=101", "?tests_offset=-1", "?history_offset=1.5", "?observations_offset=10001", "?page_size=1&page_size=2"])("rejects unsafe query %s", async query => {
  expect((await GET(request(query), { params })).status).toBe(400);
  expect(read).not.toHaveBeenCalled();
 });

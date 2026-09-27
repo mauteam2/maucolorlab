@@ -19,9 +19,10 @@ export const hairReadOptions = z.strictObject({
  page_size: z.number().int().min(1).max(100).default(50),
  tests_offset: z.number().int().min(0).max(10000).default(0),
  history_offset: z.number().int().min(0).max(10000).default(0),
+ observations_offset: z.number().int().min(0).max(10000).default(0),
 });
 export type HairReadOptions = z.input<typeof hairReadOptions>;
-export const hairReadRequest = z.strictObject({ client_id: uuid.transform(value => value.toLowerCase()), options: hairReadOptions.default({ include_archived: false, page_size: 50, tests_offset: 0, history_offset: 0 }) });
+export const hairReadRequest = z.strictObject({ client_id: uuid.transform(value => value.toLowerCase()), options: hairReadOptions.default({ include_archived: false, page_size: 50, tests_offset: 0, history_offset: 0, observations_offset: 0 }) });
 
 export const hairEvidence = z.strictObject({
  id: uuid, source: z.enum(["AI_ESTIMATE","PROFESSIONAL_VERIFIED","PHYSICAL_TEST","HISTORICAL","IMPORTED_UNVERIFIED"]),
@@ -100,10 +101,13 @@ export const hairSnapshot = z.strictObject({
   created_at: timestamp, updated_at: timestamp,
  }),
  core: hairAssessment, regions: hairRegion.array(),
+ observations: page(hairObservation),
  physical_tests: page(hairPhysicalTest), history: page(hairHistoryEvent),
 }).superRefine((s, ctx) => {
  const ids = new Set(s.regions.map(r => r.id));
  if (ids.size !== s.regions.length ||
+  new Set(s.observations.items.map(o => o.id)).size !== s.observations.items.length ||
+  s.observations.items.some(o => o.region_id !== null && !ids.has(o.region_id)) ||
   new Set(s.physical_tests.items.map(t => t.id)).size !== s.physical_tests.items.length ||
   new Set(s.history.items.map(h => h.id)).size !== s.history.items.length ||
   (s.core.state === "ASSESSED" && s.core.observation.region_id !== null) ||

@@ -17,7 +17,7 @@ it("derives scope from fresh verified workspace and uses only the read RPC", asy
  expect(mocks.context).toHaveBeenCalledWith("hair_passport.read");
  expect(mocks.rpc).toHaveBeenCalledExactlyOnceWith("hair_passport_snapshot", {
   p_membership_id: context.membership_id, p_location_id: context.location_id, p_client_id: clientId,
-  p_options: { include_archived: false, page_size: 50, tests_offset: 0, history_offset: 0 }, p_correlation_id: correlation,
+  p_options: { include_archived: false, page_size: 50, tests_offset: 0, history_offset: 0, observations_offset: 0 }, p_correlation_id: correlation,
  });
 });
 it.each(["MEMBERSHIP_REVOKED", "FORBIDDEN", "TENANT_CONTEXT_INVALID"])("fresh workspace %s denies before read", async code => {

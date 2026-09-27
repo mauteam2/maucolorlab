@@ -5,7 +5,7 @@ const id = "b2000000-0000-4000-8000-000000000031", org = "b2000000-0000-4000-800
 const context = { membership_id: org, organization_id: org, organization_name: "Synthetic", location_id: org, location_name: "Synthetic", role: "owner", membership_status: "active", permissions: ["clients.read", "hair_passport.read"] };
 const client = { id, organization_id: org, full_name: "Synthetic", phone: "", phone_normalized: "", email: null, birth_date: null, status: "ACTIVE", version: 1, created_at: "2026-01-01", updated_at: "2026-01-01", created_by: org, updated_by: org, creation_location_id: org };
 function mock(last: object = { context }, status = 200, empty = false) {
- const s = structuredClone(readFixtures.empty); s.data.history.page_size = 10; s.data.physical_tests.page_size = 10;
+ const s = structuredClone(readFixtures.empty); s.data.history.page_size = 10; s.data.physical_tests.page_size = 10; s.data.observations.page_size = 10;
  const values = [{ context }, { context, data: client }, empty ? { code: "HAIR_PASSPORT_NOT_FOUND", message: "missing", correlationId: org } : s, last];
  const fetch = vi.fn(); values.forEach((v, i) => fetch.mockResolvedValueOnce(new Response(JSON.stringify(v), { status: i === 3 ? status : i === 2 && empty ? 404 : 200 })));
  vi.stubGlobal("fetch", fetch); return fetch;

@@ -17,6 +17,3 @@ const regionOrder: HairSnapshot["regions"][number]["type"][] = ["ROOT", "MID_LEN
 export function orderedRegions(snapshot: HairSnapshot) {
  return [...snapshot.regions].sort((a, b) => regionOrder.indexOf(a.type) - regionOrder.indexOf(b.type) || a.label?.localeCompare(b.label ?? "", "tr") || a.id.localeCompare(b.id));
 }
-export function currentObservations(snapshot: HairSnapshot) {
- return [snapshot.core, ...snapshot.regions.map(r => r.assessment)].flatMap(a => a.state === "ASSESSED" ? [a.observation] : []).sort((a, b) => b.recorded_at.localeCompare(a.recorded_at));
-}

@@ -190,7 +190,7 @@ paths:
     get:
       operationId: "getClientHairPassport"
       summary: "Read an authorized organization client technical snapshot"
-      description: "Read-only server adapter. Session and selected workspace cookie are freshly verified; no organization or passport ID is accepted. Responses, including failures, are private, no-store with matching body/header correlation IDs. Current whole-hair and regional observations include their evidence. Test and history pages are independent. Archived clients/passports require include_archived=true; otherwise their respective NOT_FOUND error is returned. This GET remains read-only. UNVERIFIED values are mutable core state and carry no evidence claim."
+      description: "Read-only server adapter. Session and selected workspace cookie are freshly verified; no organization or passport ID is accepted. Responses, including failures, are private, no-store with matching body/header correlation IDs. Current whole-hair and regional assessments include their evidence; the independent observations page includes earlier append-only records. Test and history pages are independent. Archived clients/passports require include_archived=true; otherwise their respective NOT_FOUND error is returned. This GET remains read-only. UNVERIFIED values are mutable core state and carry no evidence claim."
       security:
         -
           sessionCookie: []
@@ -219,6 +219,15 @@ paths:
             minimum: 1
             maximum: 100
             default: 50
+        -
+          in: "query"
+          name: "observations_offset"
+          required: false
+          schema:
+            type: "integer"
+            minimum: 0
+            maximum: 10000
+            default: 0
         -
           in: "query"
           name: "tests_offset"
@@ -2532,6 +2541,32 @@ components:
               type: "null"
         evidence:
           $ref: "#/components/schemas/HairEvidence"
+    HairObservationPage:
+      type: "object"
+      additionalProperties: false
+      required: ["items","offset","page_size","has_more","next_offset"]
+      properties:
+        items:
+          type: "array"
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/HairObservation"
+        offset:
+          type: "integer"
+          minimum: 0
+          maximum: 10000
+        page_size:
+          type: "integer"
+          minimum: 1
+          maximum: 100
+        has_more:
+          type: "boolean"
+        next_offset:
+          anyOf:
+            - type: "integer"
+              minimum: 1
+              maximum: 10100
+            - type: "null"
     HairPhysicalTestPage:
       type: "object"
       additionalProperties: false
@@ -2593,7 +2628,7 @@ components:
     HairPassportSnapshot:
       type: "object"
       additionalProperties: false
-      required: ["passport","core","regions","physical_tests","history"]
+      required: ["passport","core","regions","observations","physical_tests","history"]
       properties:
         passport:
           type: "object"
@@ -2626,6 +2661,8 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/HairRegion"
+        observations:
+          $ref: "#/components/schemas/HairObservationPage"
         physical_tests:
           $ref: "#/components/schemas/HairPhysicalTestPage"
         history:
@@ -2659,6 +2696,11 @@ components:
           maximum: 10000
           default: 0
         history_offset:
+          type: "integer"
+          minimum: 0
+          maximum: 10000
+          default: 0
+        observations_offset:
           type: "integer"
           minimum: 0
           maximum: 10000

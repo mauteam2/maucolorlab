@@ -22,8 +22,10 @@ export async function readHairPassport(clientId: string, options: HairReadOption
  if (snapshot.passport.client_id !== request.data.client_id ||
   (!request.data.options.include_archived && (snapshot.passport.client_status === "ARCHIVED" || snapshot.passport.status === "ARCHIVED")) ||
   snapshot.physical_tests.offset !== request.data.options.tests_offset ||
+  snapshot.observations.offset !== request.data.options.observations_offset ||
   snapshot.history.offset !== request.data.options.history_offset ||
   snapshot.physical_tests.page_size !== request.data.options.page_size ||
+  snapshot.observations.page_size !== request.data.options.page_size ||
   snapshot.history.page_size !== request.data.options.page_size)
   throw new AccessError("NETWORK_ERROR", 503);
  return parsed.data;
