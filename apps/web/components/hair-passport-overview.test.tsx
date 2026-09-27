@@ -24,8 +24,10 @@ it("renders a fully populated core without inventing aggregate confidence", () =
 it("renders default and custom regions plus partial unverified state", () => {
  const s = hairSnapshot.parse(readFixtures.empty.data);
  s.regions = (["ROOT", "MID_LENGTHS", "ENDS", "CUSTOM"] as const).map((type, index) => ({ id: `b2000000-0000-4000-8000-00000000005${index}`, type, label: type === "CUSTOM" ? "Uzun özel bölge açıklaması" : null, status: "ACTIVE", version: 1, updated_at: s.passport.updated_at, assessment: { state: "NOT_ASSESSED", observation: null } }));
+ s.regions.reverse();
  render(<HairPassportOverview snapshot={s} change={vi.fn()} />);
  for (const name of ["Dip", "Boylar", "Uçlar", "Özel bölge · Uzun özel bölge açıklaması"]) expect(screen.getByRole("heading", { name })).toBeVisible();
+ expect(screen.getAllByRole("heading", { level: 3 }).map(heading => heading.textContent)).toEqual(["Dip", "Boylar", "Uçlar", "Özel bölge · Uzun özel bölge açıklaması"]);
  for (const text of [t.noObservations, t.noTests, t.noHistory]) expect(screen.getByText(text)).toBeVisible();
 });
 it.each(Object.keys(t.sources) as Array<keyof typeof t.sources>)("labels %s evidence and displays only canonical confidence", source => {
