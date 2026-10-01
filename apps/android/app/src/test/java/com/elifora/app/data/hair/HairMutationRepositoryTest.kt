@@ -15,6 +15,30 @@ internal fun contractFixture(name: String): JSONObject {
     return JSONObject(path.readText())
 }
 class HairMutationRepositoryTest {
+    @Test fun professionalObservationUsesServerAttributionAndRejectsForgedVerifier() = runBlocking {
+        val fixture = contractFixture("hair-observation-mutation")
+        val user = fixture.getString("actor")
+        val tenant = context.copy(locationId = fixture.getString("location"), permissions = context.permissions + "hair_passport.add_observation")
+        val client = fixture.getJSONArray("valid").getJSONObject(2).getString("client_id")
+        var forge = false
+        val repository = SupabaseHairMutationRepository({ name, request ->
+            assertEquals("hair_observation_operation", name)
+            val body = JSONObject(request)
+            val evidence = body.getJSONObject("p_payload").getJSONObject("evidence")
+            assertEquals("PROFESSIONAL_VERIFIED", evidence.getString("source"))
+            assertEquals("PERSONALLY_ASSESSED", evidence.getString("attestation"))
+            assertFalse(evidence.has("verified_by")); assertFalse(evidence.has("observed_at"))
+            val response = contractFixture("hair-observation-mutation").getJSONArray("results").getJSONObject(2)
+            response.put("correlationId", body.getString("p_correlation_id"))
+            if (forge) response.getJSONObject("data").getJSONObject("observation").getJSONObject("evidence").put("verified_by", id)
+            HttpReply(200, response.toString(), body.getString("p_correlation_id"))
+        }, { listOf(tenant) }, { user })
+        val draft = HairDraft.Observation(1, value = FieldDraft(FactState.KNOWN, "5"), attested = true)
+        repository.mutate(tenant, HairCommand(client, draft.write()))
+        forge = true
+        try { repository.mutate(tenant, HairCommand(client, draft.write())); fail("forged verifier") }
+        catch (failure: HairFailure) { assertEquals("NETWORK_ERROR", failure.code) }
+    }
     private val id = "b5000000-0000-4000-8000-000000000001"
     private val context = ActiveTenantContext(id, id, "Salon", id, "Bolu", "owner", "active", setOf("clients.read", "hair_passport.read", "hair_passport.create", "hair_passport.update"))
     @Test fun creationUsesExistingRpcAndServerDefaultRegions() = runBlocking {

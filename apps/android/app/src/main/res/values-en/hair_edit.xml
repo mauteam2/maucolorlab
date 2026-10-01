@@ -23,4 +23,11 @@
     <string name="hair_edit_reload">Load current record</string>
     <string name="hair_edit_uncertain">Server confirmation was not received. The record may have been saved. Retry the same request safely; the form cannot change meanwhile.</string>
     <string name="hair_edit_retry">Retry the same request</string>
+    <string name="hair_edit_observation">Record professional observation</string>
+    <string name="hair_edit_target">Observation / test region</string>
+    <string name="hair_edit_confidence">Observation confidence (%) · optional</string>
+    <string name="hair_edit_confidence_hint">Enter a value from 0 to 100. Leaving it blank preserves unknown confidence.</string>
+    <string name="hair_edit_attestation">I confirm that I personally assessed this information. My professional identity and assessment time will be recorded by the server.</string>
+    <string name="hair_edit_attestation_invalid">Confirm your personal assessment before saving.</string>
+    <string name="hair_edit_confidence_invalid">Confidence must be between 0 and 100, or left blank.</string>
 </resources>

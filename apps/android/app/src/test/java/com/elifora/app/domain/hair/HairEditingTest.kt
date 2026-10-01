@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class HairEditingTest {
+    @Test fun professionalObservationRequiresAttestationAndValidConfidence() {
+        val draft = HairDraft.Observation(3, field = HairField.POROSITY, value = FieldDraft(FactState.UNKNOWN))
+        try { draft.write(); fail("attestation required") } catch (failure: HairDraftFailure) { assertEquals("attestation", failure.field) }
+        val write = draft.copy(attested = true, confidence = "75").write() as HairWrite.Observation
+        assertEquals(0.75, write.confidence!!, 0.001)
+        assertEquals(FactState.UNKNOWN, write.technical.facts[HairField.POROSITY]!!.state)
+        assertNull((draft.copy(attested = true).write() as HairWrite.Observation).confidence)
+        try { draft.copy(attested = true, confidence = "101").write(); fail("invalid confidence") } catch (failure: HairDraftFailure) { assertEquals("confidence", failure.field) }
+    }
     @Test fun partialPatchPreservesUntouchedFieldsAndExplicitStates() {
         val initial = TechnicalDraft.from(null)
         val edited = initial.copy(fields = initial.fields + (HairField.POROSITY to FieldDraft(FactState.UNKNOWN)))

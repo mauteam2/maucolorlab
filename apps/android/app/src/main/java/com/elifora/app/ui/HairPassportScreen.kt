@@ -37,6 +37,7 @@ fun HairPassportScreen(controller: HairPassportController, onBack: () -> Unit) {
             Text(current.client.fullName, style = MaterialTheme.typography.titleLarge)
             if (controller.can(HairAction.CORE)) OutlinedButton(onClick = { controller.begin(HairAction.CORE) }) { Text(stringResource(R.string.hair_edit_core)) }
             if (controller.can(HairAction.REGION_CREATE)) TextButton(onClick = { controller.begin(HairAction.REGION_CREATE) }) { Text(stringResource(R.string.hair_edit_region_create)) }
+            if (controller.can(HairAction.OBSERVATION)) OutlinedButton(onClick = { controller.begin(HairAction.OBSERVATION) }) { Text(stringResource(R.string.hair_edit_observation)) }
             PassportContent(current.passport,
                 onRefresh = { scope.launch { controller.refresh() } },
                 onPage = { kind, offset -> scope.launch { controller.page(kind, offset) } },
@@ -195,7 +196,7 @@ private fun Evidence(value: HairEvidence) {
 }
 
 @Composable
-private fun regionTitle(region: HairRegion?): String = when {
+internal fun regionTitle(region: HairRegion?): String = when {
     region == null -> stringResource(R.string.hair_passport_whole)
     region.type == RegionType.CUSTOM && !region.label.isNullOrBlank() -> stringResource(R.string.hair_passport_region_custom, region.label)
     else -> stringResource(region.type.labelRes())

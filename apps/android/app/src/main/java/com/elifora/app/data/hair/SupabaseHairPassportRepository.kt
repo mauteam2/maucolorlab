@@ -109,7 +109,7 @@ private fun parseEvidence(value: JSONObject): HairEvidence {
     return HairEvidence(EvidenceSource.valueOf(value.getString("source")), confidenceValue,
         value.optionalUuid("verified_by"), observedAt, value.optionalString("context"))
 }
-private fun parseObservation(value: JSONObject) = HairObservation(value.uuid("id"), value.optionalUuid("region_id"),
+internal fun parseObservation(value: JSONObject) = HairObservation(value.uuid("id"), value.optionalUuid("region_id"),
     value.getString("recorded_at").timestamp(), parseTechnical(value), parseEvidence(value.getJSONObject("evidence")))
 private fun parseTest(value: JSONObject): HairPhysicalTest {
     val result = value.getJSONObject("result")

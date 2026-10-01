@@ -14,6 +14,7 @@ class SupabaseHairMutationRepository(
 ) : HairMutationRepository {
     override suspend fun mutate(context: ActiveTenantContext, command: HairCommand) {
         verify(context, command.write.action)
+        val actorId = if (command.write is HairWrite.Observation) actor() else null
         val correlation = UUID.randomUUID().toString()
         val request = JSONObject().put("p_membership_id", context.membershipId).put("p_location_id", context.locationId)
             .put("p_client_id", command.clientId).put("p_correlation_id", correlation)
@@ -26,7 +27,7 @@ class SupabaseHairMutationRepository(
             val envelope = JSONObject(reply.body)
             require(envelope.getString("correlationId") == correlation)
             if (envelope.has("code")) throw HairFailure(envelope.getString("code"), correlation)
-            validateResult(envelope.getJSONObject("data"), command)
+            validateResult(envelope.getJSONObject("data"), command, context, actorId)
         } catch (failure: HairFailure) { throw failure }
         catch (_: Exception) { throw HairFailure("NETWORK_ERROR", correlation) }
         verify(context, command.write.action)
@@ -36,7 +37,24 @@ class SupabaseHairMutationRepository(
             ?: throw HairFailure("MEMBERSHIP_REVOKED")
         if (!current.permissions.containsAll(setOf("clients.read", "hair_passport.read", action.permission))) throw HairFailure("FORBIDDEN")
     }
-    private fun validateResult(data: JSONObject, command: HairCommand) {
+    private fun validateResult(data: JSONObject, command: HairCommand, context: ActiveTenantContext, actorId: String?) {
+        if (command.write is HairWrite.Observation) {
+            val write = command.write
+            require(data.getString("client_id") == command.clientId && data.getLong("target_version") == write.version + 1)
+            UUID.fromString(data.getString("passport_id"))
+            val raw = data.getJSONObject("observation")
+            val observation = parseObservation(raw)
+            val evidence = raw.getJSONObject("evidence")
+            require(observation.regionId == write.regionId && raw.getString("recorded_by") == actorId && evidence.getString("recorded_by") == actorId)
+            require(observation.evidence.source == EvidenceSource.PROFESSIONAL_VERIFIED && observation.evidence.verifiedBy == actorId)
+            require(evidence.getString("location_id") == context.locationId && evidence.getJSONObject("observed_at").getString("value") == evidence.getString("recorded_at"))
+            require(observation.evidence.confidence == write.confidence)
+            require(write.technical.facts.all { (field, fact) ->
+                val actual = observation.values.facts[field]
+                actual?.state == fact.state && (actual.value == fact.value || (fact.value?.toDoubleOrNull() != null && actual.value?.toDoubleOrNull() == fact.value.toDoubleOrNull()))
+            })
+            return
+        }
         val write = command.write as HairWrite.Core
         if (write.action in listOf(HairAction.CREATE, HairAction.CORE)) {
             require(data.getString("kind") == "PASSPORT")
@@ -63,6 +81,7 @@ internal fun coreOperation(action: HairAction) = when (action) {
     HairAction.CORE -> "update_passport"
     HairAction.REGION_CREATE -> "create_region"
     HairAction.REGION_EDIT -> "update_region"
+    else -> error("Not a core operation")
 }
 internal fun technicalJson(patch: TechnicalPatch) = JSONObject().apply {
     patch.facts.forEach { (field, fact) ->
@@ -80,6 +99,14 @@ internal fun payload(command: HairCommand): Pair<String, JSONObject> {
             if (write.action == HairAction.REGION_CREATE) value.put("region_type", write.regionType!!.name)
             if (write.includeLabel) value.put("label", write.label ?: JSONObject.NULL)
             if (!write.technical.isEmpty) value.put("technical", technicalJson(write.technical))
+        }
+        is HairWrite.Observation -> {
+            value.put("expected_version", write.version).put("technical", technicalJson(write.technical))
+            write.regionId?.let { value.put("region_id", it) }
+            val evidence = JSONObject().put("source", "PROFESSIONAL_VERIFIED").put("attestation", "PERSONALLY_ASSESSED")
+            write.confidence?.let { evidence.put("confidence", JSONObject().put("state", "KNOWN").put("value", it)) }
+            value.put("evidence", evidence)
+            return "hair_observation_operation" to value
         }
     }
     return "hair_core_operation" to value

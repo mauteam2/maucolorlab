@@ -3,7 +3,7 @@ package com.elifora.app.domain.hair
 import java.util.UUID
 
 enum class HairAction(val permission: String) {
-    CREATE("hair_passport.create"), CORE("hair_passport.update"), REGION_CREATE("hair_passport.update"), REGION_EDIT("hair_passport.update");
+    CREATE("hair_passport.create"), CORE("hair_passport.update"), REGION_CREATE("hair_passport.update"), REGION_EDIT("hair_passport.update"), OBSERVATION("hair_passport.add_observation");
 }
 val specializedRegionTypes = RegionType.entries.filter { it !in listOf(RegionType.ROOT, RegionType.MID_LENGTHS, RegionType.ENDS) }
 data class FieldDraft(val state: FactState = FactState.NOT_ASSESSED, val raw: String = "")
@@ -63,11 +63,14 @@ sealed interface HairDraft {
         val version: Long? = null, val regionId: String? = null, val initialLabel: String = "", val label: String = "",
         val regionType: RegionType? = null) : HairDraft
     data class NewRegion(val type: RegionType = RegionType.CUSTOM, val label: String = "") : HairDraft { override val action = HairAction.REGION_CREATE }
+    data class Observation(val version: Long, val field: HairField = HairField.NATURAL_LEVEL, val value: FieldDraft = FieldDraft(FactState.KNOWN),
+        val regionId: String? = null, val attested: Boolean = false, val confidence: String = "") : HairDraft { override val action = HairAction.OBSERVATION }
 }
 sealed interface HairWrite {
     val action: HairAction
     data class Core(override val action: HairAction, val technical: TechnicalPatch, val version: Long?,
         val regionId: String?, val regionType: RegionType?, val label: String?, val includeLabel: Boolean) : HairWrite
+    data class Observation(val version: Long, val regionId: String?, val technical: TechnicalPatch, val confidence: Double?) : HairWrite { override val action = HairAction.OBSERVATION }
 }
 data class HairCommand(val clientId: String, val write: HairWrite, val requestId: String = UUID.randomUUID().toString())
 fun HairDraft.write(): HairWrite = when (this) {
@@ -82,6 +85,13 @@ fun HairDraft.write(): HairWrite = when (this) {
         checkDraft(type in specializedRegionTypes, "region")
         checkDraft(label.length <= 120 && (type != RegionType.CUSTOM || label.isNotBlank()), "label")
         HairWrite.Core(action, TechnicalPatch(), null, null, type, label.trim().ifBlank { null }, label.isNotBlank())
+    }
+    is HairDraft.Observation -> {
+        checkDraft(attested, "attestation")
+        val confidenceValue = if (confidence.isBlank()) null else confidence.replace(',', '.').toDoubleOrNull().also {
+            checkDraft(it != null && it.isFinite() && it in 0.0..100.0, "confidence")
+        }!! / 100
+        HairWrite.Observation(version, regionId, TechnicalPatch(mapOf(field to value.fact(field))), confidenceValue)
     }
 }
 sealed interface HairEditStatus {

@@ -37,6 +37,19 @@ internal fun HairEditorScreen(state: HairState.Editing, controller: HairPassport
             }
             if (draft.type == RegionType.CUSTOM) EditText(draft.label, R.string.hair_edit_region_label, 120, !locked) { controller.change(draft.copy(label = it)) }
         }
+        is HairDraft.Observation -> {
+            HairChoice(stringResource(R.string.hair_edit_field), draft.field, HairField.entries, !locked, { stringResource(it.labelRes()) }) {
+                controller.change(draft.copy(field = it, value = FieldDraft(FactState.KNOWN)))
+            }
+            RegionChoice(state.passport!!, draft.regionId, !locked) { controller.change(draft.copy(regionId = it)) }
+            FieldEditor(draft.field, draft.value, !locked) { controller.change(draft.copy(value = it)) }
+            EditText(draft.confidence, R.string.hair_edit_confidence, 20, !locked, keyboard = KeyboardType.Decimal) { controller.change(draft.copy(confidence = it)) }
+            Text(stringResource(R.string.hair_edit_confidence_hint), style = MaterialTheme.typography.bodySmall)
+            Row {
+                Checkbox(draft.attested, onCheckedChange = { controller.change(draft.copy(attested = it)) }, enabled = !locked)
+                Text(stringResource(R.string.hair_edit_attestation), modifier = Modifier.padding(top = 12.dp))
+            }
+        }
     }
     when (val status = state.status) {
         HairEditStatus.Editing -> Unit
@@ -120,9 +133,18 @@ internal fun HairAction.labelRes() = when (this) {
     HairAction.CORE -> R.string.hair_edit_core
     HairAction.REGION_CREATE -> R.string.hair_edit_region_create
     HairAction.REGION_EDIT -> R.string.hair_edit_region_edit
+    HairAction.OBSERVATION -> R.string.hair_edit_observation
 }
 internal fun validationLabel(field: String) = when (field) {
     "changes" -> R.string.hair_edit_no_changes
     "label" -> R.string.hair_edit_label_invalid
+    "attestation" -> R.string.hair_edit_attestation_invalid
+    "confidence", "INVALID_CONFIDENCE" -> R.string.hair_edit_confidence_invalid
     else -> R.string.hair_edit_validation
+}
+
+@Composable
+internal fun RegionChoice(passport: HairPassport, selected: String?, enabled: Boolean, change: (String?) -> Unit) {
+    HairChoice(stringResource(R.string.hair_edit_target), selected, listOf<String?>(null) + passport.regions.filter { !it.archived }.map { it.id }, enabled,
+        { regionTitle(passport.regionName(it)) }, change)
 }

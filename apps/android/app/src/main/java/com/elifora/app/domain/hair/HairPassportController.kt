@@ -72,6 +72,7 @@ class HairPassportController(private val repository: HairPassportRepository,
                 val region = passport?.regions?.find { it.id == regionId && !it.archived } ?: return
                 TechnicalDraft.from(region.assessment).let { HairDraft.Core(action, it, it, region.version, region.id, region.label.orEmpty(), region.label.orEmpty(), region.type) }
             }
+            HairAction.OBSERVATION -> HairDraft.Observation(passport!!.version)
         }
         editStatus = HairEditStatus.Editing
         publishEditor()
@@ -82,7 +83,13 @@ class HairPassportController(private val repository: HairPassportRepository,
         if (prior is HairDraft.Core && next is HairDraft.Core)
             require(next.copy(values = prior.values, label = prior.label) == prior)
         else require(next.action == prior.action)
-        draft = next; editStatus = HairEditStatus.Editing; publishEditor()
+        draft = if (next is HairDraft.Observation && prior is HairDraft.Observation) {
+            val version = if (next.regionId == prior.regionId) prior.version else
+                if (next.regionId == null) latest?.version else latest?.regions?.find { it.id == next.regionId && !it.archived }?.version
+            if (version == null) return
+            next.copy(version = version)
+        } else next
+        editStatus = HairEditStatus.Editing; publishEditor()
     }
     suspend fun cancelEdit() { if (!canLeave) return; draft = null; refresh() }
     suspend fun reloadAfterConflict() { if (!canLeave) return; draft = null; offsets = HairOffsets(); refresh() }

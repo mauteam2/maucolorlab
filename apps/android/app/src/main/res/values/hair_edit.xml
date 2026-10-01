@@ -23,4 +23,11 @@
     <string name="hair_edit_reload">Güncel kaydı yükle</string>
     <string name="hair_edit_uncertain">Sunucu onayı alınamadı. Kayıt yapılmış olabilir. Aynı isteği güvenle tekrar deneyin; form bu sırada değiştirilemez.</string>
     <string name="hair_edit_retry">Aynı isteği tekrar dene</string>
+    <string name="hair_edit_observation">Profesyonel gözlem kaydet</string>
+    <string name="hair_edit_target">Gözlem / test bölgesi</string>
+    <string name="hair_edit_confidence">Gözlem güven düzeyi (%) · isteğe bağlı</string>
+    <string name="hair_edit_confidence_hint">0–100 arası değer girebilirsiniz. Boş bırakılırsa güven düzeyi bilinmiyor olarak kalır.</string>
+    <string name="hair_edit_attestation">Bu bilgiyi bizzat değerlendirdiğimi doğruluyorum. Uzman kimliğim ve değerlendirme zamanı sunucuda kaydedilecek.</string>
+    <string name="hair_edit_attestation_invalid">Kaydetmeden önce kişisel değerlendirme onayını verin.</string>
+    <string name="hair_edit_confidence_invalid">Güven düzeyi 0–100 arasında olmalı veya boş bırakılmalı.</string>
 </resources>
