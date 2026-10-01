@@ -59,7 +59,10 @@ test("records exact, approximate and unknown history without replacing older eve
  await page.reload();
  await expect(page.locator("#hp-history .hp-records > li")).toHaveCount(3);
  for (const name of ["Boya", "Açma / Açıcı İşlemi", "Toner / Gloss"]) await expect(page.locator("#hp-history").getByRole("heading", { name })).toBeVisible();
- await expect(page.locator("#hp-history")).toContainText("Dip · Uçlar");
+ const lightening = page.locator("#hp-history .hp-records > li").filter({ has: page.getByRole("heading", { name: "Açma / Açıcı İşlemi", exact: true }) });
+ await expect(lightening).toHaveCount(1);
+ // Region links are a set sorted by UUID in the service, not by Turkish display label.
+ await expect.poll(async () => (await lightening.locator(":scope > p.hp-muted").innerText()).split(" · ").sort()).toEqual(["Dip", "Uçlar"].sort());
  await expect(page.locator("#hp-history")).toContainText("Yaklaşık");
  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
  await page.screenshot({ path: info.outputPath("client-hair-history-populated.png"), fullPage: true });
