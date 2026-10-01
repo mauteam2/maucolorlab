@@ -47,9 +47,14 @@ export function evaluateConfidence(raw: unknown): CaseConfidenceAssessment {
     information.push({code: requirements[field], domain, field, target, severity: critical ? "CRITICAL" : "MODERATE", reasonCodes: [...reasons], evidenceRefs: refs});
    }
    if (selected && state === "KNOWN") {
-    if (selected.quality.score < rules.criticalMinimumQuality && !reasons.includes("LOW_QUALITY_EVIDENCE")) reasons.push("LOW_QUALITY_EVIDENCE");
+    if (selected.quality.score < rules.criticalMinimumQuality) {
+     if (!reasons.includes("LOW_QUALITY_EVIDENCE")) reasons.push("LOW_QUALITY_EVIDENCE");
+     unknowns.push({domain, field, target, state, code: "LOW_QUALITY_EVIDENCE", severity: critical ? "CRITICAL" : "HIGH", evidenceRefs: refs});
+    }
     if (selected.quality.freshness === "STALE" || selected.quality.freshness === "EXPIRED") information.push({code: "REFRESH_EVIDENCE", domain, field, target,
      severity: critical ? "HIGH" : "MODERATE", reasonCodes: [selected.quality.freshness === "EXPIRED" ? "EVIDENCE_EXPIRED" : "EVIDENCE_STALE"], evidenceRefs: refs});
+    if (field.endsWith("history") && selected.candidate.source !== "PROFESSIONAL_VERIFIED")
+     unknowns.push({domain, field, target, state, code: "HISTORY_UNVERIFIED", severity: "HIGH", evidenceRefs: refs});
     if (selected.candidate.source === "IMPORTED_UNVERIFIED" || field.endsWith("history") && selected.candidate.source !== "PROFESSIONAL_VERIFIED")
      information.push({code: "VERIFY_IMPORTED_HISTORY", domain, field, target, severity: "HIGH", reasonCodes: [field.endsWith("history") ? "HISTORY_UNVERIFIED" : "LOW_QUALITY_EVIDENCE"], evidenceRefs: refs});
    }

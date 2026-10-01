@@ -1,0 +1,1042 @@
+{
+  "evaluatedAt": "2026-10-01T12:00:00.000Z",
+  "baseSnapshot": {
+    "passport": {
+      "id": "c1000000-0000-4000-8000-000000000003",
+      "client_id": "c1000000-0000-4000-8000-000000000004",
+      "status": "ACTIVE",
+      "client_status": "ACTIVE",
+      "version": 1,
+      "created_at": "2026-09-30T12:00:00.000Z",
+      "updated_at": "2026-09-30T12:00:00.000Z"
+    },
+    "core": {
+      "state": "ASSESSED",
+      "observation": {
+        "id": "c1000000-0000-4000-8000-000000000020",
+        "region_id": null,
+        "recorded_at": "2026-09-30T12:00:00.000Z",
+        "recorded_by": "c1000000-0000-4000-8000-000000000001",
+        "supersedes_id": null,
+        "evidence": {
+          "id": "c1000000-0000-4000-8000-000000000120",
+          "source": "PROFESSIONAL_VERIFIED",
+          "observed_at": {
+            "state": "KNOWN",
+            "value": "2026-09-30T12:00:00.000Z"
+          },
+          "confidence": {
+            "state": "KNOWN",
+            "value": 1
+          },
+          "verified_by": "c1000000-0000-4000-8000-000000000001",
+          "recorded_at": "2026-09-30T12:00:00.000Z",
+          "recorded_by": "c1000000-0000-4000-8000-000000000001",
+          "supersedes_id": null,
+          "relevant_until": null,
+          "location_id": "c1000000-0000-4000-8000-000000000002",
+          "context": null
+        },
+        "natural_level": {
+          "state": "KNOWN",
+          "value": 6
+        },
+        "perceived_level": {
+          "state": "KNOWN",
+          "value": 7
+        },
+        "grey_ratio": {
+          "state": "KNOWN",
+          "value": 0.2
+        },
+        "thickness": {
+          "state": "KNOWN",
+          "value": "FINE"
+        },
+        "density": {
+          "state": "KNOWN",
+          "value": "MEDIUM"
+        },
+        "porosity": {
+          "state": "KNOWN",
+          "value": "MEDIUM"
+        },
+        "elasticity": {
+          "state": "KNOWN",
+          "value": "NORMAL"
+        },
+        "tone": {
+          "state": "KNOWN",
+          "value": "Neutral"
+        },
+        "cosmetic_color_history": {
+          "state": "KNOWN",
+          "value": "Recorded color history"
+        },
+        "bleach_history": {
+          "state": "KNOWN",
+          "value": "Recorded lightening history"
+        },
+        "chemical_history": {
+          "state": "KNOWN",
+          "value": "Recorded chemical history"
+        },
+        "technical_notes": null,
+        "integrity_notes": null
+      }
+    },
+    "regions": [
+      {
+        "id": "c1000000-0000-4000-8000-000000000010",
+        "type": "ROOT",
+        "label": null,
+        "status": "ACTIVE",
+        "version": 1,
+        "updated_at": "2026-09-30T12:00:00.000Z",
+        "assessment": {
+          "state": "ASSESSED",
+          "observation": {
+            "id": "c1000000-0000-4000-8000-000000000021",
+            "region_id": "c1000000-0000-4000-8000-000000000010",
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "evidence": {
+              "id": "c1000000-0000-4000-8000-000000000121",
+              "source": "PROFESSIONAL_VERIFIED",
+              "observed_at": {
+                "state": "KNOWN",
+                "value": "2026-09-30T12:00:00.000Z"
+              },
+              "confidence": {
+                "state": "KNOWN",
+                "value": 1
+              },
+              "verified_by": "c1000000-0000-4000-8000-000000000001",
+              "recorded_at": "2026-09-30T12:00:00.000Z",
+              "recorded_by": "c1000000-0000-4000-8000-000000000001",
+              "supersedes_id": null,
+              "relevant_until": null,
+              "location_id": "c1000000-0000-4000-8000-000000000002",
+              "context": null
+            },
+            "natural_level": {
+              "state": "KNOWN",
+              "value": 6
+            },
+            "perceived_level": {
+              "state": "KNOWN",
+              "value": 7
+            },
+            "grey_ratio": {
+              "state": "KNOWN",
+              "value": 0.2
+            },
+            "thickness": {
+              "state": "KNOWN",
+              "value": "FINE"
+            },
+            "density": {
+              "state": "KNOWN",
+              "value": "MEDIUM"
+            },
+            "porosity": {
+              "state": "KNOWN",
+              "value": "MEDIUM"
+            },
+            "elasticity": {
+              "state": "KNOWN",
+              "value": "NORMAL"
+            },
+            "tone": {
+              "state": "KNOWN",
+              "value": "Neutral"
+            },
+            "cosmetic_color_history": {
+              "state": "KNOWN",
+              "value": "Recorded color history"
+            },
+            "bleach_history": {
+              "state": "KNOWN",
+              "value": "Recorded lightening history"
+            },
+            "chemical_history": {
+              "state": "KNOWN",
+              "value": "Recorded chemical history"
+            },
+            "technical_notes": null,
+            "integrity_notes": null
+          }
+        }
+      },
+      {
+        "id": "c1000000-0000-4000-8000-000000000011",
+        "type": "MID_LENGTHS",
+        "label": null,
+        "status": "ACTIVE",
+        "version": 1,
+        "updated_at": "2026-09-30T12:00:00.000Z",
+        "assessment": {
+          "state": "ASSESSED",
+          "observation": {
+            "id": "c1000000-0000-4000-8000-000000000022",
+            "region_id": "c1000000-0000-4000-8000-000000000011",
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "evidence": {
+              "id": "c1000000-0000-4000-8000-000000000122",
+              "source": "PROFESSIONAL_VERIFIED",
+              "observed_at": {
+                "state": "KNOWN",
+                "value": "2026-09-30T12:00:00.000Z"
+              },
+              "confidence": {
+                "state": "KNOWN",
+                "value": 1
+              },
+              "verified_by": "c1000000-0000-4000-8000-000000000001",
+              "recorded_at": "2026-09-30T12:00:00.000Z",
+              "recorded_by": "c1000000-0000-4000-8000-000000000001",
+              "supersedes_id": null,
+              "relevant_until": null,
+              "location_id": "c1000000-0000-4000-8000-000000000002",
+              "context": null
+            },
+            "natural_level": {
+              "state": "KNOWN",
+              "value": 6
+            },
+            "perceived_level": {
+              "state": "KNOWN",
+              "value": 7
+            },
+            "grey_ratio": {
+              "state": "KNOWN",
+              "value": 0.2
+            },
+            "thickness": {
+              "state": "KNOWN",
+              "value": "FINE"
+            },
+            "density": {
+              "state": "KNOWN",
+              "value": "MEDIUM"
+            },
+            "porosity": {
+              "state": "KNOWN",
+              "value": "MEDIUM"
+            },
+            "elasticity": {
+              "state": "KNOWN",
+              "value": "NORMAL"
+            },
+            "tone": {
+              "state": "KNOWN",
+              "value": "Neutral"
+            },
+            "cosmetic_color_history": {
+              "state": "KNOWN",
+              "value": "Recorded color history"
+            },
+            "bleach_history": {
+              "state": "KNOWN",
+              "value": "Recorded lightening history"
+            },
+            "chemical_history": {
+              "state": "KNOWN",
+              "value": "Recorded chemical history"
+            },
+            "technical_notes": null,
+            "integrity_notes": null
+          }
+        }
+      },
+      {
+        "id": "c1000000-0000-4000-8000-000000000012",
+        "type": "ENDS",
+        "label": null,
+        "status": "ACTIVE",
+        "version": 1,
+        "updated_at": "2026-09-30T12:00:00.000Z",
+        "assessment": {
+          "state": "ASSESSED",
+          "observation": {
+            "id": "c1000000-0000-4000-8000-000000000023",
+            "region_id": "c1000000-0000-4000-8000-000000000012",
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "evidence": {
+              "id": "c1000000-0000-4000-8000-000000000123",
+              "source": "PROFESSIONAL_VERIFIED",
+              "observed_at": {
+                "state": "KNOWN",
+                "value": "2026-09-30T12:00:00.000Z"
+              },
+              "confidence": {
+                "state": "KNOWN",
+                "value": 1
+              },
+              "verified_by": "c1000000-0000-4000-8000-000000000001",
+              "recorded_at": "2026-09-30T12:00:00.000Z",
+              "recorded_by": "c1000000-0000-4000-8000-000000000001",
+              "supersedes_id": null,
+              "relevant_until": null,
+              "location_id": "c1000000-0000-4000-8000-000000000002",
+              "context": null
+            },
+            "natural_level": {
+              "state": "KNOWN",
+              "value": 6
+            },
+            "perceived_level": {
+              "state": "KNOWN",
+              "value": 7
+            },
+            "grey_ratio": {
+              "state": "KNOWN",
+              "value": 0.2
+            },
+            "thickness": {
+              "state": "KNOWN",
+              "value": "FINE"
+            },
+            "density": {
+              "state": "KNOWN",
+              "value": "MEDIUM"
+            },
+            "porosity": {
+              "state": "KNOWN",
+              "value": "MEDIUM"
+            },
+            "elasticity": {
+              "state": "KNOWN",
+              "value": "NORMAL"
+            },
+            "tone": {
+              "state": "KNOWN",
+              "value": "Neutral"
+            },
+            "cosmetic_color_history": {
+              "state": "KNOWN",
+              "value": "Recorded color history"
+            },
+            "bleach_history": {
+              "state": "KNOWN",
+              "value": "Recorded lightening history"
+            },
+            "chemical_history": {
+              "state": "KNOWN",
+              "value": "Recorded chemical history"
+            },
+            "technical_notes": null,
+            "integrity_notes": null
+          }
+        }
+      }
+    ],
+    "observations": {
+      "items": [
+        {
+          "id": "c1000000-0000-4000-8000-000000000020",
+          "region_id": null,
+          "recorded_at": "2026-09-30T12:00:00.000Z",
+          "recorded_by": "c1000000-0000-4000-8000-000000000001",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "c1000000-0000-4000-8000-000000000120",
+            "source": "PROFESSIONAL_VERIFIED",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-30T12:00:00.000Z"
+            },
+            "confidence": {
+              "state": "KNOWN",
+              "value": 1
+            },
+            "verified_by": "c1000000-0000-4000-8000-000000000001",
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "c1000000-0000-4000-8000-000000000002",
+            "context": null
+          },
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 6
+          },
+          "perceived_level": {
+            "state": "KNOWN",
+            "value": 7
+          },
+          "grey_ratio": {
+            "state": "KNOWN",
+            "value": 0.2
+          },
+          "thickness": {
+            "state": "KNOWN",
+            "value": "FINE"
+          },
+          "density": {
+            "state": "KNOWN",
+            "value": "MEDIUM"
+          },
+          "porosity": {
+            "state": "KNOWN",
+            "value": "MEDIUM"
+          },
+          "elasticity": {
+            "state": "KNOWN",
+            "value": "NORMAL"
+          },
+          "tone": {
+            "state": "KNOWN",
+            "value": "Neutral"
+          },
+          "cosmetic_color_history": {
+            "state": "KNOWN",
+            "value": "Recorded color history"
+          },
+          "bleach_history": {
+            "state": "KNOWN",
+            "value": "Recorded lightening history"
+          },
+          "chemical_history": {
+            "state": "KNOWN",
+            "value": "Recorded chemical history"
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        },
+        {
+          "id": "c1000000-0000-4000-8000-000000000021",
+          "region_id": "c1000000-0000-4000-8000-000000000010",
+          "recorded_at": "2026-09-30T12:00:00.000Z",
+          "recorded_by": "c1000000-0000-4000-8000-000000000001",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "c1000000-0000-4000-8000-000000000121",
+            "source": "PROFESSIONAL_VERIFIED",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-30T12:00:00.000Z"
+            },
+            "confidence": {
+              "state": "KNOWN",
+              "value": 1
+            },
+            "verified_by": "c1000000-0000-4000-8000-000000000001",
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "c1000000-0000-4000-8000-000000000002",
+            "context": null
+          },
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 6
+          },
+          "perceived_level": {
+            "state": "KNOWN",
+            "value": 7
+          },
+          "grey_ratio": {
+            "state": "KNOWN",
+            "value": 0.2
+          },
+          "thickness": {
+            "state": "KNOWN",
+            "value": "FINE"
+          },
+          "density": {
+            "state": "KNOWN",
+            "value": "MEDIUM"
+          },
+          "porosity": {
+            "state": "KNOWN",
+            "value": "MEDIUM"
+          },
+          "elasticity": {
+            "state": "KNOWN",
+            "value": "NORMAL"
+          },
+          "tone": {
+            "state": "KNOWN",
+            "value": "Neutral"
+          },
+          "cosmetic_color_history": {
+            "state": "KNOWN",
+            "value": "Recorded color history"
+          },
+          "bleach_history": {
+            "state": "KNOWN",
+            "value": "Recorded lightening history"
+          },
+          "chemical_history": {
+            "state": "KNOWN",
+            "value": "Recorded chemical history"
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        },
+        {
+          "id": "c1000000-0000-4000-8000-000000000022",
+          "region_id": "c1000000-0000-4000-8000-000000000011",
+          "recorded_at": "2026-09-30T12:00:00.000Z",
+          "recorded_by": "c1000000-0000-4000-8000-000000000001",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "c1000000-0000-4000-8000-000000000122",
+            "source": "PROFESSIONAL_VERIFIED",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-30T12:00:00.000Z"
+            },
+            "confidence": {
+              "state": "KNOWN",
+              "value": 1
+            },
+            "verified_by": "c1000000-0000-4000-8000-000000000001",
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "c1000000-0000-4000-8000-000000000002",
+            "context": null
+          },
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 6
+          },
+          "perceived_level": {
+            "state": "KNOWN",
+            "value": 7
+          },
+          "grey_ratio": {
+            "state": "KNOWN",
+            "value": 0.2
+          },
+          "thickness": {
+            "state": "KNOWN",
+            "value": "FINE"
+          },
+          "density": {
+            "state": "KNOWN",
+            "value": "MEDIUM"
+          },
+          "porosity": {
+            "state": "KNOWN",
+            "value": "MEDIUM"
+          },
+          "elasticity": {
+            "state": "KNOWN",
+            "value": "NORMAL"
+          },
+          "tone": {
+            "state": "KNOWN",
+            "value": "Neutral"
+          },
+          "cosmetic_color_history": {
+            "state": "KNOWN",
+            "value": "Recorded color history"
+          },
+          "bleach_history": {
+            "state": "KNOWN",
+            "value": "Recorded lightening history"
+          },
+          "chemical_history": {
+            "state": "KNOWN",
+            "value": "Recorded chemical history"
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        },
+        {
+          "id": "c1000000-0000-4000-8000-000000000023",
+          "region_id": "c1000000-0000-4000-8000-000000000012",
+          "recorded_at": "2026-09-30T12:00:00.000Z",
+          "recorded_by": "c1000000-0000-4000-8000-000000000001",
+          "supersedes_id": null,
+          "evidence": {
+            "id": "c1000000-0000-4000-8000-000000000123",
+            "source": "PROFESSIONAL_VERIFIED",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-30T12:00:00.000Z"
+            },
+            "confidence": {
+              "state": "KNOWN",
+              "value": 1
+            },
+            "verified_by": "c1000000-0000-4000-8000-000000000001",
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "c1000000-0000-4000-8000-000000000002",
+            "context": null
+          },
+          "natural_level": {
+            "state": "KNOWN",
+            "value": 6
+          },
+          "perceived_level": {
+            "state": "KNOWN",
+            "value": 7
+          },
+          "grey_ratio": {
+            "state": "KNOWN",
+            "value": 0.2
+          },
+          "thickness": {
+            "state": "KNOWN",
+            "value": "FINE"
+          },
+          "density": {
+            "state": "KNOWN",
+            "value": "MEDIUM"
+          },
+          "porosity": {
+            "state": "KNOWN",
+            "value": "MEDIUM"
+          },
+          "elasticity": {
+            "state": "KNOWN",
+            "value": "NORMAL"
+          },
+          "tone": {
+            "state": "KNOWN",
+            "value": "Neutral"
+          },
+          "cosmetic_color_history": {
+            "state": "KNOWN",
+            "value": "Recorded color history"
+          },
+          "bleach_history": {
+            "state": "KNOWN",
+            "value": "Recorded lightening history"
+          },
+          "chemical_history": {
+            "state": "KNOWN",
+            "value": "Recorded chemical history"
+          },
+          "technical_notes": null,
+          "integrity_notes": null
+        }
+      ],
+      "offset": 0,
+      "page_size": 100,
+      "has_more": false,
+      "next_offset": null
+    },
+    "physical_tests": {
+      "items": [
+        {
+          "id": "c1000000-0000-4000-8000-000000000040",
+          "region_id": null,
+          "type": "STRAND",
+          "result": {
+            "state": "KNOWN",
+            "value": "Recorded strand-test observation"
+          },
+          "performed_by": "c1000000-0000-4000-8000-000000000001",
+          "performed_at": "2026-09-30T12:00:00.000Z",
+          "recorded_at": "2026-09-30T12:00:00.000Z",
+          "recorded_by": "c1000000-0000-4000-8000-000000000001",
+          "supersedes_id": null,
+          "notes": null,
+          "evidence": {
+            "id": "c1000000-0000-4000-8000-000000000140",
+            "source": "PHYSICAL_TEST",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-30T12:00:00.000Z"
+            },
+            "confidence": {
+              "state": "KNOWN",
+              "value": 1
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "c1000000-0000-4000-8000-000000000002",
+            "context": null
+          }
+        },
+        {
+          "id": "c1000000-0000-4000-8000-000000000041",
+          "region_id": "c1000000-0000-4000-8000-000000000010",
+          "type": "STRAND",
+          "result": {
+            "state": "KNOWN",
+            "value": "Recorded strand-test observation"
+          },
+          "performed_by": "c1000000-0000-4000-8000-000000000001",
+          "performed_at": "2026-09-30T12:00:00.000Z",
+          "recorded_at": "2026-09-30T12:00:00.000Z",
+          "recorded_by": "c1000000-0000-4000-8000-000000000001",
+          "supersedes_id": null,
+          "notes": null,
+          "evidence": {
+            "id": "c1000000-0000-4000-8000-000000000141",
+            "source": "PHYSICAL_TEST",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-30T12:00:00.000Z"
+            },
+            "confidence": {
+              "state": "KNOWN",
+              "value": 1
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "c1000000-0000-4000-8000-000000000002",
+            "context": null
+          }
+        },
+        {
+          "id": "c1000000-0000-4000-8000-000000000042",
+          "region_id": "c1000000-0000-4000-8000-000000000011",
+          "type": "STRAND",
+          "result": {
+            "state": "KNOWN",
+            "value": "Recorded strand-test observation"
+          },
+          "performed_by": "c1000000-0000-4000-8000-000000000001",
+          "performed_at": "2026-09-30T12:00:00.000Z",
+          "recorded_at": "2026-09-30T12:00:00.000Z",
+          "recorded_by": "c1000000-0000-4000-8000-000000000001",
+          "supersedes_id": null,
+          "notes": null,
+          "evidence": {
+            "id": "c1000000-0000-4000-8000-000000000142",
+            "source": "PHYSICAL_TEST",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-30T12:00:00.000Z"
+            },
+            "confidence": {
+              "state": "KNOWN",
+              "value": 1
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "c1000000-0000-4000-8000-000000000002",
+            "context": null
+          }
+        },
+        {
+          "id": "c1000000-0000-4000-8000-000000000043",
+          "region_id": "c1000000-0000-4000-8000-000000000012",
+          "type": "STRAND",
+          "result": {
+            "state": "KNOWN",
+            "value": "Recorded strand-test observation"
+          },
+          "performed_by": "c1000000-0000-4000-8000-000000000001",
+          "performed_at": "2026-09-30T12:00:00.000Z",
+          "recorded_at": "2026-09-30T12:00:00.000Z",
+          "recorded_by": "c1000000-0000-4000-8000-000000000001",
+          "supersedes_id": null,
+          "notes": null,
+          "evidence": {
+            "id": "c1000000-0000-4000-8000-000000000143",
+            "source": "PHYSICAL_TEST",
+            "observed_at": {
+              "state": "KNOWN",
+              "value": "2026-09-30T12:00:00.000Z"
+            },
+            "confidence": {
+              "state": "KNOWN",
+              "value": 1
+            },
+            "verified_by": null,
+            "recorded_at": "2026-09-30T12:00:00.000Z",
+            "recorded_by": "c1000000-0000-4000-8000-000000000001",
+            "supersedes_id": null,
+            "relevant_until": null,
+            "location_id": "c1000000-0000-4000-8000-000000000002",
+            "context": null
+          }
+        }
+      ],
+      "offset": 0,
+      "page_size": 100,
+      "has_more": false,
+      "next_offset": null
+    },
+    "history": {
+      "items": [],
+      "offset": 0,
+      "page_size": 100,
+      "has_more": false,
+      "next_offset": null
+    }
+  },
+  "cases": [
+    {
+      "name": "complete recent verified Passport",
+      "change": {},
+      "expected": {
+        "band": "HIGH",
+        "scoreMin": 0.8,
+        "scoreMax": 0.95,
+        "conflicts": 0
+      }
+    },
+    {
+      "name": "one minor unknown",
+      "change": {
+        "globalStates": {
+          "grey_ratio": "UNKNOWN"
+        }
+      },
+      "expected": {
+        "band": "HIGH",
+        "scoreMin": 0.8,
+        "scoreMax": 0.9,
+        "reason": "FIELD_UNKNOWN"
+      }
+    },
+    {
+      "name": "minimal Passport",
+      "change": {
+        "minimal": true
+      },
+      "expected": {
+        "band": "INSUFFICIENT",
+        "scoreMin": 0,
+        "scoreMax": 0,
+        "reason": "FIELD_NOT_ASSESSED"
+      }
+    },
+    {
+      "name": "natural level unknown",
+      "change": {
+        "globalStates": {
+          "natural_level": "UNKNOWN"
+        }
+      },
+      "expected": {
+        "band": "INSUFFICIENT",
+        "requirement": "ASSESS_NATURAL_LEVEL",
+        "reason": "FIELD_UNKNOWN"
+      }
+    },
+    {
+      "name": "bleach history unknown",
+      "change": {
+        "globalStates": {
+          "bleach_history": "UNKNOWN"
+        }
+      },
+      "expected": {
+        "band": "INSUFFICIENT",
+        "requirement": "VERIFY_BLEACH_HISTORY"
+      }
+    },
+    {
+      "name": "imported history only",
+      "change": {
+        "onlyImportedHistory": true
+      },
+      "expected": {
+        "band": "INSUFFICIENT",
+        "requirement": "VERIFY_IMPORTED_HISTORY"
+      }
+    },
+    {
+      "name": "professional verification versus matching AI estimate",
+      "change": {
+        "extraSource": "AI_ESTIMATE"
+      },
+      "expected": {
+        "band": "HIGH",
+        "scoreMin": 0.8,
+        "conflicts": 0
+      }
+    },
+    {
+      "name": "recent physical tests",
+      "change": {},
+      "expected": {
+        "band": "HIGH",
+        "testFreshness": "FRESH"
+      }
+    },
+    {
+      "name": "stale physical tests",
+      "change": {
+        "testAgeDays": 45
+      },
+      "expected": {
+        "band": "HIGH",
+        "testFreshness": "STALE",
+        "requirement": "REFRESH_EVIDENCE"
+      }
+    },
+    {
+      "name": "conflicting current levels",
+      "change": {
+        "conflict": {
+          "field": "perceived_level",
+          "value": 10
+        }
+      },
+      "expected": {
+        "band": "HIGH",
+        "conflicts": 1,
+        "requirement": "REVIEW_CONFLICTING_EVIDENCE"
+      }
+    },
+    {
+      "name": "different root mid ends states",
+      "change": {
+        "regionStates": {
+          "ROOT": {
+            "porosity": "KNOWN"
+          },
+          "MID_LENGTHS": {
+            "porosity": "UNKNOWN"
+          },
+          "ENDS": {
+            "porosity": "NOT_ASSESSED"
+          }
+        }
+      },
+      "expected": {
+        "band": "INSUFFICIENT",
+        "reason": "FIELD_UNKNOWN",
+        "requirement": "ASSESS_POROSITY"
+      }
+    },
+    {
+      "name": "important custom region not assessed",
+      "change": {
+        "customUnassessed": true
+      },
+      "expected": {
+        "band": "INSUFFICIENT",
+        "requirement": "VERIFY_REGION"
+      }
+    },
+    {
+      "name": "all technical data unknown",
+      "change": {
+        "allUnknown": true,
+        "tests": "NONE"
+      },
+      "expected": {
+        "band": "INSUFFICIENT",
+        "scoreMin": 0,
+        "scoreMax": 0,
+        "reason": "FIELD_UNKNOWN"
+      }
+    },
+    {
+      "name": "no physical tests",
+      "change": {
+        "tests": "NONE"
+      },
+      "expected": {
+        "band": "MEDIUM",
+        "requirement": "PERFORM_STRAND_TEST"
+      }
+    },
+    {
+      "name": "multiple matching strong sources",
+      "change": {
+        "extraSource": "PROFESSIONAL_VERIFIED",
+        "structuredTests": true
+      },
+      "expected": {
+        "band": "HIGH",
+        "scoreMin": 0.8,
+        "conflicts": 0
+      }
+    },
+    {
+      "name": "archived client historical read",
+      "change": {
+        "archived": true
+      },
+      "expected": {
+        "band": "HIGH",
+        "scoreMin": 0.8
+      }
+    },
+    {
+      "name": "contradictory regional porosity",
+      "change": {
+        "conflict": {
+          "field": "porosity",
+          "value": "HIGH",
+          "region": "ENDS"
+        }
+      },
+      "expected": {
+        "band": "INSUFFICIENT",
+        "conflicts": 1,
+        "requirement": "REVIEW_CONFLICTING_EVIDENCE"
+      }
+    },
+    {
+      "name": "not applicable remains distinct",
+      "change": {
+        "globalStates": {
+          "grey_ratio": "NOT_APPLICABLE"
+        }
+      },
+      "expected": {
+        "band": "HIGH",
+        "scoreMin": 0.8
+      }
+    },
+    {
+      "name": "unknown event date is not fabricated",
+      "change": {
+        "unknownHistoryDate": true
+      },
+      "expected": {
+        "band": "HIGH",
+        "scoreMin": 0.8
+      }
+    },
+    {
+      "name": "old historical events do not expire",
+      "change": {
+        "unknownHistoryDate": true,
+        "oldHistory": true
+      },
+      "expected": {
+        "band": "HIGH",
+        "scoreMin": 0.8
+      }
+    },
+    {
+      "name": "divergent bleach summaries require review",
+      "change": {
+        "conflict": {
+          "field": "bleach_history",
+          "value": "Different reported summary"
+        }
+      },
+      "expected": {
+        "band": "INSUFFICIENT",
+        "conflicts": 1,
+        "requirement": "REVIEW_CONFLICTING_EVIDENCE"
+      }
+    }
+  ]
+}

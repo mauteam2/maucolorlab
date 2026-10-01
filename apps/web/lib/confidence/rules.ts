@@ -17,7 +17,7 @@ export const confidenceRules = {
   COSMETIC_COLOR_HISTORY: ["cosmetic_color_history"], BLEACH_HISTORY: ["bleach_history"], CHEMICAL_HISTORY: ["chemical_history"],
  },
  domainWeights: { LEVEL: 2, GREY: 1, INTEGRITY: 3, COSMETIC_COLOR_HISTORY: 2, BLEACH_HISTORY: 3,
-  CHEMICAL_HISTORY: 3, REGIONAL_COVERAGE: 3, PHYSICAL_TEST: 2 },
+  CHEMICAL_HISTORY: 3, REGIONAL_COVERAGE: 3, PHYSICAL_TEST: 3 },
 } as const;
 export type TechnicalField = keyof typeof confidenceRules.freshnessDays;
 export type Domain = keyof typeof confidenceRules.domainWeights;
