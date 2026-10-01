@@ -138,3 +138,19 @@ for result in history["results"]:
     observation_validator("HairAddHistoryResult").validate(result)
 assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/history"]) == {"post"}
 print(f"PASS: Technical-history contract: {len(history['valid'])} commands and RPCs, {len(history['invalid'])} rejections, {len(history['results'])} existing-format events")
+
+confidence_fixture = json.loads((root / "contracts/fixtures/confidence-result.json").read_text(encoding="utf-8"))
+observation_validator("CaseConfidenceResult").validate(confidence_fixture)
+golden = json.loads((root / "contracts/fixtures/confidence-golden.json").read_text(encoding="utf-8"))
+observation_validator("ConfidenceEvaluationInput").validate({"pages": [golden["baseSnapshot"]], "evaluatedAt": golden["evaluatedAt"]})
+observation_validator("ConfidenceSnapshotRequest").validate({"p_membership_id": identifier, "p_location_id": identifier, "p_client_id": identifier})
+for change in ({"band": "SAFE"}, {"confidence": 1.1}, {"engineVersion": "unversioned"}, {"inputFingerprint": "invalid"}, {"serviceApproved": True}):
+    candidate = copy.deepcopy(confidence_fixture)
+    candidate["data"].update(change)
+    assert list(observation_validator("CaseConfidenceResult").iter_errors(candidate)), change
+for field in ("conflicts", "significantUnknowns", "informationRequirements", "engineVersion"):
+    candidate = copy.deepcopy(confidence_fixture)
+    del candidate["data"][field]
+    assert list(observation_validator("CaseConfidenceResult").iter_errors(candidate)), field
+assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/confidence"]) == {"get"}
+print(f"PASS: Confidence assessment/input/RPC contracts, {len(golden['cases'])} golden scenarios, and 9 unsafe/malformed result rejections")

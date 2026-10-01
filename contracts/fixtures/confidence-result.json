@@ -1,0 +1,828 @@
+{
+  "data": {
+    "confidence": 0.908,
+    "band": "HIGH",
+    "domains": [
+      {
+        "domain": "LEVEL",
+        "confidence": 0.9,
+        "band": "HIGH",
+        "fields": [
+          {
+            "field": "natural_level",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000020",
+                "evidenceId": "c1000000-0000-4000-8000-000000000120"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "perceived_level",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000020",
+                "evidenceId": "c1000000-0000-4000-8000-000000000120"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "natural_level",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000021",
+                "evidenceId": "c1000000-0000-4000-8000-000000000121"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "perceived_level",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000021",
+                "evidenceId": "c1000000-0000-4000-8000-000000000121"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "natural_level",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000022",
+                "evidenceId": "c1000000-0000-4000-8000-000000000122"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "perceived_level",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000022",
+                "evidenceId": "c1000000-0000-4000-8000-000000000122"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "natural_level",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000023",
+                "evidenceId": "c1000000-0000-4000-8000-000000000123"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "perceived_level",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000023",
+                "evidenceId": "c1000000-0000-4000-8000-000000000123"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      {
+        "domain": "GREY",
+        "confidence": 0.9,
+        "band": "HIGH",
+        "fields": [
+          {
+            "field": "grey_ratio",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000020",
+                "evidenceId": "c1000000-0000-4000-8000-000000000120"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "grey_ratio",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000021",
+                "evidenceId": "c1000000-0000-4000-8000-000000000121"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "grey_ratio",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000022",
+                "evidenceId": "c1000000-0000-4000-8000-000000000122"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "grey_ratio",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000023",
+                "evidenceId": "c1000000-0000-4000-8000-000000000123"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      {
+        "domain": "INTEGRITY",
+        "confidence": 0.9,
+        "band": "HIGH",
+        "fields": [
+          {
+            "field": "porosity",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000020",
+                "evidenceId": "c1000000-0000-4000-8000-000000000120"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "elasticity",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000020",
+                "evidenceId": "c1000000-0000-4000-8000-000000000120"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "thickness",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000020",
+                "evidenceId": "c1000000-0000-4000-8000-000000000120"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "density",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000020",
+                "evidenceId": "c1000000-0000-4000-8000-000000000120"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "porosity",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000021",
+                "evidenceId": "c1000000-0000-4000-8000-000000000121"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "elasticity",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000021",
+                "evidenceId": "c1000000-0000-4000-8000-000000000121"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "thickness",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000021",
+                "evidenceId": "c1000000-0000-4000-8000-000000000121"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "density",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000021",
+                "evidenceId": "c1000000-0000-4000-8000-000000000121"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "porosity",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000022",
+                "evidenceId": "c1000000-0000-4000-8000-000000000122"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "elasticity",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000022",
+                "evidenceId": "c1000000-0000-4000-8000-000000000122"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "thickness",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000022",
+                "evidenceId": "c1000000-0000-4000-8000-000000000122"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "density",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000022",
+                "evidenceId": "c1000000-0000-4000-8000-000000000122"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "porosity",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000023",
+                "evidenceId": "c1000000-0000-4000-8000-000000000123"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "elasticity",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000023",
+                "evidenceId": "c1000000-0000-4000-8000-000000000123"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "thickness",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000023",
+                "evidenceId": "c1000000-0000-4000-8000-000000000123"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "density",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000023",
+                "evidenceId": "c1000000-0000-4000-8000-000000000123"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      {
+        "domain": "COSMETIC_COLOR_HISTORY",
+        "confidence": 0.9,
+        "band": "HIGH",
+        "fields": [
+          {
+            "field": "cosmetic_color_history",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000020",
+                "evidenceId": "c1000000-0000-4000-8000-000000000120"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          },
+          {
+            "field": "cosmetic_color_history",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000021",
+                "evidenceId": "c1000000-0000-4000-8000-000000000121"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          },
+          {
+            "field": "cosmetic_color_history",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000022",
+                "evidenceId": "c1000000-0000-4000-8000-000000000122"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          },
+          {
+            "field": "cosmetic_color_history",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000023",
+                "evidenceId": "c1000000-0000-4000-8000-000000000123"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          }
+        ]
+      },
+      {
+        "domain": "BLEACH_HISTORY",
+        "confidence": 0.9,
+        "band": "HIGH",
+        "fields": [
+          {
+            "field": "bleach_history",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000020",
+                "evidenceId": "c1000000-0000-4000-8000-000000000120"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          },
+          {
+            "field": "bleach_history",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000021",
+                "evidenceId": "c1000000-0000-4000-8000-000000000121"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          },
+          {
+            "field": "bleach_history",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000022",
+                "evidenceId": "c1000000-0000-4000-8000-000000000122"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          },
+          {
+            "field": "bleach_history",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000023",
+                "evidenceId": "c1000000-0000-4000-8000-000000000123"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          }
+        ]
+      },
+      {
+        "domain": "CHEMICAL_HISTORY",
+        "confidence": 0.9,
+        "band": "HIGH",
+        "fields": [
+          {
+            "field": "chemical_history",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000020",
+                "evidenceId": "c1000000-0000-4000-8000-000000000120"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          },
+          {
+            "field": "chemical_history",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000021",
+                "evidenceId": "c1000000-0000-4000-8000-000000000121"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          },
+          {
+            "field": "chemical_history",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000022",
+                "evidenceId": "c1000000-0000-4000-8000-000000000122"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          },
+          {
+            "field": "chemical_history",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.9,
+            "evidenceRefs": [
+              {
+                "kind": "OBSERVATION",
+                "id": "c1000000-0000-4000-8000-000000000023",
+                "evidenceId": "c1000000-0000-4000-8000-000000000123"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "HISTORICAL"
+          }
+        ]
+      },
+      {
+        "domain": "PHYSICAL_TEST",
+        "confidence": 0.95,
+        "band": "HIGH",
+        "fields": [
+          {
+            "field": "physical_test",
+            "target": "GLOBAL",
+            "state": "KNOWN",
+            "confidence": 0.95,
+            "evidenceRefs": [
+              {
+                "kind": "PHYSICAL_TEST",
+                "id": "c1000000-0000-4000-8000-000000000040",
+                "evidenceId": "c1000000-0000-4000-8000-000000000140"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "physical_test",
+            "target": "c1000000-0000-4000-8000-000000000010",
+            "state": "KNOWN",
+            "confidence": 0.95,
+            "evidenceRefs": [
+              {
+                "kind": "PHYSICAL_TEST",
+                "id": "c1000000-0000-4000-8000-000000000041",
+                "evidenceId": "c1000000-0000-4000-8000-000000000141"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "physical_test",
+            "target": "c1000000-0000-4000-8000-000000000011",
+            "state": "KNOWN",
+            "confidence": 0.95,
+            "evidenceRefs": [
+              {
+                "kind": "PHYSICAL_TEST",
+                "id": "c1000000-0000-4000-8000-000000000042",
+                "evidenceId": "c1000000-0000-4000-8000-000000000142"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          },
+          {
+            "field": "physical_test",
+            "target": "c1000000-0000-4000-8000-000000000012",
+            "state": "KNOWN",
+            "confidence": 0.95,
+            "evidenceRefs": [
+              {
+                "kind": "PHYSICAL_TEST",
+                "id": "c1000000-0000-4000-8000-000000000043",
+                "evidenceId": "c1000000-0000-4000-8000-000000000143"
+              }
+            ],
+            "reasons": [
+              "SOURCE_QUALITY_LIMIT"
+            ],
+            "freshness": "FRESH"
+          }
+        ]
+      },
+      {
+        "domain": "REGIONAL_COVERAGE",
+        "confidence": 0.9,
+        "band": "HIGH",
+        "fields": []
+      }
+    ],
+    "significantUnknowns": [],
+    "conflicts": [],
+    "staleEvidence": [],
+    "informationRequirements": [],
+    "engineVersion": "confidence-engine/1.0.0",
+    "evaluatedAt": "2026-10-01T12:00:00.000Z",
+    "inputFingerprint": "506d7c56ee365345c593d8ca7462ff149201f9bb82100b6257ef643f5516faee",
+    "rulesFingerprint": "9dbc228079f87bf2373f9edc8e0194cb48e5430db31ea73d08676158400eafed",
+    "passportId": "c1000000-0000-4000-8000-000000000003",
+    "passportVersion": 1,
+    "inputCounts": {
+      "regions": 3,
+      "observations": 4,
+      "physicalTests": 4,
+      "history": 0
+    }
+  },
+  "correlationId": "c1000000-0000-4000-8000-000000000500"
+}

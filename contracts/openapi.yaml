@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.7.0
+  version: 0.8.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -848,6 +848,82 @@ paths:
           description: Missing/expired JWT; provider envelope
         '403':
           description: Anonymous/forbidden role; provider envelope
+  /api/clients/{clientId}/hair-passport/confidence:
+    get:
+      operationId: getCaseConfidence
+      summary: Assess technical information quality, completeness and uncertainty
+      description: |
+        Read-only, private/no-store. Revalidates Hair Passport and client read access.
+        Confidence is not a safety, formula or service-approval decision.
+        Uses complete bounded evidence at one database MVCC snapshot. No client clock,
+        engine rules, organization or evaluation override is accepted. More than 1000
+        records per timeline or 100 regions fails closed with CONFIDENCE_INPUT_LIMIT.
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: clientId
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+        - name: include_archived
+          in: query
+          schema: {type: boolean, default: false}
+          description: Explicit historical read; never bypasses authorization.
+      responses:
+        '200':
+          description: Deterministic assessment with mandatory explanations
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseConfidenceResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /rest/v1/rpc/hair_confidence_snapshot:
+    post:
+      operationId: readConfidenceInput
+      summary: Complete bounded Hair Passport pages in a single authorized MVCC snapshot
+      servers:
+        - url: http://127.0.0.1:54321
+          description: Disposable local Supabase; configure environment origin for staging.
+      security:
+        - bearerAuth: []
+          publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfidenceSnapshotRequest'
+      responses:
+        '200':
+          description: Complete input or existing logical error envelope
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    additionalProperties: false
+                    required: [data, correlationId]
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ConfidenceEvaluationInput'
+                      correlationId: {type: string, format: uuid}
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
 components:
   securitySchemes:
     bearerAuth:
@@ -880,6 +956,225 @@ components:
         type: string
         format: uuid
   schemas:
+    ConfidenceBand:
+      type: string
+      enum: [HIGH, MEDIUM, LOW, INSUFFICIENT]
+    ConfidenceDomain:
+      type: string
+      enum: [LEVEL, GREY, INTEGRITY, COSMETIC_COLOR_HISTORY, BLEACH_HISTORY, CHEMICAL_HISTORY, REGIONAL_COVERAGE, PHYSICAL_TEST]
+    UncertaintySeverity:
+      type: string
+      description: Materiality of information gaps, never damage or service risk.
+      enum: [LOW, MODERATE, HIGH, CRITICAL]
+    ConfidenceScore:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: Canonical information-quality summary; use bands or whole percentages in later UI.
+    ConfidenceField:
+      type: [string, 'null']
+      enum: [natural_level, perceived_level, grey_ratio, porosity, elasticity, thickness, density, cosmetic_color_history, bleach_history, chemical_history, physical_test, null]
+    ConfidenceTarget:
+      type: string
+      pattern: '^(GLOBAL|MISSING:(ROOT|MID_LENGTHS|ENDS)|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$'
+    ConfidenceReasonCode:
+      type: string
+      enum: [FIELD_NOT_ASSESSED, FIELD_UNKNOWN, EVIDENCE_STALE, EVIDENCE_EXPIRED, EVIDENCE_TIME_UNKNOWN, LOW_QUALITY_EVIDENCE, SOURCE_QUALITY_LIMIT, CONFIDENCE_UNSPECIFIED, EXPLICIT_CONFIDENCE_LIMIT, CONFLICTING_EVIDENCE, DIVERGENT_HISTORY_SUMMARIES, REGION_NOT_ASSESSED, HISTORY_UNVERIFIED, PHYSICAL_TEST_MISSING, CRITICAL_INFORMATION_GAP]
+    ConfidenceEvidenceRef:
+      type: object
+      additionalProperties: false
+      required: [kind, id, evidenceId]
+      properties:
+        kind: {type: string, enum: [OBSERVATION, PHYSICAL_TEST, HISTORY, UNVERIFIED_STATE]}
+        id: {type: string, format: uuid}
+        evidenceId: {type: [string, 'null'], format: uuid}
+    ConfidenceEvidenceRefs:
+      type: array
+      maxItems: 1000
+      items:
+        $ref: '#/components/schemas/ConfidenceEvidenceRef'
+    FieldConfidence:
+      type: object
+      additionalProperties: false
+      required: [field, target, state, confidence, evidenceRefs, reasons, freshness]
+      properties:
+        field:
+          allOf:
+            - $ref: '#/components/schemas/ConfidenceField'
+            - type: string
+        target:
+          $ref: '#/components/schemas/ConfidenceTarget'
+        state: {type: string, enum: [KNOWN, UNKNOWN, NOT_ASSESSED, NOT_APPLICABLE]}
+        confidence:
+          $ref: '#/components/schemas/ConfidenceScore'
+        evidenceRefs:
+          $ref: '#/components/schemas/ConfidenceEvidenceRefs'
+        reasons:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/ConfidenceReasonCode'
+        freshness: {type: string, enum: [FRESH, STALE, EXPIRED, UNKNOWN, HISTORICAL]}
+    DomainConfidence:
+      type: object
+      additionalProperties: false
+      required: [domain, confidence, band, fields]
+      properties:
+        domain:
+          $ref: '#/components/schemas/ConfidenceDomain'
+        confidence:
+          $ref: '#/components/schemas/ConfidenceScore'
+        band:
+          $ref: '#/components/schemas/ConfidenceBand'
+        fields:
+          type: array
+          maxItems: 500
+          items:
+            $ref: '#/components/schemas/FieldConfidence'
+    UncertaintyItem:
+      type: object
+      additionalProperties: false
+      required: [domain, field, target, severity, code, state, evidenceRefs]
+      properties:
+        domain:
+          $ref: '#/components/schemas/ConfidenceDomain'
+        field:
+          $ref: '#/components/schemas/ConfidenceField'
+        target:
+          $ref: '#/components/schemas/ConfidenceTarget'
+        severity:
+          $ref: '#/components/schemas/UncertaintySeverity'
+        code:
+          $ref: '#/components/schemas/ConfidenceReasonCode'
+        state: {type: [string, 'null'], enum: [KNOWN, UNKNOWN, NOT_ASSESSED, NOT_APPLICABLE, null]}
+        evidenceRefs:
+          $ref: '#/components/schemas/ConfidenceEvidenceRefs'
+    EvidenceConflict:
+      type: object
+      additionalProperties: false
+      required: [domain, field, target, severity, code, evidenceRefs]
+      properties:
+        domain:
+          $ref: '#/components/schemas/ConfidenceDomain'
+        field:
+          allOf:
+            - $ref: '#/components/schemas/ConfidenceField'
+            - type: string
+        target:
+          $ref: '#/components/schemas/ConfidenceTarget'
+        severity:
+          $ref: '#/components/schemas/UncertaintySeverity'
+        code: {type: string, enum: [CONFLICTING_EVIDENCE, DIVERGENT_HISTORY_SUMMARIES]}
+        evidenceRefs:
+          $ref: '#/components/schemas/ConfidenceEvidenceRefs'
+    InformationRequirement:
+      type: object
+      additionalProperties: false
+      required: [code, domain, field, target, severity, reasonCodes, evidenceRefs]
+      properties:
+        code:
+          type: string
+          enum: [ASSESS_NATURAL_LEVEL, ASSESS_CURRENT_LEVEL, ASSESS_GREY, ASSESS_POROSITY, ASSESS_ELASTICITY, ASSESS_INTEGRITY, VERIFY_COLOR_HISTORY, VERIFY_BLEACH_HISTORY, VERIFY_CHEMICAL_HISTORY, PERFORM_STRAND_TEST, VERIFY_REGION, REVIEW_CONFLICTING_EVIDENCE, VERIFY_IMPORTED_HISTORY, REFRESH_EVIDENCE]
+        domain:
+          $ref: '#/components/schemas/ConfidenceDomain'
+        field:
+          $ref: '#/components/schemas/ConfidenceField'
+        target:
+          $ref: '#/components/schemas/ConfidenceTarget'
+        severity:
+          $ref: '#/components/schemas/UncertaintySeverity'
+        reasonCodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfidenceReasonCode'
+        evidenceRefs:
+          $ref: '#/components/schemas/ConfidenceEvidenceRefs'
+    EngineVersion:
+      type: string
+      pattern: '^confidence-engine/[0-9]+\.[0-9]+\.[0-9]+$'
+    EngineVersionMetadata:
+      type: object
+      required: [engineVersion, evaluatedAt, inputFingerprint, rulesFingerprint]
+      properties:
+        engineVersion:
+          $ref: '#/components/schemas/EngineVersion'
+        evaluatedAt: {type: string, format: date-time}
+        inputFingerprint: {type: string, pattern: '^[a-f0-9]{64}$'}
+        rulesFingerprint: {type: string, pattern: '^[a-f0-9]{64}$'}
+    CaseConfidenceAssessment:
+      unevaluatedProperties: false
+      allOf:
+        - $ref: '#/components/schemas/EngineVersionMetadata'
+        - type: object
+          required: [confidence, band, domains, significantUnknowns, conflicts, staleEvidence, informationRequirements, passportId, passportVersion, inputCounts]
+          properties:
+            confidence:
+              $ref: '#/components/schemas/ConfidenceScore'
+            band:
+              $ref: '#/components/schemas/ConfidenceBand'
+            domains:
+              type: array
+              minItems: 8
+              maxItems: 8
+              items:
+                $ref: '#/components/schemas/DomainConfidence'
+            significantUnknowns:
+              type: array
+              items:
+                $ref: '#/components/schemas/UncertaintyItem'
+            conflicts:
+              type: array
+              items:
+                $ref: '#/components/schemas/EvidenceConflict'
+            staleEvidence:
+              type: array
+              items:
+                $ref: '#/components/schemas/UncertaintyItem'
+            informationRequirements:
+              type: array
+              items:
+                $ref: '#/components/schemas/InformationRequirement'
+            passportId: {type: string, format: uuid}
+            passportVersion: {type: integer, minimum: 1, maximum: 9007199254740991}
+            inputCounts:
+              type: object
+              additionalProperties: false
+              required: [regions, observations, physicalTests, history]
+              properties:
+                regions: {type: integer, minimum: 0, maximum: 100}
+                observations: {type: integer, minimum: 0, maximum: 1101}
+                physicalTests: {type: integer, minimum: 0, maximum: 1000}
+                history: {type: integer, minimum: 0, maximum: 1000}
+    CaseConfidenceResult:
+      type: object
+      additionalProperties: false
+      required: [data, correlationId]
+      properties:
+        data:
+          $ref: '#/components/schemas/CaseConfidenceAssessment'
+        correlationId: {type: string, format: uuid}
+    ConfidenceEvaluationInput:
+      type: object
+      additionalProperties: false
+      required: [pages, evaluatedAt]
+      properties:
+        evaluatedAt: {type: string, format: date-time}
+        pages:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/HairPassportSnapshot'
+    ConfidenceSnapshotRequest:
+      type: object
+      additionalProperties: false
+      required: [p_membership_id, p_location_id, p_client_id]
+      properties:
+        p_membership_id: {type: string, format: uuid}
+        p_location_id: {type: string, format: uuid}
+        p_client_id: {type: string, format: uuid}
+        p_include_archived: {type: boolean, default: false}
+        p_correlation_id: {type: string, format: uuid}
     HairThickness:
       type: "string"
       enum: ["FINE","MEDIUM","COARSE"]
@@ -3281,6 +3576,8 @@ components:
       - INVALID_HISTORY_EVENT
       - INVALID_HISTORY_CATEGORY
       - INVALID_HISTORY_DATE
+      - CONFIDENCE_INPUT_INVALID
+      - CONFIDENCE_INPUT_LIMIT
     FieldError:
       type: object
       additionalProperties: false
