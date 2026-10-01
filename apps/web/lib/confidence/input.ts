@@ -35,11 +35,17 @@ export function normalizeInput(raw: unknown): NormalizedInput {
  const history = pages.flatMap(p => p.history.items);
  for (const items of [observations, tests, history]) if (new Set(items.map(i => i.id)).size !== items.length) throw new ConfidenceInputError();
  const active = first.regions.filter(r => r.status === "ACTIVE");
+ const uniqueTypes = active.filter(r => r.type !== "CUSTOM").map(r => r.type);
+ if (new Set(uniqueTypes).size !== uniqueTypes.length) throw new ConfidenceInputError();
+ const observationIds = new Set(observations.map(o => o.id));
+ for (const assessment of [first.core, ...first.regions.map(r => r.assessment)])
+  if (assessment.state === "ASSESSED" && !observationIds.has(assessment.observation.id)) throw new ConfidenceInputError();
  const targets = ["GLOBAL", ...active.map(r => r.id).sort(lexical)];
  const candidates: Candidate[] = [];
  const evidenceDefinitions = new Map<string, string>();
  const time = Date.parse(evaluatedAt);
  if (Date.parse(first.passport.updated_at) > time) throw new ConfidenceInputError();
+ if (first.regions.some(r => Date.parse(r.updated_at) > time)) throw new ConfidenceInputError();
  const observed = new Map<string, string>();
  function addObservation(o: HairSnapshot["observations"]["items"][number], current: boolean) {
   if (Date.parse(o.recorded_at) > time) throw new ConfidenceInputError();
@@ -89,11 +95,29 @@ export function normalizeInput(raw: unknown): NormalizedInput {
    relevantUntil: h.evidence.relevant_until, ref: {kind: "HISTORY", id: h.id, evidenceId: h.evidence.id}, supersedes: h.supersedes_id,
    conflictEligible: false, current: false });
  });
+ // Invalid supersession must not silently delete evidence before scoring.
+ const candidateKeys = new Set(candidates.map(c => `${c.ref.kind}:${c.ref.id}:${c.target}:${c.field}`));
+ const links = new Map<string, string>();
+ candidates.forEach(c => {
+  if (c.supersedes !== null) {
+   if (!candidateKeys.has(`${c.ref.kind}:${c.supersedes}:${c.target}:${c.field}`)) throw new ConfidenceInputError();
+   links.set(`${c.ref.kind}:${c.ref.id}`, `${c.ref.kind}:${c.supersedes}`);
+  }
+ });
+ const visited = new Set<string>();
+ for (const start of links.keys()) {
+  const path = new Set<string>(); let node: string | undefined = start;
+  while (node !== undefined && !visited.has(node)) {
+   if (path.has(node)) throw new ConfidenceInputError(); path.add(node); node = links.get(node);
+  }
+  path.forEach(id => visited.add(id));
+ }
  // Explicit supersession is scoped to the same record kind, target and field. Never erase a foreign target.
  const replaced = new Set(candidates.filter(c => c.supersedes !== null).map(c => `${c.ref.kind}:${c.supersedes}:${c.target}:${c.field}`));
  const retained = candidates.filter(c => !replaced.has(`${c.ref.kind}:${c.ref.id}:${c.target}:${c.field}`) && targets.includes(c.target));
  return { passportId: first.passport.id, passportVersion: first.passport.version, evaluatedAt: new Date(time).toISOString(), targets,
   missingRegions: rules.standardRegions.filter(type => !active.some(r => r.type === type)),
-  candidates: retained.sort((a, b) => lexical(canonical(a), canonical(b))),
+  candidates: retained.map(c => ({...c, observedAt: c.observedAt === null ? null : new Date(c.observedAt).toISOString(),
+   relevantUntil: c.relevantUntil === null ? null : new Date(c.relevantUntil).toISOString()})).sort((a, b) => lexical(canonical(a), canonical(b))),
   counts: { regions: active.length, observations: observed.size, physicalTests: tests.length, history: history.length } };
 }

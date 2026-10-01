@@ -171,4 +171,3 @@ select throws_ok($$select pg_temp.confidence_read()$$,'42501',null,'anonymous di
 reset role;
 select * from finish();
 rollback;
-

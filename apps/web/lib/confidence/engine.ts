@@ -17,7 +17,8 @@ export function evaluateConfidence(raw: unknown): CaseConfidenceAssessment {
  const input = normalizeInput(raw);
  const unknowns: UncertaintyItem[] = [], stale: UncertaintyItem[] = [], conflicts: EvidenceConflict[] = [], information: InformationRequirement[] = [];
  const grouped = new Map<string, typeof input.candidates>();
- input.candidates.forEach(c => { const key = `${c.target}:${c.field}`; grouped.set(key, [...(grouped.get(key) ?? []), c]); });
+ input.candidates.forEach(c => { const key = `${c.target}:${c.field}`; const group = grouped.get(key);
+  if (group) group.push(c); else grouped.set(key, [c]); });
  let hardGap = input.missingRegions.length > 0;
  const domains: DomainConfidence[] = [];
  for (const [domain, fields] of [...Object.entries(rules.domains), ["PHYSICAL_TEST", ["physical_test"]]] as [Domain, TechnicalField[]][]) {
