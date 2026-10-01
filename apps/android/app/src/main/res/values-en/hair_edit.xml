@@ -1,0 +1,26 @@
+<resources>
+    <string name="hair_edit_create">Create Hair Passport</string>
+    <string name="hair_edit_core">Edit technical profile</string>
+    <string name="hair_edit_region_create">Add technical region</string>
+    <string name="hair_edit_region_edit">Edit region</string>
+    <string name="hair_edit_partial_help">Only changed information is saved. Unknown fields can be enriched later. This edit does not create professional observation verification.</string>
+    <string name="hair_edit_field">Technical field to edit</string>
+    <string name="hair_edit_state">Information state</string>
+    <string name="hair_edit_value">Recorded value</string>
+    <string name="hair_edit_choose">Choose</string>
+    <string name="hair_edit_percent_hint">Enter a percentage from 0 to 100.</string>
+    <string name="hair_edit_level_hint">Enter a level from 1 to 10.</string>
+    <string name="hair_edit_region_type">Region type</string>
+    <string name="hair_edit_region_label">Custom region name</string>
+    <string name="hair_edit_save">Save</string>
+    <string name="hair_edit_cancel">Leave editing</string>
+    <string name="hair_edit_saving">Confirming the record with the server…</string>
+    <string name="hair_edit_validation">Check information states and values. Required values cannot be blank.</string>
+    <string name="hair_edit_no_changes">There are no changes to save.</string>
+    <string name="hair_edit_label_invalid">Enter a custom region name between 1 and 120 characters.</string>
+    <string name="hair_edit_conflict">This record changed or can no longer be edited. Reload current information and start again; your changes did not overwrite it.</string>
+    <string name="hair_edit_existing">This client already has a Hair Passport. Load the current passport.</string>
+    <string name="hair_edit_reload">Load current record</string>
+    <string name="hair_edit_uncertain">Server confirmation was not received. The record may have been saved. Retry the same request safely; the form cannot change meanwhile.</string>
+    <string name="hair_edit_retry">Retry the same request</string>
+</resources>

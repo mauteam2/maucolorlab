@@ -87,6 +87,13 @@ class SupabaseAuthRepository(
     suspend fun hairPassportSnapshot(body: String): HttpReply = mutex.withLock {
         authenticated("POST", "/rest/v1/rpc/hair_passport_snapshot", body)
     }
+    suspend fun hairMutation(rpc: String, body: String): HttpReply = mutex.withLock {
+        require(rpc in setOf("hair_core_operation", "hair_observation_operation", "hair_physical_test_operation", "hair_history_operation"))
+        authenticated("POST", "/rest/v1/rpc/$rpc", body)
+    }
+    suspend fun userId(): String = mutex.withLock {
+        UUID.fromString(JSONObject(authenticated("GET", "/auth/v1/user").body).getString("id")).toString()
+    }
     override suspend fun signIn(email: String, password: String) = mutex.withLock {
         val reply = transport.request("POST", "/auth/v1/token?grant_type=password", null,
             JSONObject().put("email", email).put("password", password).toString())

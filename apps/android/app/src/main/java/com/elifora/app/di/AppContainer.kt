@@ -8,6 +8,7 @@ import com.elifora.app.domain.auth.WorkspaceController
 import com.elifora.app.domain.clients.ClientController
 import com.elifora.app.data.clients.SupabaseClientRepository
 import com.elifora.app.data.hair.SupabaseHairPassportRepository
+import com.elifora.app.data.hair.SupabaseHairMutationRepository
 import com.elifora.app.domain.hair.HairPassportController
 
 interface AppContainer {
@@ -21,5 +22,6 @@ class DefaultAppContainer(context: Context) : AppContainer {
     private val repository by lazy { SupabaseAuthRepository(SupabaseTransport(appConfig), EncryptedSessionStore(context)) }
     override val workspaceController by lazy { WorkspaceController(repository, repository, PreferenceWorkspaceStore(context)) }
     override val clientController by lazy { ClientController(SupabaseClientRepository(repository::clientOperation)) }
-    override val hairPassportController by lazy { HairPassportController(SupabaseHairPassportRepository(repository::hairPassportSnapshot, repository::list)) }
+    override val hairPassportController by lazy { HairPassportController(SupabaseHairPassportRepository(repository::hairPassportSnapshot, repository::list),
+        SupabaseHairMutationRepository(repository::hairMutation, repository::list, repository::userId)) }
 }

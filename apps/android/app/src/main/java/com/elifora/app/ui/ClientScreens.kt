@@ -13,6 +13,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.elifora.app.R
 import com.elifora.app.domain.clients.*
 import com.elifora.app.domain.hair.HairPassportController
+import com.elifora.app.domain.hair.HairState
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -24,9 +25,10 @@ fun ClientScreens(controller: ClientController, passports: HairPassportControlle
     val scope = rememberCoroutineScope()
     val list = { scope.launch { controller.list() }; Unit }
     val current = (state as? ClientState.Ready)?.content
-    var passportClientId by remember { mutableStateOf<String?>(null) }
-    BackHandler(passportClientId != null) { passports.close(); passportClientId = null }
-    BackHandler(passportClientId == null && current != null && current !is ClientContent.Directory && current !is ClientContent.Empty, onBack = list)
+    val hairState by passports.state.collectAsStateWithLifecycle()
+    val passportOpen = current is ClientContent.Detail && hairState != HairState.Closed && passports.isOpenFor(current.client.id)
+    BackHandler(passportOpen) { passports.close() }
+    BackHandler(!passportOpen && current != null && current !is ClientContent.Directory && current !is ClientContent.Empty, onBack = list)
     Text(stringResource(R.string.clients_title), style = MaterialTheme.typography.headlineMedium)
     when (val value = state) {
         ClientState.Loading -> { CircularProgressIndicator(); Text(stringResource(R.string.auth_loading)) }
@@ -61,8 +63,8 @@ fun ClientScreens(controller: ClientController, passports: HairPassportControlle
             }
             is ClientContent.Detail -> {
                 val client = content.client
-                if (passportClientId == client.id) {
-                    HairPassportScreen(passports, onBack = { passports.close(); passportClientId = null })
+                if (passportOpen) {
+                    HairPassportScreen(passports, onBack = { passports.close() })
                 } else {
                 TextButton(onClick = list) { Text(stringResource(R.string.clients_back)) }
                 Text(client.fullName, style = MaterialTheme.typography.headlineMedium)
@@ -73,7 +75,6 @@ fun ClientScreens(controller: ClientController, passports: HairPassportControlle
                 DetailField(R.string.clients_created, displayDate(client.createdAt))
                 DetailField(R.string.clients_updated, displayDate(client.updatedAt))
                 if ("hair_passport.read" in permissions) OutlinedButton(onClick = {
-                    passportClientId = client.id
                     scope.launch { passports.open(client) }
                 }) { Text(stringResource(R.string.hair_passport_title)) }
                 if (client.status == ClientStatus.ACTIVE && "clients.update" in permissions)

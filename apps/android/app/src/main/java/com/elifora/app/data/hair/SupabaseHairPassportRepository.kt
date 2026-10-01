@@ -73,9 +73,9 @@ private fun parsePassport(data: JSONObject, client: Client, offsets: HairOffsets
     val status = passport.getString("status")
     require(status == "ACTIVE" || status == "ARCHIVED")
     return HairPassport(passport.uuid("id"), client.id, status == "ARCHIVED",
-        passport.getString("updated_at").timestamp(), core, regions, observations, tests, history)
+        passport.getString("updated_at").timestamp(), core, regions, observations, tests, history, passport.getLong("version").also { require(it > 0) })
 }
-private fun parseAssessment(value: JSONObject): HairAssessment {
+internal fun parseAssessment(value: JSONObject): HairAssessment {
     val state = AssessmentState.valueOf(value.getString("state"))
     return when (state) {
         AssessmentState.NOT_ASSESSED -> { require(value.isNull("observation")); HairAssessment(state, null, null) }
@@ -83,11 +83,11 @@ private fun parseAssessment(value: JSONObject): HairAssessment {
         AssessmentState.UNVERIFIED -> HairAssessment(state, parseTechnical(value.getJSONObject("values")), null)
     }
 }
-private fun parseRegion(value: JSONObject): HairRegion {
+internal fun parseRegion(value: JSONObject): HairRegion {
     val status = value.getString("status")
     require(status == "ACTIVE" || status == "ARCHIVED")
     return HairRegion(value.uuid("id"), RegionType.valueOf(value.getString("type")),
-        value.optionalString("label"), status == "ARCHIVED", parseAssessment(value.getJSONObject("assessment")))
+        value.optionalString("label"), status == "ARCHIVED", parseAssessment(value.getJSONObject("assessment")), value.getLong("version").also { require(it > 0) })
 }
 private fun parseTechnical(value: JSONObject): HairTechnicalValues {
     val facts = HairField.entries.associateWith { field ->

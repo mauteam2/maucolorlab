@@ -24,7 +24,8 @@ import java.util.Locale
 fun HairPassportScreen(controller: HairPassportController, onBack: () -> Unit) {
     val state by controller.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    TextButton(onClick = onBack) { Text(stringResource(R.string.hair_passport_back)) }
+    val editing = state as? HairState.Editing
+    TextButton(onClick = onBack, enabled = editing?.status !is HairEditStatus.Saving && editing?.status !is HairEditStatus.NetworkError) { Text(stringResource(R.string.hair_passport_back)) }
     Text(stringResource(R.string.hair_passport_title), style = MaterialTheme.typography.headlineMedium,
         modifier = Modifier.semantics { heading() })
     when (val current = state) {
@@ -34,14 +35,18 @@ fun HairPassportScreen(controller: HairPassportController, onBack: () -> Unit) {
         }
         is HairState.Ready -> {
             Text(current.client.fullName, style = MaterialTheme.typography.titleLarge)
+            if (controller.can(HairAction.CORE)) OutlinedButton(onClick = { controller.begin(HairAction.CORE) }) { Text(stringResource(R.string.hair_edit_core)) }
+            if (controller.can(HairAction.REGION_CREATE)) TextButton(onClick = { controller.begin(HairAction.REGION_CREATE) }) { Text(stringResource(R.string.hair_edit_region_create)) }
             PassportContent(current.passport,
                 onRefresh = { scope.launch { controller.refresh() } },
-                onPage = { kind, offset -> scope.launch { controller.page(kind, offset) } })
+                onPage = { kind, offset -> scope.launch { controller.page(kind, offset) } },
+                editRegion = if (controller.can(HairAction.REGION_EDIT)) { id -> controller.begin(HairAction.REGION_EDIT, id) } else null)
         }
         is HairState.EmptyPassport -> {
             Text(current.client.fullName, style = MaterialTheme.typography.titleLarge)
             Text(stringResource(R.string.hair_passport_empty_title), style = MaterialTheme.typography.titleMedium)
             Text(stringResource(R.string.hair_passport_empty_detail))
+            if (controller.can(HairAction.CREATE)) Button(onClick = { controller.begin(HairAction.CREATE) }) { Text(stringResource(R.string.hair_edit_create)) }
             OutlinedButton(onClick = { scope.launch { controller.refresh() } }) { Text(stringResource(R.string.hair_passport_refresh)) }
         }
         is HairState.Error -> {
@@ -52,11 +57,13 @@ fun HairPassportScreen(controller: HairPassportController, onBack: () -> Unit) {
         HairState.Forbidden -> Text(stringResource(R.string.hair_passport_forbidden), color = MaterialTheme.colorScheme.error)
         HairState.MembershipRevoked -> Text(stringResource(R.string.hair_passport_revoked), color = MaterialTheme.colorScheme.error)
         HairState.SessionExpired -> Text(stringResource(R.string.hair_passport_expired), color = MaterialTheme.colorScheme.error)
+        is HairState.Editing -> HairEditorScreen(current, controller)
     }
 }
 
 @Composable
-internal fun PassportContent(passport: HairPassport, onRefresh: () -> Unit, onPage: (HairPageKind, Int) -> Unit) {
+internal fun PassportContent(passport: HairPassport, onRefresh: () -> Unit, onPage: (HairPageKind, Int) -> Unit,
+    editRegion: ((String) -> Unit)? = null) {
     if (passport.archived) Text(stringResource(R.string.hair_passport_archived), color = MaterialTheme.colorScheme.onSurfaceVariant)
     Text(stringResource(R.string.hair_passport_updated, displayHairDate(passport.updatedAt)), style = MaterialTheme.typography.bodySmall)
     OutlinedButton(onClick = onRefresh) { Text(stringResource(R.string.hair_passport_refresh)) }
@@ -70,6 +77,7 @@ internal fun PassportContent(passport: HairPassport, onRefresh: () -> Unit, onPa
             PassportSection(regionTitle(region), initiallyOpen = false) {
                 if (region.archived) Text(stringResource(R.string.hair_passport_archived))
                 Assessment(region.assessment)
+                if (!passport.archived && !region.archived && editRegion != null) TextButton(onClick = { editRegion(region.id) }) { Text(stringResource(R.string.hair_edit_region_edit)) }
             }
         }
     }

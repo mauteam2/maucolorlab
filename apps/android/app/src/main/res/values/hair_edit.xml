@@ -1,0 +1,26 @@
+<resources>
+    <string name="hair_edit_create">Saç Pasaportu oluştur</string>
+    <string name="hair_edit_core">Teknik profili düzenle</string>
+    <string name="hair_edit_region_create">Teknik bölge ekle</string>
+    <string name="hair_edit_region_edit">Bölgeyi düzenle</string>
+    <string name="hair_edit_partial_help">Yalnızca değiştirdiğiniz bilgiler kaydedilir. Bilinmeyen alanları şimdi doldurmanız gerekmez. Bu düzenleme profesyonel gözlem doğrulaması oluşturmaz.</string>
+    <string name="hair_edit_field">Düzenlenecek teknik alan</string>
+    <string name="hair_edit_state">Bilgi durumu</string>
+    <string name="hair_edit_value">Kayıtlı değer</string>
+    <string name="hair_edit_choose">Seçin</string>
+    <string name="hair_edit_percent_hint">0–100 arasında yüzde girin.</string>
+    <string name="hair_edit_level_hint">1–10 arasında seviye girin.</string>
+    <string name="hair_edit_region_type">Bölge türü</string>
+    <string name="hair_edit_region_label">Özel bölge adı</string>
+    <string name="hair_edit_save">Kaydet</string>
+    <string name="hair_edit_cancel">Düzenlemeyi bırak</string>
+    <string name="hair_edit_saving">Kayıt sunucuda doğrulanıyor…</string>
+    <string name="hair_edit_validation">Bilgi durumunu ve değerleri kontrol edin. Gerekli değerler boş bırakılamaz.</string>
+    <string name="hair_edit_no_changes">Kaydedilecek bir değişiklik yok.</string>
+    <string name="hair_edit_label_invalid">Özel bölge için 1–120 karakter arasında bir ad girin.</string>
+    <string name="hair_edit_conflict">Bu kayıt değişmiş veya artık düzenlenemiyor. Güncel bilgileri yükleyip yeniden başlayın; değişiklikleriniz üzerine yazılmadı.</string>
+    <string name="hair_edit_existing">Bu müşterinin Saç Pasaportu zaten var. Güncel pasaportu yükleyin.</string>
+    <string name="hair_edit_reload">Güncel kaydı yükle</string>
+    <string name="hair_edit_uncertain">Sunucu onayı alınamadı. Kayıt yapılmış olabilir. Aynı isteği güvenle tekrar deneyin; form bu sırada değiştirilemez.</string>
+    <string name="hair_edit_retry">Aynı isteği tekrar dene</string>
+</resources>

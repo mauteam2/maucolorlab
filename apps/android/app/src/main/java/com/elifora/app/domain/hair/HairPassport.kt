@@ -13,7 +13,7 @@ data class HairObservation(val id: String, val regionId: String?, val recordedAt
 enum class AssessmentState { NOT_ASSESSED, ASSESSED, UNVERIFIED }
 data class HairAssessment(val state: AssessmentState, val values: HairTechnicalValues?, val evidence: HairEvidence?)
 enum class RegionType { ROOT, MID_LENGTHS, ENDS, FACE_FRAME, CROWN, NAPE, BANDED_AREA, BLEACHED_AREA, HIGHLIGHTED_AREA, CUSTOM }
-data class HairRegion(val id: String, val type: RegionType, val label: String?, val archived: Boolean, val assessment: HairAssessment)
+data class HairRegion(val id: String, val type: RegionType, val label: String?, val archived: Boolean, val assessment: HairAssessment, val version: Long = 1)
 enum class PhysicalTestType { POROSITY, ELASTICITY, STRAND }
 data class HairPhysicalTest(val id: String, val regionId: String?, val type: PhysicalTestType, val result: HairFact, val performedAt: String, val performedBy: String, val notes: String?, val evidence: HairEvidence)
 enum class HistoryCategory { COLOR, BLEACH_LIGHTENING, TONER_GLOSS, PERM, RELAXER_STRAIGHTENING, KERATIN_SMOOTHING, OTHER_CHEMICAL }
@@ -23,7 +23,7 @@ data class HairHistoryEvent(val id: String, val category: HistoryCategory, val d
     val description: String, val regionIds: List<String>, val salon: String?, val professional: String?, val evidence: HairEvidence)
 data class HairPage<T>(val items: List<T>, val offset: Int, val pageSize: Int, val hasMore: Boolean, val nextOffset: Int?)
 data class HairPassport(val id: String, val clientId: String, val archived: Boolean, val updatedAt: String, val core: HairAssessment,
-    val regions: List<HairRegion>, val observations: HairPage<HairObservation>, val tests: HairPage<HairPhysicalTest>, val history: HairPage<HairHistoryEvent>) {
+    val regions: List<HairRegion>, val observations: HairPage<HairObservation>, val tests: HairPage<HairPhysicalTest>, val history: HairPage<HairHistoryEvent>, val version: Long = 1) {
     fun regionName(id: String?): HairRegion? = regions.firstOrNull { it.id == id }
 }
 data class HairOffsets(val observations: Int = 0, val tests: Int = 0, val history: Int = 0)
@@ -40,6 +40,7 @@ sealed interface HairState {
     data object Loading : HairState
     data class Ready(val client: Client, val passport: HairPassport) : HairState
     data class EmptyPassport(val client: Client) : HairState
+    data class Editing(val client: Client, val passport: HairPassport?, val draft: HairDraft, val status: HairEditStatus) : HairState
     data class Error(val code: String, val correlationId: String?) : HairState
     data object Forbidden : HairState
     data object MembershipRevoked : HairState
