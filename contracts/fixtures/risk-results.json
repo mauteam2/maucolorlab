@@ -1,0 +1,2902 @@
+[
+  {
+    "data": {
+      "engineVersion": "risk-engine/1.0.0",
+      "evaluatedAt": "2026-10-01T12:00:00.000Z",
+      "inputFingerprint": "d1f7195ed515559807098c09e92ff6971f9aeb7363b27f3209f5f6f6b29f3770",
+      "rulesFingerprint": "ec322876dbbba63c28a3454d14c3bc09a5f2017d8712e441aab400ba2b4f5e36",
+      "passportId": "c1000000-0000-4000-8000-000000000003",
+      "passportVersion": 1,
+      "overallBand": "LOW",
+      "dimensions": [
+        {
+          "dimension": "HAIR_INTEGRITY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "CHEMICAL_HISTORY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "LIGHTENING_HISTORY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "REGIONAL_COMPLEXITY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "POROSITY_ELASTICITY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "TECHNICAL_CONSISTENCY",
+          "band": "LOW",
+          "reasons": []
+        }
+      ],
+      "regions": [
+        {
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "band": "LOW",
+          "dimensions": [
+            {
+              "dimension": "HAIR_INTEGRITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "CHEMICAL_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "LIGHTENING_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "REGIONAL_COMPLEXITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "TECHNICAL_CONSISTENCY",
+              "band": "LOW",
+              "reasons": []
+            }
+          ]
+        },
+        {
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "band": "LOW",
+          "dimensions": [
+            {
+              "dimension": "HAIR_INTEGRITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "CHEMICAL_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "LIGHTENING_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "REGIONAL_COMPLEXITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "TECHNICAL_CONSISTENCY",
+              "band": "LOW",
+              "reasons": []
+            }
+          ]
+        },
+        {
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "band": "LOW",
+          "dimensions": [
+            {
+              "dimension": "HAIR_INTEGRITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "CHEMICAL_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "LIGHTENING_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "REGIONAL_COMPLEXITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "TECHNICAL_CONSISTENCY",
+              "band": "LOW",
+              "reasons": []
+            }
+          ]
+        }
+      ],
+      "gate": {
+        "outcome": "CONTINUE_TECHNICAL_PLANNING",
+        "canProgress": true,
+        "reasonCodes": [
+          "NO_ESCALATING_STRUCTURED_FACT"
+        ]
+      },
+      "hardStops": [],
+      "requiredPhysicalTests": [],
+      "requiredInformation": [],
+      "dominantReasons": [],
+      "confidence": {
+        "engineVersion": "confidence-engine/1.0.0",
+        "inputFingerprint": "506d7c56ee365345c593d8ca7462ff149201f9bb82100b6257ef643f5516faee",
+        "rulesFingerprint": "9dbc228079f87bf2373f9edc8e0194cb48e5430db31ea73d08676158400eafed",
+        "band": "HIGH",
+        "confidence": 0.908
+      },
+      "scopeAssessment": "NOT_ASSESSED"
+    },
+    "correlationId": "c1000000-0000-4000-8000-000000000500"
+  },
+  {
+    "data": {
+      "engineVersion": "risk-engine/1.0.0",
+      "evaluatedAt": "2026-10-01T12:00:00.000Z",
+      "inputFingerprint": "5d9cbbc67bb0ebd40a88d7aaf013fcee82627b74cd2471d66f190189de073a3b",
+      "rulesFingerprint": "ec322876dbbba63c28a3454d14c3bc09a5f2017d8712e441aab400ba2b4f5e36",
+      "passportId": "c1000000-0000-4000-8000-000000000003",
+      "passportVersion": 1,
+      "overallBand": "CRITICAL",
+      "dimensions": [
+        {
+          "dimension": "HAIR_INTEGRITY",
+          "band": "CRITICAL",
+          "reasons": [
+            {
+              "code": "COMBINED_INTEGRITY_CONCERN",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "CRITICAL",
+              "target": "GLOBAL",
+              "field": null,
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000020",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000120"
+                },
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000020",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000120"
+                }
+              ],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "COMBINED_INTEGRITY_CONCERN",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "CRITICAL",
+              "target": "c1000000-0000-4000-8000-000000000010",
+              "field": null,
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000021",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                },
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000021",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                }
+              ],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "COMBINED_INTEGRITY_CONCERN",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "CRITICAL",
+              "target": "c1000000-0000-4000-8000-000000000011",
+              "field": null,
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000022",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                },
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000022",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                }
+              ],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "COMBINED_INTEGRITY_CONCERN",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "CRITICAL",
+              "target": "c1000000-0000-4000-8000-000000000012",
+              "field": null,
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000023",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                },
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000023",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                }
+              ],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "HIGH_POROSITY_EVIDENCE",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": "porosity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000020",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000120"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "HIGH",
+                "count": null
+              }
+            },
+            {
+              "code": "HIGH_POROSITY_EVIDENCE",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000010",
+              "field": "porosity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000021",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "HIGH",
+                "count": null
+              }
+            },
+            {
+              "code": "HIGH_POROSITY_EVIDENCE",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000011",
+              "field": "porosity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000022",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "HIGH",
+                "count": null
+              }
+            },
+            {
+              "code": "HIGH_POROSITY_EVIDENCE",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000012",
+              "field": "porosity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000023",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "HIGH",
+                "count": null
+              }
+            },
+            {
+              "code": "LOW_ELASTICITY_EVIDENCE",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": "elasticity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000020",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000120"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "LOW",
+                "count": null
+              }
+            },
+            {
+              "code": "LOW_ELASTICITY_EVIDENCE",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000010",
+              "field": "elasticity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000021",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "LOW",
+                "count": null
+              }
+            },
+            {
+              "code": "LOW_ELASTICITY_EVIDENCE",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000011",
+              "field": "elasticity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000022",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "LOW",
+                "count": null
+              }
+            },
+            {
+              "code": "LOW_ELASTICITY_EVIDENCE",
+              "dimension": "HAIR_INTEGRITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000012",
+              "field": "elasticity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000023",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "LOW",
+                "count": null
+              }
+            }
+          ]
+        },
+        {
+          "dimension": "CHEMICAL_HISTORY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "LIGHTENING_HISTORY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "REGIONAL_COMPLEXITY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "POROSITY_ELASTICITY",
+          "band": "CRITICAL",
+          "reasons": [
+            {
+              "code": "COMBINED_INTEGRITY_CONCERN",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "CRITICAL",
+              "target": "GLOBAL",
+              "field": null,
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000020",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000120"
+                },
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000020",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000120"
+                }
+              ],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "COMBINED_INTEGRITY_CONCERN",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "CRITICAL",
+              "target": "c1000000-0000-4000-8000-000000000010",
+              "field": null,
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000021",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                },
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000021",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                }
+              ],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "COMBINED_INTEGRITY_CONCERN",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "CRITICAL",
+              "target": "c1000000-0000-4000-8000-000000000011",
+              "field": null,
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000022",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                },
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000022",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                }
+              ],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "COMBINED_INTEGRITY_CONCERN",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "CRITICAL",
+              "target": "c1000000-0000-4000-8000-000000000012",
+              "field": null,
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000023",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                },
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000023",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                }
+              ],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "HIGH_POROSITY_EVIDENCE",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": "porosity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000020",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000120"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "HIGH",
+                "count": null
+              }
+            },
+            {
+              "code": "HIGH_POROSITY_EVIDENCE",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000010",
+              "field": "porosity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000021",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "HIGH",
+                "count": null
+              }
+            },
+            {
+              "code": "HIGH_POROSITY_EVIDENCE",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000011",
+              "field": "porosity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000022",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "HIGH",
+                "count": null
+              }
+            },
+            {
+              "code": "HIGH_POROSITY_EVIDENCE",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000012",
+              "field": "porosity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000023",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "HIGH",
+                "count": null
+              }
+            },
+            {
+              "code": "LOW_ELASTICITY_EVIDENCE",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": "elasticity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000020",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000120"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "LOW",
+                "count": null
+              }
+            },
+            {
+              "code": "LOW_ELASTICITY_EVIDENCE",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000010",
+              "field": "elasticity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000021",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "LOW",
+                "count": null
+              }
+            },
+            {
+              "code": "LOW_ELASTICITY_EVIDENCE",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000011",
+              "field": "elasticity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000022",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "LOW",
+                "count": null
+              }
+            },
+            {
+              "code": "LOW_ELASTICITY_EVIDENCE",
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000012",
+              "field": "elasticity",
+              "evidenceRefs": [
+                {
+                  "kind": "OBSERVATION",
+                  "id": "c1000000-0000-4000-8000-000000000023",
+                  "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                }
+              ],
+              "context": {
+                "state": "KNOWN",
+                "value": "LOW",
+                "count": null
+              }
+            }
+          ]
+        },
+        {
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+          "band": "HIGH",
+          "reasons": [
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "ELASTICITY",
+                "count": null
+              }
+            },
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000010",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "ELASTICITY",
+                "count": null
+              }
+            },
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000011",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "ELASTICITY",
+                "count": null
+              }
+            },
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000012",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "ELASTICITY",
+                "count": null
+              }
+            },
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "POROSITY",
+                "count": null
+              }
+            },
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000010",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "POROSITY",
+                "count": null
+              }
+            },
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000011",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "POROSITY",
+                "count": null
+              }
+            },
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "c1000000-0000-4000-8000-000000000012",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "POROSITY",
+                "count": null
+              }
+            }
+          ]
+        },
+        {
+          "dimension": "TECHNICAL_CONSISTENCY",
+          "band": "LOW",
+          "reasons": []
+        }
+      ],
+      "regions": [
+        {
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "band": "CRITICAL",
+          "dimensions": [
+            {
+              "dimension": "HAIR_INTEGRITY",
+              "band": "CRITICAL",
+              "reasons": [
+                {
+                  "code": "COMBINED_INTEGRITY_CONCERN",
+                  "dimension": "HAIR_INTEGRITY",
+                  "band": "CRITICAL",
+                  "target": "c1000000-0000-4000-8000-000000000010",
+                  "field": null,
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000021",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                    },
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000021",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                    }
+                  ],
+                  "context": {
+                    "state": null,
+                    "value": null,
+                    "count": null
+                  }
+                },
+                {
+                  "code": "HIGH_POROSITY_EVIDENCE",
+                  "dimension": "HAIR_INTEGRITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000010",
+                  "field": "porosity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000021",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "HIGH",
+                    "count": null
+                  }
+                },
+                {
+                  "code": "LOW_ELASTICITY_EVIDENCE",
+                  "dimension": "HAIR_INTEGRITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000010",
+                  "field": "elasticity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000021",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "LOW",
+                    "count": null
+                  }
+                }
+              ]
+            },
+            {
+              "dimension": "CHEMICAL_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "LIGHTENING_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "REGIONAL_COMPLEXITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "CRITICAL",
+              "reasons": [
+                {
+                  "code": "COMBINED_INTEGRITY_CONCERN",
+                  "dimension": "POROSITY_ELASTICITY",
+                  "band": "CRITICAL",
+                  "target": "c1000000-0000-4000-8000-000000000010",
+                  "field": null,
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000021",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                    },
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000021",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                    }
+                  ],
+                  "context": {
+                    "state": null,
+                    "value": null,
+                    "count": null
+                  }
+                },
+                {
+                  "code": "HIGH_POROSITY_EVIDENCE",
+                  "dimension": "POROSITY_ELASTICITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000010",
+                  "field": "porosity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000021",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "HIGH",
+                    "count": null
+                  }
+                },
+                {
+                  "code": "LOW_ELASTICITY_EVIDENCE",
+                  "dimension": "POROSITY_ELASTICITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000010",
+                  "field": "elasticity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000021",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000121"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "LOW",
+                    "count": null
+                  }
+                }
+              ]
+            },
+            {
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "reasons": [
+                {
+                  "code": "PHYSICAL_TEST_MISSING",
+                  "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000010",
+                  "field": null,
+                  "evidenceRefs": [],
+                  "context": {
+                    "state": "MISSING",
+                    "value": "ELASTICITY",
+                    "count": null
+                  }
+                },
+                {
+                  "code": "PHYSICAL_TEST_MISSING",
+                  "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000010",
+                  "field": null,
+                  "evidenceRefs": [],
+                  "context": {
+                    "state": "MISSING",
+                    "value": "POROSITY",
+                    "count": null
+                  }
+                }
+              ]
+            },
+            {
+              "dimension": "TECHNICAL_CONSISTENCY",
+              "band": "LOW",
+              "reasons": []
+            }
+          ]
+        },
+        {
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "band": "CRITICAL",
+          "dimensions": [
+            {
+              "dimension": "HAIR_INTEGRITY",
+              "band": "CRITICAL",
+              "reasons": [
+                {
+                  "code": "COMBINED_INTEGRITY_CONCERN",
+                  "dimension": "HAIR_INTEGRITY",
+                  "band": "CRITICAL",
+                  "target": "c1000000-0000-4000-8000-000000000011",
+                  "field": null,
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000022",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                    },
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000022",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                    }
+                  ],
+                  "context": {
+                    "state": null,
+                    "value": null,
+                    "count": null
+                  }
+                },
+                {
+                  "code": "HIGH_POROSITY_EVIDENCE",
+                  "dimension": "HAIR_INTEGRITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000011",
+                  "field": "porosity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000022",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "HIGH",
+                    "count": null
+                  }
+                },
+                {
+                  "code": "LOW_ELASTICITY_EVIDENCE",
+                  "dimension": "HAIR_INTEGRITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000011",
+                  "field": "elasticity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000022",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "LOW",
+                    "count": null
+                  }
+                }
+              ]
+            },
+            {
+              "dimension": "CHEMICAL_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "LIGHTENING_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "REGIONAL_COMPLEXITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "CRITICAL",
+              "reasons": [
+                {
+                  "code": "COMBINED_INTEGRITY_CONCERN",
+                  "dimension": "POROSITY_ELASTICITY",
+                  "band": "CRITICAL",
+                  "target": "c1000000-0000-4000-8000-000000000011",
+                  "field": null,
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000022",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                    },
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000022",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                    }
+                  ],
+                  "context": {
+                    "state": null,
+                    "value": null,
+                    "count": null
+                  }
+                },
+                {
+                  "code": "HIGH_POROSITY_EVIDENCE",
+                  "dimension": "POROSITY_ELASTICITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000011",
+                  "field": "porosity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000022",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "HIGH",
+                    "count": null
+                  }
+                },
+                {
+                  "code": "LOW_ELASTICITY_EVIDENCE",
+                  "dimension": "POROSITY_ELASTICITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000011",
+                  "field": "elasticity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000022",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000122"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "LOW",
+                    "count": null
+                  }
+                }
+              ]
+            },
+            {
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "reasons": [
+                {
+                  "code": "PHYSICAL_TEST_MISSING",
+                  "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000011",
+                  "field": null,
+                  "evidenceRefs": [],
+                  "context": {
+                    "state": "MISSING",
+                    "value": "ELASTICITY",
+                    "count": null
+                  }
+                },
+                {
+                  "code": "PHYSICAL_TEST_MISSING",
+                  "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000011",
+                  "field": null,
+                  "evidenceRefs": [],
+                  "context": {
+                    "state": "MISSING",
+                    "value": "POROSITY",
+                    "count": null
+                  }
+                }
+              ]
+            },
+            {
+              "dimension": "TECHNICAL_CONSISTENCY",
+              "band": "LOW",
+              "reasons": []
+            }
+          ]
+        },
+        {
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "band": "CRITICAL",
+          "dimensions": [
+            {
+              "dimension": "HAIR_INTEGRITY",
+              "band": "CRITICAL",
+              "reasons": [
+                {
+                  "code": "COMBINED_INTEGRITY_CONCERN",
+                  "dimension": "HAIR_INTEGRITY",
+                  "band": "CRITICAL",
+                  "target": "c1000000-0000-4000-8000-000000000012",
+                  "field": null,
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000023",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                    },
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000023",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                    }
+                  ],
+                  "context": {
+                    "state": null,
+                    "value": null,
+                    "count": null
+                  }
+                },
+                {
+                  "code": "HIGH_POROSITY_EVIDENCE",
+                  "dimension": "HAIR_INTEGRITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000012",
+                  "field": "porosity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000023",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "HIGH",
+                    "count": null
+                  }
+                },
+                {
+                  "code": "LOW_ELASTICITY_EVIDENCE",
+                  "dimension": "HAIR_INTEGRITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000012",
+                  "field": "elasticity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000023",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "LOW",
+                    "count": null
+                  }
+                }
+              ]
+            },
+            {
+              "dimension": "CHEMICAL_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "LIGHTENING_HISTORY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "REGIONAL_COMPLEXITY",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "POROSITY_ELASTICITY",
+              "band": "CRITICAL",
+              "reasons": [
+                {
+                  "code": "COMBINED_INTEGRITY_CONCERN",
+                  "dimension": "POROSITY_ELASTICITY",
+                  "band": "CRITICAL",
+                  "target": "c1000000-0000-4000-8000-000000000012",
+                  "field": null,
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000023",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                    },
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000023",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                    }
+                  ],
+                  "context": {
+                    "state": null,
+                    "value": null,
+                    "count": null
+                  }
+                },
+                {
+                  "code": "HIGH_POROSITY_EVIDENCE",
+                  "dimension": "POROSITY_ELASTICITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000012",
+                  "field": "porosity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000023",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "HIGH",
+                    "count": null
+                  }
+                },
+                {
+                  "code": "LOW_ELASTICITY_EVIDENCE",
+                  "dimension": "POROSITY_ELASTICITY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000012",
+                  "field": "elasticity",
+                  "evidenceRefs": [
+                    {
+                      "kind": "OBSERVATION",
+                      "id": "c1000000-0000-4000-8000-000000000023",
+                      "evidenceId": "c1000000-0000-4000-8000-000000000123"
+                    }
+                  ],
+                  "context": {
+                    "state": "KNOWN",
+                    "value": "LOW",
+                    "count": null
+                  }
+                }
+              ]
+            },
+            {
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "LOW",
+              "reasons": []
+            },
+            {
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "reasons": [
+                {
+                  "code": "PHYSICAL_TEST_MISSING",
+                  "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000012",
+                  "field": null,
+                  "evidenceRefs": [],
+                  "context": {
+                    "state": "MISSING",
+                    "value": "ELASTICITY",
+                    "count": null
+                  }
+                },
+                {
+                  "code": "PHYSICAL_TEST_MISSING",
+                  "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+                  "band": "HIGH",
+                  "target": "c1000000-0000-4000-8000-000000000012",
+                  "field": null,
+                  "evidenceRefs": [],
+                  "context": {
+                    "state": "MISSING",
+                    "value": "POROSITY",
+                    "count": null
+                  }
+                }
+              ]
+            },
+            {
+              "dimension": "TECHNICAL_CONSISTENCY",
+              "band": "LOW",
+              "reasons": []
+            }
+          ]
+        }
+      ],
+      "gate": {
+        "outcome": "BLOCK_TECHNICAL_PLANNING",
+        "canProgress": false,
+        "reasonCodes": [
+          "COMBINED_INTEGRITY_CONCERN",
+          "LOW_ELASTICITY_EVIDENCE",
+          "PHYSICAL_TEST_MISSING"
+        ]
+      },
+      "hardStops": [
+        {
+          "outcome": "REQUIRE_PHYSICAL_TEST",
+          "target": "GLOBAL",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "outcome": "REQUIRE_PHYSICAL_TEST",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "outcome": "REQUIRE_PHYSICAL_TEST",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "outcome": "REQUIRE_PHYSICAL_TEST",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "outcome": "BLOCK_TECHNICAL_PLANNING",
+          "target": "GLOBAL",
+          "reasonCodes": [
+            "COMBINED_INTEGRITY_CONCERN"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000020",
+              "evidenceId": "c1000000-0000-4000-8000-000000000120"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000020",
+              "evidenceId": "c1000000-0000-4000-8000-000000000120"
+            }
+          ]
+        },
+        {
+          "outcome": "REQUIRE_RECOVERY_REASSESSMENT",
+          "target": "GLOBAL",
+          "reasonCodes": [
+            "LOW_ELASTICITY_EVIDENCE"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000020",
+              "evidenceId": "c1000000-0000-4000-8000-000000000120"
+            }
+          ]
+        },
+        {
+          "outcome": "BLOCK_TECHNICAL_PLANNING",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "reasonCodes": [
+            "COMBINED_INTEGRITY_CONCERN"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000021",
+              "evidenceId": "c1000000-0000-4000-8000-000000000121"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000021",
+              "evidenceId": "c1000000-0000-4000-8000-000000000121"
+            }
+          ]
+        },
+        {
+          "outcome": "REQUIRE_RECOVERY_REASSESSMENT",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "reasonCodes": [
+            "LOW_ELASTICITY_EVIDENCE"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000021",
+              "evidenceId": "c1000000-0000-4000-8000-000000000121"
+            }
+          ]
+        },
+        {
+          "outcome": "BLOCK_TECHNICAL_PLANNING",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "reasonCodes": [
+            "COMBINED_INTEGRITY_CONCERN"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000022",
+              "evidenceId": "c1000000-0000-4000-8000-000000000122"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000022",
+              "evidenceId": "c1000000-0000-4000-8000-000000000122"
+            }
+          ]
+        },
+        {
+          "outcome": "REQUIRE_RECOVERY_REASSESSMENT",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "reasonCodes": [
+            "LOW_ELASTICITY_EVIDENCE"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000022",
+              "evidenceId": "c1000000-0000-4000-8000-000000000122"
+            }
+          ]
+        },
+        {
+          "outcome": "BLOCK_TECHNICAL_PLANNING",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "reasonCodes": [
+            "COMBINED_INTEGRITY_CONCERN"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000023",
+              "evidenceId": "c1000000-0000-4000-8000-000000000123"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000023",
+              "evidenceId": "c1000000-0000-4000-8000-000000000123"
+            }
+          ]
+        },
+        {
+          "outcome": "REQUIRE_RECOVERY_REASSESSMENT",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "reasonCodes": [
+            "LOW_ELASTICITY_EVIDENCE"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000023",
+              "evidenceId": "c1000000-0000-4000-8000-000000000123"
+            }
+          ]
+        }
+      ],
+      "requiredPhysicalTests": [
+        {
+          "type": "ELASTICITY",
+          "target": "GLOBAL",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "type": "POROSITY",
+          "target": "GLOBAL",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "type": "ELASTICITY",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "type": "POROSITY",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "type": "ELASTICITY",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "type": "POROSITY",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "type": "ELASTICITY",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "type": "POROSITY",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "type": "STRAND",
+          "target": "GLOBAL",
+          "status": "SATISFIED",
+          "reasonCodes": [],
+          "evidenceRefs": [
+            {
+              "kind": "PHYSICAL_TEST",
+              "id": "c1000000-0000-4000-8000-000000000040",
+              "evidenceId": "c1000000-0000-4000-8000-000000000140"
+            }
+          ]
+        },
+        {
+          "type": "STRAND",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "status": "SATISFIED",
+          "reasonCodes": [],
+          "evidenceRefs": [
+            {
+              "kind": "PHYSICAL_TEST",
+              "id": "c1000000-0000-4000-8000-000000000041",
+              "evidenceId": "c1000000-0000-4000-8000-000000000141"
+            }
+          ]
+        },
+        {
+          "type": "STRAND",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "status": "SATISFIED",
+          "reasonCodes": [],
+          "evidenceRefs": [
+            {
+              "kind": "PHYSICAL_TEST",
+              "id": "c1000000-0000-4000-8000-000000000042",
+              "evidenceId": "c1000000-0000-4000-8000-000000000142"
+            }
+          ]
+        },
+        {
+          "type": "STRAND",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "status": "SATISFIED",
+          "reasonCodes": [],
+          "evidenceRefs": [
+            {
+              "kind": "PHYSICAL_TEST",
+              "id": "c1000000-0000-4000-8000-000000000043",
+              "evidenceId": "c1000000-0000-4000-8000-000000000143"
+            }
+          ]
+        }
+      ],
+      "requiredInformation": [
+        {
+          "code": "PERFORM_ELASTICITY_TEST",
+          "target": "GLOBAL",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "PERFORM_ELASTICITY_TEST",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "PERFORM_ELASTICITY_TEST",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "PERFORM_ELASTICITY_TEST",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "PERFORM_POROSITY_TEST",
+          "target": "GLOBAL",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "PERFORM_POROSITY_TEST",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "PERFORM_POROSITY_TEST",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "PERFORM_POROSITY_TEST",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "REASSESS_HAIR_INTEGRITY",
+          "target": "GLOBAL",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "COMBINED_INTEGRITY_CONCERN"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000020",
+              "evidenceId": "c1000000-0000-4000-8000-000000000120"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000020",
+              "evidenceId": "c1000000-0000-4000-8000-000000000120"
+            }
+          ]
+        },
+        {
+          "code": "REASSESS_HAIR_INTEGRITY",
+          "target": "GLOBAL",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "LOW_ELASTICITY_EVIDENCE"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000020",
+              "evidenceId": "c1000000-0000-4000-8000-000000000120"
+            }
+          ]
+        },
+        {
+          "code": "REASSESS_HAIR_INTEGRITY",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "COMBINED_INTEGRITY_CONCERN"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000021",
+              "evidenceId": "c1000000-0000-4000-8000-000000000121"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000021",
+              "evidenceId": "c1000000-0000-4000-8000-000000000121"
+            }
+          ]
+        },
+        {
+          "code": "REASSESS_HAIR_INTEGRITY",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "LOW_ELASTICITY_EVIDENCE"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000021",
+              "evidenceId": "c1000000-0000-4000-8000-000000000121"
+            }
+          ]
+        },
+        {
+          "code": "REASSESS_HAIR_INTEGRITY",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "COMBINED_INTEGRITY_CONCERN"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000022",
+              "evidenceId": "c1000000-0000-4000-8000-000000000122"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000022",
+              "evidenceId": "c1000000-0000-4000-8000-000000000122"
+            }
+          ]
+        },
+        {
+          "code": "REASSESS_HAIR_INTEGRITY",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "LOW_ELASTICITY_EVIDENCE"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000022",
+              "evidenceId": "c1000000-0000-4000-8000-000000000122"
+            }
+          ]
+        },
+        {
+          "code": "REASSESS_HAIR_INTEGRITY",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "COMBINED_INTEGRITY_CONCERN"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000023",
+              "evidenceId": "c1000000-0000-4000-8000-000000000123"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000023",
+              "evidenceId": "c1000000-0000-4000-8000-000000000123"
+            }
+          ]
+        },
+        {
+          "code": "REASSESS_HAIR_INTEGRITY",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "LOW_ELASTICITY_EVIDENCE"
+          ],
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000023",
+              "evidenceId": "c1000000-0000-4000-8000-000000000123"
+            }
+          ]
+        }
+      ],
+      "dominantReasons": [
+        {
+          "code": "COMBINED_INTEGRITY_CONCERN",
+          "dimension": "HAIR_INTEGRITY",
+          "band": "CRITICAL",
+          "target": "GLOBAL",
+          "field": null,
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000020",
+              "evidenceId": "c1000000-0000-4000-8000-000000000120"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000020",
+              "evidenceId": "c1000000-0000-4000-8000-000000000120"
+            }
+          ],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "COMBINED_INTEGRITY_CONCERN",
+          "dimension": "HAIR_INTEGRITY",
+          "band": "CRITICAL",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "field": null,
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000021",
+              "evidenceId": "c1000000-0000-4000-8000-000000000121"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000021",
+              "evidenceId": "c1000000-0000-4000-8000-000000000121"
+            }
+          ],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "COMBINED_INTEGRITY_CONCERN",
+          "dimension": "HAIR_INTEGRITY",
+          "band": "CRITICAL",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "field": null,
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000022",
+              "evidenceId": "c1000000-0000-4000-8000-000000000122"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000022",
+              "evidenceId": "c1000000-0000-4000-8000-000000000122"
+            }
+          ],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "COMBINED_INTEGRITY_CONCERN",
+          "dimension": "HAIR_INTEGRITY",
+          "band": "CRITICAL",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "field": null,
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000023",
+              "evidenceId": "c1000000-0000-4000-8000-000000000123"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000023",
+              "evidenceId": "c1000000-0000-4000-8000-000000000123"
+            }
+          ],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "COMBINED_INTEGRITY_CONCERN",
+          "dimension": "POROSITY_ELASTICITY",
+          "band": "CRITICAL",
+          "target": "GLOBAL",
+          "field": null,
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000020",
+              "evidenceId": "c1000000-0000-4000-8000-000000000120"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000020",
+              "evidenceId": "c1000000-0000-4000-8000-000000000120"
+            }
+          ],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "COMBINED_INTEGRITY_CONCERN",
+          "dimension": "POROSITY_ELASTICITY",
+          "band": "CRITICAL",
+          "target": "c1000000-0000-4000-8000-000000000010",
+          "field": null,
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000021",
+              "evidenceId": "c1000000-0000-4000-8000-000000000121"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000021",
+              "evidenceId": "c1000000-0000-4000-8000-000000000121"
+            }
+          ],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "COMBINED_INTEGRITY_CONCERN",
+          "dimension": "POROSITY_ELASTICITY",
+          "band": "CRITICAL",
+          "target": "c1000000-0000-4000-8000-000000000011",
+          "field": null,
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000022",
+              "evidenceId": "c1000000-0000-4000-8000-000000000122"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000022",
+              "evidenceId": "c1000000-0000-4000-8000-000000000122"
+            }
+          ],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "COMBINED_INTEGRITY_CONCERN",
+          "dimension": "POROSITY_ELASTICITY",
+          "band": "CRITICAL",
+          "target": "c1000000-0000-4000-8000-000000000012",
+          "field": null,
+          "evidenceRefs": [
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000023",
+              "evidenceId": "c1000000-0000-4000-8000-000000000123"
+            },
+            {
+              "kind": "OBSERVATION",
+              "id": "c1000000-0000-4000-8000-000000000023",
+              "evidenceId": "c1000000-0000-4000-8000-000000000123"
+            }
+          ],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        }
+      ],
+      "confidence": {
+        "engineVersion": "confidence-engine/1.0.0",
+        "inputFingerprint": "e5ca05d6909a1eb437c4bc161625139cbd906227964d988fddd9a67377b9027b",
+        "rulesFingerprint": "9dbc228079f87bf2373f9edc8e0194cb48e5430db31ea73d08676158400eafed",
+        "band": "HIGH",
+        "confidence": 0.908
+      },
+      "scopeAssessment": "NOT_ASSESSED"
+    },
+    "correlationId": "c1000000-0000-4000-8000-000000000500"
+  },
+  {
+    "data": {
+      "engineVersion": "risk-engine/1.0.0",
+      "evaluatedAt": "2026-10-01T12:00:00.000Z",
+      "inputFingerprint": "09fa3137d84f4584115cb525250dda1db2bbece2327266c258a32c44e74a15d6",
+      "rulesFingerprint": "ec322876dbbba63c28a3454d14c3bc09a5f2017d8712e441aab400ba2b4f5e36",
+      "passportId": "c1000000-0000-4000-8000-000000000003",
+      "passportVersion": 1,
+      "overallBand": "HIGH",
+      "dimensions": [
+        {
+          "dimension": "HAIR_INTEGRITY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "CHEMICAL_HISTORY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "LIGHTENING_HISTORY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "REGIONAL_COMPLEXITY",
+          "band": "HIGH",
+          "reasons": [
+            {
+              "code": "REGION_INFORMATION_MISSING",
+              "dimension": "REGIONAL_COMPLEXITY",
+              "band": "HIGH",
+              "target": "MISSING:ENDS",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "REGION_INFORMATION_MISSING",
+              "dimension": "REGIONAL_COMPLEXITY",
+              "band": "HIGH",
+              "target": "MISSING:MID_LENGTHS",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "REGION_INFORMATION_MISSING",
+              "dimension": "REGIONAL_COMPLEXITY",
+              "band": "HIGH",
+              "target": "MISSING:ROOT",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            }
+          ]
+        },
+        {
+          "dimension": "POROSITY_ELASTICITY",
+          "band": "LOW",
+          "reasons": []
+        },
+        {
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "reasons": [
+            {
+              "code": "CHEMICAL_HISTORY_UNKNOWN",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": "chemical_history",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "CONFIDENCE_INSUFFICIENT",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "CRITICAL_INFORMATION_GAP",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": "bleach_history",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "CRITICAL_INFORMATION_GAP",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": "elasticity",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "CRITICAL_INFORMATION_GAP",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": "natural_level",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "CRITICAL_INFORMATION_GAP",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": "porosity",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "CRITICAL_INFORMATION_GAP",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "MISSING:ENDS",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "CRITICAL_INFORMATION_GAP",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "MISSING:MID_LENGTHS",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "CRITICAL_INFORMATION_GAP",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "MISSING:ROOT",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "INTEGRITY_INFORMATION_UNKNOWN",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "LIGHTENING_HISTORY_UNKNOWN",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": "bleach_history",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            }
+          ]
+        },
+        {
+          "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+          "band": "HIGH",
+          "reasons": [
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "ELASTICITY",
+                "count": null
+              }
+            },
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "POROSITY",
+                "count": null
+              }
+            },
+            {
+              "code": "PHYSICAL_TEST_MISSING",
+              "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+              "band": "HIGH",
+              "target": "GLOBAL",
+              "field": null,
+              "evidenceRefs": [],
+              "context": {
+                "state": "MISSING",
+                "value": "STRAND",
+                "count": null
+              }
+            }
+          ]
+        },
+        {
+          "dimension": "TECHNICAL_CONSISTENCY",
+          "band": "LOW",
+          "reasons": []
+        }
+      ],
+      "regions": [],
+      "gate": {
+        "outcome": "BLOCK_INSUFFICIENT_INFORMATION",
+        "canProgress": false,
+        "reasonCodes": [
+          "CONFIDENCE_INSUFFICIENT",
+          "PHYSICAL_TEST_MISSING"
+        ]
+      },
+      "hardStops": [
+        {
+          "outcome": "BLOCK_INSUFFICIENT_INFORMATION",
+          "target": "GLOBAL",
+          "reasonCodes": [
+            "CONFIDENCE_INSUFFICIENT"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "outcome": "REQUIRE_PHYSICAL_TEST",
+          "target": "GLOBAL",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "outcome": "REQUIRE_STRAND_TEST",
+          "target": "GLOBAL",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        }
+      ],
+      "requiredPhysicalTests": [
+        {
+          "type": "ELASTICITY",
+          "target": "GLOBAL",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "type": "POROSITY",
+          "target": "GLOBAL",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "type": "STRAND",
+          "target": "GLOBAL",
+          "status": "MISSING",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        }
+      ],
+      "requiredInformation": [
+        {
+          "code": "ASSESS_CURRENT_LEVEL",
+          "target": "GLOBAL",
+          "severity": "MODERATE",
+          "reasonCodes": [
+            "FIELD_NOT_ASSESSED"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "ASSESS_ELASTICITY",
+          "target": "GLOBAL",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "FIELD_NOT_ASSESSED",
+            "CRITICAL_INFORMATION_GAP"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "ASSESS_GREY",
+          "target": "GLOBAL",
+          "severity": "MODERATE",
+          "reasonCodes": [
+            "FIELD_NOT_ASSESSED"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "ASSESS_INTEGRITY",
+          "target": "GLOBAL",
+          "severity": "MODERATE",
+          "reasonCodes": [
+            "FIELD_NOT_ASSESSED"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "ASSESS_NATURAL_LEVEL",
+          "target": "GLOBAL",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "FIELD_NOT_ASSESSED",
+            "CRITICAL_INFORMATION_GAP"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "ASSESS_POROSITY",
+          "target": "GLOBAL",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "FIELD_NOT_ASSESSED",
+            "CRITICAL_INFORMATION_GAP"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "PERFORM_ELASTICITY_TEST",
+          "target": "GLOBAL",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "PERFORM_POROSITY_TEST",
+          "target": "GLOBAL",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "PERFORM_STRAND_TEST",
+          "target": "GLOBAL",
+          "severity": "HIGH",
+          "reasonCodes": [
+            "PHYSICAL_TEST_MISSING"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "VERIFY_BLEACH_HISTORY",
+          "target": "GLOBAL",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "FIELD_NOT_ASSESSED",
+            "CRITICAL_INFORMATION_GAP"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "VERIFY_CHEMICAL_HISTORY",
+          "target": "GLOBAL",
+          "severity": "MODERATE",
+          "reasonCodes": [
+            "FIELD_NOT_ASSESSED"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "VERIFY_COLOR_HISTORY",
+          "target": "GLOBAL",
+          "severity": "MODERATE",
+          "reasonCodes": [
+            "FIELD_NOT_ASSESSED"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "VERIFY_REGION",
+          "target": "MISSING:ENDS",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "REGION_NOT_ASSESSED"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "VERIFY_REGION",
+          "target": "MISSING:MID_LENGTHS",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "REGION_NOT_ASSESSED"
+          ],
+          "evidenceRefs": []
+        },
+        {
+          "code": "VERIFY_REGION",
+          "target": "MISSING:ROOT",
+          "severity": "CRITICAL",
+          "reasonCodes": [
+            "REGION_NOT_ASSESSED"
+          ],
+          "evidenceRefs": []
+        }
+      ],
+      "dominantReasons": [
+        {
+          "code": "CHEMICAL_HISTORY_UNKNOWN",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": "chemical_history",
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "CONFIDENCE_INSUFFICIENT",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "CRITICAL_INFORMATION_GAP",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": "bleach_history",
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "CRITICAL_INFORMATION_GAP",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": "elasticity",
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "CRITICAL_INFORMATION_GAP",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": "natural_level",
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "CRITICAL_INFORMATION_GAP",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": "porosity",
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "CRITICAL_INFORMATION_GAP",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "MISSING:ENDS",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "CRITICAL_INFORMATION_GAP",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "MISSING:MID_LENGTHS",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "CRITICAL_INFORMATION_GAP",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "MISSING:ROOT",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "INTEGRITY_INFORMATION_UNKNOWN",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "LIGHTENING_HISTORY_UNKNOWN",
+          "dimension": "EVIDENCE_INFORMATION",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": "bleach_history",
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "PHYSICAL_TEST_MISSING",
+          "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": "MISSING",
+            "value": "ELASTICITY",
+            "count": null
+          }
+        },
+        {
+          "code": "PHYSICAL_TEST_MISSING",
+          "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": "MISSING",
+            "value": "POROSITY",
+            "count": null
+          }
+        },
+        {
+          "code": "PHYSICAL_TEST_MISSING",
+          "dimension": "PHYSICAL_TEST_SUFFICIENCY",
+          "band": "HIGH",
+          "target": "GLOBAL",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": "MISSING",
+            "value": "STRAND",
+            "count": null
+          }
+        },
+        {
+          "code": "REGION_INFORMATION_MISSING",
+          "dimension": "REGIONAL_COMPLEXITY",
+          "band": "HIGH",
+          "target": "MISSING:ENDS",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "REGION_INFORMATION_MISSING",
+          "dimension": "REGIONAL_COMPLEXITY",
+          "band": "HIGH",
+          "target": "MISSING:MID_LENGTHS",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        },
+        {
+          "code": "REGION_INFORMATION_MISSING",
+          "dimension": "REGIONAL_COMPLEXITY",
+          "band": "HIGH",
+          "target": "MISSING:ROOT",
+          "field": null,
+          "evidenceRefs": [],
+          "context": {
+            "state": null,
+            "value": null,
+            "count": null
+          }
+        }
+      ],
+      "confidence": {
+        "engineVersion": "confidence-engine/1.0.0",
+        "inputFingerprint": "574bb5e7de7e45dedc22df684fbd79e2c254f824644c7a30e7ad7bcf362ca99f",
+        "rulesFingerprint": "9dbc228079f87bf2373f9edc8e0194cb48e5430db31ea73d08676158400eafed",
+        "band": "INSUFFICIENT",
+        "confidence": 0
+      },
+      "scopeAssessment": "NOT_ASSESSED"
+    },
+    "correlationId": "c1000000-0000-4000-8000-000000000500"
+  }
+]

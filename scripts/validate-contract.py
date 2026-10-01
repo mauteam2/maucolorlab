@@ -154,3 +154,23 @@ for field in ("conflicts", "significantUnknowns", "informationRequirements", "en
     assert list(observation_validator("CaseConfidenceResult").iter_errors(candidate)), field
 assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/confidence"]) == {"get"}
 print(f"PASS: Confidence assessment/input/RPC contracts, {len(golden['cases'])} golden scenarios, and 9 unsafe/malformed result rejections")
+
+risk_examples = json.loads((root / "contracts/fixtures/risk-results.json").read_text(encoding="utf-8"))
+risk_validator = observation_validator("RiskResult")
+for example in risk_examples:
+    risk_validator.validate(example)
+for change in ({"overallBand": "SAFE"}, {"engineVersion": "unversioned"}, {"inputFingerprint": "invalid"}, {"recipe": {}}, {"ignoreRisk": True}):
+    candidate = copy.deepcopy(risk_examples[0])
+    candidate["data"].update(change)
+    assert list(risk_validator.iter_errors(candidate)), change
+for field in ("gate", "hardStops", "requiredPhysicalTests", "requiredInformation", "confidence", "dominantReasons"):
+    candidate = copy.deepcopy(risk_examples[0])
+    del candidate["data"][field]
+    assert list(risk_validator.iter_errors(candidate)), field
+for change in ({"outcome": "SAFE"}, {"ignoreRisk": True}, {"reasonCodes": []}):
+    candidate = copy.deepcopy(risk_examples[0])
+    candidate["data"]["gate"].update(change)
+    assert list(risk_validator.iter_errors(candidate)), change
+assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/risk"]) == {"get"}
+risk_golden = json.loads((root / "contracts/fixtures/risk-golden.json").read_text(encoding="utf-8"))
+print(f"PASS: Risk assessment contracts, {len(risk_golden['cases'])} golden scenarios, 3 explained results and 14 unsafe/malformed rejections")

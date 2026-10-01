@@ -1,0 +1,457 @@
+{
+  "version": "risk-engine/1.0.0",
+  "cases": [
+    {
+      "name": "complete recent low-complexity profile",
+      "change": {},
+      "band": "LOW",
+      "gate": "CONTINUE_TECHNICAL_PLANNING",
+      "hardStop": false,
+      "tests": [],
+      "information": [],
+      "reasons": []
+    },
+    {
+      "name": "moderate uncertainty",
+      "change": {
+        "greyUnknown": true
+      },
+      "band": "MODERATE",
+      "gate": "REQUIRE_ADDITIONAL_ASSESSMENT",
+      "hardStop": false,
+      "tests": [],
+      "information": [
+        "ASSESS_GREY"
+      ],
+      "reasons": [
+        "ADDITIONAL_INFORMATION_REQUIRED"
+      ]
+    },
+    {
+      "name": "minimal Passport",
+      "change": {
+        "minimal": true
+      },
+      "band": "HIGH",
+      "gate": "BLOCK_INSUFFICIENT_INFORMATION",
+      "hardStop": true,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [
+        "VERIFY_REGION"
+      ],
+      "reasons": [
+        "CONFIDENCE_INSUFFICIENT"
+      ]
+    },
+    {
+      "name": "unknown lightening history",
+      "change": {
+        "bleachUnknown": true
+      },
+      "band": "HIGH",
+      "gate": "BLOCK_INSUFFICIENT_INFORMATION",
+      "hardStop": true,
+      "tests": [
+        "STRAND"
+      ],
+      "information": [
+        "VERIFY_BLEACH_HISTORY"
+      ],
+      "reasons": [
+        "LIGHTENING_HISTORY_UNKNOWN"
+      ]
+    },
+    {
+      "name": "known repeated lightening",
+      "change": {
+        "historyCount": 2
+      },
+      "band": "HIGH",
+      "gate": "CONTINUE_WITH_CHECKPOINTS",
+      "hardStop": false,
+      "tests": [
+        "STRAND"
+      ],
+      "information": [],
+      "reasons": [
+        "REPEATED_LIGHTENING_HISTORY"
+      ]
+    },
+    {
+      "name": "high porosity",
+      "change": {
+        "highPorosity": true
+      },
+      "band": "HIGH",
+      "gate": "REQUIRE_PHYSICAL_TEST",
+      "hardStop": true,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [
+        "PERFORM_POROSITY_TEST"
+      ],
+      "reasons": [
+        "HIGH_POROSITY_EVIDENCE"
+      ]
+    },
+    {
+      "name": "low elasticity",
+      "change": {
+        "lowElasticity": true
+      },
+      "band": "HIGH",
+      "gate": "REQUIRE_RECOVERY_REASSESSMENT",
+      "hardStop": true,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [
+        "REASSESS_HAIR_INTEGRITY"
+      ],
+      "reasons": [
+        "LOW_ELASTICITY_EVIDENCE"
+      ]
+    },
+    {
+      "name": "high porosity and low elasticity",
+      "change": {
+        "highPorosity": true,
+        "lowElasticity": true
+      },
+      "band": "CRITICAL",
+      "gate": "BLOCK_TECHNICAL_PLANNING",
+      "hardStop": true,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [
+        "REASSESS_HAIR_INTEGRITY"
+      ],
+      "reasons": [
+        "COMBINED_INTEGRITY_CONCERN"
+      ]
+    },
+    {
+      "name": "recent required physical tests",
+      "change": {
+        "historyCount": 1,
+        "fullTests": true
+      },
+      "band": "MODERATE",
+      "gate": "CONTINUE_WITH_CHECKPOINTS",
+      "hardStop": false,
+      "tests": [
+        "STRAND"
+      ],
+      "information": [],
+      "reasons": [
+        "LIGHTENING_HISTORY_PRESENT"
+      ]
+    },
+    {
+      "name": "stale physical tests",
+      "change": {
+        "staleTests": true
+      },
+      "band": "HIGH",
+      "gate": "REQUIRE_STRAND_TEST",
+      "hardStop": true,
+      "tests": [
+        "STRAND"
+      ],
+      "information": [
+        "PERFORM_STRAND_TEST"
+      ],
+      "reasons": [
+        "PHYSICAL_TEST_STALE"
+      ]
+    },
+    {
+      "name": "missing physical tests",
+      "change": {
+        "missingTests": true
+      },
+      "band": "HIGH",
+      "gate": "REQUIRE_STRAND_TEST",
+      "hardStop": true,
+      "tests": [
+        "STRAND"
+      ],
+      "information": [
+        "PERFORM_STRAND_TEST"
+      ],
+      "reasons": [
+        "PHYSICAL_TEST_MISSING"
+      ]
+    },
+    {
+      "name": "conflicting porosity",
+      "change": {
+        "conflictPorosity": true
+      },
+      "band": "CRITICAL",
+      "gate": "BLOCK_TECHNICAL_PLANNING",
+      "hardStop": true,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [
+        "REVIEW_CONFLICTING_EVIDENCE"
+      ],
+      "reasons": [
+        "CONFLICTING_INTEGRITY_EVIDENCE"
+      ]
+    },
+    {
+      "name": "conflicting elasticity",
+      "change": {
+        "conflictElasticity": true
+      },
+      "band": "CRITICAL",
+      "gate": "BLOCK_TECHNICAL_PLANNING",
+      "hardStop": true,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [
+        "REVIEW_CONFLICTING_EVIDENCE"
+      ],
+      "reasons": [
+        "CONFLICTING_INTEGRITY_EVIDENCE"
+      ]
+    },
+    {
+      "name": "root mid ends differ",
+      "change": {
+        "regionalHigh": true
+      },
+      "band": "HIGH",
+      "gate": "REQUIRE_PHYSICAL_TEST",
+      "hardStop": true,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [
+        "PERFORM_POROSITY_TEST"
+      ],
+      "reasons": [
+        "REGIONAL_VARIATION_HIGH"
+      ]
+    },
+    {
+      "name": "localized previous lightening",
+      "change": {
+        "historyCount": 1,
+        "localized": true
+      },
+      "band": "MODERATE",
+      "gate": "CONTINUE_WITH_CHECKPOINTS",
+      "hardStop": false,
+      "tests": [
+        "STRAND"
+      ],
+      "information": [],
+      "reasons": [
+        "LIGHTENING_HISTORY_PRESENT"
+      ]
+    },
+    {
+      "name": "banded custom region lacking evidence",
+      "change": {
+        "custom": true
+      },
+      "band": "HIGH",
+      "gate": "BLOCK_INSUFFICIENT_INFORMATION",
+      "hardStop": true,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [
+        "VERIFY_REGION"
+      ],
+      "reasons": [
+        "CRITICAL_INFORMATION_GAP"
+      ]
+    },
+    {
+      "name": "imported unverified history only",
+      "change": {
+        "imported": true
+      },
+      "band": "HIGH",
+      "gate": "BLOCK_INSUFFICIENT_INFORMATION",
+      "hardStop": true,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [
+        "VERIFY_IMPORTED_HISTORY"
+      ],
+      "reasons": [
+        "HISTORY_UNVERIFIED"
+      ]
+    },
+    {
+      "name": "professional verification versus matching AI",
+      "change": {
+        "matchingAI": true
+      },
+      "band": "LOW",
+      "gate": "CONTINUE_TECHNICAL_PLANNING",
+      "hardStop": false,
+      "tests": [],
+      "information": [],
+      "reasons": []
+    },
+    {
+      "name": "high Confidence cannot erase integrity concern",
+      "change": {
+        "highPorosity": true,
+        "fullTests": true
+      },
+      "band": "HIGH",
+      "gate": "CONTINUE_WITH_CHECKPOINTS",
+      "hardStop": false,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [],
+      "reasons": [
+        "HIGH_POROSITY_EVIDENCE"
+      ]
+    },
+    {
+      "name": "low Confidence no damage fact",
+      "change": {
+        "lowConfidence": true
+      },
+      "band": "HIGH",
+      "gate": "REQUIRE_ADDITIONAL_ASSESSMENT",
+      "hardStop": false,
+      "tests": [
+        "STRAND"
+      ],
+      "information": [
+        "ASSESS_GREY"
+      ],
+      "reasons": [
+        "CONFIDENCE_LOW"
+      ]
+    },
+    {
+      "name": "insufficient Confidence",
+      "change": {
+        "naturalUnknown": true
+      },
+      "band": "HIGH",
+      "gate": "BLOCK_INSUFFICIENT_INFORMATION",
+      "hardStop": true,
+      "tests": [],
+      "information": [
+        "ASSESS_NATURAL_LEVEL"
+      ],
+      "reasons": [
+        "CONFIDENCE_INSUFFICIENT"
+      ]
+    },
+    {
+      "name": "critical integrity information gap",
+      "change": {
+        "porosityUnknown": true
+      },
+      "band": "HIGH",
+      "gate": "BLOCK_INSUFFICIENT_INFORMATION",
+      "hardStop": true,
+      "tests": [
+        "POROSITY"
+      ],
+      "information": [
+        "ASSESS_POROSITY"
+      ],
+      "reasons": [
+        "INTEGRITY_INFORMATION_UNKNOWN"
+      ]
+    },
+    {
+      "name": "inapplicable integrity fields",
+      "change": {
+        "integrityNA": true
+      },
+      "band": "LOW",
+      "gate": "CONTINUE_TECHNICAL_PLANNING",
+      "hardStop": false,
+      "tests": [],
+      "information": [],
+      "reasons": []
+    },
+    {
+      "name": "all fields unknown",
+      "change": {
+        "allUnknown": true
+      },
+      "band": "HIGH",
+      "gate": "BLOCK_INSUFFICIENT_INFORMATION",
+      "hardStop": true,
+      "tests": [
+        "POROSITY",
+        "ELASTICITY",
+        "STRAND"
+      ],
+      "information": [
+        "ASSESS_ELASTICITY"
+      ],
+      "reasons": [
+        "CONFIDENCE_INSUFFICIENT"
+      ]
+    },
+    {
+      "name": "authorized archived client",
+      "change": {
+        "archived": true
+      },
+      "band": "LOW",
+      "gate": "CONTINUE_TECHNICAL_PLANNING",
+      "hardStop": false,
+      "tests": [],
+      "information": [],
+      "reasons": []
+    },
+    {
+      "name": "structured outside cosmetic scope declaration",
+      "change": {
+        "outside": true
+      },
+      "band": "CRITICAL",
+      "gate": "OUTSIDE_COSMETIC_SCOPE",
+      "hardStop": true,
+      "tests": [],
+      "information": [],
+      "reasons": [
+        "OUTSIDE_COSMETIC_SCOPE"
+      ]
+    }
+  ]
+}

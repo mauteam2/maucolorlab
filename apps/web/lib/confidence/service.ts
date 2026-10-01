@@ -6,8 +6,16 @@ import { hairReadErrorStatus } from "@/lib/hair-passport/contracts";
 import { confidenceRequest, confidenceReadResult } from "./contracts";
 import { evaluateConfidence } from "./engine";
 import { ConfidenceInputError } from "./model";
+import type { CaseConfidenceAssessment } from "./model";
+import type { ConfidenceInput } from "./input";
 
 export async function readCaseConfidence(clientId: string, options: unknown, correlationId: string) {
+ return readTechnicalAssessment(clientId, options, correlationId, (_input, confidence) => confidence);
+}
+
+/** One caller-RLS snapshot and a final access check for every protected derived assessment. */
+export async function readTechnicalAssessment<T>(clientId: string, options: unknown, correlationId: string,
+ evaluate: (input: ConfidenceInput, confidence: CaseConfidenceAssessment) => T) {
  const request = confidenceRequest.safeParse({client_id: clientId, options});
  if (!request.success) throw new AccessError("VALIDATION_FAILED", 400);
  const context = await verifiedClientContext("hair_passport.read");
@@ -24,7 +32,7 @@ export async function readCaseConfidence(clientId: string, options: unknown, cor
  if (parsed.data.data.pages.some(p => p.passport.client_id !== request.data.client_id ||
   (!request.data.options.include_archived && (p.passport.client_status === "ARCHIVED" || p.passport.status === "ARCHIVED")))) throw new AccessError("CONFIDENCE_INPUT_INVALID", 503);
  let assessment;
- try { assessment = evaluateConfidence(parsed.data.data); }
+ try { assessment = evaluate(parsed.data.data, evaluateConfidence(parsed.data.data)); }
  catch (failure) { if (failure instanceof ConfidenceInputError) throw new AccessError(failure.code, 503); throw failure; }
  // Do not return protected derived data if access/workspace changed during the read/evaluation.
  const current = await verifiedClientContext("hair_passport.read");

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.8.0
+  version: 0.9.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -848,6 +848,51 @@ paths:
           description: Missing/expired JWT; provider envelope
         '403':
           description: Anonymous/forbidden role; provider envelope
+  /api/clients/{clientId}/hair-passport/risk:
+    get:
+      operationId: getCaseRisk
+      summary: Assess technical risk and adaptive planning requirements
+      description: Read-only, private/no-store. One authorized complete Hair Passport
+        snapshot feeds Confidence 1.0.0 and Risk 1.0.0. Fresh permissions checked before
+        read and after evaluation. No client scores, evidence, rule/clock, scope or
+        bypass overrides accepted. Bound limits and common concealment/archive errors
+        match Confidence. Test sufficiency means current recorded evidence, never a
+        guaranteed successful test or chemical/service approval. No recipe data.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: clientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: include_archived
+        in: query
+        schema:
+          type: boolean
+          default: false
+        description: Explicit historical read; never bypasses authorization.
+      responses:
+        '200':
+          description: Deterministic assessment with mandatory explanations
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
   /api/clients/{clientId}/hair-passport/confidence:
     get:
       operationId: getCaseConfidence
@@ -956,6 +1001,373 @@ components:
         type: string
         format: uuid
   schemas:
+    RiskBand:
+      type: string
+      enum:
+      - LOW
+      - MODERATE
+      - HIGH
+      - CRITICAL
+    RiskDimension:
+      type: string
+      enum:
+      - HAIR_INTEGRITY
+      - CHEMICAL_HISTORY
+      - LIGHTENING_HISTORY
+      - REGIONAL_COMPLEXITY
+      - POROSITY_ELASTICITY
+      - EVIDENCE_INFORMATION
+      - PHYSICAL_TEST_SUFFICIENCY
+      - TECHNICAL_CONSISTENCY
+    SafetyGateOutcome:
+      type: string
+      enum:
+      - CONTINUE_TECHNICAL_PLANNING
+      - CONTINUE_WITH_CHECKPOINTS
+      - REQUIRE_ADDITIONAL_ASSESSMENT
+      - REQUIRE_PHYSICAL_TEST
+      - REQUIRE_STRAND_TEST
+      - BLOCK_INSUFFICIENT_INFORMATION
+      - REQUIRE_RECOVERY_REASSESSMENT
+      - BLOCK_TECHNICAL_PLANNING
+      - OUTSIDE_COSMETIC_SCOPE
+    RiskReasonCode:
+      type: string
+      enum:
+      - NO_ESCALATING_STRUCTURED_FACT
+      - HIGH_POROSITY_EVIDENCE
+      - LOW_ELASTICITY_EVIDENCE
+      - COMBINED_INTEGRITY_CONCERN
+      - INTEGRITY_INFORMATION_UNKNOWN
+      - LIGHTENING_HISTORY_PRESENT
+      - REPEATED_LIGHTENING_HISTORY
+      - LIGHTENING_HISTORY_UNKNOWN
+      - CHEMICAL_HISTORY_PRESENT
+      - CHEMICAL_HISTORY_COMPLEX
+      - CHEMICAL_HISTORY_UNKNOWN
+      - HISTORY_UNVERIFIED
+      - REGIONAL_VARIATION_HIGH
+      - REGION_INFORMATION_MISSING
+      - PHYSICAL_TEST_MISSING
+      - PHYSICAL_TEST_STALE
+      - PHYSICAL_TEST_UNRELIABLE
+      - CONFLICTING_INTEGRITY_EVIDENCE
+      - CONFLICTING_TECHNICAL_EVIDENCE
+      - CONFIDENCE_LOW
+      - CONFIDENCE_MODERATE
+      - CONFIDENCE_INSUFFICIENT
+      - CRITICAL_INFORMATION_GAP
+      - ADDITIONAL_INFORMATION_REQUIRED
+      - OUTSIDE_COSMETIC_SCOPE
+    RiskReason:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - dimension
+      - band
+      - target
+      - field
+      - evidenceRefs
+      - context
+      properties:
+        code:
+          $ref: '#/components/schemas/RiskReasonCode'
+        dimension:
+          $ref: '#/components/schemas/RiskDimension'
+        band:
+          $ref: '#/components/schemas/RiskBand'
+        target:
+          $ref: '#/components/schemas/ConfidenceTarget'
+        field:
+          $ref: '#/components/schemas/ConfidenceField'
+        evidenceRefs:
+          $ref: '#/components/schemas/ConfidenceEvidenceRefs'
+        context:
+          type: object
+          additionalProperties: false
+          required:
+          - state
+          - value
+          - count
+          properties:
+            state:
+              type:
+              - string
+              - 'null'
+            value:
+              type:
+              - string
+              - number
+              - 'null'
+            count:
+              type:
+              - integer
+              - 'null'
+              minimum: 0
+              maximum: 1000
+    DimensionRisk:
+      type: object
+      additionalProperties: false
+      required:
+      - dimension
+      - band
+      - reasons
+      properties:
+        dimension:
+          $ref: '#/components/schemas/RiskDimension'
+        band:
+          $ref: '#/components/schemas/RiskBand'
+        reasons:
+          type: array
+          minItems: 0
+          maxItems: 2000
+          items:
+            $ref: '#/components/schemas/RiskReason'
+    RegionalRisk:
+      type: object
+      additionalProperties: false
+      required:
+      - target
+      - band
+      - dimensions
+      properties:
+        target:
+          $ref: '#/components/schemas/ConfidenceTarget'
+        band:
+          $ref: '#/components/schemas/RiskBand'
+        dimensions: &id002
+          type: array
+          minItems: 8
+          maxItems: 8
+          items:
+            $ref: '#/components/schemas/DimensionRisk'
+    SafetyGate:
+      type: object
+      additionalProperties: false
+      required:
+      - outcome
+      - canProgress
+      - reasonCodes
+      properties:
+        outcome:
+          $ref: '#/components/schemas/SafetyGateOutcome'
+        canProgress:
+          type: boolean
+        reasonCodes:
+          type: array
+          minItems: 1
+          maxItems: 30
+          items:
+            $ref: '#/components/schemas/RiskReasonCode'
+    HardStop:
+      type: object
+      additionalProperties: false
+      required:
+      - outcome
+      - reasonCodes
+      - target
+      - evidenceRefs
+      properties:
+        outcome:
+          $ref: '#/components/schemas/SafetyGateOutcome'
+        reasonCodes:
+          type: array
+          minItems: 1
+          maxItems: 30
+          items:
+            $ref: '#/components/schemas/RiskReasonCode'
+        target:
+          $ref: '#/components/schemas/ConfidenceTarget'
+        evidenceRefs:
+          $ref: '#/components/schemas/ConfidenceEvidenceRefs'
+    RequiredPhysicalTest:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - target
+      - status
+      - reasonCodes
+      - evidenceRefs
+      properties:
+        type:
+          type: string
+          enum:
+          - POROSITY
+          - ELASTICITY
+          - STRAND
+        target:
+          $ref: '#/components/schemas/ConfidenceTarget'
+        status:
+          type: string
+          enum:
+          - SATISFIED
+          - MISSING
+          - STALE
+          - UNRELIABLE
+        reasonCodes:
+          type: array
+          minItems: 0
+          maxItems: 30
+          items:
+            $ref: '#/components/schemas/RiskReasonCode'
+        evidenceRefs:
+          $ref: '#/components/schemas/ConfidenceEvidenceRefs'
+    RiskInformationRequirement:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - target
+      - severity
+      - reasonCodes
+      - evidenceRefs
+      properties:
+        code:
+          type: string
+          enum:
+          - ASSESS_NATURAL_LEVEL
+          - ASSESS_CURRENT_LEVEL
+          - ASSESS_GREY
+          - ASSESS_POROSITY
+          - ASSESS_ELASTICITY
+          - ASSESS_INTEGRITY
+          - VERIFY_COLOR_HISTORY
+          - VERIFY_BLEACH_HISTORY
+          - VERIFY_CHEMICAL_HISTORY
+          - PERFORM_STRAND_TEST
+          - VERIFY_REGION
+          - REVIEW_CONFLICTING_EVIDENCE
+          - VERIFY_IMPORTED_HISTORY
+          - REFRESH_EVIDENCE
+          - PERFORM_POROSITY_TEST
+          - PERFORM_ELASTICITY_TEST
+          - REASSESS_HAIR_INTEGRITY
+        target:
+          $ref: '#/components/schemas/ConfidenceTarget'
+        severity:
+          $ref: '#/components/schemas/RiskBand'
+        reasonCodes:
+          type: array
+          minItems: 0
+          maxItems: 40
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/RiskReasonCode'
+            - $ref: '#/components/schemas/ConfidenceReasonCode'
+        evidenceRefs:
+          $ref: '#/components/schemas/ConfidenceEvidenceRefs'
+    RiskConfidenceRelationship:
+      type: object
+      additionalProperties: false
+      required:
+      - engineVersion
+      - inputFingerprint
+      - rulesFingerprint
+      - band
+      - confidence
+      properties:
+        engineVersion:
+          type: string
+          const: confidence-engine/1.0.0
+        inputFingerprint: &id001
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        rulesFingerprint: *id001
+        band:
+          $ref: '#/components/schemas/ConfidenceBand'
+        confidence:
+          $ref: '#/components/schemas/ConfidenceScore'
+    RiskAssessment:
+      type: object
+      additionalProperties: false
+      required:
+      - engineVersion
+      - evaluatedAt
+      - inputFingerprint
+      - rulesFingerprint
+      - passportId
+      - passportVersion
+      - overallBand
+      - dimensions
+      - regions
+      - gate
+      - hardStops
+      - requiredPhysicalTests
+      - requiredInformation
+      - dominantReasons
+      - confidence
+      - scopeAssessment
+      properties:
+        engineVersion:
+          type: string
+          const: risk-engine/1.0.0
+        evaluatedAt:
+          type: string
+          format: date-time
+        inputFingerprint: *id001
+        rulesFingerprint: *id001
+        passportId:
+          type: string
+          format: uuid
+        passportVersion:
+          type: integer
+          minimum: 1
+        overallBand:
+          $ref: '#/components/schemas/RiskBand'
+        dimensions: *id002
+        regions:
+          type: array
+          minItems: 0
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/RegionalRisk'
+        gate:
+          $ref: '#/components/schemas/SafetyGate'
+        hardStops:
+          type: array
+          minItems: 0
+          maxItems: 2000
+          items:
+            $ref: '#/components/schemas/HardStop'
+        requiredPhysicalTests:
+          type: array
+          minItems: 0
+          maxItems: 303
+          items:
+            $ref: '#/components/schemas/RequiredPhysicalTest'
+        requiredInformation:
+          type: array
+          minItems: 0
+          maxItems: 5000
+          items:
+            $ref: '#/components/schemas/RiskInformationRequirement'
+        dominantReasons:
+          type: array
+          minItems: 0
+          maxItems: 5000
+          items:
+            $ref: '#/components/schemas/RiskReason'
+        confidence:
+          $ref: '#/components/schemas/RiskConfidenceRelationship'
+        scopeAssessment:
+          type: string
+          enum:
+          - NOT_ASSESSED
+          - DECLARED_OUTSIDE_COSMETIC_SCOPE
+    RiskResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - correlationId
+      properties:
+        data:
+          $ref: '#/components/schemas/RiskAssessment'
+        correlationId:
+          type: string
+          format: uuid
     ConfidenceBand:
       type: string
       enum: [HIGH, MEDIUM, LOW, INSUFFICIENT]
@@ -3578,6 +3990,7 @@ components:
       - INVALID_HISTORY_DATE
       - CONFIDENCE_INPUT_INVALID
       - CONFIDENCE_INPUT_LIMIT
+      - RISK_INPUT_INVALID
     FieldError:
       type: object
       additionalProperties: false
