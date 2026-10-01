@@ -43,7 +43,7 @@ class HairPassportController(private val repository: HairPassportRepository,
         val current = ++generation
         mutable.value = HairState.Loading
         if (!currentContext.permissions.containsAll(setOf("clients.read", "hair_passport.read"))) {
-            if (current == generation) mutable.value = HairState.Forbidden
+            if (current == generation) fail("FORBIDDEN", null)
             return
         }
         try {
@@ -147,7 +147,7 @@ class HairPassportController(private val repository: HairPassportRepository,
     }
     private fun fail(code: String, correlationId: String?) {
         latest = null
-        if (code in setOf("FORBIDDEN", "MEMBERSHIP_REVOKED", "TENANT_CONTEXT_INVALID", "UNAUTHENTICATED", "SESSION_EXPIRED")) { draft = null; pending = null }
+        if (code in setOf("FORBIDDEN", "MEMBERSHIP_REQUIRED", "MEMBERSHIP_REVOKED", "TENANT_CONTEXT_INVALID", "UNAUTHENTICATED", "SESSION_EXPIRED")) { draft = null; pending = null }
         mutable.value = when (code) {
             "FORBIDDEN", "MEMBERSHIP_REQUIRED" -> HairState.Forbidden
             "MEMBERSHIP_REVOKED", "TENANT_CONTEXT_INVALID" -> HairState.MembershipRevoked

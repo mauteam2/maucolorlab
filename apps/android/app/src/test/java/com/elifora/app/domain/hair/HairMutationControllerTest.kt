@@ -57,4 +57,50 @@ class HairMutationControllerTest {
         controller.bind(context); controller.open(client); controller.begin(HairAction.CREATE); controller.save()
         assertEquals(HairState.MembershipRevoked, controller.state.value)
     }
+    @Test fun everyMutationRetriesTheFrozenCommandAndReloadsServerState() = runBlocking {
+        val region = HairRegion(id, RegionType.CUSTOM, "Bölge", false, snapshot.core, 7)
+        val server = snapshot.copy(regions = listOf(region), version = 9)
+        val tenant = context.copy(permissions = context.permissions + HairAction.entries.map { it.permission })
+        HairAction.entries.forEach { action ->
+            var reads = 0
+            val sent = mutableListOf<HairCommand>()
+            val controller = HairPassportController(HairPassportRepository { _, _, _ ->
+                reads++
+                if (action == HairAction.CREATE && sent.size < 2) HairReadResult.Empty else HairReadResult.Snapshot(server)
+            }, HairMutationRepository { _, command ->
+                sent += command
+                if (sent.size == 1) throw HairFailure("NETWORK_ERROR")
+            })
+            controller.bind(tenant); controller.open(client); controller.begin(action, id)
+            val draft = (controller.state.value as HairState.Editing).draft
+            controller.change(when (draft) {
+                is HairDraft.Core -> draft.copy(values = draft.values.copy(technicalNotes = "Not"))
+                is HairDraft.NewRegion -> draft.copy(label = "Yeni bölge")
+                is HairDraft.Observation -> draft.copy(attested = true, value = FieldDraft(FactState.KNOWN, "6"))
+                is HairDraft.Test -> draft.copy(value = "MEDIUM")
+                is HairDraft.History -> draft.copy(description = "Geçmiş uygulama")
+            })
+            controller.save()
+            assertTrue(action.name, (controller.state.value as HairState.Editing).status is HairEditStatus.NetworkError)
+            controller.save()
+            assertEquals(action.name, sent[0], sent[1])
+            assertEquals(action.name, 2, reads)
+            assertEquals(server, (controller.state.value as HairState.Ready).passport)
+        }
+    }
+    @Test fun editingRetainsOriginalVersionAndConflictRequiresReload() = runBlocking {
+        var server = snapshot.copy(version = 3)
+        var submitted: HairCommand? = null
+        val controller = HairPassportController(HairPassportRepository { _, _, _ -> HairReadResult.Snapshot(server) },
+            HairMutationRepository { _, command -> submitted = command; throw HairFailure("CONFLICT") })
+        controller.bind(context); controller.open(client); controller.begin(HairAction.CORE)
+        val draft = (controller.state.value as HairState.Editing).draft as HairDraft.Core
+        controller.change(draft.copy(values = draft.values.copy(technicalNotes = "Not")))
+        server = server.copy(version = 4)
+        controller.conceal(); controller.bind(context); controller.save()
+        assertEquals(3L, (submitted!!.write as HairWrite.Core).version)
+        assertTrue((controller.state.value as HairState.Editing).status is HairEditStatus.Conflict)
+        controller.reloadAfterConflict()
+        assertEquals(4L, (controller.state.value as HairState.Ready).passport.version)
+    }
 }

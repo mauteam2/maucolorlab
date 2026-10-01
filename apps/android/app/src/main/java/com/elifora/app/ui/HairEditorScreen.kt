@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -122,11 +123,13 @@ internal fun FieldEditor(field: HairField, value: FieldDraft, enabled: Boolean, 
 internal fun <T> HairChoice(label: String, selected: T, choices: List<T>, enabled: Boolean = true,
     display: @Composable (T) -> String, change: (T) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
+    val selectedLabel = display(selected).ifBlank { stringResource(R.string.hair_edit_choose) }
     Column(Modifier.fillMaxWidth()) {
         Text(label, style = MaterialTheme.typography.labelLarge)
         Box {
-            OutlinedButton(onClick = { expanded = true }, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
-                Text(display(selected).ifBlank { stringResource(R.string.hair_edit_choose) })
+            OutlinedButton(onClick = { expanded = true }, enabled = enabled,
+                modifier = Modifier.fillMaxWidth().semantics { contentDescription = "$label: $selectedLabel" }) {
+                Text(selectedLabel)
             }
             DropdownMenu(expanded = expanded && enabled, onDismissRequest = { expanded = false }) {
                 choices.forEach { choice -> DropdownMenuItem(text = { Text(display(choice)) }, onClick = { expanded = false; change(choice) }) }
@@ -212,7 +215,7 @@ private fun HistoryEditor(passport: HairPassport, draft: HairDraft.History, enab
     EditText(draft.context, R.string.hair_edit_history_context, 2000, enabled, multiline = true) { change(draft.copy(context = it)) }
     EditText(draft.confidence, R.string.hair_edit_confidence, 20, enabled, keyboard = KeyboardType.Decimal) { change(draft.copy(confidence = it)) }
     var attributionExpanded by remember { mutableStateOf(false) }
-    TextButton(onClick = { attributionExpanded = !attributionExpanded }) { Text(stringResource(R.string.hair_edit_attribution)) }
+    TextButton(onClick = { attributionExpanded = !attributionExpanded }, enabled = enabled) { Text(stringResource(R.string.hair_edit_attribution)) }
     if (attributionExpanded) {
         EditText(draft.salon, R.string.hair_edit_salon, 160, enabled) { change(draft.copy(salon = it)) }
         EditText(draft.professional, R.string.hair_edit_professional, 160, enabled) { change(draft.copy(professional = it)) }
