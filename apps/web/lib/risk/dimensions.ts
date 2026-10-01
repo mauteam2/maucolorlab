@@ -3,7 +3,7 @@ import type { RiskReason } from "./model";
 import { riskRules as rules, type RiskBand, type RiskDimension, type RiskReasonCode } from "./rules";
 import type { normalizeRiskInput } from "./input";
 export type RiskInput = ReturnType<typeof normalizeRiskInput>;
-export const maxBand = (bands: RiskBand[]): RiskBand => rules.bands[Math.max(0, ...bands.map(b => rules.bands.indexOf(b)))];
+export const maxBand = (bands: RiskBand[]): RiskBand => rules.bands[Math.max(0, ...bands.map(b => rules.bands.indexOf(b)))]!;
 export function evaluateDimensions(input: RiskInput): RiskReason[] {
  const {normalized: n, confidence} = input;
  const reasons: RiskReason[] = [];
