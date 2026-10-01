@@ -61,6 +61,7 @@ class HairPassportController(private val repository: HairPassportRepository,
     fun can(action: HairAction): Boolean = selected?.status == com.elifora.app.domain.clients.ClientStatus.ACTIVE && latest?.archived != true &&
         context?.permissions?.containsAll(setOf("clients.read", "hair_passport.read", action.permission)) == true
     fun begin(action: HairAction, regionId: String? = null) {
+        if (pending != null || busy) return
         if (mutable.value !is HairState.Ready && mutable.value !is HairState.EmptyPassport) return
         if (!can(action)) { fail("FORBIDDEN", null); return }
         val passport = latest
@@ -73,6 +74,8 @@ class HairPassportController(private val repository: HairPassportRepository,
                 TechnicalDraft.from(region.assessment).let { HairDraft.Core(action, it, it, region.version, region.id, region.label.orEmpty(), region.label.orEmpty(), region.type) }
             }
             HairAction.OBSERVATION -> HairDraft.Observation(passport!!.version)
+            HairAction.TEST -> HairDraft.Test()
+            HairAction.HISTORY -> HairDraft.History()
         }
         editStatus = HairEditStatus.Editing
         publishEditor()
@@ -83,6 +86,9 @@ class HairPassportController(private val repository: HairPassportRepository,
         if (prior is HairDraft.Core && next is HairDraft.Core)
             require(next.copy(values = prior.values, label = prior.label) == prior)
         else require(next.action == prior.action)
+        val activeRegions = latest?.regions?.filter { !it.archived }?.map { it.id }.orEmpty()
+        if (next is HairDraft.Test && next.regionId != null && next.regionId !in activeRegions) return
+        if (next is HairDraft.History && next.regionIds.any { it !in activeRegions }) return
         draft = if (next is HairDraft.Observation && prior is HairDraft.Observation) {
             val version = if (next.regionId == prior.regionId) prior.version else
                 if (next.regionId == null) latest?.version else latest?.regions?.find { it.id == next.regionId && !it.archived }?.version

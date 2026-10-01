@@ -4,6 +4,26 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class HairEditingTest {
+    @Test fun physicalTestsKeepStructuredAndUnknownResultsWithoutInterpretation() {
+        for (type in PhysicalTestType.entries) {
+            val value = when (type) { PhysicalTestType.POROSITY -> "MEDIUM"; PhysicalTestType.ELASTICITY -> "NORMAL"; PhysicalTestType.STRAND -> "Measured strand result" }
+            val write = HairDraft.Test(type, value = value, notes = "Technical note").write() as HairWrite.Test
+            assertEquals(type, write.type); assertEquals(value, write.result.value)
+            assertNull((HairDraft.Test(type, FactState.UNKNOWN, value).write() as HairWrite.Test).result.value)
+        }
+        try { HairDraft.Test(state = FactState.NOT_ASSESSED).write(); fail("result state") } catch (_: HairDraftFailure) { }
+    }
+    @Test fun historyPreservesPrecisionProductsRegionsAndAllCategories() {
+        for (category in HistoryCategory.entries) {
+            val write = HairDraft.History(category, HistoryDateState.APPROXIMATE, "2024-04-12", description = "Historical treatment", regionIds = setOf("a", "b")).write() as HairWrite.History
+            assertEquals(category, write.category); assertEquals(HistoryDateState.APPROXIMATE, write.date.state)
+            assertEquals("2024-04-12", write.date.value); assertEquals(setOf("a", "b"), write.regionIds)
+        }
+        val unknown = HairDraft.History(date = "invalid", description = "Historical treatment", productState = FactState.NOT_APPLICABLE).write() as HairWrite.History
+        assertNull(unknown.date.value); assertNull(unknown.product.value)
+        try { HairDraft.History(dateState = HistoryDateState.EXACT, date = "2024-02-30", description = "Treatment").write(); fail("invalid date") } catch (failure: HairDraftFailure) { assertEquals("date", failure.field) }
+        try { HairDraft.History(description = "Treatment", source = EvidenceSource.AI_ESTIMATE).write(); fail("history source") } catch (_: HairDraftFailure) { }
+    }
     @Test fun professionalObservationRequiresAttestationAndValidConfidence() {
         val draft = HairDraft.Observation(3, field = HairField.POROSITY, value = FieldDraft(FactState.UNKNOWN))
         try { draft.write(); fail("attestation required") } catch (failure: HairDraftFailure) { assertEquals("attestation", failure.field) }

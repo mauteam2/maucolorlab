@@ -111,7 +111,7 @@ private fun parseEvidence(value: JSONObject): HairEvidence {
 }
 internal fun parseObservation(value: JSONObject) = HairObservation(value.uuid("id"), value.optionalUuid("region_id"),
     value.getString("recorded_at").timestamp(), parseTechnical(value), parseEvidence(value.getJSONObject("evidence")))
-private fun parseTest(value: JSONObject): HairPhysicalTest {
+internal fun parseTest(value: JSONObject): HairPhysicalTest {
     val result = value.getJSONObject("result")
     val state = FactState.valueOf(result.getString("state"))
     require(state != FactState.NOT_ASSESSED)
@@ -123,7 +123,7 @@ private fun parseTest(value: JSONObject): HairPhysicalTest {
         fact, value.getString("performed_at").timestamp(), value.uuid("performed_by"),
         value.optionalString("notes"), evidence)
 }
-private fun parseHistory(value: JSONObject): HairHistoryEvent {
+internal fun parseHistory(value: JSONObject): HairHistoryEvent {
     val dateJson = value.getJSONObject("performed_on")
     val dateState = HistoryDateState.valueOf(dateJson.getString("state"))
     val dateValue = if (dateJson.isNull("value")) null else dateJson.getString("value").calendarDate()

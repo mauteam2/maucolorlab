@@ -1,9 +1,12 @@
 package com.elifora.app.domain.hair
 
 import java.util.UUID
+import java.time.LocalDate
+import java.time.ZoneOffset
 
 enum class HairAction(val permission: String) {
-    CREATE("hair_passport.create"), CORE("hair_passport.update"), REGION_CREATE("hair_passport.update"), REGION_EDIT("hair_passport.update"), OBSERVATION("hair_passport.add_observation");
+    CREATE("hair_passport.create"), CORE("hair_passport.update"), REGION_CREATE("hair_passport.update"), REGION_EDIT("hair_passport.update"), OBSERVATION("hair_passport.add_observation"),
+    TEST("hair_passport.add_test"), HISTORY("hair_passport.add_history");
 }
 val specializedRegionTypes = RegionType.entries.filter { it !in listOf(RegionType.ROOT, RegionType.MID_LENGTHS, RegionType.ENDS) }
 data class FieldDraft(val state: FactState = FactState.NOT_ASSESSED, val raw: String = "")
@@ -65,12 +68,21 @@ sealed interface HairDraft {
     data class NewRegion(val type: RegionType = RegionType.CUSTOM, val label: String = "") : HairDraft { override val action = HairAction.REGION_CREATE }
     data class Observation(val version: Long, val field: HairField = HairField.NATURAL_LEVEL, val value: FieldDraft = FieldDraft(FactState.KNOWN),
         val regionId: String? = null, val attested: Boolean = false, val confidence: String = "") : HairDraft { override val action = HairAction.OBSERVATION }
+    data class Test(val type: PhysicalTestType = PhysicalTestType.POROSITY, val state: FactState = FactState.KNOWN, val value: String = "",
+        val regionId: String? = null, val notes: String = "") : HairDraft { override val action = HairAction.TEST }
+    data class History(val category: HistoryCategory = HistoryCategory.COLOR, val dateState: HistoryDateState = HistoryDateState.UNKNOWN,
+        val date: String = "", val productState: FactState = FactState.UNKNOWN, val product: String = "", val description: String = "",
+        val regionIds: Set<String> = emptySet(), val source: EvidenceSource = EvidenceSource.HISTORICAL, val context: String = "",
+        val confidence: String = "", val salon: String = "", val professional: String = "") : HairDraft { override val action = HairAction.HISTORY }
 }
 sealed interface HairWrite {
     val action: HairAction
     data class Core(override val action: HairAction, val technical: TechnicalPatch, val version: Long?,
         val regionId: String?, val regionType: RegionType?, val label: String?, val includeLabel: Boolean) : HairWrite
     data class Observation(val version: Long, val regionId: String?, val technical: TechnicalPatch, val confidence: Double?) : HairWrite { override val action = HairAction.OBSERVATION }
+    data class Test(val type: PhysicalTestType, val result: HairFact, val regionId: String?, val notes: String?) : HairWrite { override val action = HairAction.TEST }
+    data class History(val category: HistoryCategory, val date: HairHistoryDate, val product: HairFact, val description: String,
+        val regionIds: Set<String>, val source: EvidenceSource, val context: String?, val confidence: Double?, val salon: String?, val professional: String?) : HairWrite { override val action = HairAction.HISTORY }
 }
 data class HairCommand(val clientId: String, val write: HairWrite, val requestId: String = UUID.randomUUID().toString())
 fun HairDraft.write(): HairWrite = when (this) {
@@ -88,12 +100,42 @@ fun HairDraft.write(): HairWrite = when (this) {
     }
     is HairDraft.Observation -> {
         checkDraft(attested, "attestation")
-        val confidenceValue = if (confidence.isBlank()) null else confidence.replace(',', '.').toDoubleOrNull().also {
-            checkDraft(it != null && it.isFinite() && it in 0.0..100.0, "confidence")
-        }!! / 100
-        HairWrite.Observation(version, regionId, TechnicalPatch(mapOf(field to value.fact(field))), confidenceValue)
+        HairWrite.Observation(version, regionId, TechnicalPatch(mapOf(field to value.fact(field))), confidence.percentage())
+    }
+    is HairDraft.Test -> {
+        checkDraft(state in resultStates, "result")
+        val raw = value.trim()
+        checkDraft(state != FactState.KNOWN || (raw.isNotBlank() && raw.length <= 1000), "result")
+        if (state == FactState.KNOWN && type.choices().isNotEmpty()) checkDraft(raw in type.choices(), "result")
+        checkDraft(notes.length <= 2000, "notes")
+        HairWrite.Test(type, HairFact(state, raw.takeIf { state == FactState.KNOWN }), regionId, notes.trim().ifBlank { null })
+    }
+    is HairDraft.History -> {
+        checkDraft(productState in resultStates, "product")
+        val productValue = product.trim()
+        checkDraft(productState != FactState.KNOWN || (productValue.isNotBlank() && productValue.length <= 500), "product")
+        checkDraft(description.isNotBlank() && description.length <= 2000, "description")
+        checkDraft(regionIds.size <= 100, "region")
+        checkDraft(source in listOf(EvidenceSource.HISTORICAL, EvidenceSource.IMPORTED_UNVERIFIED), "source")
+        checkDraft(context.length <= 2000 && salon.length <= 160 && professional.length <= 160, "notes")
+        val dateValue = if (dateState == HistoryDateState.UNKNOWN) null else {
+            val parsed = runCatching { LocalDate.parse(date) }.getOrNull()
+            checkDraft(parsed != null && parsed.toString() == date && parsed >= LocalDate.of(1900, 1, 1) && parsed <= LocalDate.now(ZoneOffset.UTC), "date")
+            date
+        }
+        HairWrite.History(category, HairHistoryDate(dateState, dateValue), HairFact(productState, productValue.takeIf { productState == FactState.KNOWN }),
+            description.trim(), regionIds, source, context.trim().ifBlank { null }, confidence.percentage(), salon.trim().ifBlank { null }, professional.trim().ifBlank { null })
     }
 }
+val resultStates = listOf(FactState.KNOWN, FactState.UNKNOWN, FactState.NOT_APPLICABLE)
+fun PhysicalTestType.choices() = when (this) {
+    PhysicalTestType.POROSITY -> listOf("LOW", "MEDIUM", "HIGH")
+    PhysicalTestType.ELASTICITY -> listOf("LOW", "NORMAL", "HIGH")
+    PhysicalTestType.STRAND -> emptyList()
+}
+private fun String.percentage(): Double? = if (isBlank()) null else replace(',', '.').toDoubleOrNull().also {
+    checkDraft(it != null && it.isFinite() && it in 0.0..100.0, "confidence")
+}!! / 100
 sealed interface HairEditStatus {
     data object Editing : HairEditStatus
     data object Saving : HairEditStatus

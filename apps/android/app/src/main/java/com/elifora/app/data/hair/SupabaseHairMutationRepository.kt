@@ -4,7 +4,7 @@ import com.elifora.app.data.auth.HttpReply
 import com.elifora.app.domain.auth.ActiveTenantContext
 import com.elifora.app.domain.hair.*
 import java.util.UUID
-import kotlinx.coroutines.CancellationException
+import org.json.JSONArray
 import org.json.JSONObject
 
 class SupabaseHairMutationRepository(
@@ -14,7 +14,7 @@ class SupabaseHairMutationRepository(
 ) : HairMutationRepository {
     override suspend fun mutate(context: ActiveTenantContext, command: HairCommand) {
         verify(context, command.write.action)
-        val actorId = if (command.write is HairWrite.Observation) actor() else null
+        val actorId = if (command.write !is HairWrite.Core) actor() else null
         val correlation = UUID.randomUUID().toString()
         val request = JSONObject().put("p_membership_id", context.membershipId).put("p_location_id", context.locationId)
             .put("p_client_id", command.clientId).put("p_correlation_id", correlation)
@@ -38,6 +38,35 @@ class SupabaseHairMutationRepository(
         if (!current.permissions.containsAll(setOf("clients.read", "hair_passport.read", action.permission))) throw HairFailure("FORBIDDEN")
     }
     private fun validateResult(data: JSONObject, command: HairCommand, context: ActiveTenantContext, actorId: String?) {
+        if (command.write is HairWrite.Test) {
+            val write = command.write
+            require(data.getString("client_id") == command.clientId)
+            UUID.fromString(data.getString("passport_id"))
+            val raw = data.getJSONObject("test")
+            val test = parseTest(raw)
+            val evidence = raw.getJSONObject("evidence")
+            require(test.type == write.type && test.regionId == write.regionId && test.result == write.result && test.notes == write.notes)
+            require(test.performedBy == actorId && raw.getString("recorded_by") == actorId && evidence.getString("recorded_by") == actorId)
+            require(test.evidence.source == EvidenceSource.PHYSICAL_TEST && test.evidence.verifiedBy == null && test.evidence.confidence == null)
+            require(evidence.getString("location_id") == context.locationId && evidence.getJSONObject("observed_at").getString("value") == raw.getString("performed_at"))
+            require(raw.getString("performed_at") == raw.getString("recorded_at") && evidence.getString("recorded_at") == raw.getString("recorded_at"))
+            require(raw.isNull("supersedes_id") && evidence.isNull("supersedes_id") && evidence.isNull("relevant_until") && evidence.isNull("context"))
+            return
+        }
+        if (command.write is HairWrite.History) {
+            val write = command.write
+            require(data.getString("client_id") == command.clientId)
+            UUID.fromString(data.getString("passport_id"))
+            val raw = data.getJSONObject("history")
+            val history = parseHistory(raw)
+            val evidence = raw.getJSONObject("evidence")
+            require(history.category == write.category && history.date == write.date && history.product == write.product && history.description == write.description)
+            require(history.regionIds == write.regionIds.sorted() && history.salon == write.salon && history.professional == write.professional && raw.isNull("location_id"))
+            require(raw.getString("recorded_by") == actorId && evidence.getString("recorded_by") == actorId && raw.isNull("supersedes_id"))
+            require(history.evidence.source == write.source && history.evidence.confidence == write.confidence && history.evidence.context == write.context)
+            require(history.evidence.verifiedBy == null && history.evidence.observedAt == null && evidence.isNull("location_id") && evidence.isNull("relevant_until") && evidence.isNull("supersedes_id"))
+            return
+        }
         if (command.write is HairWrite.Observation) {
             val write = command.write
             require(data.getString("client_id") == command.clientId && data.getLong("target_version") == write.version + 1)
@@ -108,6 +137,24 @@ internal fun payload(command: HairCommand): Pair<String, JSONObject> {
             value.put("evidence", evidence)
             return "hair_observation_operation" to value
         }
+        is HairWrite.Test -> {
+            value.put("type", write.type.name).put("result", factJson(write.result))
+            write.regionId?.let { value.put("region_id", it) }
+            write.notes?.let { value.put("notes", it) }
+            return "hair_physical_test_operation" to value
+        }
+        is HairWrite.History -> {
+            value.put("category", write.category.name).put("performed_on", JSONObject().put("state", write.date.state.name).put("value", write.date.value ?: JSONObject.NULL))
+                .put("product", factJson(write.product)).put("description", write.description).put("region_ids", JSONArray(write.regionIds.sorted()))
+            write.salon?.let { value.put("attributed_salon", it) }
+            write.professional?.let { value.put("attributed_professional", it) }
+            val evidence = JSONObject().put("source", write.source.name)
+            write.context?.let { evidence.put("context", it) }
+            write.confidence?.let { evidence.put("confidence", JSONObject().put("state", "KNOWN").put("value", it)) }
+            value.put("evidence", evidence)
+            return "hair_history_operation" to value
+        }
     }
     return "hair_core_operation" to value
 }
+private fun factJson(fact: HairFact) = JSONObject().put("state", fact.state.name).put("value", fact.value ?: JSONObject.NULL)
