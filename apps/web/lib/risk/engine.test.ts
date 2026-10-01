@@ -16,6 +16,7 @@ it("insufficient information prevents planning without inventing damage", () => 
 });
 it("stale tests require renewal", () => {
  const input = goldenInput({testAgeDays: 45}); const result = evaluateRisk(input, evaluateConfidence(input));
+ expect(result.requiredPhysicalTests.filter(t => t.type === "STRAND")).toHaveLength(4);
  expect(result.requiredPhysicalTests.filter(t => t.type === "STRAND").every(t => t.status === "STALE")).toBe(true);
  expect(result.gate.canProgress).toBe(false);
 });

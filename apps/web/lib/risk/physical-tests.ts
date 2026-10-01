@@ -17,7 +17,9 @@ export function resolvePhysicalTests(input: RiskInput, reasons: RiskReason[]): R
    if (f?.state !== "NOT_APPLICABLE" && (knownConcern || f?.state !== "KNOWN" || f.confidence < rules.minimumEvidenceQuality || f.freshness !== "FRESH")) requested.add(type);
   }
   // Phase 1D's generic physical-test information request is narrowed to STRAND only here.
-  if (knownConcern || history || input.confidence.informationRequirements.some(r => r.target === target && r.code === "PERFORM_STRAND_TEST")) requested.add("STRAND");
+  const physical = fields.find(f => f.target === target && f.field === "physical_test");
+  if (knownConcern || history || physical?.state !== "NOT_APPLICABLE" && physical?.freshness !== "FRESH" ||
+   input.confidence.informationRequirements.some(r => r.target === target && r.code === "PERFORM_STRAND_TEST")) requested.add("STRAND");
   for (const type of [...requested].sort()) {
    const candidates = input.normalized.candidates.filter(c => c.target === target && c.field === "physical_test" &&
     c.ref.kind === "PHYSICAL_TEST" && tests.get(c.ref.id)?.type === type);

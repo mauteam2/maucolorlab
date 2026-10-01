@@ -22,6 +22,6 @@ export function normalizeRiskInput(snapshot: unknown, confidence: CaseConfidence
   const refs = new Set(normalized.candidates.map(c => canonical(c.ref)));
   if (scope.data.evidenceRefs.some(r => !refs.has(canonical(r)))) throw new RiskInputError();
   return {snapshot: parsed.data, normalized, confidence: expected, scope: {...scope.data,
-   evidenceRefs: [...new Map(scope.data.evidenceRefs.map(r => [canonical(r), r])).values()].sort((a,b) => canonical(a).localeCompare(canonical(b)))}};
+   evidenceRefs: [...new Map(scope.data.evidenceRefs.map(r => [canonical(r), r])).values()].sort((a,b) => canonical(a) < canonical(b) ? -1 : canonical(a) > canonical(b) ? 1 : 0)}};
  } catch { throw new RiskInputError(); }
 }

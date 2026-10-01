@@ -171,6 +171,9 @@ for change in ({"outcome": "SAFE"}, {"ignoreRisk": True}, {"reasonCodes": []}):
     candidate = copy.deepcopy(risk_examples[0])
     candidate["data"]["gate"].update(change)
     assert list(risk_validator.iter_errors(candidate)), change
+candidate = copy.deepcopy(risk_examples[2])
+candidate["data"]["gate"]["canProgress"] = True
+assert list(risk_validator.iter_errors(candidate)), "A blocking gate cannot progress"
 assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/risk"]) == {"get"}
 risk_golden = json.loads((root / "contracts/fixtures/risk-golden.json").read_text(encoding="utf-8"))
-print(f"PASS: Risk assessment contracts, {len(risk_golden['cases'])} golden scenarios, 3 explained results and 14 unsafe/malformed rejections")
+print(f"PASS: Risk assessment contracts, {len(risk_golden['cases'])} golden scenarios, 3 explained results and 15 unsafe/malformed rejections")

@@ -11,10 +11,13 @@ export const riskReason = z.strictObject({code, dimension, band, target,
 const dimensionRisk = z.strictObject({dimension, band, reasons: riskReason.array().max(2000)});
 const fingerprint = z.string().regex(/^[a-f0-9]{64}$/);
 const outcome = z.enum(riskRules.gatePrecedence);
+const gate = z.strictObject({outcome, canProgress: z.boolean(), reasonCodes: codes.min(1)}).superRefine((g,ctx) => {
+ if (g.canProgress !== ["CONTINUE_TECHNICAL_PLANNING", "CONTINUE_WITH_CHECKPOINTS"].includes(g.outcome)) ctx.addIssue({code:"custom",message:"Inconsistent gate progression"});
+});
 export const riskAssessment = z.strictObject({engineVersion: z.literal(riskRules.version), evaluatedAt: z.iso.datetime({offset: true}), inputFingerprint: fingerprint, rulesFingerprint: fingerprint,
  passportId: z.uuid(), passportVersion: z.int().positive(), overallBand: band, dimensions: dimensionRisk.array().length(8),
  regions: z.strictObject({target, band, dimensions: dimensionRisk.array().length(8)}).array().max(100),
- gate: z.strictObject({outcome, canProgress: z.boolean(), reasonCodes: codes.min(1)}),
+ gate,
  hardStops: z.strictObject({outcome, reasonCodes: codes.min(1), target, evidenceRefs: refs}).array().max(2000),
  requiredPhysicalTests: z.strictObject({type: z.enum(["POROSITY", "ELASTICITY", "STRAND"]), target,
   status: z.enum(["SATISFIED", "MISSING", "STALE", "UNRELIABLE"]), reasonCodes: codes, evidenceRefs: refs}).array().max(303),

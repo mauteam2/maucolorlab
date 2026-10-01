@@ -19,6 +19,8 @@ export function evaluateRisk(snapshot: unknown, confidence: CaseConfidenceAssess
   target: "GLOBAL", field: null, evidenceRefs: input.scope.evidenceRefs, context: {state: input.scope.state, value: null, count: null}});
  const information: RiskInformationRequirement[] = confidence.informationRequirements.filter(r => r.code !== "PERFORM_STRAND_TEST").map(r => ({code: r.code, target: r.target,
   severity: r.severity, reasonCodes: r.reasonCodes, evidenceRefs: r.evidenceRefs}));
+ for (const reason of reasons) if (reason.code === "HISTORY_UNVERIFIED") information.push({code: "VERIFY_IMPORTED_HISTORY", target: reason.target,
+  severity: "HIGH", reasonCodes: [reason.code], evidenceRefs: reason.evidenceRefs});
  for (const test of tests) if (test.status !== "SATISFIED") information.push({code: test.type === "STRAND" ? "PERFORM_STRAND_TEST" : test.type === "POROSITY" ? "PERFORM_POROSITY_TEST" : "PERFORM_ELASTICITY_TEST",
   target: test.target, severity: "HIGH", reasonCodes: test.reasonCodes, evidenceRefs: test.evidenceRefs});
  for (const reason of reasons) if (["LOW_ELASTICITY_EVIDENCE", "COMBINED_INTEGRITY_CONCERN"].includes(reason.code))

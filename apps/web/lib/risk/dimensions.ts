@@ -43,7 +43,7 @@ export function evaluateDimensions(input: RiskInput): RiskReason[] {
    if (field === "chemical_history" && events.length >= 2)
     add("CHEMICAL_HISTORY_COMPLEX", dimension, "HIGH", target, field, events, {state: "KNOWN", value: null, count: events.length});
    if (summary.f?.state !== "NOT_APPLICABLE" && !reliable(summary.f)) add(unknown, "EVIDENCE_INFORMATION", "HIGH", target, field);
-   if (confidence.significantUnknowns.some(u => u.target === target && u.field === field && u.code === "HISTORY_UNVERIFIED"))
+   if (events.some(c => c.source !== "PROFESSIONAL_VERIFIED") || confidence.significantUnknowns.some(u => u.target === target && u.field === field && u.code === "HISTORY_UNVERIFIED"))
     add("HISTORY_UNVERIFIED", "EVIDENCE_INFORMATION", "HIGH", target, field, events);
   }
  }
@@ -67,6 +67,9 @@ export function evaluateDimensions(input: RiskInput): RiskReason[] {
  for (const requirement of confidence.informationRequirements) if (requirement.severity === "CRITICAL")
   reasons.push({code: "CRITICAL_INFORMATION_GAP", dimension: "EVIDENCE_INFORMATION", band: "HIGH", target: requirement.target,
    field: requirement.field, evidenceRefs: requirement.evidenceRefs, context: {state: null, value: null, count: null}});
+ else if (requirement.code !== "PERFORM_STRAND_TEST") reasons.push({code: "ADDITIONAL_INFORMATION_REQUIRED", dimension: "EVIDENCE_INFORMATION",
+  band: requirement.severity === "HIGH" ? "HIGH" : "MODERATE", target: requirement.target, field: requirement.field,
+  evidenceRefs: requirement.evidenceRefs, context: {state: null, value: null, count: null}});
  return reasons;
 }
 export function confidenceFields(confidence: CaseConfidenceAssessment) { return confidence.domains.flatMap(d => d.fields); }

@@ -1145,6 +1145,17 @@ components:
     SafetyGate:
       type: object
       additionalProperties: false
+      allOf:
+      - if:
+          properties:
+            outcome:
+              enum: [CONTINUE_TECHNICAL_PLANNING, CONTINUE_WITH_CHECKPOINTS]
+        then:
+          properties:
+            canProgress: {const: true}
+        else:
+          properties:
+            canProgress: {const: false}
       required:
       - outcome
       - canProgress

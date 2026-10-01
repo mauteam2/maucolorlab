@@ -2406,6 +2406,84 @@
                 "value": null,
                 "count": null
               }
+            },
+            {
+              "code": "ADDITIONAL_INFORMATION_REQUIRED",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "MODERATE",
+              "target": "GLOBAL",
+              "field": "chemical_history",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "ADDITIONAL_INFORMATION_REQUIRED",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "MODERATE",
+              "target": "GLOBAL",
+              "field": "cosmetic_color_history",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "ADDITIONAL_INFORMATION_REQUIRED",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "MODERATE",
+              "target": "GLOBAL",
+              "field": "density",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "ADDITIONAL_INFORMATION_REQUIRED",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "MODERATE",
+              "target": "GLOBAL",
+              "field": "grey_ratio",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "ADDITIONAL_INFORMATION_REQUIRED",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "MODERATE",
+              "target": "GLOBAL",
+              "field": "perceived_level",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
+            },
+            {
+              "code": "ADDITIONAL_INFORMATION_REQUIRED",
+              "dimension": "EVIDENCE_INFORMATION",
+              "band": "MODERATE",
+              "target": "GLOBAL",
+              "field": "thickness",
+              "evidenceRefs": [],
+              "context": {
+                "state": null,
+                "value": null,
+                "count": null
+              }
             }
           ]
         },

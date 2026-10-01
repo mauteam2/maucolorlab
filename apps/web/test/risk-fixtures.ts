@@ -15,7 +15,7 @@ export function riskInput(change: RiskChange = {}) {
  for (const observation of page.observations.items) {
   if (change.highPorosity || change.regionalHigh && observation.region_id === page.regions[2]!.id) observation.porosity = {state:"KNOWN",value:"HIGH"};
   if (change.lowElasticity) observation.elasticity = {state:"KNOWN",value:"LOW"};
-  if (change.greyUnknown) observation.grey_ratio = {state:"UNKNOWN",value:null};
+  if (change.greyUnknown && observation.region_id === null) observation.grey_ratio = {state:"UNKNOWN",value:null};
   if (change.bleachUnknown) observation.bleach_history = {state:"UNKNOWN",value:null};
   if (change.naturalUnknown) observation.natural_level = {state:"UNKNOWN",value:null};
   if (change.porosityUnknown) observation.porosity = {state:"UNKNOWN",value:null};
