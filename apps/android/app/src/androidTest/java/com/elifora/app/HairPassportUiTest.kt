@@ -6,6 +6,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.performClick
 import com.elifora.app.domain.hair.*
 import com.elifora.app.ui.PassportContent
@@ -29,12 +31,12 @@ class HairPassportUiTest {
         } } }
         val resources = InstrumentationRegistry.getInstrumentation().targetContext
         composeRule.onNodeWithText(resources.getString(R.string.hair_passport_state_unknown)).assertExists()
-        composeRule.onNodeWithText(resources.getString(R.string.hair_passport_state_not_assessed), substring = true).assertExists()
-        composeRule.onNodeWithText(resources.getString(R.string.hair_passport_section_count,
-            resources.getString(R.string.hair_passport_regions), 0), substring = true).performClick()
+        composeRule.onAllNodesWithText(resources.getString(R.string.hair_passport_state_not_assessed)).assertCountEquals(10)
         composeRule.onNodeWithText(resources.getString(R.string.hair_passport_no_regions)).assertExists()
-        composeRule.onNodeWithText(resources.getString(R.string.hair_passport_section_count,
-            resources.getString(R.string.hair_passport_tests), 0), substring = true).performClick()
         composeRule.onNodeWithText(resources.getString(R.string.hair_passport_no_tests)).assertExists()
+        composeRule.onNodeWithText(resources.getString(R.string.hair_passport_core), substring = true).performClick()
+        composeRule.onNodeWithText(resources.getString(R.string.hair_passport_state_unknown)).assertDoesNotExist()
+        composeRule.onNodeWithText(resources.getString(R.string.hair_passport_core), substring = true).performClick()
+        composeRule.onNodeWithText(resources.getString(R.string.hair_passport_state_unknown)).assertExists()
     }
 }

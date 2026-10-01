@@ -181,7 +181,7 @@ private fun Evidence(value: HairEvidence) {
     Text(stringResource(value.source.labelRes()))
     Text(value.confidence?.let { stringResource(R.string.hair_passport_confidence, NumberFormat.getPercentInstance().format(it)) }
         ?: stringResource(R.string.hair_passport_no_confidence))
-    if (value.verified) Text(stringResource(R.string.hair_passport_verified))
+    value.verifiedBy?.let { Text(stringResource(R.string.hair_passport_verified, it)) }
     value.observedAt?.let { Text(stringResource(R.string.hair_passport_observed, displayHairDate(it))) }
     value.context?.let { Text(it) }
 }

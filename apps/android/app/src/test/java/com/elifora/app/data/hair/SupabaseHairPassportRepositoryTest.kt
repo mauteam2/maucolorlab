@@ -49,6 +49,7 @@ class SupabaseHairPassportRepositoryTest {
         assertEquals(0.75, passport.core.evidence.confidence!!, 0.001)
         assertEquals(RegionType.ROOT, passport.regions.single().type)
         assertEquals(EvidenceSource.PROFESSIONAL_VERIFIED, passport.regions.single().assessment.evidence!!.source)
+        assertEquals(context.membershipId, passport.regions.single().assessment.evidence!!.verifiedBy)
         assertEquals(2, passport.observations.items.size)
         assertEquals(EvidenceSource.AI_ESTIMATE, passport.observations.items.first().evidence.source)
         assertEquals(PhysicalTestType.STRAND, passport.tests.items.single().type)

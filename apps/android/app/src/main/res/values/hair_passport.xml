@@ -39,7 +39,7 @@
     <string name="hair_passport_evidence">Kaynak ve kanıt</string>
     <string name="hair_passport_confidence">Gözlem güven düzeyi: %1$s</string>
     <string name="hair_passport_no_confidence">Güven düzeyi belirtilmedi</string>
-    <string name="hair_passport_verified">Profesyonel doğrulaması kayıtlı</string>
+    <string name="hair_passport_verified">Doğrulayan uzman kimliği: %1$s</string>
     <string name="hair_passport_observed">Gözlem zamanı: %1$s</string>
     <string name="hair_passport_recorded">Kayıt zamanı: %1$s</string>
     <string name="hair_passport_performed">Test zamanı: %1$s</string>

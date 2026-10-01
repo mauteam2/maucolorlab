@@ -39,7 +39,7 @@
     <string name="hair_passport_evidence">Source and evidence</string>
     <string name="hair_passport_confidence">Observation confidence: %1$s</string>
     <string name="hair_passport_no_confidence">Confidence not specified</string>
-    <string name="hair_passport_verified">Professional verification recorded</string>
+    <string name="hair_passport_verified">Verifying professional ID: %1$s</string>
     <string name="hair_passport_observed">Observed: %1$s</string>
     <string name="hair_passport_recorded">Recorded: %1$s</string>
     <string name="hair_passport_performed">Test date: %1$s</string>

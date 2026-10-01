@@ -8,7 +8,7 @@ enum class FactState { KNOWN, UNKNOWN, NOT_ASSESSED, NOT_APPLICABLE }
 data class HairFact(val state: FactState, val value: String?)
 data class HairTechnicalValues(val facts: Map<HairField, HairFact>, val technicalNotes: String?, val integrityNotes: String?)
 enum class EvidenceSource { AI_ESTIMATE, PROFESSIONAL_VERIFIED, PHYSICAL_TEST, HISTORICAL, IMPORTED_UNVERIFIED }
-data class HairEvidence(val source: EvidenceSource, val confidence: Double?, val verified: Boolean, val observedAt: String?, val context: String?)
+data class HairEvidence(val source: EvidenceSource, val confidence: Double?, val verifiedBy: String?, val observedAt: String?, val context: String?)
 data class HairObservation(val id: String, val regionId: String?, val recordedAt: String, val values: HairTechnicalValues, val evidence: HairEvidence)
 enum class AssessmentState { NOT_ASSESSED, ASSESSED, UNVERIFIED }
 data class HairAssessment(val state: AssessmentState, val values: HairTechnicalValues?, val evidence: HairEvidence?)

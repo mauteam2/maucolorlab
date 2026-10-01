@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             controller.state.collectLatest { state ->
                 when (state) {
-                    is WorkspaceState.Ready -> { passports.conceal(); clients.bind(state.context); passports.bind(state.context) }
+                    is WorkspaceState.Ready -> { passports.conceal(); passports.bind(state.context); clients.bind(state.context) }
                     WorkspaceState.LoadingSession, WorkspaceState.LoadingMemberships -> { clients.conceal(); passports.conceal() }
                     else -> { clients.invalidate(); passports.invalidate() }
                 }
