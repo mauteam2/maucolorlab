@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
-select plan(28);
+select plan(30);
 -- Synthetic identities share a phone across tenants intentionally.
 insert into auth.users(id,email,raw_user_meta_data) values
  ('b3000000-0000-4000-8000-000000000021','hair-read-owner-a@elifora.test','{}'),('b3000000-0000-4000-8000-000000000022','hair-read-owner-b@elifora.test','{}'),
@@ -135,9 +135,15 @@ reset role;
 update public.salon_memberships set status='revoked',revoked_at=now() where id='b3000000-0000-4000-8000-000000000111';
 select set_config('request.jwt.claim.sub','b3000000-0000-4000-8000-000000000021',true);
 set local role authenticated;
-select is(pg_temp.confidence_read()->>'code','MEMBERSHIP_REVOKED','revocation takes effect without replacing JWT');
+select is(pg_temp.confidence_read()->>'code','TENANT_CONTEXT_INVALID','revoked selection is invalid while another usable membership remains');
 select ok(not(pg_temp.confidence_read() ? 'data'),'revoked caller receives no input pages');
 reset role;
+update public.salon_memberships set status='revoked',revoked_at=now() where id='b3000000-0000-4000-8000-000000000115';
+set local role authenticated;
+select is(pg_temp.confidence_read()->>'code','MEMBERSHIP_REVOKED','loss of every usable membership takes effect without replacing JWT');
+select ok(not(pg_temp.confidence_read() ? 'data'),'caller without usable memberships receives no input pages');
+reset role;
+update public.salon_memberships set status='active',revoked_at=null where id='b3000000-0000-4000-8000-000000000115';
 update public.salon_memberships set status='active',revoked_at=null where id='b3000000-0000-4000-8000-000000000111';
 select is((select count(*) from public.audit_events),(select n from audit_before),'confidence reads do not add noisy audit events');
 update public.clients set status='ARCHIVED' where id='b3000000-0000-4000-8000-000000000031';

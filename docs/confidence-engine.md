@@ -50,4 +50,6 @@ Result metadata uses stable domain/field/target and reason codes with evidence r
 
 The forward lint-correction migration removes a redundant outer loop-index declaration reported by `plpgsql_check`; PostgreSQL's integer FOR loop already declares that index. It preserves the read behavior, security mode, grants and limits. Database tests exercise the final migration chain rather than bypassing lint warnings.
 
+Revocation regression tests preserve both existing tenant-context outcomes: a revoked selected membership with another usable membership returns TENANT_CONTEXT_INVALID; loss of all usable memberships returns MEMBERSHIP_REVOKED. Both cases retain the same JWT and assert that no input pages are exposed.
+
 The existing technical-history browser test assumed that region links were ordered by display name, although the contract serializes the region-ID set in UUID order. Its regression assertion now checks the exact selected region set within the matching lightening-history record. It still rejects missing, extra and duplicate region labels, and leaves the existing UI unchanged. This corrects the demonstrated CI nondeterminism rather than changing production ordering or skipping coverage.
