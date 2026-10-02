@@ -57,7 +57,7 @@ export function evaluateColorPlanning(snapshot:ConfidenceInput,confidence:CaseCo
   const history=n.candidates.filter(c=>c.target===region.id&&c.ref.kind==="HISTORY");
   const bleached=history.some(c=>c.field==="bleach_history"),cosmetic=history.some(c=>c.field==="cosmetic_color_history");
   const porous=region.type==="ENDS"&&selected(region.id,"porosity")==="HIGH";
-  const separate=region.type==="BANDED_AREA"||objective.handling==="ISOLATE"||bleached||porous;
+  const separate=region.type==="BANDED_AREA"||objective.correction==="BAND"||objective.handling==="ISOLATE"||bleached||porous;
   const naturalBase=!objective.preserve&&objective.greyPriority==="COVER"&&(numeric(selected(region.id,"grey_ratio"))??-1)>=rules.greyNaturalBaseThreshold;
   if(objective.preserve) {actions.push("PRESERVE");reasons.push("PRESERVE_EXISTING_REGION");}
   else {
@@ -99,7 +99,7 @@ export function evaluateColorPlanning(snapshot:ConfidenceInput,confidence:CaseCo
   if(r.actions.includes("CORRECTION_REQUIRED_CANDIDATE")){add("REDUCE_CORRECT",id,false,r.reasonCodes);add("REASSESS",id,true,["CORRECTION_REQUIRES_INTERMEDIATE_GOAL"]);}
   if(r.actions.includes("FILL_REQUIRED_CANDIDATE")){add("FILL_PREPIGMENT",id,false,["FILL_PREPIGMENTATION_CANDIDATE"]);add("REASSESS",id,true);}
   if(r.actions.some(a=>a.startsWith("LIGHTEN"))){add("LIGHTEN",id,false,["TARGET_REQUIRES_LIGHTENING"]);add("REASSESS",id,true);}
-  if(r.actions.includes("DARKEN")||r.naturalBaseSupport)add("DEPOSIT",id);
+  if(r.actions.includes("DARKEN")||r.naturalBaseSupport||normalizedTarget.definition.regions.find(t=>t.regionId===r.regionId)?.greyPriority==="COVER")add("DEPOSIT",id);
   if(r.actions.includes("NEUTRALIZE"))add("NEUTRALIZE",id);
   else if(r.actions.includes("TONE_ONLY")||r.actions.includes("ENHANCE_REFLECTION"))add("TONE",id);
  }

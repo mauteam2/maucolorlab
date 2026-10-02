@@ -28,6 +28,17 @@ supabase test db
 
 `supabase db reset` rebuilds only the local database. Never run reset or migration commands against a linked production project from this workflow.
 
+Phase 1F plan generation also needs the private local signing key. After local migrations, from the repository root in PowerShell, capture it without printing it and write only the ignored server environment file:
+
+```powershell
+$localColorSigningKey = docker exec supabase_db_elifora psql -U postgres -Atc "select encode(secret,'hex') from app_private.color_engine_keys where id=1"
+if ($LASTEXITCODE -ne 0 -or $localColorSigningKey -notmatch '^[a-f0-9]{64}$') { throw 'Local signing configuration unavailable' }
+Add-Content -LiteralPath apps/web/.env.local -Value "ELIFORA_COLOR_PLAN_SIGNING_KEY=$localColorSigningKey"
+Remove-Variable localColorSigningKey
+```
+
+Run this only against the disposable local `supabase_db_elifora` container. A local reset regenerates the key; replace the old server environment entry and restart Web. Missing or mismatched signing configuration prevents generation. Never put the private key in public variables, Android configuration, tests, logs or committed files. The CI workflow provisions and masks its own disposable key. See [Color Engine](../color-engine.md) for API and trust-boundary details.
+
 ## Web
 
 From `apps/web`:

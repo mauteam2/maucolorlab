@@ -37,8 +37,9 @@ it("incomplete correction returns target issues instead of guessing",()=>{
  expect(result.status).toBe("REQUIRES_ASSESSMENT");expect(result.targetIssues.map(i=>i.code)).toContain("TARGET_INTERMEDIATE_REQUIRED");expect(result.recipeDraft).toBeNull();
 });
 it("regional band correction retains intermediate checkpoint",()=>{
- const input=colorFixture({}, {mode:"COLOR_CORRECTION"});const r=input.target.definition.regions[0]!;r.correction="BAND";r.intermediateLevel=6;r.handling="ISOLATE";
+ const input=colorFixture({}, {mode:"COLOR_CORRECTION"});const r=input.target.definition.regions[0]!;r.correction="BAND";r.intermediateLevel=6;
  const result=evaluate(input);expect(result.feasibility).toBe("MULTI_STAGE");expect(result.primaryStrategy?.stages.some(s=>s.kind==="REDUCE_CORRECT"&&s.regionIds.includes(r.regionId))).toBe(true);
+ expect(result.regions.find(p=>p.regionId===r.regionId)?.separateHandling).toBe(true);
 });
 it("porous ends are planned after other regions with assessment checkpoint",()=>{
  const input=colorFixture({highPorosity:true,fullTests:true}),result=evaluate(input);expect(result.status).toBe("DRAFT");
@@ -67,6 +68,12 @@ it("target dependent lightening requires a fresh qualified strand test",()=>{
  const input=colorFixture();const page=input.snapshot.pages[0]!;page.physical_tests.items=[];
  // Existing Risk is authoritative even if the target-specific check would also require testing.
  const result=evaluate(fresh(input));expect(result.recipeDraft).toBeNull();expect(result.status).toBe("REQUIRES_TEST");
+});
+it("a target requiring lift adds a strand check even when upstream Risk permits planning",()=>{
+ const input=colorFixture();input.snapshot.pages[0]!.physical_tests.items.forEach(t=>{t.type="POROSITY";t.result={state:"KNOWN",value:"MEDIUM"};});
+ fresh(input);expect(input.risk.gate.canProgress).toBe(true);expect(input.risk.requiredPhysicalTests).toEqual([]);
+ input.target.definition.regions.forEach(r=>r.level=8);const result=evaluate(input);
+ expect(result.status).toBe("REQUIRES_TEST");expect(result.recipeDraft).toBeNull();expect(result.requiredPhysicalTests.every(t=>t.type==="STRAND"&&t.status==="MISSING")).toBe(true);
 });
 it.each(["confidence","risk","target"] as const)("rejects mismatched %s source binding",part=>{
  const input=colorFixture();if(part==="target")input.target.passportId=fixtureId(999);else input[part].inputFingerprint="0".repeat(64);

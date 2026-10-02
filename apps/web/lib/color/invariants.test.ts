@@ -4,9 +4,14 @@ import { fixtureId } from "@/test/confidence-fixtures";
 import { evaluateColorPlanning } from "./engine";
 import { colorPlanning } from "./model";
 import { evaluateRisk } from "@/lib/risk/engine";
+import { evaluateConfidence } from "@/lib/confidence/engine";
 const evaluate=(i:ReturnType<typeof colorFixture>)=>evaluateColorPlanning(i.snapshot,i.confidence,i.risk,i.target);
 it("more ambitious lift cannot reduce session complexity without new evidence",()=>{
- const i=colorFixture();const counts=[];for(const level of [7,8,9,10]){i.target.definition.regions.forEach(r=>r.level=level);counts.push(evaluate(i).primaryStrategy!.sessions.min);}expect(counts).toEqual([...counts].sort((a,b)=>a-b));
+ const i=colorFixture(),p=i.snapshot.pages[0]!;
+ for(const o of p.observations.items)o.perceived_level={state:"KNOWN",value:4};
+ for(const a of [p.core,...p.regions.map(r=>r.assessment)])if(a.state==="ASSESSED")a.observation.perceived_level={state:"KNOWN",value:4};
+ i.confidence=evaluateConfidence(i.snapshot);i.risk=evaluateRisk(i.snapshot,i.confidence);
+ const counts=[];for(const level of [4,5,7,9]){i.target.definition.regions.forEach(r=>r.level=level);counts.push(evaluate(i).primaryStrategy!.sessions.min);}expect(counts).toEqual([1,1,1,2]);expect(counts).toEqual([...counts].sort((a,b)=>a-b));
 });
 it("target revision changes fingerprints and preserves original immutable output",()=>{
  const i=colorFixture(),old=evaluate(i);i.target={...i.target,id:fixtureId(8000),version:2,previousVersionId:i.target.id,definition:{...i.target.definition,regions:i.target.definition.regions.map(r=>({...r,level:6}))}};
