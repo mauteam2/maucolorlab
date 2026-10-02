@@ -3,7 +3,7 @@ create role elifora_color_writer nologin nobypassrls;
 grant authenticated to elifora_color_writer;
 grant elifora_color_writer to postgres;
 grant usage on schema public,app_private,extensions to elifora_color_writer;
-grant execute on function app_private.hair_write_context(uuid,uuid,text),app_private.client_error(text,uuid) to elifora_color_writer;
+grant execute on function app_private.hair_write_context(uuid,uuid,text),app_private.client_error(text,uuid,text) to elifora_color_writer;
 insert into public.permissions(code,description) values
  ('color_plan.read','Read organization color targets and planning drafts.'),
  ('color_plan.create','Create versioned targets and brand-independent planning drafts.');
