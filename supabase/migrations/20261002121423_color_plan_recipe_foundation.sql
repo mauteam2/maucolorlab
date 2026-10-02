@@ -18,7 +18,7 @@ create table public.color_plans(
  status text not null check(status in ('DRAFT','REQUIRES_ASSESSMENT','REQUIRES_TEST','REQUIRES_RECOVERY','BLOCKED_BY_RISK')),
  execution_status text not null default 'REQUIRES_BRAND_ADAPTER' check(execution_status='REQUIRES_BRAND_ADAPTER'),
  recipe_id text check(recipe_id ~ '^[a-f0-9]{64}$'),recipe_version integer check(recipe_version=1),parent_recipe_id text check(parent_recipe_id is null),
- created_at timestamptz not null default statement_timestamp(),created_by uuid not null references public.profiles(id),location_id uuid not null,
+ created_at timestamptz not null default statement_timestamp(),created_by uuid not null references public.profiles(user_id),location_id uuid not null,
  request_id uuid not null,correlation_id uuid not null,payload jsonb not null check(jsonb_typeof(payload)='object'),
  signed_envelope text not null,signature text not null,
  unique(organization_id,client_id,id),unique(organization_id,created_by,request_id),
