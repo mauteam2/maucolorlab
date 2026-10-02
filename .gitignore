@@ -29,3 +29,6 @@ captures/
 # Supabase local state
 supabase/.branches/
 supabase/.temp/
+
+# Python verification cache
+__pycache__/
