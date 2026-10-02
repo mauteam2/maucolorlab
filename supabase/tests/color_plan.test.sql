@@ -131,7 +131,7 @@ insert into read_results values('packet',(select jsonb_build_object('organizatio
  'membershipId','b3000000-0000-4000-8000-000000000111','locationId','b3000000-0000-4000-8000-000000000011','clientId','b3000000-0000-4000-8000-000000000031',
  'targetId',value#>>'{data,target,id}','requestId','b3000000-0000-4000-8000-000000000602','sourceToken',value#>>'{data,sourceToken}','expiresAt',statement_timestamp()+interval '2 minutes',
  'result',jsonb_build_object('engineVersion','color-engine/1.0.0','evaluatedAt',statement_timestamp(),'status','BLOCKED_BY_RISK','recipeDraft',null,'primaryStrategy',null,'alternatives','[]'::jsonb,
-  'metadata',jsonb_build_object('passportId',value#>>'{data,target,passportId}','passportVersion',1,'targetId',value#>>'{data,target,id}','targetVersion',1,
+  'metadata',jsonb_build_object('passportId',value#>>'{data,target,passportId}','passportVersion',(value#>>'{data,snapshot,pages,0,passport,version}')::bigint,'targetId',value#>>'{data,target,id}','targetVersion',1,
    'inputFingerprint',repeat('a',64),'hairFingerprint',repeat('b',64),'targetFingerprint',repeat('c',64),'confidenceVersion','confidence-engine/1.0.0','riskVersion','risk-engine/1.0.0')))
  from read_results where name='prepare'));
 select is(pg_temp.plan_operation('store',pg_temp.sign_packet(jsonb_set((select value from read_results where name='packet'),'{actorId}','"b3000000-0000-4000-8000-000000000022"')))->>'code','COLOR_INPUT_INVALID','signed actor mismatch denied');
@@ -140,9 +140,15 @@ select is(pg_temp.plan_operation('store',pg_temp.sign_packet(jsonb_set((select v
 insert into read_results values('plan',pg_temp.plan_operation('store',pg_temp.sign_packet((select value from read_results where name='packet'))));
 select ok((select value#>>'{data,id}' is not null from read_results where name='plan'),'signed authorized same-org plan saved');
 select is((select value#>>'{data,result,status}' from read_results where name='plan'),'BLOCKED_BY_RISK','nonprogressing result retained without executable draft');
+-- Verify organization-level audit as the test supervisor; mutations retain caller RLS.
+reset role;
 select is((select count(*) from public.audit_events where action='color_plan.generated'),1::bigint,'generation audit once');
+set local role authenticated;
 select is((pg_temp.plan_operation('store',pg_temp.sign_packet((select value from read_results where name='packet'))))#>>'{data,id}',(select value#>>'{data,id}' from read_results where name='plan'),'same request returns immutable original plan');
+-- Verify organization-level audit as the test supervisor; mutations retain caller RLS.
+reset role;
 select is((select count(*) from public.audit_events where action='color_plan.generated'),1::bigint,'idempotent replay no audit');
+set local role authenticated;
 select is((pg_temp.plan_operation('read',jsonb_build_object('plan_id',(select value#>>'{data,id}' from read_results where name='plan'))))#>>'{data,id}',(select value#>>'{data,id}' from read_results where name='plan'),'authorized read returns historical plan');
 select throws_ok('update public.color_plans set organization_id=gen_random_uuid()','42501',null,'ownership and draft payload immutable');
 select throws_ok('delete from public.color_plans','42501',null,'generated history cannot be deleted');
@@ -153,13 +159,13 @@ select set_config('request.jwt.claim.sub','b3000000-0000-4000-8000-000000000022'
 select is((select count(*) from public.color_plans),0::bigint,'cross tenant RLS hides plans');
 select is(pg_temp.plan_operation('read',jsonb_build_object('plan_id',(select value#>>'{data,id}' from read_results where name='plan')),'b3000000-0000-4000-8000-000000000031','b3000000-0000-4000-8000-000000000112','b3000000-0000-4000-8000-000000000012')->>'code','CLIENT_NOT_FOUND','cross tenant client is indistinguishable from absent');
 select set_config('request.jwt.claim.sub','b3000000-0000-4000-8000-000000000023',true);
-select is((pg_temp.plan_operation('read',jsonb_build_object('plan_id',(select value#>>'{data,id}' from read_results where name='plan')),'b3000000-0000-4000-8000-000000000031','b3000000-0000-4000-8000-000000000113'))#>>'{data,id}',(select value#>>'{data,id}' from read_results where name='plan'),'assistant can read');
-select is(pg_temp.plan_operation('prepare',jsonb_build_object('target_id',(select value#>>'{data,id}' from read_results where name='revision'),'request_id',gen_random_uuid()),'b3000000-0000-4000-8000-000000000031','b3000000-0000-4000-8000-000000000113')->>'code','FORBIDDEN','assistant cannot generate');
+select is((pg_temp.plan_operation('read',jsonb_build_object('plan_id',(select value#>>'{data,id}' from read_results where name='plan')),'b3000000-0000-4000-8000-000000000031','b3000000-0000-4000-8000-000000000113','b3000000-0000-4000-8000-000000000013'))#>>'{data,id}',(select value#>>'{data,id}' from read_results where name='plan'),'assistant can read');
+select is(pg_temp.plan_operation('prepare',jsonb_build_object('target_id',(select value#>>'{data,id}' from read_results where name='revision'),'request_id',gen_random_uuid()),'b3000000-0000-4000-8000-000000000031','b3000000-0000-4000-8000-000000000113','b3000000-0000-4000-8000-000000000013')->>'code','FORBIDDEN','assistant cannot generate');
 reset role;
-update public.salon_memberships set status='revoked' where id='b3000000-0000-4000-8000-000000000113';
+update public.salon_memberships set status='revoked',revoked_at=now() where id='b3000000-0000-4000-8000-000000000113';
 set local role authenticated;
 select is((select count(*) from public.color_plans),0::bigint,'revoked RLS hides plans');
-select ok(not(pg_temp.plan_operation('read',jsonb_build_object('plan_id',(select value#>>'{data,id}' from read_results where name='plan')),'b3000000-0000-4000-8000-000000000031','b3000000-0000-4000-8000-000000000113') ? 'data'),'revoked selected membership cannot read');
+select ok(not(pg_temp.plan_operation('read',jsonb_build_object('plan_id',(select value#>>'{data,id}' from read_results where name='plan')),'b3000000-0000-4000-8000-000000000031','b3000000-0000-4000-8000-000000000113','b3000000-0000-4000-8000-000000000013') ? 'data'),'revoked selected membership cannot read');
 select set_config('request.jwt.claim.sub','',true);
 select is(pg_temp.plan_operation('read',jsonb_build_object('plan_id',gen_random_uuid()))->>'code','UNAUTHENTICATED','missing JWT denied');
 select * from finish();

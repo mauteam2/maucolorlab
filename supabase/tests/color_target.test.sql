@@ -114,10 +114,16 @@ insert into read_results values('target',pg_temp.target_operation('create',jsonb
 select is((select value#>>'{data,version}' from read_results where name='target'),'1','authorized same-organization target revision one');
 select is((select value#>>'{data,clientId}' from read_results where name='target'),'b3000000-0000-4000-8000-000000000031','target client is server derived');
 select is((select count(*) from public.color_target_regions),1::bigint,'regional target relation retained');
+-- Verify organization-level audit as the test supervisor; mutations retain caller RLS.
+reset role;
 select is((select count(*) from public.audit_events where action='color_target.created'),1::bigint,'creation audit occurs once');
+set local role authenticated;
 insert into read_results values('replay',pg_temp.target_operation('create',jsonb_build_object('request_id','b3000000-0000-4000-8000-000000000501','definition',pg_temp.target_definition())));
 select is((select value#>>'{data,id}' from read_results where name='replay'),(select value#>>'{data,id}' from read_results where name='target'),'idempotent create returns original revision');
+-- Verify organization-level audit as the test supervisor; mutations retain caller RLS.
+reset role;
 select is((select count(*) from public.audit_events where action='color_target.created'),1::bigint,'replay adds no audit');
+set local role authenticated;
 select is(pg_temp.target_operation('create',jsonb_build_object('request_id','b3000000-0000-4000-8000-000000000501','definition',jsonb_set(pg_temp.target_definition(),'{regions,0,level}','8')))->>'code','TARGET_VERSION_CONFLICT','request collision cannot rewrite intent');
 insert into read_results values('revision',pg_temp.target_operation('revise',jsonb_build_object('request_id','b3000000-0000-4000-8000-000000000502','series_id',(select value#>>'{data,seriesId}' from read_results where name='target'),'expected_version',1,'definition',jsonb_set(pg_temp.target_definition(),'{regions,0,level}','8'))));
 select is((select value#>>'{data,version}' from read_results where name='revision'),'2','revision is a new identifiable version');

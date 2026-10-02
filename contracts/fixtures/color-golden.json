@@ -1,0 +1,291 @@
+{
+  "engineVersion": "color-engine/1.0.0",
+  "cases": [
+    {
+      "name": "same-level tone",
+      "change": {},
+      "level": 7,
+      "feasibility": "DIRECT",
+      "status": "DRAFT",
+      "stage": "TONE"
+    },
+    {
+      "name": "simple darkening",
+      "change": {},
+      "level": 6,
+      "feasibility": "DIRECT",
+      "status": "DRAFT",
+      "stage": "DEPOSIT"
+    },
+    {
+      "name": "small lightening",
+      "change": {},
+      "level": 8,
+      "feasibility": "DIRECT",
+      "status": "DRAFT",
+      "stage": "LIGHTEN"
+    },
+    {
+      "name": "major lightening",
+      "change": {
+        "currentLevel": 4
+      },
+      "level": 9,
+      "feasibility": "MULTI_SESSION",
+      "status": "DRAFT",
+      "stage": "LIGHTEN"
+    },
+    {
+      "name": "known dark cosmetic history",
+      "change": {
+        "currentLevel": 3,
+        "cosmetic": true
+      },
+      "level": 7,
+      "feasibility": "MULTI_SESSION",
+      "status": "DRAFT",
+      "stage": "REDUCE_CORRECT"
+    },
+    {
+      "name": "unknown bleach history",
+      "change": {
+        "risk": {
+          "bleachUnknown": true
+        }
+      },
+      "level": 7,
+      "feasibility": "INFORMATION_REQUIRED",
+      "status": "REQUIRES_ASSESSMENT",
+      "stage": null
+    },
+    {
+      "name": "previous lightening",
+      "change": {
+        "risk": {
+          "historyCount": 1,
+          "localized": true
+        }
+      },
+      "level": 7,
+      "feasibility": "CONDITIONAL",
+      "status": "DRAFT",
+      "stage": "TONE"
+    },
+    {
+      "name": "high regional variation",
+      "change": {
+        "variation": true
+      },
+      "level": 7,
+      "feasibility": "CONDITIONAL",
+      "status": "DRAFT",
+      "stage": "LIGHTEN"
+    },
+    {
+      "name": "banded area",
+      "change": {
+        "extra": "BANDED_AREA"
+      },
+      "level": 7,
+      "feasibility": "CONDITIONAL",
+      "status": "DRAFT",
+      "stage": "TONE"
+    },
+    {
+      "name": "porous ends",
+      "change": {
+        "risk": {
+          "highPorosity": true,
+          "fullTests": true
+        }
+      },
+      "level": 7,
+      "feasibility": "CONDITIONAL",
+      "status": "DRAFT",
+      "stage": "REASSESS"
+    },
+    {
+      "name": "low elasticity",
+      "change": {
+        "risk": {
+          "lowElasticity": true
+        }
+      },
+      "level": 7,
+      "feasibility": "RECOVERY_REQUIRED",
+      "status": "REQUIRES_RECOVERY",
+      "stage": null
+    },
+    {
+      "name": "high grey",
+      "change": {
+        "grey": "HIGH",
+        "mode": "GREY_COVERAGE"
+      },
+      "level": 7,
+      "feasibility": "DIRECT",
+      "status": "DRAFT",
+      "stage": "DEPOSIT"
+    },
+    {
+      "name": "regional grey differences",
+      "change": {
+        "grey": "REGIONAL",
+        "mode": "GREY_COVERAGE"
+      },
+      "level": 7,
+      "feasibility": "DIRECT",
+      "status": "DRAFT",
+      "stage": "DEPOSIT"
+    },
+    {
+      "name": "root refresh",
+      "change": {
+        "mode": "ROOT_REFRESH",
+        "preserveLengths": true
+      },
+      "level": 7,
+      "feasibility": "DIRECT",
+      "status": "DRAFT",
+      "stage": "ROOT_APPLICATION"
+    },
+    {
+      "name": "root shadow",
+      "change": {
+        "mode": "ROOT_SHADOW",
+        "rootLevel": 6
+      },
+      "level": 7,
+      "feasibility": "DIRECT",
+      "status": "DRAFT",
+      "stage": "DEPOSIT"
+    },
+    {
+      "name": "uniform color",
+      "change": {
+        "mode": "UNIFORM_COLOR"
+      },
+      "level": 7,
+      "feasibility": "DIRECT",
+      "status": "DRAFT",
+      "stage": "TONE"
+    },
+    {
+      "name": "reflection correction",
+      "change": {
+        "mode": "COLOR_CORRECTION",
+        "correction": "REFLECTION"
+      },
+      "level": 7,
+      "feasibility": "MULTI_STAGE",
+      "status": "DRAFT",
+      "stage": "REDUCE_CORRECT"
+    },
+    {
+      "name": "fill prepigmentation",
+      "change": {
+        "mode": "FILL_PREPIGMENTATION"
+      },
+      "level": 4,
+      "feasibility": "MULTI_STAGE",
+      "status": "DRAFT",
+      "stage": "FILL_PREPIGMENT"
+    },
+    {
+      "name": "processed multi session",
+      "change": {
+        "currentLevel": 4,
+        "risk": {
+          "historyCount": 1
+        }
+      },
+      "level": 9,
+      "feasibility": "MULTI_SESSION",
+      "status": "DRAFT",
+      "stage": "LIGHTEN"
+    },
+    {
+      "name": "confidence insufficient",
+      "change": {
+        "risk": {
+          "naturalUnknown": true
+        }
+      },
+      "level": 7,
+      "feasibility": "INFORMATION_REQUIRED",
+      "status": "REQUIRES_ASSESSMENT",
+      "stage": null
+    },
+    {
+      "name": "risk requires physical test",
+      "change": {
+        "risk": {
+          "highPorosity": true
+        }
+      },
+      "level": 7,
+      "feasibility": "INFORMATION_REQUIRED",
+      "status": "REQUIRES_TEST",
+      "stage": null
+    },
+    {
+      "name": "risk requires strand test",
+      "change": {
+        "risk": {
+          "staleTests": true
+        }
+      },
+      "level": 7,
+      "feasibility": "INFORMATION_REQUIRED",
+      "status": "REQUIRES_TEST",
+      "stage": null
+    },
+    {
+      "name": "risk requires recovery",
+      "change": {
+        "risk": {
+          "lowElasticity": true,
+          "fullTests": true
+        }
+      },
+      "level": 7,
+      "feasibility": "RECOVERY_REQUIRED",
+      "status": "REQUIRES_RECOVERY",
+      "stage": null
+    },
+    {
+      "name": "risk hard blocks",
+      "change": {
+        "risk": {
+          "lowElasticity": true,
+          "highPorosity": true,
+          "fullTests": true
+        }
+      },
+      "level": 7,
+      "feasibility": "BLOCKED_BY_SAFETY_GATE",
+      "status": "BLOCKED_BY_RISK",
+      "stage": null
+    },
+    {
+      "name": "custom regional target",
+      "change": {
+        "extra": "CUSTOM",
+        "mode": "MULTI_REGION_CUSTOM",
+        "customLevel": 6
+      },
+      "level": 7,
+      "feasibility": "DIRECT",
+      "status": "DRAFT",
+      "stage": "DEPOSIT"
+    },
+    {
+      "name": "deterministic repeat",
+      "change": {},
+      "level": 7,
+      "feasibility": "DIRECT",
+      "status": "DRAFT",
+      "stage": "TONE"
+    }
+  ]
+}
