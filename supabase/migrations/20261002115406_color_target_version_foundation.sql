@@ -233,7 +233,9 @@ begin
 exception when invalid_text_representation or numeric_value_out_of_range or not_null_violation then return app_private.client_error('VALIDATION_FAILED',p_correlation);
  when check_violation then return app_private.client_error(case when SQLERRM in ('COLOR_TARGET_INVALID','COLOR_TARGET_INCOMPLETE','TARGET_VERSION_CONFLICT') then SQLERRM else 'COLOR_TARGET_INVALID' end,p_correlation);
 end $$;
+grant create on schema app_private to elifora_color_writer;
 alter function app_private.execute_color_target(uuid,uuid,uuid,text,jsonb,uuid) owner to elifora_color_writer;
+revoke create on schema app_private from elifora_color_writer;
 revoke all on function app_private.execute_color_target(uuid,uuid,uuid,text,jsonb,uuid) from public,anon,service_role;
 grant execute on function app_private.execute_color_target(uuid,uuid,uuid,text,jsonb,uuid) to authenticated;
 create function public.color_target_operation(p_membership_id uuid,p_location_id uuid,p_client_id uuid,p_operation text,p_payload jsonb,p_correlation_id uuid)
