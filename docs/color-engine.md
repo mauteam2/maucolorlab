@@ -22,6 +22,8 @@ Feasibility is DIRECT, CONDITIONAL, MULTI_STAGE, MULTI_SESSION, INFORMATION_REQU
 
 Stages use controlled ASSESS, PREPARE, FILL_PREPIGMENT, REDUCE_CORRECT, LIGHTEN, DEPOSIT, NEUTRALIZE, TONE, ROOT_APPLICATION, LENGTHS_APPLICATION, ENDS_APPLICATION, REASSESS, RECOVERY and FINALIZE vocabulary. Only applicable stages are emitted. Strategies retain regional intentions, checkpoints, physical tests, information, Risk reasons and tradeoffs. Recipe V1 has ENGINE origin, null parent, deterministic identity, target revision, strategy and engine metadata. Future lineage can support professional/test/session revisions; those workflows are not implemented.
 
+Specialized/custom regions receive actions and checkpoints using their own identifiers. Their position is not guessed as a standard root, lengths or ends application stage.
+
 ## Persistence and trust boundary
 
 `color_target_versions` is append-only with revision series, previous-version linkage, actor, organization/client/passport/location, request identity/hash and ordered version. `color_target_regions` retains relational region ownership and objective core fields. Revision writes use expected version and idempotent request IDs. Old plans retain their exact historical target revision.

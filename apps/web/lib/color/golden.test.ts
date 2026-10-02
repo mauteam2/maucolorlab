@@ -50,7 +50,12 @@ it.each(fixtures.cases)("golden $name",test=>{
   expect(result.recipeDraft?.executionStatus).toBe("REQUIRES_BRAND_ADAPTER");expect(result.reasonCodes).toContain("BRAND_ADAPTER_REQUIRED");
   expect(result.regions.map(r=>r.regionId)).toEqual([...i.target.definition.regions.map(r=>r.regionId)].sort());
  }else{expect(result.recipeDraft).toBeNull();expect(result.primaryStrategy).toBeNull();expect(result.reasonCodes).toContain("SAFETY_GATE_BLOCKS_PLANNING");}
- if(test.name==="banded area")expect(result.regions.find(r=>r.regionId===fixtureId(900))?.separateHandling).toBe(true);
+ if(test.name==="banded area") {
+  expect(result.regions.find(r=>r.regionId===fixtureId(900))?.separateHandling).toBe(true);
+  expect(result.primaryStrategy?.stages.some(s=>s.kind==="REASSESS"&&s.regionIds.includes(fixtureId(900))&&s.checkpoint)).toBe(true);
+ }
+ if(test.name==="banded area"||test.name==="custom regional target")
+  expect(result.primaryStrategy?.stages.some(s=>s.kind.endsWith("APPLICATION")&&s.regionIds.includes(fixtureId(900)))).toBe(false);
  if(test.name==="regional grey differences")expect(result.regions.map(r=>r.naturalBaseSupport)).toEqual([true,false,false]);
  expect(evaluateColorPlanning(i.snapshot,i.confidence,i.risk,i.target)).toEqual(result);
 });

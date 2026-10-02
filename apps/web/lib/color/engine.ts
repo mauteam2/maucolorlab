@@ -95,7 +95,9 @@ export function evaluateColorPlanning(snapshot:ConfidenceInput,confidence:CaseCo
   if(r.actions.includes("PRESERVE"))continue;
   const id=[r.regionId],kind=snapshot.pages[0]!.regions.find(x=>x.id===r.regionId)!.type;
   if(r.porousEndsLater)add("REASSESS",id,true,["POROUS_ENDS_REQUIRE_CHECKPOINT"]);
-  add(kind==="ROOT"?"ROOT_APPLICATION":kind==="ENDS"?"ENDS_APPLICATION":"LENGTHS_APPLICATION",id,r.separateHandling,r.reasonCodes);
+  if(kind==="ROOT"||kind==="MID_LENGTHS"||kind==="ENDS")
+   add(kind==="ROOT"?"ROOT_APPLICATION":kind==="ENDS"?"ENDS_APPLICATION":"LENGTHS_APPLICATION",id,r.separateHandling,r.reasonCodes);
+  else if(r.separateHandling)add("REASSESS",id,true,r.reasonCodes);
   if(r.actions.includes("CORRECTION_REQUIRED_CANDIDATE")){add("REDUCE_CORRECT",id,false,r.reasonCodes);add("REASSESS",id,true,["CORRECTION_REQUIRES_INTERMEDIATE_GOAL"]);}
   if(r.actions.includes("FILL_REQUIRED_CANDIDATE")){add("FILL_PREPIGMENT",id,false,["FILL_PREPIGMENTATION_CANDIDATE"]);add("REASSESS",id,true);}
   if(r.actions.some(a=>a.startsWith("LIGHTEN"))){add("LIGHTEN",id,false,["TARGET_REQUIRES_LIGHTENING"]);add("REASSESS",id,true);}
