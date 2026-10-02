@@ -177,3 +177,19 @@ assert list(risk_validator.iter_errors(candidate)), "A blocking gate cannot prog
 assert set(contract["paths"]["/api/clients/{clientId}/hair-passport/risk"]) == {"get"}
 risk_golden = json.loads((root / "contracts/fixtures/risk-golden.json").read_text(encoding="utf-8"))
 print(f"PASS: Risk assessment contracts, {len(risk_golden['cases'])} golden scenarios, 3 explained results and 15 unsafe/malformed rejections")
+
+color_fixture = __import__('json').loads((root / 'contracts/fixtures/color-contract.json').read_text())
+for name, fixture in [('ColorTargetResult', color_fixture['target']), ('ColorPlanResult', color_fixture['plan'])]:
+    observation_validator(name).validate(fixture)
+    unsafe = __import__('copy').deepcopy(fixture)
+    unsafe['data']['organization_id'] = identifier
+    assert list(observation_validator(name).iter_errors(unsafe)), 'Forged target/plan ownership accepted'
+draft_validator = observation_validator('RecipeDraft')
+draft = color_fixture['plan']['data']['result']['recipeDraft']
+for change in ({'executionStatus': 'EXECUTABLE'}, {'developerVolume': 20}, {'grams': 40}, {'version': 2}, {'origin': 'ADMIN_OVERRIDE'}):
+    assert list(draft_validator.iter_errors(draft | change)), 'Unsafe recipe accepted'
+generate_validator = observation_validator('GenerateColorPlan')
+generate_validator.validate({'request_id': identifier, 'target_id': identifier})
+for field in ('risk', 'confidence', 'evidence', 'organization_id', 'ignoreRisk'):
+    assert list(generate_validator.iter_errors({'request_id': identifier, 'target_id': identifier, field: {}}))
+print('PASS: Color target/plan contracts, 2 immutable examples and 12 unsafe ownership/recipe/input rejections')

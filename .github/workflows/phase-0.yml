@@ -43,13 +43,19 @@ jobs:
         run: |
           supabase status -o json > "$RUNNER_TEMP/elifora-supabase-status.json"
           python - <<'PY'
-          import json, os
+          import json, os, subprocess
           from pathlib import Path
           path = Path(os.environ["RUNNER_TEMP"]) / "elifora-supabase-status.json"
           status = json.loads(path.read_text())
+          if status["API_URL"] != "http://127.0.0.1:54321":
+              raise RuntimeError("Disposable local Supabase required")
+          key = subprocess.check_output(["docker", "exec", "supabase_db_elifora", "psql", "-U", "postgres", "-Atc",
+              "select encode(secret,'hex') from app_private.color_engine_keys where id=1"], text=True).strip()
+          print("::add-mask::" + key)
           with open(os.environ["GITHUB_ENV"], "a") as env:
               env.write("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=" + status["ANON_KEY"] + "\n")
               env.write("ELIFORA_TEST_STATUS_FILE=" + str(path) + "\n")
+              env.write("ELIFORA_COLOR_PLAN_SIGNING_KEY=" + key + "\n")
           PY
       - run: npm run lint
       - run: npm run typecheck

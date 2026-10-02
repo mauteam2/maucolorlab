@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.9.0
+  version: 0.10.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -968,6 +968,245 @@ paths:
         '401':
           $ref: '#/components/responses/AccessError'
         '403':
+          $ref: '#/components/responses/AccessError'
+  /api/clients/{clientId}/color-targets:
+    post:
+      operationId: createColorTarget
+      summary: createColorTarget
+      description: Verified membership and caller RLS. Private no-store and X-Correlation-ID. Safety stops persist non-progressing results
+        without recipe. Drafts require Brand Adapter.
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: clientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Origin
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: X-Workspace-Reference
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Correlated immutable result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorTargetResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateColorTarget'
+    patch:
+      operationId: reviseColorTarget
+      summary: reviseColorTarget
+      description: Verified membership and caller RLS. Private no-store and X-Correlation-ID. Safety stops persist non-progressing results
+        without recipe. Drafts require Brand Adapter.
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: clientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Origin
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: X-Workspace-Reference
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Correlated immutable result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorTargetResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviseColorTarget'
+  /api/clients/{clientId}/color-targets/{targetId}:
+    get:
+      operationId: readColorTarget
+      summary: readColorTarget
+      description: Verified membership and caller RLS. Private no-store and X-Correlation-ID. Safety stops persist non-progressing results
+        without recipe. Drafts require Brand Adapter.
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: clientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: targetId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: include_archived
+        in: query
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: Correlated immutable result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorTargetResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /api/clients/{clientId}/color-plans:
+    post:
+      operationId: generateColorPlan
+      summary: generateColorPlan
+      description: Verified membership and caller RLS. Private no-store and X-Correlation-ID. Safety stops persist non-progressing results
+        without recipe. Drafts require Brand Adapter.
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: clientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Origin
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: X-Workspace-Reference
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Correlated immutable result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorPlanResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateColorPlan'
+  /api/clients/{clientId}/color-plans/{planId}:
+    get:
+      operationId: readColorPlan
+      summary: readColorPlan
+      description: Verified membership and caller RLS. Private no-store and X-Correlation-ID. Safety stops persist non-progressing results
+        without recipe. Drafts require Brand Adapter.
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: clientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: planId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: include_archived
+        in: query
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: Correlated immutable result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorPlanResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
           $ref: '#/components/responses/AccessError'
 components:
   securitySchemes:
@@ -4002,6 +4241,20 @@ components:
       - CONFIDENCE_INPUT_INVALID
       - CONFIDENCE_INPUT_LIMIT
       - RISK_INPUT_INVALID
+      - COLOR_TARGET_INVALID
+      - COLOR_TARGET_INCOMPLETE
+      - COLOR_TARGET_NOT_FOUND
+      - TARGET_VERSION_CONFLICT
+      - COLOR_INPUT_INVALID
+      - COLOR_PLAN_NOT_FOUND
+      - COLOR_PLAN_SIGNATURE_INVALID
+      - COLOR_PLAN_SOURCE_CONFLICT
+      - COLOR_PLAN_VERSION_CONFLICT
+      - COLOR_ENGINE_UNAVAILABLE
+      - COLOR_PLAN_BLOCKED_BY_RISK
+      - COLOR_PLAN_REQUIRES_ASSESSMENT
+      - COLOR_PLAN_REQUIRES_TEST
+      - COLOR_PLAN_REQUIRES_RECOVERY
     FieldError:
       type: object
       additionalProperties: false
@@ -4039,3 +4292,1438 @@ components:
           description: Present only with duplicate candidates; sensitive, never log or persist on device.
           type: string
           format: uuid
+    ColorTarget:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        seriesId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        previousVersionId:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        clientId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        passportId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        definition:
+          $ref: '#/components/schemas/TargetDefinition'
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        createdBy:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - id
+      - seriesId
+      - version
+      - previousVersionId
+      - clientId
+      - passportId
+      - definition
+      - createdAt
+      - createdBy
+      additionalProperties: false
+    TargetDefinition:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          const: 1
+        mode:
+          type: string
+          enum:
+          - UNIFORM_COLOR
+          - ROOT_REFRESH
+          - ROOT_SHADOW
+          - GREY_COVERAGE
+          - LIGHTENING
+          - TONING
+          - COLOR_CORRECTION
+          - FILL_PREPIGMENTATION
+          - DIMENSIONAL_COLOR
+          - MULTI_REGION_CUSTOM
+        globalIntent:
+          type: string
+          enum:
+          - PRESERVE
+          - REFRESH
+          - TRANSFORM
+          - CORRECT
+        regions:
+          minItems: 1
+          maxItems: 100
+          type: array
+          items:
+            $ref: '#/components/schemas/RegionalColorTarget'
+      required:
+      - schemaVersion
+      - mode
+      - globalIntent
+      - regions
+      additionalProperties: false
+    RegionalColorTarget:
+      type: object
+      properties:
+        regionId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        level:
+          anyOf:
+          - type: number
+            minimum: 1
+            maximum: 10
+          - type: 'null'
+        toneFamily:
+          anyOf:
+          - type: string
+            enum:
+            - NEUTRAL
+            - ASH_COOL
+            - VIOLET
+            - BLUE
+            - GREEN
+            - GOLD_WARM
+            - COPPER
+            - RED
+            - MIXED
+          - type: 'null'
+        mixedFamilies:
+          maxItems: 3
+          type: array
+          items:
+            type: string
+            enum:
+            - NEUTRAL
+            - ASH_COOL
+            - VIOLET
+            - BLUE
+            - GREEN
+            - GOLD_WARM
+            - COPPER
+            - RED
+        warmth:
+          type: string
+          enum:
+          - NEUTRAL
+          - COOL
+          - WARM
+          - PRESERVE
+        greyPriority:
+          type: string
+          enum:
+          - NONE
+          - BLEND
+          - COVER
+        liftPriority:
+          type: string
+          enum:
+          - NONE
+          - NORMAL
+          - HIGH
+        depositPriority:
+          type: string
+          enum:
+          - NONE
+          - NORMAL
+          - HIGH
+        toneIntent:
+          type: string
+          enum:
+          - PRESERVE
+          - NEUTRALIZE
+          - ENHANCE
+          - CHANGE
+        contrast:
+          type: string
+          enum:
+          - NONE
+          - SOFT
+          - PRONOUNCED
+        preserve:
+          type: boolean
+        handling:
+          type: string
+          enum:
+          - STANDARD
+          - ISOLATE
+        correction:
+          type: string
+          enum:
+          - NONE
+          - BAND
+          - UNEVEN
+          - REFLECTION
+          - DARK_ACCUMULATION
+        intermediateLevel:
+          anyOf:
+          - type: number
+            minimum: 1
+            maximum: 10
+          - type: 'null'
+      required:
+      - regionId
+      - level
+      - toneFamily
+      - mixedFamilies
+      - warmth
+      - greyPriority
+      - liftPriority
+      - depositPriority
+      - toneIntent
+      - contrast
+      - preserve
+      - handling
+      - correction
+      - intermediateLevel
+      additionalProperties: false
+    TargetValidationIssue:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - TARGET_INVALID
+          - TARGET_LEVEL_REQUIRED
+          - TARGET_TONE_REQUIRED
+          - TARGET_REGION_INVALID
+          - TARGET_REGION_DUPLICATE
+          - TARGET_REGION_MISSING
+          - TARGET_PRESERVE_CONFLICT
+          - TARGET_PRIORITY_CONFLICT
+          - TARGET_UNIFORM_CONFLICT
+          - TARGET_INTERMEDIATE_REQUIRED
+          - TARGET_MIXED_TONE_INVALID
+        regionId:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        field:
+          type: string
+      required:
+      - code
+      - regionId
+      - field
+      additionalProperties: false
+    TargetMode:
+      type: string
+      enum:
+      - UNIFORM_COLOR
+      - ROOT_REFRESH
+      - ROOT_SHADOW
+      - GREY_COVERAGE
+      - LIGHTENING
+      - TONING
+      - COLOR_CORRECTION
+      - FILL_PREPIGMENTATION
+      - DIMENSIONAL_COLOR
+      - MULTI_REGION_CUSTOM
+    ToneFamily:
+      type: string
+      enum:
+      - NEUTRAL
+      - ASH_COOL
+      - VIOLET
+      - BLUE
+      - GREEN
+      - GOLD_WARM
+      - COPPER
+      - RED
+      - MIXED
+    ColorFeasibility:
+      type: string
+      enum:
+      - DIRECT
+      - CONDITIONAL
+      - MULTI_STAGE
+      - MULTI_SESSION
+      - INFORMATION_REQUIRED
+      - RECOVERY_REQUIRED
+      - BLOCKED_BY_SAFETY_GATE
+    ColorStrategy:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        type:
+          type: string
+          enum:
+          - CONSERVATIVE
+          - SINGLE_SESSION_PROGRESS
+          - MULTI_SESSION
+        eligibility:
+          type: string
+          const: ELIGIBLE_FOR_PLANNING
+        engineVersion:
+          type: string
+          const: color-engine/1.0.0
+        sessions:
+          type: object
+          properties:
+            min:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 6
+            max:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 6
+          required:
+          - min
+          - max
+          additionalProperties: false
+        regionIds:
+          minItems: 1
+          maxItems: 100
+          type: array
+          items:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        stages:
+          minItems: 1
+          maxItems: 2000
+          type: array
+          items:
+            $ref: '#/components/schemas/ColorStage'
+        technicalIntent:
+          minItems: 1
+          maxItems: 100
+          type: array
+          items:
+            $ref: '#/components/schemas/RegionPlan'
+        requiredCheckpoints:
+          maxItems: 5
+          type: array
+          items:
+            type: string
+            enum:
+            - RISK_REASSESSMENT
+            - REGIONAL_INTEGRITY
+            - INTERMEDIATE_TARGET_REVIEW
+            - BEFORE_ENDS
+            - BETWEEN_SESSIONS
+        requiredPhysicalTests:
+          $ref: '#/components/schemas/ColorRequiredPhysicalTests'
+        requiredInformation:
+          $ref: '#/components/schemas/ColorRequiredInformation'
+        riskConsiderations:
+          $ref: '#/components/schemas/ColorRiskReasons'
+        tradeoffs:
+          type: object
+          properties:
+            integrityPreservation:
+              type: string
+              const: PRIORITIZED
+            targetAccuracy:
+              type: string
+              enum:
+              - FULL_INTENT
+              - PARTIAL_PROGRESS
+            complexity:
+              type: string
+              enum:
+              - SIMPLE
+              - STAGED
+              - MULTI_SESSION
+            uncertainty:
+              type: string
+              enum:
+              - LOW
+              - MODERATE
+              - HIGH
+            maintenance:
+              type: string
+              const: REQUIRES_PROFESSIONAL_REVIEW
+          required:
+          - integrityPreservation
+          - targetAccuracy
+          - complexity
+          - uncertainty
+          - maintenance
+          additionalProperties: false
+        reasonCodes:
+          maxItems: 50
+          type: array
+          items:
+            type: string
+            enum:
+            - TARGET_REQUIRES_LIGHTENING
+            - TARGET_REQUIRES_DARKENING
+            - TARGET_SAME_LEVEL
+            - TONE_ADJUSTMENT_INTENT
+            - NEUTRALIZATION_INTENT
+            - MULTI_SESSION_REQUIRED
+            - REGION_REQUIRES_SEPARATE_STRATEGY
+            - GREY_COVERAGE_PRIORITY
+            - NATURAL_BASE_SUPPORT_CANDIDATE
+            - BAND_REQUIRES_ISOLATION
+            - PREVIOUS_LIGHTENING_LIMITS_PROGRESS
+            - COSMETIC_HISTORY_REQUIRES_REVIEW
+            - FILL_PREPIGMENTATION_CANDIDATE
+            - CORRECTION_REQUIRES_INTERMEDIATE_GOAL
+            - POROUS_ENDS_REQUIRE_CHECKPOINT
+            - PRESERVE_EXISTING_REGION
+            - PHYSICAL_TEST_REQUIRED
+            - SAFETY_GATE_BLOCKS_PLANNING
+            - TARGET_INFORMATION_INCOMPLETE
+            - CURRENT_STATE_INFORMATION_REQUIRED
+            - PARTIAL_PROGRESS_ONLY
+            - BRAND_ADAPTER_REQUIRED
+            - RISK_CHECKPOINTS_REQUIRED
+      required:
+      - id
+      - type
+      - eligibility
+      - engineVersion
+      - sessions
+      - regionIds
+      - stages
+      - technicalIntent
+      - requiredCheckpoints
+      - requiredPhysicalTests
+      - requiredInformation
+      - riskConsiderations
+      - tradeoffs
+      - reasonCodes
+      additionalProperties: false
+    ColorStage:
+      type: object
+      properties:
+        sequence:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        kind:
+          type: string
+          enum:
+          - ASSESS
+          - PREPARE
+          - FILL_PREPIGMENT
+          - REDUCE_CORRECT
+          - LIGHTEN
+          - DEPOSIT
+          - NEUTRALIZE
+          - TONE
+          - ROOT_APPLICATION
+          - LENGTHS_APPLICATION
+          - ENDS_APPLICATION
+          - REASSESS
+          - RECOVERY
+          - FINALIZE
+        regionIds:
+          minItems: 1
+          maxItems: 100
+          type: array
+          items:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        checkpoint:
+          type: boolean
+        reasonCodes:
+          maxItems: 50
+          type: array
+          items:
+            type: string
+            enum:
+            - TARGET_REQUIRES_LIGHTENING
+            - TARGET_REQUIRES_DARKENING
+            - TARGET_SAME_LEVEL
+            - TONE_ADJUSTMENT_INTENT
+            - NEUTRALIZATION_INTENT
+            - MULTI_SESSION_REQUIRED
+            - REGION_REQUIRES_SEPARATE_STRATEGY
+            - GREY_COVERAGE_PRIORITY
+            - NATURAL_BASE_SUPPORT_CANDIDATE
+            - BAND_REQUIRES_ISOLATION
+            - PREVIOUS_LIGHTENING_LIMITS_PROGRESS
+            - COSMETIC_HISTORY_REQUIRES_REVIEW
+            - FILL_PREPIGMENTATION_CANDIDATE
+            - CORRECTION_REQUIRES_INTERMEDIATE_GOAL
+            - POROUS_ENDS_REQUIRE_CHECKPOINT
+            - PRESERVE_EXISTING_REGION
+            - PHYSICAL_TEST_REQUIRED
+            - SAFETY_GATE_BLOCKS_PLANNING
+            - TARGET_INFORMATION_INCOMPLETE
+            - CURRENT_STATE_INFORMATION_REQUIRED
+            - PARTIAL_PROGRESS_ONLY
+            - BRAND_ADAPTER_REQUIRED
+            - RISK_CHECKPOINTS_REQUIRED
+      required:
+      - sequence
+      - kind
+      - regionIds
+      - checkpoint
+      - reasonCodes
+      additionalProperties: false
+    RecipeDraft:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        version:
+          type: number
+          const: 1
+        parentVersionId:
+          type: 'null'
+        origin:
+          type: string
+          const: ENGINE
+        executionStatus:
+          type: string
+          const: REQUIRES_BRAND_ADAPTER
+        target:
+          $ref: '#/components/schemas/ColorTarget'
+        strategy:
+          $ref: '#/components/schemas/ColorStrategy'
+        metadata:
+          $ref: '#/components/schemas/EngineMetadata'
+        reasonCodes:
+          maxItems: 50
+          type: array
+          items:
+            type: string
+            enum:
+            - TARGET_REQUIRES_LIGHTENING
+            - TARGET_REQUIRES_DARKENING
+            - TARGET_SAME_LEVEL
+            - TONE_ADJUSTMENT_INTENT
+            - NEUTRALIZATION_INTENT
+            - MULTI_SESSION_REQUIRED
+            - REGION_REQUIRES_SEPARATE_STRATEGY
+            - GREY_COVERAGE_PRIORITY
+            - NATURAL_BASE_SUPPORT_CANDIDATE
+            - BAND_REQUIRES_ISOLATION
+            - PREVIOUS_LIGHTENING_LIMITS_PROGRESS
+            - COSMETIC_HISTORY_REQUIRES_REVIEW
+            - FILL_PREPIGMENTATION_CANDIDATE
+            - CORRECTION_REQUIRES_INTERMEDIATE_GOAL
+            - POROUS_ENDS_REQUIRE_CHECKPOINT
+            - PRESERVE_EXISTING_REGION
+            - PHYSICAL_TEST_REQUIRED
+            - SAFETY_GATE_BLOCKS_PLANNING
+            - TARGET_INFORMATION_INCOMPLETE
+            - CURRENT_STATE_INFORMATION_REQUIRED
+            - PARTIAL_PROGRESS_ONLY
+            - BRAND_ADAPTER_REQUIRED
+            - RISK_CHECKPOINTS_REQUIRED
+      required:
+      - id
+      - version
+      - parentVersionId
+      - origin
+      - executionStatus
+      - target
+      - strategy
+      - metadata
+      - reasonCodes
+      additionalProperties: false
+    EngineMetadata:
+      type: object
+      properties:
+        colorVersion:
+          type: string
+          const: color-engine/1.0.0
+        colorRulesFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        inputFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        passportId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        passportVersion:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        hairFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        targetId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        targetVersion:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        targetFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        confidenceVersion:
+          type: string
+          const: confidence-engine/1.0.0
+        confidenceFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        confidenceRulesFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        riskVersion:
+          type: string
+          const: risk-engine/1.0.0
+        riskFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        riskRulesFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+      required:
+      - colorVersion
+      - colorRulesFingerprint
+      - inputFingerprint
+      - passportId
+      - passportVersion
+      - hairFingerprint
+      - targetId
+      - targetVersion
+      - targetFingerprint
+      - confidenceVersion
+      - confidenceFingerprint
+      - confidenceRulesFingerprint
+      - riskVersion
+      - riskFingerprint
+      - riskRulesFingerprint
+      additionalProperties: false
+    RegionPlan:
+      type: object
+      properties:
+        regionId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        currentLevel:
+          anyOf:
+          - type: number
+            minimum: 1
+            maximum: 10
+          - type: 'null'
+        naturalLevel:
+          anyOf:
+          - type: number
+            minimum: 1
+            maximum: 10
+          - type: 'null'
+        targetLevel:
+          anyOf:
+          - type: number
+            minimum: 1
+            maximum: 10
+          - type: 'null'
+        delta:
+          anyOf:
+          - type: number
+            minimum: -9
+            maximum: 9
+          - type: 'null'
+        actions:
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/ColorDelta'
+        separateHandling:
+          type: boolean
+        porousEndsLater:
+          type: boolean
+        naturalBaseSupport:
+          type: boolean
+        reasonCodes:
+          maxItems: 50
+          type: array
+          items:
+            type: string
+            enum:
+            - TARGET_REQUIRES_LIGHTENING
+            - TARGET_REQUIRES_DARKENING
+            - TARGET_SAME_LEVEL
+            - TONE_ADJUSTMENT_INTENT
+            - NEUTRALIZATION_INTENT
+            - MULTI_SESSION_REQUIRED
+            - REGION_REQUIRES_SEPARATE_STRATEGY
+            - GREY_COVERAGE_PRIORITY
+            - NATURAL_BASE_SUPPORT_CANDIDATE
+            - BAND_REQUIRES_ISOLATION
+            - PREVIOUS_LIGHTENING_LIMITS_PROGRESS
+            - COSMETIC_HISTORY_REQUIRES_REVIEW
+            - FILL_PREPIGMENTATION_CANDIDATE
+            - CORRECTION_REQUIRES_INTERMEDIATE_GOAL
+            - POROUS_ENDS_REQUIRE_CHECKPOINT
+            - PRESERVE_EXISTING_REGION
+            - PHYSICAL_TEST_REQUIRED
+            - SAFETY_GATE_BLOCKS_PLANNING
+            - TARGET_INFORMATION_INCOMPLETE
+            - CURRENT_STATE_INFORMATION_REQUIRED
+            - PARTIAL_PROGRESS_ONLY
+            - BRAND_ADAPTER_REQUIRED
+            - RISK_CHECKPOINTS_REQUIRED
+      required:
+      - regionId
+      - currentLevel
+      - naturalLevel
+      - targetLevel
+      - delta
+      - actions
+      - separateHandling
+      - porousEndsLater
+      - naturalBaseSupport
+      - reasonCodes
+      additionalProperties: false
+    ColorDelta:
+      type: string
+      enum:
+      - PRESERVE
+      - CURRENT_UNKNOWN
+      - SAME_LEVEL
+      - DARKEN
+      - LIGHTEN_SMALL
+      - LIGHTEN_MODERATE
+      - LIGHTEN_MAJOR
+      - TONE_ONLY
+      - NEUTRALIZE
+      - ENHANCE_REFLECTION
+      - FILL_REQUIRED_CANDIDATE
+      - CORRECTION_REQUIRED_CANDIDATE
+    ColorPlanning:
+      type: object
+      properties:
+        engineVersion:
+          type: string
+          const: color-engine/1.0.0
+        evaluatedAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        metadata:
+          $ref: '#/components/schemas/EngineMetadata'
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - REQUIRES_ASSESSMENT
+          - REQUIRES_TEST
+          - REQUIRES_RECOVERY
+          - BLOCKED_BY_RISK
+        feasibility:
+          type: string
+          enum:
+          - DIRECT
+          - CONDITIONAL
+          - MULTI_STAGE
+          - MULTI_SESSION
+          - INFORMATION_REQUIRED
+          - RECOVERY_REQUIRED
+          - BLOCKED_BY_SAFETY_GATE
+        targetIssues:
+          maxItems: 1000
+          type: array
+          items:
+            $ref: '#/components/schemas/TargetValidationIssue'
+        regions:
+          maxItems: 100
+          type: array
+          items:
+            $ref: '#/components/schemas/RegionPlan'
+        safetyGate:
+          $ref: '#/components/schemas/ColorSafetyGate'
+        requiredPhysicalTests:
+          $ref: '#/components/schemas/ColorRequiredPhysicalTests'
+        requiredInformation:
+          $ref: '#/components/schemas/ColorRequiredInformation'
+        reasonCodes:
+          maxItems: 50
+          type: array
+          items:
+            type: string
+            enum:
+            - TARGET_REQUIRES_LIGHTENING
+            - TARGET_REQUIRES_DARKENING
+            - TARGET_SAME_LEVEL
+            - TONE_ADJUSTMENT_INTENT
+            - NEUTRALIZATION_INTENT
+            - MULTI_SESSION_REQUIRED
+            - REGION_REQUIRES_SEPARATE_STRATEGY
+            - GREY_COVERAGE_PRIORITY
+            - NATURAL_BASE_SUPPORT_CANDIDATE
+            - BAND_REQUIRES_ISOLATION
+            - PREVIOUS_LIGHTENING_LIMITS_PROGRESS
+            - COSMETIC_HISTORY_REQUIRES_REVIEW
+            - FILL_PREPIGMENTATION_CANDIDATE
+            - CORRECTION_REQUIRES_INTERMEDIATE_GOAL
+            - POROUS_ENDS_REQUIRE_CHECKPOINT
+            - PRESERVE_EXISTING_REGION
+            - PHYSICAL_TEST_REQUIRED
+            - SAFETY_GATE_BLOCKS_PLANNING
+            - TARGET_INFORMATION_INCOMPLETE
+            - CURRENT_STATE_INFORMATION_REQUIRED
+            - PARTIAL_PROGRESS_ONLY
+            - BRAND_ADAPTER_REQUIRED
+            - RISK_CHECKPOINTS_REQUIRED
+        primaryStrategy:
+          anyOf:
+          - $ref: '#/components/schemas/ColorStrategy'
+          - type: 'null'
+        alternatives:
+          maxItems: 2
+          type: array
+          items:
+            $ref: '#/components/schemas/ColorStrategy'
+        recipeDraft:
+          anyOf:
+          - $ref: '#/components/schemas/RecipeDraft'
+          - type: 'null'
+      required:
+      - engineVersion
+      - evaluatedAt
+      - metadata
+      - status
+      - feasibility
+      - targetIssues
+      - regions
+      - safetyGate
+      - requiredPhysicalTests
+      - requiredInformation
+      - reasonCodes
+      - primaryStrategy
+      - alternatives
+      - recipeDraft
+      additionalProperties: false
+    StoredColorPlan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        clientId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        targetId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        createdBy:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        result:
+          $ref: '#/components/schemas/ColorPlanning'
+      required:
+      - id
+      - clientId
+      - targetId
+      - createdAt
+      - createdBy
+      - result
+      additionalProperties: false
+    ColorTargetResult:
+      anyOf:
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/ColorTarget'
+          correlationId:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        required:
+        - data
+        - correlationId
+        additionalProperties: false
+      - type: object
+        properties:
+          code:
+            type: string
+            enum:
+            - UNAUTHENTICATED
+            - SESSION_EXPIRED
+            - MEMBERSHIP_REQUIRED
+            - MEMBERSHIP_REVOKED
+            - TENANT_CONTEXT_INVALID
+            - FORBIDDEN
+            - CLIENT_NOT_FOUND
+            - HAIR_PASSPORT_NOT_FOUND
+            - VALIDATION_FAILED
+            - NETWORK_ERROR
+            - CONFIDENCE_INPUT_INVALID
+            - CONFIDENCE_INPUT_LIMIT
+            - COLOR_TARGET_INVALID
+            - COLOR_TARGET_INCOMPLETE
+            - COLOR_TARGET_NOT_FOUND
+            - TARGET_VERSION_CONFLICT
+            - COLOR_INPUT_INVALID
+            - COLOR_PLAN_NOT_FOUND
+            - COLOR_PLAN_SIGNATURE_INVALID
+            - COLOR_PLAN_SOURCE_CONFLICT
+            - COLOR_PLAN_VERSION_CONFLICT
+            - COLOR_ENGINE_UNAVAILABLE
+            - COLOR_PLAN_BLOCKED_BY_RISK
+            - COLOR_PLAN_REQUIRES_ASSESSMENT
+            - COLOR_PLAN_REQUIRES_TEST
+            - COLOR_PLAN_REQUIRES_RECOVERY
+          message:
+            type: string
+          correlationId:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        required:
+        - code
+        - message
+        - correlationId
+        additionalProperties: false
+    ColorPlanResult:
+      anyOf:
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/StoredColorPlan'
+          correlationId:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        required:
+        - data
+        - correlationId
+        additionalProperties: false
+      - type: object
+        properties:
+          code:
+            type: string
+            enum:
+            - UNAUTHENTICATED
+            - SESSION_EXPIRED
+            - MEMBERSHIP_REQUIRED
+            - MEMBERSHIP_REVOKED
+            - TENANT_CONTEXT_INVALID
+            - FORBIDDEN
+            - CLIENT_NOT_FOUND
+            - HAIR_PASSPORT_NOT_FOUND
+            - VALIDATION_FAILED
+            - NETWORK_ERROR
+            - CONFIDENCE_INPUT_INVALID
+            - CONFIDENCE_INPUT_LIMIT
+            - COLOR_TARGET_INVALID
+            - COLOR_TARGET_INCOMPLETE
+            - COLOR_TARGET_NOT_FOUND
+            - TARGET_VERSION_CONFLICT
+            - COLOR_INPUT_INVALID
+            - COLOR_PLAN_NOT_FOUND
+            - COLOR_PLAN_SIGNATURE_INVALID
+            - COLOR_PLAN_SOURCE_CONFLICT
+            - COLOR_PLAN_VERSION_CONFLICT
+            - COLOR_ENGINE_UNAVAILABLE
+            - COLOR_PLAN_BLOCKED_BY_RISK
+            - COLOR_PLAN_REQUIRES_ASSESSMENT
+            - COLOR_PLAN_REQUIRES_TEST
+            - COLOR_PLAN_REQUIRES_RECOVERY
+          message:
+            type: string
+          correlationId:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        required:
+        - code
+        - message
+        - correlationId
+        additionalProperties: false
+    CreateColorTarget:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        definition:
+          $ref: '#/components/schemas/TargetDefinition'
+      required:
+      - request_id
+      - definition
+      additionalProperties: false
+    ReviseColorTarget:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        series_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        expected_version:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        definition:
+          $ref: '#/components/schemas/TargetDefinition'
+      required:
+      - request_id
+      - series_id
+      - expected_version
+      - definition
+      additionalProperties: false
+    GenerateColorPlan:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        target_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - request_id
+      - target_id
+      additionalProperties: false
+    RecipeExecutionStatus:
+      type: string
+      const: REQUIRES_BRAND_ADAPTER
+    ColorPlanningReason:
+      type: string
+      enum:
+      - TARGET_REQUIRES_LIGHTENING
+      - TARGET_REQUIRES_DARKENING
+      - TARGET_SAME_LEVEL
+      - TONE_ADJUSTMENT_INTENT
+      - NEUTRALIZATION_INTENT
+      - MULTI_SESSION_REQUIRED
+      - REGION_REQUIRES_SEPARATE_STRATEGY
+      - GREY_COVERAGE_PRIORITY
+      - NATURAL_BASE_SUPPORT_CANDIDATE
+      - BAND_REQUIRES_ISOLATION
+      - PREVIOUS_LIGHTENING_LIMITS_PROGRESS
+      - COSMETIC_HISTORY_REQUIRES_REVIEW
+      - FILL_PREPIGMENTATION_CANDIDATE
+      - CORRECTION_REQUIRES_INTERMEDIATE_GOAL
+      - POROUS_ENDS_REQUIRE_CHECKPOINT
+      - PRESERVE_EXISTING_REGION
+      - PHYSICAL_TEST_REQUIRED
+      - SAFETY_GATE_BLOCKS_PLANNING
+      - TARGET_INFORMATION_INCOMPLETE
+      - CURRENT_STATE_INFORMATION_REQUIRED
+      - PARTIAL_PROGRESS_ONLY
+      - BRAND_ADAPTER_REQUIRED
+      - RISK_CHECKPOINTS_REQUIRED
+    ColorRequiredPhysicalTests:
+      maxItems: 303
+      type: array
+      items:
+        type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - POROSITY
+            - ELASTICITY
+            - STRAND
+          target:
+            type: string
+            pattern: ^(GLOBAL|MISSING:(ROOT|MID_LENGTHS|ENDS)|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$
+          status:
+            type: string
+            enum:
+            - SATISFIED
+            - MISSING
+            - STALE
+            - UNRELIABLE
+          reasonCodes:
+            maxItems: 30
+            type: array
+            items:
+              type: string
+              enum:
+              - NO_ESCALATING_STRUCTURED_FACT
+              - HIGH_POROSITY_EVIDENCE
+              - LOW_ELASTICITY_EVIDENCE
+              - COMBINED_INTEGRITY_CONCERN
+              - INTEGRITY_INFORMATION_UNKNOWN
+              - LIGHTENING_HISTORY_PRESENT
+              - REPEATED_LIGHTENING_HISTORY
+              - LIGHTENING_HISTORY_UNKNOWN
+              - CHEMICAL_HISTORY_PRESENT
+              - CHEMICAL_HISTORY_COMPLEX
+              - CHEMICAL_HISTORY_UNKNOWN
+              - HISTORY_UNVERIFIED
+              - REGIONAL_VARIATION_HIGH
+              - REGION_INFORMATION_MISSING
+              - PHYSICAL_TEST_MISSING
+              - PHYSICAL_TEST_STALE
+              - PHYSICAL_TEST_UNRELIABLE
+              - CONFLICTING_INTEGRITY_EVIDENCE
+              - CONFLICTING_TECHNICAL_EVIDENCE
+              - CONFIDENCE_LOW
+              - CONFIDENCE_MODERATE
+              - CONFIDENCE_INSUFFICIENT
+              - CRITICAL_INFORMATION_GAP
+              - ADDITIONAL_INFORMATION_REQUIRED
+              - OUTSIDE_COSMETIC_SCOPE
+          evidenceRefs:
+            maxItems: 1000
+            type: array
+            items:
+              type: object
+              properties:
+                kind:
+                  type: string
+                  enum:
+                  - OBSERVATION
+                  - PHYSICAL_TEST
+                  - HISTORY
+                  - UNVERIFIED_STATE
+                id:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                evidenceId:
+                  anyOf:
+                  - type: string
+                    format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                  - type: 'null'
+              required:
+              - kind
+              - id
+              - evidenceId
+              additionalProperties: false
+        required:
+        - type
+        - target
+        - status
+        - reasonCodes
+        - evidenceRefs
+        additionalProperties: false
+    ColorRequiredInformation:
+      maxItems: 5000
+      type: array
+      items:
+        type: object
+        properties:
+          code:
+            type: string
+            enum:
+            - ASSESS_NATURAL_LEVEL
+            - ASSESS_CURRENT_LEVEL
+            - ASSESS_GREY
+            - ASSESS_POROSITY
+            - ASSESS_ELASTICITY
+            - ASSESS_INTEGRITY
+            - VERIFY_COLOR_HISTORY
+            - VERIFY_BLEACH_HISTORY
+            - VERIFY_CHEMICAL_HISTORY
+            - PERFORM_STRAND_TEST
+            - VERIFY_REGION
+            - REVIEW_CONFLICTING_EVIDENCE
+            - VERIFY_IMPORTED_HISTORY
+            - REFRESH_EVIDENCE
+            - PERFORM_POROSITY_TEST
+            - PERFORM_ELASTICITY_TEST
+            - REASSESS_HAIR_INTEGRITY
+          target:
+            type: string
+            pattern: ^(GLOBAL|MISSING:(ROOT|MID_LENGTHS|ENDS)|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$
+          severity:
+            type: string
+            enum:
+            - LOW
+            - MODERATE
+            - HIGH
+            - CRITICAL
+          reasonCodes:
+            maxItems: 40
+            type: array
+            items:
+              type: string
+              enum:
+              - FIELD_NOT_ASSESSED
+              - FIELD_UNKNOWN
+              - EVIDENCE_STALE
+              - EVIDENCE_EXPIRED
+              - EVIDENCE_TIME_UNKNOWN
+              - LOW_QUALITY_EVIDENCE
+              - SOURCE_QUALITY_LIMIT
+              - CONFIDENCE_UNSPECIFIED
+              - EXPLICIT_CONFIDENCE_LIMIT
+              - CONFLICTING_EVIDENCE
+              - DIVERGENT_HISTORY_SUMMARIES
+              - REGION_NOT_ASSESSED
+              - HISTORY_UNVERIFIED
+              - PHYSICAL_TEST_MISSING
+              - CRITICAL_INFORMATION_GAP
+              - NO_ESCALATING_STRUCTURED_FACT
+              - HIGH_POROSITY_EVIDENCE
+              - LOW_ELASTICITY_EVIDENCE
+              - COMBINED_INTEGRITY_CONCERN
+              - INTEGRITY_INFORMATION_UNKNOWN
+              - LIGHTENING_HISTORY_PRESENT
+              - REPEATED_LIGHTENING_HISTORY
+              - LIGHTENING_HISTORY_UNKNOWN
+              - CHEMICAL_HISTORY_PRESENT
+              - CHEMICAL_HISTORY_COMPLEX
+              - CHEMICAL_HISTORY_UNKNOWN
+              - REGIONAL_VARIATION_HIGH
+              - REGION_INFORMATION_MISSING
+              - PHYSICAL_TEST_STALE
+              - PHYSICAL_TEST_UNRELIABLE
+              - CONFLICTING_INTEGRITY_EVIDENCE
+              - CONFLICTING_TECHNICAL_EVIDENCE
+              - CONFIDENCE_LOW
+              - CONFIDENCE_MODERATE
+              - CONFIDENCE_INSUFFICIENT
+              - ADDITIONAL_INFORMATION_REQUIRED
+              - OUTSIDE_COSMETIC_SCOPE
+          evidenceRefs:
+            maxItems: 1000
+            type: array
+            items:
+              type: object
+              properties:
+                kind:
+                  type: string
+                  enum:
+                  - OBSERVATION
+                  - PHYSICAL_TEST
+                  - HISTORY
+                  - UNVERIFIED_STATE
+                id:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                evidenceId:
+                  anyOf:
+                  - type: string
+                    format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                  - type: 'null'
+              required:
+              - kind
+              - id
+              - evidenceId
+              additionalProperties: false
+        required:
+        - code
+        - target
+        - severity
+        - reasonCodes
+        - evidenceRefs
+        additionalProperties: false
+    ColorRiskReasons:
+      maxItems: 5000
+      type: array
+      items:
+        type: object
+        properties:
+          code:
+            type: string
+            enum:
+            - NO_ESCALATING_STRUCTURED_FACT
+            - HIGH_POROSITY_EVIDENCE
+            - LOW_ELASTICITY_EVIDENCE
+            - COMBINED_INTEGRITY_CONCERN
+            - INTEGRITY_INFORMATION_UNKNOWN
+            - LIGHTENING_HISTORY_PRESENT
+            - REPEATED_LIGHTENING_HISTORY
+            - LIGHTENING_HISTORY_UNKNOWN
+            - CHEMICAL_HISTORY_PRESENT
+            - CHEMICAL_HISTORY_COMPLEX
+            - CHEMICAL_HISTORY_UNKNOWN
+            - HISTORY_UNVERIFIED
+            - REGIONAL_VARIATION_HIGH
+            - REGION_INFORMATION_MISSING
+            - PHYSICAL_TEST_MISSING
+            - PHYSICAL_TEST_STALE
+            - PHYSICAL_TEST_UNRELIABLE
+            - CONFLICTING_INTEGRITY_EVIDENCE
+            - CONFLICTING_TECHNICAL_EVIDENCE
+            - CONFIDENCE_LOW
+            - CONFIDENCE_MODERATE
+            - CONFIDENCE_INSUFFICIENT
+            - CRITICAL_INFORMATION_GAP
+            - ADDITIONAL_INFORMATION_REQUIRED
+            - OUTSIDE_COSMETIC_SCOPE
+          dimension:
+            type: string
+            enum:
+            - HAIR_INTEGRITY
+            - CHEMICAL_HISTORY
+            - LIGHTENING_HISTORY
+            - REGIONAL_COMPLEXITY
+            - POROSITY_ELASTICITY
+            - EVIDENCE_INFORMATION
+            - PHYSICAL_TEST_SUFFICIENCY
+            - TECHNICAL_CONSISTENCY
+          band:
+            type: string
+            enum:
+            - LOW
+            - MODERATE
+            - HIGH
+            - CRITICAL
+          target:
+            type: string
+            pattern: ^(GLOBAL|MISSING:(ROOT|MID_LENGTHS|ENDS)|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$
+          field:
+            anyOf:
+            - type: string
+              enum:
+              - natural_level
+              - perceived_level
+              - grey_ratio
+              - porosity
+              - elasticity
+              - thickness
+              - density
+              - cosmetic_color_history
+              - bleach_history
+              - chemical_history
+              - physical_test
+            - type: 'null'
+          evidenceRefs:
+            maxItems: 1000
+            type: array
+            items:
+              type: object
+              properties:
+                kind:
+                  type: string
+                  enum:
+                  - OBSERVATION
+                  - PHYSICAL_TEST
+                  - HISTORY
+                  - UNVERIFIED_STATE
+                id:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                evidenceId:
+                  anyOf:
+                  - type: string
+                    format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                  - type: 'null'
+              required:
+              - kind
+              - id
+              - evidenceId
+              additionalProperties: false
+          context:
+            type: object
+            properties:
+              state:
+                type:
+                - string
+                - 'null'
+              value:
+                type:
+                - string
+                - number
+                - 'null'
+              count:
+                anyOf:
+                - type: integer
+                  minimum: 0
+                  maximum: 1000
+                - type: 'null'
+            required:
+            - state
+            - value
+            - count
+            additionalProperties: false
+        required:
+        - code
+        - dimension
+        - band
+        - target
+        - field
+        - evidenceRefs
+        - context
+        additionalProperties: false
+    ColorSafetyGate:
+      type: object
+      properties:
+        outcome:
+          type: string
+          enum:
+          - CONTINUE_TECHNICAL_PLANNING
+          - CONTINUE_WITH_CHECKPOINTS
+          - REQUIRE_ADDITIONAL_ASSESSMENT
+          - REQUIRE_PHYSICAL_TEST
+          - REQUIRE_STRAND_TEST
+          - BLOCK_INSUFFICIENT_INFORMATION
+          - REQUIRE_RECOVERY_REASSESSMENT
+          - BLOCK_TECHNICAL_PLANNING
+          - OUTSIDE_COSMETIC_SCOPE
+        canProgress:
+          type: boolean
+        reasonCodes:
+          minItems: 1
+          maxItems: 30
+          type: array
+          items:
+            type: string
+            enum:
+            - NO_ESCALATING_STRUCTURED_FACT
+            - HIGH_POROSITY_EVIDENCE
+            - LOW_ELASTICITY_EVIDENCE
+            - COMBINED_INTEGRITY_CONCERN
+            - INTEGRITY_INFORMATION_UNKNOWN
+            - LIGHTENING_HISTORY_PRESENT
+            - REPEATED_LIGHTENING_HISTORY
+            - LIGHTENING_HISTORY_UNKNOWN
+            - CHEMICAL_HISTORY_PRESENT
+            - CHEMICAL_HISTORY_COMPLEX
+            - CHEMICAL_HISTORY_UNKNOWN
+            - HISTORY_UNVERIFIED
+            - REGIONAL_VARIATION_HIGH
+            - REGION_INFORMATION_MISSING
+            - PHYSICAL_TEST_MISSING
+            - PHYSICAL_TEST_STALE
+            - PHYSICAL_TEST_UNRELIABLE
+            - CONFLICTING_INTEGRITY_EVIDENCE
+            - CONFLICTING_TECHNICAL_EVIDENCE
+            - CONFIDENCE_LOW
+            - CONFIDENCE_MODERATE
+            - CONFIDENCE_INSUFFICIENT
+            - CRITICAL_INFORMATION_GAP
+            - ADDITIONAL_INFORMATION_REQUIRED
+            - OUTSIDE_COSMETIC_SCOPE
+      required:
+      - outcome
+      - canProgress
+      - reasonCodes
+      additionalProperties: false
+    ColorStrategyAlternative:
+      $ref: '#/components/schemas/ColorStrategy'

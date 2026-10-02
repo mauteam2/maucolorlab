@@ -1,0 +1,645 @@
+{
+  "target": {
+    "data": {
+      "id": "c1000000-0000-4000-8000-000000004000",
+      "seriesId": "c1000000-0000-4000-8000-000000004001",
+      "version": 1,
+      "previousVersionId": null,
+      "clientId": "c1000000-0000-4000-8000-000000000004",
+      "passportId": "c1000000-0000-4000-8000-000000000003",
+      "definition": {
+        "schemaVersion": 1,
+        "mode": "UNIFORM_COLOR",
+        "globalIntent": "REFRESH",
+        "regions": [
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000010",
+            "level": 7,
+            "toneFamily": "NEUTRAL",
+            "mixedFamilies": [],
+            "warmth": "NEUTRAL",
+            "greyPriority": "NONE",
+            "liftPriority": "NONE",
+            "depositPriority": "NONE",
+            "toneIntent": "CHANGE",
+            "contrast": "NONE",
+            "preserve": false,
+            "handling": "STANDARD",
+            "correction": "NONE",
+            "intermediateLevel": null
+          },
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000011",
+            "level": 7,
+            "toneFamily": "NEUTRAL",
+            "mixedFamilies": [],
+            "warmth": "NEUTRAL",
+            "greyPriority": "NONE",
+            "liftPriority": "NONE",
+            "depositPriority": "NONE",
+            "toneIntent": "CHANGE",
+            "contrast": "NONE",
+            "preserve": false,
+            "handling": "STANDARD",
+            "correction": "NONE",
+            "intermediateLevel": null
+          },
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000012",
+            "level": 7,
+            "toneFamily": "NEUTRAL",
+            "mixedFamilies": [],
+            "warmth": "NEUTRAL",
+            "greyPriority": "NONE",
+            "liftPriority": "NONE",
+            "depositPriority": "NONE",
+            "toneIntent": "CHANGE",
+            "contrast": "NONE",
+            "preserve": false,
+            "handling": "STANDARD",
+            "correction": "NONE",
+            "intermediateLevel": null
+          }
+        ]
+      },
+      "createdAt": "2026-10-01T12:00:00.000Z",
+      "createdBy": "c1000000-0000-4000-8000-000000000007"
+    },
+    "correlationId": "c1000000-0000-4000-8000-000000004000"
+  },
+  "plan": {
+    "data": {
+      "id": "c1000000-0000-4000-8000-000000004000",
+      "clientId": "c1000000-0000-4000-8000-000000000004",
+      "targetId": "c1000000-0000-4000-8000-000000004000",
+      "createdAt": "2026-10-01T12:00:00.000Z",
+      "createdBy": "c1000000-0000-4000-8000-000000000007",
+      "result": {
+        "engineVersion": "color-engine/1.0.0",
+        "evaluatedAt": "2026-10-01T12:00:00.000Z",
+        "metadata": {
+          "colorVersion": "color-engine/1.0.0",
+          "colorRulesFingerprint": "ed5438071d3b1cb417aee5e2605ec5b4d5e081d73552fc5bde5bfe70f3a6472e",
+          "inputFingerprint": "b8abada1e6c29a70891499a86b16806f7f256cce9b960831d0b6ef1ee9c01373",
+          "passportId": "c1000000-0000-4000-8000-000000000003",
+          "passportVersion": 1,
+          "hairFingerprint": "506d7c56ee365345c593d8ca7462ff149201f9bb82100b6257ef643f5516faee",
+          "targetId": "c1000000-0000-4000-8000-000000004000",
+          "targetVersion": 1,
+          "targetFingerprint": "2a01d31cab54084eff719d597afe6421671062354cb1e767af7c71d235b49bc1",
+          "confidenceVersion": "confidence-engine/1.0.0",
+          "confidenceFingerprint": "506d7c56ee365345c593d8ca7462ff149201f9bb82100b6257ef643f5516faee",
+          "confidenceRulesFingerprint": "9dbc228079f87bf2373f9edc8e0194cb48e5430db31ea73d08676158400eafed",
+          "riskVersion": "risk-engine/1.0.0",
+          "riskFingerprint": "d1f7195ed515559807098c09e92ff6971f9aeb7363b27f3209f5f6f6b29f3770",
+          "riskRulesFingerprint": "ec322876dbbba63c28a3454d14c3bc09a5f2017d8712e441aab400ba2b4f5e36"
+        },
+        "status": "DRAFT",
+        "feasibility": "DIRECT",
+        "targetIssues": [],
+        "regions": [
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000010",
+            "currentLevel": 7,
+            "naturalLevel": 6,
+            "targetLevel": 7,
+            "delta": 0,
+            "actions": [
+              "SAME_LEVEL",
+              "TONE_ONLY"
+            ],
+            "separateHandling": false,
+            "porousEndsLater": false,
+            "naturalBaseSupport": false,
+            "reasonCodes": [
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          },
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000011",
+            "currentLevel": 7,
+            "naturalLevel": 6,
+            "targetLevel": 7,
+            "delta": 0,
+            "actions": [
+              "SAME_LEVEL",
+              "TONE_ONLY"
+            ],
+            "separateHandling": false,
+            "porousEndsLater": false,
+            "naturalBaseSupport": false,
+            "reasonCodes": [
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          },
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000012",
+            "currentLevel": 7,
+            "naturalLevel": 6,
+            "targetLevel": 7,
+            "delta": 0,
+            "actions": [
+              "SAME_LEVEL",
+              "TONE_ONLY"
+            ],
+            "separateHandling": false,
+            "porousEndsLater": false,
+            "naturalBaseSupport": false,
+            "reasonCodes": [
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          }
+        ],
+        "safetyGate": {
+          "outcome": "CONTINUE_TECHNICAL_PLANNING",
+          "canProgress": true,
+          "reasonCodes": [
+            "NO_ESCALATING_STRUCTURED_FACT"
+          ]
+        },
+        "requiredPhysicalTests": [],
+        "requiredInformation": [],
+        "reasonCodes": [
+          "BRAND_ADAPTER_REQUIRED",
+          "TARGET_SAME_LEVEL",
+          "TONE_ADJUSTMENT_INTENT"
+        ],
+        "primaryStrategy": {
+          "id": "afb6a2632f0754745d8adb7d988633f4b54cbc09d3e9791852bd110ab9707bfc",
+          "type": "CONSERVATIVE",
+          "eligibility": "ELIGIBLE_FOR_PLANNING",
+          "engineVersion": "color-engine/1.0.0",
+          "sessions": {
+            "min": 1,
+            "max": 1
+          },
+          "regionIds": [
+            "c1000000-0000-4000-8000-000000000010",
+            "c1000000-0000-4000-8000-000000000011",
+            "c1000000-0000-4000-8000-000000000012"
+          ],
+          "stages": [
+            {
+              "sequence": 1,
+              "kind": "ASSESS",
+              "regionIds": [
+                "c1000000-0000-4000-8000-000000000010",
+                "c1000000-0000-4000-8000-000000000011",
+                "c1000000-0000-4000-8000-000000000012"
+              ],
+              "checkpoint": true,
+              "reasonCodes": []
+            },
+            {
+              "sequence": 2,
+              "kind": "PREPARE",
+              "regionIds": [
+                "c1000000-0000-4000-8000-000000000010",
+                "c1000000-0000-4000-8000-000000000011",
+                "c1000000-0000-4000-8000-000000000012"
+              ],
+              "checkpoint": false,
+              "reasonCodes": []
+            },
+            {
+              "sequence": 3,
+              "kind": "ROOT_APPLICATION",
+              "regionIds": [
+                "c1000000-0000-4000-8000-000000000010"
+              ],
+              "checkpoint": false,
+              "reasonCodes": [
+                "TARGET_SAME_LEVEL",
+                "TONE_ADJUSTMENT_INTENT"
+              ]
+            },
+            {
+              "sequence": 4,
+              "kind": "TONE",
+              "regionIds": [
+                "c1000000-0000-4000-8000-000000000010"
+              ],
+              "checkpoint": false,
+              "reasonCodes": []
+            },
+            {
+              "sequence": 5,
+              "kind": "LENGTHS_APPLICATION",
+              "regionIds": [
+                "c1000000-0000-4000-8000-000000000011"
+              ],
+              "checkpoint": false,
+              "reasonCodes": [
+                "TARGET_SAME_LEVEL",
+                "TONE_ADJUSTMENT_INTENT"
+              ]
+            },
+            {
+              "sequence": 6,
+              "kind": "TONE",
+              "regionIds": [
+                "c1000000-0000-4000-8000-000000000011"
+              ],
+              "checkpoint": false,
+              "reasonCodes": []
+            },
+            {
+              "sequence": 7,
+              "kind": "ENDS_APPLICATION",
+              "regionIds": [
+                "c1000000-0000-4000-8000-000000000012"
+              ],
+              "checkpoint": false,
+              "reasonCodes": [
+                "TARGET_SAME_LEVEL",
+                "TONE_ADJUSTMENT_INTENT"
+              ]
+            },
+            {
+              "sequence": 8,
+              "kind": "TONE",
+              "regionIds": [
+                "c1000000-0000-4000-8000-000000000012"
+              ],
+              "checkpoint": false,
+              "reasonCodes": []
+            },
+            {
+              "sequence": 9,
+              "kind": "FINALIZE",
+              "regionIds": [
+                "c1000000-0000-4000-8000-000000000010",
+                "c1000000-0000-4000-8000-000000000011",
+                "c1000000-0000-4000-8000-000000000012"
+              ],
+              "checkpoint": true,
+              "reasonCodes": []
+            }
+          ],
+          "technicalIntent": [
+            {
+              "regionId": "c1000000-0000-4000-8000-000000000010",
+              "currentLevel": 7,
+              "naturalLevel": 6,
+              "targetLevel": 7,
+              "delta": 0,
+              "actions": [
+                "SAME_LEVEL",
+                "TONE_ONLY"
+              ],
+              "separateHandling": false,
+              "porousEndsLater": false,
+              "naturalBaseSupport": false,
+              "reasonCodes": [
+                "TARGET_SAME_LEVEL",
+                "TONE_ADJUSTMENT_INTENT"
+              ]
+            },
+            {
+              "regionId": "c1000000-0000-4000-8000-000000000011",
+              "currentLevel": 7,
+              "naturalLevel": 6,
+              "targetLevel": 7,
+              "delta": 0,
+              "actions": [
+                "SAME_LEVEL",
+                "TONE_ONLY"
+              ],
+              "separateHandling": false,
+              "porousEndsLater": false,
+              "naturalBaseSupport": false,
+              "reasonCodes": [
+                "TARGET_SAME_LEVEL",
+                "TONE_ADJUSTMENT_INTENT"
+              ]
+            },
+            {
+              "regionId": "c1000000-0000-4000-8000-000000000012",
+              "currentLevel": 7,
+              "naturalLevel": 6,
+              "targetLevel": 7,
+              "delta": 0,
+              "actions": [
+                "SAME_LEVEL",
+                "TONE_ONLY"
+              ],
+              "separateHandling": false,
+              "porousEndsLater": false,
+              "naturalBaseSupport": false,
+              "reasonCodes": [
+                "TARGET_SAME_LEVEL",
+                "TONE_ADJUSTMENT_INTENT"
+              ]
+            }
+          ],
+          "requiredCheckpoints": [
+            "RISK_REASSESSMENT",
+            "REGIONAL_INTEGRITY"
+          ],
+          "requiredPhysicalTests": [],
+          "requiredInformation": [],
+          "riskConsiderations": [],
+          "tradeoffs": {
+            "integrityPreservation": "PRIORITIZED",
+            "targetAccuracy": "FULL_INTENT",
+            "complexity": "SIMPLE",
+            "uncertainty": "LOW",
+            "maintenance": "REQUIRES_PROFESSIONAL_REVIEW"
+          },
+          "reasonCodes": [
+            "BRAND_ADAPTER_REQUIRED",
+            "TARGET_SAME_LEVEL",
+            "TONE_ADJUSTMENT_INTENT"
+          ]
+        },
+        "alternatives": [],
+        "recipeDraft": {
+          "id": "d0b1b7402e9b45c4a4622c284adeb9d983fbdf7fce1e326214e6bcc59aa09ed9",
+          "version": 1,
+          "parentVersionId": null,
+          "origin": "ENGINE",
+          "executionStatus": "REQUIRES_BRAND_ADAPTER",
+          "target": {
+            "id": "c1000000-0000-4000-8000-000000004000",
+            "seriesId": "c1000000-0000-4000-8000-000000004001",
+            "version": 1,
+            "previousVersionId": null,
+            "clientId": "c1000000-0000-4000-8000-000000000004",
+            "passportId": "c1000000-0000-4000-8000-000000000003",
+            "definition": {
+              "schemaVersion": 1,
+              "mode": "UNIFORM_COLOR",
+              "globalIntent": "REFRESH",
+              "regions": [
+                {
+                  "regionId": "c1000000-0000-4000-8000-000000000010",
+                  "level": 7,
+                  "toneFamily": "NEUTRAL",
+                  "mixedFamilies": [],
+                  "warmth": "NEUTRAL",
+                  "greyPriority": "NONE",
+                  "liftPriority": "NONE",
+                  "depositPriority": "NONE",
+                  "toneIntent": "CHANGE",
+                  "contrast": "NONE",
+                  "preserve": false,
+                  "handling": "STANDARD",
+                  "correction": "NONE",
+                  "intermediateLevel": null
+                },
+                {
+                  "regionId": "c1000000-0000-4000-8000-000000000011",
+                  "level": 7,
+                  "toneFamily": "NEUTRAL",
+                  "mixedFamilies": [],
+                  "warmth": "NEUTRAL",
+                  "greyPriority": "NONE",
+                  "liftPriority": "NONE",
+                  "depositPriority": "NONE",
+                  "toneIntent": "CHANGE",
+                  "contrast": "NONE",
+                  "preserve": false,
+                  "handling": "STANDARD",
+                  "correction": "NONE",
+                  "intermediateLevel": null
+                },
+                {
+                  "regionId": "c1000000-0000-4000-8000-000000000012",
+                  "level": 7,
+                  "toneFamily": "NEUTRAL",
+                  "mixedFamilies": [],
+                  "warmth": "NEUTRAL",
+                  "greyPriority": "NONE",
+                  "liftPriority": "NONE",
+                  "depositPriority": "NONE",
+                  "toneIntent": "CHANGE",
+                  "contrast": "NONE",
+                  "preserve": false,
+                  "handling": "STANDARD",
+                  "correction": "NONE",
+                  "intermediateLevel": null
+                }
+              ]
+            },
+            "createdAt": "2026-10-01T12:00:00.000Z",
+            "createdBy": "c1000000-0000-4000-8000-000000000007"
+          },
+          "strategy": {
+            "id": "afb6a2632f0754745d8adb7d988633f4b54cbc09d3e9791852bd110ab9707bfc",
+            "type": "CONSERVATIVE",
+            "eligibility": "ELIGIBLE_FOR_PLANNING",
+            "engineVersion": "color-engine/1.0.0",
+            "sessions": {
+              "min": 1,
+              "max": 1
+            },
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000010",
+              "c1000000-0000-4000-8000-000000000011",
+              "c1000000-0000-4000-8000-000000000012"
+            ],
+            "stages": [
+              {
+                "sequence": 1,
+                "kind": "ASSESS",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000010",
+                  "c1000000-0000-4000-8000-000000000011",
+                  "c1000000-0000-4000-8000-000000000012"
+                ],
+                "checkpoint": true,
+                "reasonCodes": []
+              },
+              {
+                "sequence": 2,
+                "kind": "PREPARE",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000010",
+                  "c1000000-0000-4000-8000-000000000011",
+                  "c1000000-0000-4000-8000-000000000012"
+                ],
+                "checkpoint": false,
+                "reasonCodes": []
+              },
+              {
+                "sequence": 3,
+                "kind": "ROOT_APPLICATION",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000010"
+                ],
+                "checkpoint": false,
+                "reasonCodes": [
+                  "TARGET_SAME_LEVEL",
+                  "TONE_ADJUSTMENT_INTENT"
+                ]
+              },
+              {
+                "sequence": 4,
+                "kind": "TONE",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000010"
+                ],
+                "checkpoint": false,
+                "reasonCodes": []
+              },
+              {
+                "sequence": 5,
+                "kind": "LENGTHS_APPLICATION",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000011"
+                ],
+                "checkpoint": false,
+                "reasonCodes": [
+                  "TARGET_SAME_LEVEL",
+                  "TONE_ADJUSTMENT_INTENT"
+                ]
+              },
+              {
+                "sequence": 6,
+                "kind": "TONE",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000011"
+                ],
+                "checkpoint": false,
+                "reasonCodes": []
+              },
+              {
+                "sequence": 7,
+                "kind": "ENDS_APPLICATION",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000012"
+                ],
+                "checkpoint": false,
+                "reasonCodes": [
+                  "TARGET_SAME_LEVEL",
+                  "TONE_ADJUSTMENT_INTENT"
+                ]
+              },
+              {
+                "sequence": 8,
+                "kind": "TONE",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000012"
+                ],
+                "checkpoint": false,
+                "reasonCodes": []
+              },
+              {
+                "sequence": 9,
+                "kind": "FINALIZE",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000010",
+                  "c1000000-0000-4000-8000-000000000011",
+                  "c1000000-0000-4000-8000-000000000012"
+                ],
+                "checkpoint": true,
+                "reasonCodes": []
+              }
+            ],
+            "technicalIntent": [
+              {
+                "regionId": "c1000000-0000-4000-8000-000000000010",
+                "currentLevel": 7,
+                "naturalLevel": 6,
+                "targetLevel": 7,
+                "delta": 0,
+                "actions": [
+                  "SAME_LEVEL",
+                  "TONE_ONLY"
+                ],
+                "separateHandling": false,
+                "porousEndsLater": false,
+                "naturalBaseSupport": false,
+                "reasonCodes": [
+                  "TARGET_SAME_LEVEL",
+                  "TONE_ADJUSTMENT_INTENT"
+                ]
+              },
+              {
+                "regionId": "c1000000-0000-4000-8000-000000000011",
+                "currentLevel": 7,
+                "naturalLevel": 6,
+                "targetLevel": 7,
+                "delta": 0,
+                "actions": [
+                  "SAME_LEVEL",
+                  "TONE_ONLY"
+                ],
+                "separateHandling": false,
+                "porousEndsLater": false,
+                "naturalBaseSupport": false,
+                "reasonCodes": [
+                  "TARGET_SAME_LEVEL",
+                  "TONE_ADJUSTMENT_INTENT"
+                ]
+              },
+              {
+                "regionId": "c1000000-0000-4000-8000-000000000012",
+                "currentLevel": 7,
+                "naturalLevel": 6,
+                "targetLevel": 7,
+                "delta": 0,
+                "actions": [
+                  "SAME_LEVEL",
+                  "TONE_ONLY"
+                ],
+                "separateHandling": false,
+                "porousEndsLater": false,
+                "naturalBaseSupport": false,
+                "reasonCodes": [
+                  "TARGET_SAME_LEVEL",
+                  "TONE_ADJUSTMENT_INTENT"
+                ]
+              }
+            ],
+            "requiredCheckpoints": [
+              "RISK_REASSESSMENT",
+              "REGIONAL_INTEGRITY"
+            ],
+            "requiredPhysicalTests": [],
+            "requiredInformation": [],
+            "riskConsiderations": [],
+            "tradeoffs": {
+              "integrityPreservation": "PRIORITIZED",
+              "targetAccuracy": "FULL_INTENT",
+              "complexity": "SIMPLE",
+              "uncertainty": "LOW",
+              "maintenance": "REQUIRES_PROFESSIONAL_REVIEW"
+            },
+            "reasonCodes": [
+              "BRAND_ADAPTER_REQUIRED",
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          },
+          "metadata": {
+            "colorVersion": "color-engine/1.0.0",
+            "colorRulesFingerprint": "ed5438071d3b1cb417aee5e2605ec5b4d5e081d73552fc5bde5bfe70f3a6472e",
+            "inputFingerprint": "b8abada1e6c29a70891499a86b16806f7f256cce9b960831d0b6ef1ee9c01373",
+            "passportId": "c1000000-0000-4000-8000-000000000003",
+            "passportVersion": 1,
+            "hairFingerprint": "506d7c56ee365345c593d8ca7462ff149201f9bb82100b6257ef643f5516faee",
+            "targetId": "c1000000-0000-4000-8000-000000004000",
+            "targetVersion": 1,
+            "targetFingerprint": "2a01d31cab54084eff719d597afe6421671062354cb1e767af7c71d235b49bc1",
+            "confidenceVersion": "confidence-engine/1.0.0",
+            "confidenceFingerprint": "506d7c56ee365345c593d8ca7462ff149201f9bb82100b6257ef643f5516faee",
+            "confidenceRulesFingerprint": "9dbc228079f87bf2373f9edc8e0194cb48e5430db31ea73d08676158400eafed",
+            "riskVersion": "risk-engine/1.0.0",
+            "riskFingerprint": "d1f7195ed515559807098c09e92ff6971f9aeb7363b27f3209f5f6f6b29f3770",
+            "riskRulesFingerprint": "ec322876dbbba63c28a3454d14c3bc09a5f2017d8712e441aab400ba2b4f5e36"
+          },
+          "reasonCodes": [
+            "BRAND_ADAPTER_REQUIRED",
+            "TARGET_SAME_LEVEL",
+            "TONE_ADJUSTMENT_INTENT"
+          ]
+        }
+      }
+    },
+    "correlationId": "c1000000-0000-4000-8000-000000004000"
+  }
+}
