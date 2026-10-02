@@ -6,6 +6,9 @@ test("real login auto-selects, persists through browser restart, and logout clea
   try {
     await login(page, account);
     await expectReady(page);
+    await page.goto("/sign-in");
+    await expectReady(page);
+    await expect(page.locator("[data-intro]")).toHaveCount(0);
     await expect.poll(async () => (await page.context().cookies()).some(c => c.name === "elifora-workspace")).toBe(true);
     // No storageState file containing session tokens is written to disk.
     const restored = await browser.newContext({ storageState: await page.context().storageState() });

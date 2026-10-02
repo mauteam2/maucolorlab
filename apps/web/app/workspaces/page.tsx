@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { AppShell } from "@/components/app-shell";
+import { SalonFrame } from "@/components/salon-frame";
 import { AccessError, bootstrap } from "@/lib/tenant/bootstrap";
 import { resolveSelection, selectionCookie, workspaceReference } from "@/lib/tenant/context";
 import { tr } from "@/lib/i18n/tr";
@@ -15,7 +15,7 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
   const reference = (await cookies()).get(selectionCookie)?.value;
   if (reference && !resolveSelection(contexts, reference)) redirect("/auth/workspace-reset");
   if (!query.choose && !query.reason && resolveSelection(contexts, reference)) redirect("/workspace");
-  return <AppShell><main className="narrow-page" id="main-content">
+  return <SalonFrame active="dashboard"><main className="salon-main" id="main-content">
     <h1>{contexts.length ? tr.select : tr.noMembership}</h1>
     {!contexts.length && <p className="lead">{tr.noMembershipDetail}</p>}
     {query.reason && <p role="alert">{tr.invalidContext}</p>}
@@ -26,5 +26,5 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
     </form>)}</div>
     <a className="text-link" href="/workspaces?choose=1">{tr.retry}</a>
     <form action={logout}><button className="button button-secondary">{tr.logout}</button></form>
-  </main></AppShell>;
+  </main></SalonFrame>;
 }

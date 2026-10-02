@@ -1,0 +1,65 @@
+.surface {
+  --sign-in-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --color-surface: #fffdfb;
+  --color-text: #3b2432;
+  --color-text-muted: #786b6c;
+  --color-primary: #3b2432;
+  --color-primary-contrast: #fffdfb;
+  --color-border: #e8d8cc;
+  color-scheme: light;
+  font-family: var(--sign-in-sans);
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  background: #f7f1eb;
+  color: #3b2432;
+  padding: 64px 32px;
+  overflow: clip;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  width: min(100%, 1040px);
+  gap: clamp(48px, 7vw, 100px);
+}
+.identity { min-width: 0; }
+.logo { width: min(100%, 420px); margin-inline: auto; position: relative; z-index: 2; transform-origin: center; }
+.decoration { padding-top: 14px; }
+.description { margin: 0; color: #786b6c; text-align: center; font-family: var(--sign-in-sans); font-size: 13px; line-height: 1.5; }
+.artwork { margin-top: 34px; }
+.swatches { display: flex; justify-content: center; gap: 14px; }
+.swatches i { width: 31px; height: 35px; border-radius: 70% 25% 65% 30%; transform: rotate(18deg); background: #3b2432; }
+.swatches i:nth-child(2) { background: #6e4b3a; }
+.swatches i:nth-child(3) { background: #b98562; }
+.swatches i:nth-child(4) { background: #d3ad91; }
+.swatches i:nth-child(5) { background: #e8d8cc; }
+.brushWash { position: relative; width: 82%; margin: 28px auto 0; }
+.brushWash::before { content: ""; position: absolute; inset: 36% 2% 4%; border-radius: 50%; transform: rotate(-8deg); background: linear-gradient(12deg, transparent, #e8d8cc60, transparent); }
+.brushWash img { position: relative; display: block; width: 100%; height: auto; opacity: .48; }
+.card { min-width: 0; border: 1px solid #e8d8cc; border-radius: 18px; padding: clamp(28px, 4vw, 48px); background: #fffdfbcc; box-shadow: 0 14px 55px #6e4b3a08; }
+.card h1 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(23.8px, 2.295vw, 28.9px); font-weight: 400; line-height: 1.16; letter-spacing: -.035em; max-width: none; }
+.card p, .card label, .card input, .card button { font-family: var(--sign-in-sans); }
+.card p { font-size: 15px; line-height: 1.65; }
+.card :global(.lead) { margin-top: 14px; color: #786b6c; }
+.card :global(.auth-form) { margin: 30px 0 0; gap: 10px; }
+.card label { font-size: 14px; font-weight: 500; margin-top: 10px; }
+.card input { background: #fffdfb; border-color: #e8d8cc; border-radius: 8px; font-size: 16px; }
+.card button { margin-top: 20px; width: 100%; min-height: 48px; border-radius: 8px; background: #3b2432; color: #fffdfb; border: 1px solid #3b2432; font-weight: 500; }
+.card button:hover:not(:disabled) { background: #503242; }
+.surface[data-intro="playing"] .logo { will-change: transform; }
+@media (max-width: 720px) {
+  .surface { padding: 36px 20px; }
+  .layout { grid-template-columns: 1fr; gap: 28px; max-width: 440px; }
+  .logo { width: 300px; max-width: 100%; }
+  .artwork { display: none; }
+  .card { padding: 28px 24px 32px; }
+  .card h1 { font-size: 24.65px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .surface:not([data-preview="true"]) .logo,
+  .surface:not([data-preview="true"]) .decoration,
+  .surface:not([data-preview="true"]) .card { transform: none !important; opacity: 1 !important; }
+  .surface:not([data-preview="true"]) .logo [data-intro-letters] { opacity: 1 !important; }
+  .surface:not([data-preview="true"]) .logo [data-intro-brush] { clip-path: none !important; }
+}

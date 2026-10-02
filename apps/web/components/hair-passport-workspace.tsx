@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { AppShell } from "./app-shell";
+import { SalonFrame } from "./salon-frame";
 import { HairPassportOverview } from "./hair-passport-overview";
 import { HairTechnicalForm } from "./hair-technical-form";
 import { HairObservationForm } from "./hair-observation-form";
@@ -251,7 +251,7 @@ export function HairPassportWorkspace({ clientId }: { clientId: string }) {
  const canAddHistory = Boolean(active && data?.snapshot && data.permissions.includes("hair_passport.add_history"));
  const dirty = Boolean(editor && (editor.kind === "create" || editor.kind === "new-region" || JSON.stringify(editor.base) !== JSON.stringify(editor.draft) || editor.label !== editor.initialLabel));
  const availableRegions = regionChoices.filter(type => type === "CUSTOM" || !data?.snapshot?.regions.some(region => region.type === type && region.status === "ACTIVE"));
- return <AppShell><main id="main-content" className="hp-page">
+ return <SalonFrame active="clients"><main id="main-content" className="hp-page">
   <Link prefetch={false} href="/workspace/clients">← {t.clients}</Link>
   {!data ? error ? <div role="alert" className="hp-empty"><h1>{t.unavailable}</h1><p>{t.errors[error as keyof typeof t.errors] ?? t.errors.NETWORK_ERROR}</p><button className="button button-secondary" onClick={() => void verify()}>{t.retry}</button></div> : <p role="status" className="hp-empty">{t.loading}</p> : <>
    <header className="hp-header"><p className="eyebrow">{canCreate || canEdit ? e.editable : t.readOnly}</p><h1>{data.client.full_name}</h1><p className="lead">{t.intro}</p></header>
@@ -279,5 +279,5 @@ export function HairPassportWorkspace({ clientId }: { clientId: string }) {
     canAddTest={canAddTest && !editor && !observation && !physicalTest && !history && !saving} onAddTest={beginPhysicalTest} testForm={physicalTest && <HairPhysicalTestForm snapshot={data.snapshot} draft={physicalTest.draft} change={changePhysicalTest} save={savePhysicalTest} cancel={() => { setPhysicalTest(null); setPhysicalTestError(null); setPhysicalTestFieldError(null); }} saving={saving} error={physicalTestError} fieldError={physicalTestFieldError} reload={() => { setPhysicalTest(null); void verify(); }} />}
     canAddHistory={canAddHistory && !editor && !observation && !physicalTest && !history && !saving} onAddHistory={beginHistory} historyForm={history && <HairHistoryForm snapshot={data.snapshot} draft={history.draft} change={changeHistory} save={saveHistory} cancel={() => { setHistory(null); setHistoryError(null); setHistoryFieldError(null); }} saving={saving} error={historyError} fieldError={historyFieldError} reload={() => { setHistory(null); void verify(); }} />} />}
   </>}
- </main></AppShell>;
+ </main></SalonFrame>;
 }

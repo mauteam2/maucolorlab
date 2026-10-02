@@ -1,0 +1,19 @@
+{
+  "source": "assets/brand/source/elifora-approved-reference.png",
+  "sourceSha256": "b85829dde48ea47718a114b89468ee23558441cf7d206db2171b1f68e63437af",
+  "crop": [
+    194,
+    224,
+    1564,
+    691
+  ],
+  "width": 1370,
+  "height": 467,
+  "brushBounds": [
+    503,
+    117,
+    826,
+    191
+  ],
+  "method": "native-resolution raster crop, chromatic matte removal, source-derived layers; no font substitution"
+}

@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AppShell } from "./app-shell";
+import { SalonFrame, SalonCard } from "./salon-frame";
+import { SalonIcon } from "./salon-icon";
 import { type ActiveTenantContext, tenantContextSchema, workspaceReference } from "@/lib/tenant/context";
 import { type Candidate, type Client, type Directory, clientDetail, clientDirectory, duplicateCandidate, clientErrorText } from "@/lib/clients/contracts";
 import { formatClientDate as date } from "@/lib/clients/display";
@@ -10,6 +11,7 @@ import { hairTr } from "@/lib/i18n/hair-tr";
 
 type Draft = { full_name: string; phone: string; email: string; birth_date: string; request_id: string; expected_version?: number };
 type Review = { candidates: Candidate[]; token: string };
+const initialSearch = () => typeof window === "undefined" ? "" : (new URLSearchParams(window.location.search).get("query") ?? "").slice(0, 80);
 export function ClientWorkspace({ route }: { route: string }) {
   const router = useRouter();
   const [context, setContext] = useState<ActiveTenantContext | null>(null);
@@ -22,8 +24,8 @@ export function ClientWorkspace({ route }: { route: string }) {
   const [saving, setSaving] = useState(false);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<{ code: string; correlationId?: string } | null>(null);
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState({ query: "", status: "ACTIVE", offset: 0 });
+  const [query, setQuery] = useState(initialSearch);
+  const [filter, setFilter] = useState(() => ({ query: initialSearch(), status: "ACTIVE", offset: 0 }));
   const generation = useRef(0);
   const scope = useRef<string | null>(null);
   const busy = useRef(false);
@@ -109,7 +111,7 @@ export function ClientWorkspace({ route }: { route: string }) {
   function changeField(field: keyof Draft, value: string) {
     setDraft(previous => previous && { ...previous, [field]: value, request_id: crypto.randomUUID() }); setReview(null); setError(null);
   }
-  return <AppShell><main id="main-content" className="narrow-page clients-page">
+  return <SalonFrame active="clients" workspace={visible ? context?.organization_name : undefined}><main id="main-content" className="narrow-page clients-page">
     <nav aria-label="Müşteri gezintisi"><Link prefetch={false} href="/workspace">Çalışma alanı</Link><span aria-hidden="true"> / </span><Link prefetch={false} href="/workspace/clients">Müşteriler</Link></nav>
     {error && <div role="alert" className="client-notice"><p>{clientErrorText[error.code] ?? "Erişim doğrulanamadı. Yeniden deneyin."}</p>{error.correlationId && <small>İşlem: {error.correlationId}</small>}
       <div><button className="button button-secondary" onClick={() => void verify()}>Yeniden dene</button></div>
@@ -118,15 +120,16 @@ export function ClientWorkspace({ route }: { route: string }) {
       <p className="eyebrow">{context?.organization_name} · {context?.location_name}</p>
       {route === "directory" ? <>
         <div className="client-heading"><h1>Müşteriler</h1>{context?.permissions.includes("clients.create") && <Link prefetch={false} className="button button-primary" href="/workspace/clients/new">Yeni müşteri</Link>}</div>
-        <p className="lead">Salonunuzun müşteri rehberi.</p>
+        <p className="lead">Müşteri bilgilerini ve renk geçmişini düzenleyin.</p>
         <form className="client-search" onSubmit={event => { event.preventDefault(); setFilter({ ...filter, query, offset: 0 }); }}>
           <label htmlFor="client-search">Ad soyad veya telefon</label><div className="client-actions"><input id="client-search" value={query} onChange={event => setQuery(event.target.value)} maxLength={80} type="search" /><button className="button button-secondary" disabled={checking}>Ara</button></div>
           <label htmlFor="client-status">Kayıt durumu</label><select disabled={checking} id="client-status" value={filter.status} onChange={event => setFilter({ ...filter, status: event.target.value, offset: 0 })}><option value="ACTIVE">Aktif müşteriler</option><option value="ARCHIVED">Arşivlenen müşteriler</option></select>
         </form>
-        {directory?.items.length === 0 ? <div className="client-notice"><h2>{filter.query ? "Eşleşen müşteri bulunamadı" : "Henüz müşteri yok"}</h2><p>{filter.query ? "Adı veya telefon numarasını kontrol edin." : "İlk müşterinizi yalnızca ad soyad ve telefonla oluşturun."}</p></div> : <ul className="client-list">{directory?.items.map(item => <li key={item.id}><Link prefetch={false} href={`/workspace/clients/${item.id}`}><strong>{item.full_name}</strong><span>{item.phone_masked}</span><small>{item.status === "ARCHIVED" ? "Arşivde · " : ""}Güncelleme: {date(item.updated_at)}</small></Link></li>)}</ul>}
+        {directory?.items.length === 0 ? <div className="client-notice"><h2>{filter.query ? "Eşleşen müşteri bulunamadı" : "Henüz müşteri yok"}</h2><p>{filter.query ? "Adı veya telefon numarasını kontrol edin." : "İlk müşterinizi yalnızca ad soyad ve telefonla oluşturun."}</p></div> : <SalonCard title="Müşteri listesi"><div className="salon-table-scroll"><table className="salon-table"><thead><tr><th>Müşteri</th><th>Telefon</th><th>Son güncelleme</th><th>Kayıt durumu</th><th><span className="salon-muted">Profil</span></th></tr></thead><tbody>{directory?.items.map(item => <tr key={item.id}><td><Link className="salon-person" prefetch={false} href={`/workspace/clients/${item.id}`}><span className="salon-avatar" aria-hidden="true">{item.full_name.slice(0,1)}</span><strong>{item.full_name}</strong></Link></td><td>{item.phone_masked}</td><td>{date(item.updated_at)}</td><td><span className={`salon-badge ${item.status === "ACTIVE" ? "success" : ""}`}>{item.status === "ACTIVE" ? "Aktif" : "Arşivde"}</span></td><td><Link prefetch={false} href={`/workspace/clients/${item.id}`} aria-label="Profili aç"><SalonIcon name="arrow" width={20} /></Link></td></tr>)}</tbody></table></div></SalonCard>}
         <div className="client-actions"><button className="button button-secondary" disabled={checking || !filter.offset} onClick={() => setFilter({ ...filter, offset: Math.max(0, filter.offset - 25) })}>Önceki</button><span>Sayfa {filter.offset / 25 + 1}</span><button className="button button-secondary" disabled={checking || !directory?.has_more || filter.offset >= 10000} onClick={() => setFilter({ ...filter, offset: filter.offset + 25 })}>Sonraki</button></div>
       </> : <>
-        <h1>{route === "new" ? "Yeni müşteri" : draft ? "Müşteriyi düzenle" : client?.full_name}</h1>
+        <h1>{route === "new" ? "Yeni müşteri" : draft ? "Müşteriyi düzenle" : "Müşteri profili"}</h1>
+        {client && !draft && <div className="salon-card salon-profile-banner"><span className="salon-avatar" aria-hidden="true">{client.full_name.split(" ").map(part => part[0]).slice(0,2).join("")}</span><div><h2>{client.full_name}</h2><span className="salon-muted">Son güncelleme: {date(client.updated_at)}</span></div></div>}
         {draft ? <form className="auth-form client-form" onSubmit={event => { event.preventDefault(); save(); }}>
           <fieldset disabled={saving || !!review}><legend>Temel bilgiler</legend>
             <label htmlFor="full-name">Ad Soyad *</label><input id="full-name" autoComplete="name" required minLength={2} maxLength={160} value={draft.full_name} onChange={event => changeField("full_name", event.target.value)} />
@@ -151,5 +154,5 @@ export function ClientWorkspace({ route }: { route: string }) {
         {review && <section className="client-notice" aria-label="Benzer müşteri incelemesi"><h2>Benzer müşteri bulundu</h2><p>Mevcut kaydı açın veya farklı bir kişi olduğunu doğrulayın. Kayıtlar birleştirilmez.</p><ul className="client-list">{review.candidates.map(candidate => <li key={candidate.id}><Link prefetch={false} href={`/workspace/clients/${candidate.id}`}><strong>{candidate.full_name}</strong><span>{candidate.phone_masked}</span><small>{candidate.signals.includes("PHONE") ? "Aynı telefon · " : "Benzer bilgiler · "}{candidate.status === "ARCHIVED" ? "Arşivde · " : ""}Son güncelleme: {date(candidate.updated_at)}</small><span>Mevcut müşteriyi aç</span></Link></li>)}</ul><div className="client-actions"><button className="button button-primary" disabled={saving || checking} onClick={() => save(review.token)}>Farklı kişi olduğunu onaylıyorum</button><button className="button button-secondary" disabled={saving || checking} onClick={() => { setReview(null); setError(null); }}>Bilgileri gözden geçir</button></div></section>}
       </>}
     </>}
-  </main></AppShell>;
+  </main></SalonFrame>;
 }

@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AppShell } from "./app-shell";
+import { SalonFrame, SalonHeading, SalonCard } from "./salon-frame";
+import { SalonIcon } from "./salon-icon";
 import { type ActiveTenantContext, tenantContextSchema } from "@/lib/tenant/context";
 import { tr } from "@/lib/i18n/tr";
 import { logout } from "@/app/sign-in/actions";
@@ -38,13 +39,15 @@ export function WorkspaceShell() {
       window.removeEventListener("online", verify); window.removeEventListener("offline", offline);
       window.removeEventListener("pageshow", verify); document.removeEventListener("visibilitychange", hide); };
   }, []);
-  return <AppShell><main className="narrow-page" id="main-content">
-    {context ? <><p className="eyebrow">{context.organization_name} · {context.location_name}</p>
-      <h1>{tr.ready}</h1><p className="lead">{tr.roles[context.role]}</p>
-      {context.permissions.includes("clients.read") && <Link prefetch={false} className="button button-primary" href="/workspace/clients">Müşteriler</Link>}
-      <form action={changeWorkspace}><button className="button button-secondary">{tr.change}</button></form></>
+  return <SalonFrame active="dashboard" workspace={context?.organization_name}><main className="salon-main" id="main-content">
+    {context ? <><SalonHeading title="Salonunuza genel bakış" description="Müşteri kayıtlarına ve renk çalışmalarınıza ulaşın." />
+      <div className="salon-columns"><SalonCard title={tr.ready}><p className="salon-muted">{context.organization_name} · {context.location_name}</p><p>{tr.roles[context.role]}</p><p>Salonunuzun müşteri bilgileri, Hair Passport kayıtları ve teknik geçmişi güvenli çalışma alanınızda tutulur.</p><form action={changeWorkspace}><button className="button button-secondary">{tr.change}</button></form></SalonCard><SalonCard title="Hızlı işlemler"><div className="salon-stack">
+      {context.permissions.includes("clients.read") && <Link prefetch={false} className="salon-quick" href="/workspace/clients"><span className="salon-icon-disc"><SalonIcon name="clients" /></span><strong>Müşteriler</strong><SalonIcon name="arrow" /></Link>}
+      {context.permissions.includes("clients.create") && <Link prefetch={false} className="salon-quick" href="/workspace/clients/new"><span className="salon-icon-disc"><SalonIcon name="plus" /></span><strong>Yeni müşteri</strong><SalonIcon name="arrow" /></Link>}
+      {context.permissions.includes("hair_passport.read") && <Link prefetch={false} className="salon-quick" href="/workspace/colorlab"><span className="salon-icon-disc"><SalonIcon name="brush" /></span><strong>ColorLab</strong><SalonIcon name="arrow" /></Link>}
+      </div></SalonCard></div></>
       : <p role="status">{failed ? tr.network : tr.loading}</p>}
     {failed && <a href="/workspace" className="text-link">{tr.retry}</a>}
     <form action={logout}><button className="button button-primary">{tr.logout}</button></form>
-  </main></AppShell>;
+  </main></SalonFrame>;
 }

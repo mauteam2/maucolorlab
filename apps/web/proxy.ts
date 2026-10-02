@@ -15,7 +15,17 @@ export async function proxy(request: NextRequest) {
       },
     },
   });
-  await client.auth.getUser();
+  const { data: { user }, error } = await client.auth.getUser();
+  if (request.nextUrl.pathname === "/sign-in" && user && !error) {
+    const destination = request.nextUrl.clone();
+    destination.pathname = "/workspaces";
+    destination.search = "";
+    const redirect = NextResponse.redirect(destination);
+    // Preserve cookies refreshed by the existing verified-session flow.
+    response.cookies.getAll().forEach(cookie => redirect.cookies.set(cookie));
+    redirect.headers.set("Cache-Control", "private, no-store");
+    return redirect;
+  }
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
