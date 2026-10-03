@@ -84,8 +84,10 @@ describe("sign-in intro", () => {
     expect(animate).toHaveBeenCalledTimes(5);
     expect(screen.getByRole("main")).toHaveAttribute("data-intro", "playing");
     expect(screen.getByRole("main")).toHaveAttribute("data-preview", "true");
+    expect(screen.getByRole("textbox")).toBeDisabled();
     act(() => { vi.advanceTimersByTime(1500); });
     expect(screen.getByRole("main")).toHaveAttribute("data-intro", "complete");
+    expect(screen.getByRole("textbox")).toBeEnabled();
   });
 
   it("falls back to one play in the document if storage is unavailable", async () => {

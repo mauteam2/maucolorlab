@@ -38,10 +38,14 @@ export function SignInIntro({ children, preview }: { children: ReactNode; previe
     const letters = surface.querySelector<HTMLImageElement>("[data-intro-letters]")!;
     const brush = surface.querySelector<HTMLImageElement>("[data-intro-brush]")!;
     const animations: Animation[] = [];
+    const controls = Array.from(content.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>("input, button, select, textarea"));
+    const disabledBeforeIntro = controls.map(control => control.disabled);
+    const restoreControls = () => controls.forEach((control, index) => { control.disabled = disabledBeforeIntro[index]!; });
     const finish = () => {
       current.done = true;
       surface.dataset.intro = "complete";
       content.inert = false;
+      restoreControls();
       animations.forEach(animation => animation.cancel());
     };
     if (elapsed >= INTRO_DURATION_MS || (!preview && motion.matches)) { finish(); return; }
@@ -53,6 +57,7 @@ export function SignInIntro({ children, preview }: { children: ReactNode; previe
     const centered = `translate(${dx}px, ${dy}px) scale(${scale})`;
     surface.dataset.intro = "playing";
     content.inert = true;
+    controls.forEach(control => { control.disabled = true; });
     const animate = (element: Element, frames: Keyframe[]) => {
       const animation = element.animate(frames, { duration: INTRO_DURATION_MS, fill: "both", easing: "linear" });
       animation.currentTime = elapsed;
@@ -92,6 +97,7 @@ export function SignInIntro({ children, preview }: { children: ReactNode; previe
       motion.removeEventListener("change", skip);
       animations.forEach(animation => animation.cancel());
       content.inert = false;
+      restoreControls();
       surface.dataset.intro = "complete";
       // Retain the original clock during React Strict Mode effect setup/cleanup.
     };
