@@ -12,7 +12,7 @@ import { confidenceInput, normalizeInput } from "@/lib/confidence/input";
 import { evaluateConfidence } from "@/lib/confidence/engine";
 import { evaluateRisk } from "@/lib/risk/engine";
 import { readPilotCatalog } from "./governance-service";
-import { controlledOptionsRequest, controlledCreateRequest, storedControlledRecipe, type ControlledCreate } from "./controlled-model";
+import { controlledCatalogs, controlledOptionsRequest, controlledCreateRequest, storedControlledRecipe, type ControlledCreate } from "./controlled-model";
 import { controlledRecipeOptions, buildControlledRecipe } from "./controlled-engine";
 
 const columns="id,series_id,version,supersedes_id,client_id,plan_id,catalog_id,created_at,created_by,product_id,developer_id,color_grams,payload";
@@ -70,4 +70,10 @@ export async function readControlledRecipes(clientId:string,recipeId:string|null
  const rows=await query.order("created_at",{ascending:false}).limit(recipeId?1:25);if(rows.error)throw new AccessError("NETWORK_ERROR",503);
  if(recipeId&&!rows.data?.length)throw new AccessError("BRAND_RECIPE_NOT_FOUND",404);
  const data=(rows.data??[]).map(row=>output(row as Row));await finalAccess(ctx);return {data:recipeId?data[0]:data,correlationId};
+}
+export async function readControlledCatalogs(correlationId:string){
+ const ctx=await access(),client=await createClient();
+ const rows=await client.from("brand_catalog_releases").select("id,version").eq("pilot_key","schwarzkopf-igora-royal-absolutes").eq("state","PUBLISHED").order("version",{ascending:false}).limit(25);
+ if(rows.error)throw new AccessError("NETWORK_ERROR",503);
+ const data=controlledCatalogs.parse(rows.data??[]);await finalAccess(ctx);return {data,correlationId};
 }

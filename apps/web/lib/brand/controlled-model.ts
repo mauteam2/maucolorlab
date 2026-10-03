@@ -40,3 +40,4 @@ export const controlledRecipe = z.strictObject({
 export const storedControlledRecipe = z.strictObject({ id: uuid, seriesId: uuid, version: z.int().positive(), supersedesId: uuid.nullable(),
  clientId: uuid, planId: uuid, catalogId: uuid, createdAt: z.iso.datetime({offset:true}), createdBy: uuid, result: controlledRecipe });
 export type ControlledCreate = z.infer<typeof controlledCreateRequest>;
+export const controlledCatalogs = z.strictObject({ id: uuid, version: z.int().positive() }).array().max(25);

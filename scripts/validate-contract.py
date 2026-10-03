@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.12.0'
+assert contract['info']['version'] == '0.13.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -252,3 +252,19 @@ for source in manifest['sources']:
 print('PASS: Verified pilot/source/governance contracts, 15 official-source golden fixtures, 29 shades + 2 developers, 11 unsafe/forged rejections')
 for rpc in ('catalog_governance','catalog_pilot_packet','catalog_operator_access'):
     assert contract['paths']['/rest/v1/rpc/'+rpc]['post']['security']==[{'bearerAuth':[], 'publishableKey':[]}]
+
+controlled = json.loads((root / 'contracts/fixtures/controlled-recipe-contract.json').read_text())
+observation_validator('CreateControlledRecipe').validate(controlled['request'])
+observation_validator('StoredControlledRecipe').validate(controlled['stored'])
+for field in ('white_ratio','developer_grams','processing_minutes','executable','verified','organization_id'):
+    assert list(observation_validator('CreateControlledRecipe').iter_errors(controlled['request'] | {field: True})), field
+for amount in (0, -1, 1000.01, .001):
+    assert list(observation_validator('CreateControlledRecipe').iter_errors(controlled['request'] | {'color_grams': amount}))
+for patch in ({'executable': True}, {'professionalReviewRequired': False}, {'selectionOrigin': 'ENGINE'}, {'sources': []}):
+    assert list(observation_validator('ControlledRecipe').iter_errors(controlled['stored']['result'] | patch))
+r = controlled['stored']['result']
+assert r['selected']['mixingRatio'] == '1:1' and r['developerGrams'] == r['colorGrams']
+assert round(r['totalGrams']*100) == round(r['colorGrams']*100)*2
+assert r['context']['whiteRatio'] > r['selected']['restrictions']['whitePercentGreaterThan']/100
+assert contract['paths']['/rest/v1/rpc/controlled_recipe_store']['post']['security'] == [{'bearerAuth': [], 'publishableKey': []}]
+print('PASS: Phase 2C controlled recipe contract, ratio arithmetic, source-backed white condition and 14 forged/unsafe rejections')

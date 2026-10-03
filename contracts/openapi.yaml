@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.12.0
+  version: 0.13.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -2132,6 +2132,405 @@ paths:
           description: Review state or version conflict
         '503':
           description: Unavailable
+  /api/controlled-brand-recipes:
+    post:
+      operationId: createControlledBrandRecipe
+      summary: Controlled professional selection; never executable
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Private, no-store. Verified context and immutable history.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - data
+                - correlationId
+                properties:
+                  data:
+                    $ref: '#/components/schemas/StoredControlledRecipe'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateControlledRecipe'
+      parameters:
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: listControlledBrandRecipes
+      summary: Controlled professional selection; never executable
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Private, no-store. Verified context and immutable history.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - data
+                - correlationId
+                properties:
+                  data:
+                    type: array
+                    maxItems: 25
+                    items:
+                      $ref: '#/components/schemas/StoredControlledRecipe'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - in: query
+        name: client_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /api/controlled-brand-recipes/options:
+    post:
+      operationId: getControlledRecipeOptions
+      summary: Controlled professional selection; never executable
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Private, no-store. Verified context and immutable history.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - data
+                - correlationId
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ControlledRecipeOptions'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ControlledRecipeOptionsRequest'
+      parameters:
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+  /api/controlled-brand-recipes/catalogs:
+    get:
+      operationId: listControlledPublishedCatalogs
+      summary: Controlled professional selection; never executable
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Private, no-store. Verified context and immutable history.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - data
+                - correlationId
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ControlledCatalogs'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/controlled-brand-recipes/{recipeId}:
+    get:
+      operationId: readControlledBrandRecipe
+      summary: Controlled professional selection; never executable
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Private, no-store. Verified context and immutable history.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - data
+                - correlationId
+                properties:
+                  data:
+                    $ref: '#/components/schemas/StoredControlledRecipe'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: client_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /rest/v1/rpc/controlled_recipe_store:
+    post:
+      operationId: storeSignedControlledRecipe
+      summary: Controlled professional selection; never executable
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      responses:
+        '200':
+          description: Private, no-store. Verified context and immutable history.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/StoredControlledRecipe'
+                - $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ControlledRecipeStoreRequest'
 components:
   securitySchemes:
     bearerAuth:
@@ -8322,3 +8721,335 @@ components:
               state:
                 type: string
       maxItems: 50
+
+    ControlledRecipeOptionsRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - client_id
+      - plan_id
+      - catalog_id
+      properties:
+        client_id:
+          type: string
+          format: uuid
+        plan_id:
+          type: string
+          format: uuid
+        catalog_id:
+          type: string
+          format: uuid
+    CreateControlledRecipe:
+      type: object
+      additionalProperties: false
+      required:
+      - client_id
+      - plan_id
+      - catalog_id
+      - request_id
+      - product_id
+      - developer_id
+      - color_grams
+      properties:
+        client_id:
+          type: string
+          format: uuid
+        plan_id:
+          type: string
+          format: uuid
+        catalog_id:
+          type: string
+          format: uuid
+        request_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        developer_id:
+          type: string
+          format: uuid
+        color_grams:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1000
+          multipleOf: 0.01
+        supersedes_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+    ControlledCatalogs:
+      type: array
+      maxItems: 25
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - id
+        - version
+        properties:
+          id:
+            type: string
+            format: uuid
+          version:
+            type: integer
+            minimum: 1
+    ControlledRecipeOptions:
+      type: object
+      additionalProperties: false
+      required:
+      - schemaVersion
+      - status
+      - catalogId
+      - catalogVersion
+      - catalogFingerprint
+      - candidates
+      - whiteRatio
+      - evidenceIds
+      - regionId
+      - executable
+      - explanation
+      properties:
+        schemaVersion:
+          const: 1
+        status:
+          enum:
+          - OPTIONS_FOR_REVIEW
+          - BLOCKED_BY_SAFETY
+          - CATALOG_UNAVAILABLE
+          - ASSESSMENT_REQUIRED
+          - NO_VERIFIED_MATCH
+        catalogId:
+          type: string
+          format: uuid
+        catalogVersion:
+          type: integer
+          minimum: 1
+        catalogFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        candidates:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/VerifiedPilotCandidate'
+        whiteRatio:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+          maximum: 1
+        evidenceIds:
+          type: array
+          maxItems: 100
+          items:
+            type: string
+            format: uuid
+        regionId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        executable:
+          const: false
+        explanation:
+          type: string
+    ControlledRecipe:
+      type: object
+      additionalProperties: false
+      required:
+      - schemaVersion
+      - engineVersion
+      - state
+      - executable
+      - professionalReviewRequired
+      - selectionOrigin
+      - parentRecipeId
+      - selected
+      - colorGrams
+      - developerGrams
+      - totalGrams
+      - amountBasis
+      - context
+      - sources
+      - snapshots
+      properties:
+        schemaVersion:
+          const: 3
+        engineVersion:
+          const: controlled-brand-recipe/1.0.0
+        state:
+          const: DRAFT_FOR_PROFESSIONAL_REVIEW
+        executable:
+          const: false
+        professionalReviewRequired:
+          const: true
+        selectionOrigin:
+          const: PROFESSIONAL_INPUT
+        parentRecipeId:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        selected:
+          $ref: '#/components/schemas/VerifiedPilotCandidate'
+        colorGrams:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1000
+          multipleOf: 0.01
+        developerGrams:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1000
+          multipleOf: 0.01
+        totalGrams:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 2000
+          multipleOf: 0.01
+        amountBasis:
+          const: USER_ENTERED_COLOR_GRAMS
+        context:
+          type: object
+          additionalProperties: false
+          required:
+          - regionId
+          - whiteRatio
+          - evidenceIds
+          properties:
+            regionId:
+              type: string
+              format: uuid
+            whiteRatio:
+              type: number
+              minimum: 0
+              maximum: 1
+            evidenceIds:
+              type: array
+              minItems: 1
+              maxItems: 100
+              items:
+                type: string
+                format: uuid
+        sources:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/CatalogSourceDocument'
+        snapshots:
+          type: object
+          additionalProperties: false
+          required:
+          - catalogId
+          - catalogVersion
+          - catalogFingerprint
+          - productVersion
+          - developerVersion
+          - ruleVersion
+          - colorEngine
+          - riskEngine
+          - hairFingerprint
+          - evaluatedAt
+          properties:
+            catalogId:
+              type: string
+              format: uuid
+            catalogVersion:
+              type: integer
+              minimum: 1
+            catalogFingerprint:
+              type: string
+              pattern: ^[a-f0-9]{64}$
+            productVersion:
+              type: integer
+              minimum: 1
+            developerVersion:
+              type: integer
+              minimum: 1
+            ruleVersion:
+              type: integer
+              minimum: 1
+            colorEngine:
+              type: string
+            riskEngine:
+              type: string
+            hairFingerprint:
+              type: string
+              pattern: ^[a-f0-9]{64}$
+            evaluatedAt:
+              type: string
+              format: date-time
+    StoredControlledRecipe:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - seriesId
+      - version
+      - supersedesId
+      - clientId
+      - planId
+      - catalogId
+      - createdAt
+      - createdBy
+      - result
+      properties:
+        id:
+          type: string
+          format: uuid
+        seriesId:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          minimum: 1
+        supersedesId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        clientId:
+          type: string
+          format: uuid
+        planId:
+          type: string
+          format: uuid
+        catalogId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          format: uuid
+        result:
+          $ref: '#/components/schemas/ControlledRecipe'
+    ControlledRecipeStoreRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - p_membership_id
+      - p_location_id
+      - p_envelope
+      - p_signature
+      - p_correlation_id
+      properties:
+        p_membership_id:
+          type: string
+          format: uuid
+        p_location_id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        p_envelope:
+          type: string
+          maxLength: 262144
+        p_signature:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        p_correlation_id:
+          type: string
+          format: uuid
