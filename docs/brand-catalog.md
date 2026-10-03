@@ -16,6 +16,8 @@ Migrations:
 
 - `20261002184411_brand_catalog_adapter_foundation.sql`: releases, brands, lines, products, facts, rules, catalog audit, immutable brand recipe drafts, caller-authorized RPCs and RLS.
 - `20261003080150_brand_catalog_version_hardening.sql`: technical units, version lineage, series serialization, catalog creation audit and immutable audit history.
+- `20261003083921_brand_recipe_plan_projection.sql`: project only caller-readable plan fields; private Phase 1F signature/envelope columns retain their original grants.
+- `20261003084352_compatibility_ratio_binding.sql`: explicit nullable ratio per product/developer/technique/context rule, preserved in its version snapshot.
 
 `brand_catalog_audit` is separate from tenant `audit_events` because global releases have no organization. Technical changes, verification approval, product/deprecation changes, compatibility changes and publication are audited. Brand Adapter evaluations use existing tenant audit events. Audit stores identifiers and outcomes rather than customer payloads or signing material.
 

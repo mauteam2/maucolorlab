@@ -36,6 +36,23 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: 2.117.0
+      - name: Configure disposable browser-test auth request budget
+        working-directory: .
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          assert os.environ.get("CI") == "true"
+          path = Path("supabase/config.toml")
+          config = path.read_text()
+          assert 'project_id = "elifora"' in config
+          # Both browser projects share localhost. Keep real Auth/RLS enforcement,
+          # but allow their finite synthetic request batch in this disposable job.
+          for original, temporary in (("sign_in_sign_ups = 30", "sign_in_sign_ups = 1000"), ("token_refresh = 150", "token_refresh = 1000")):
+              assert config.count(original) == 1
+              config = config.replace(original, temporary)
+          path.write_text(config)
+          PY
       - run: python scripts/start-local-supabase.py
         working-directory: .
       - name: Configure disposable local auth tests

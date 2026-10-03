@@ -62,7 +62,13 @@ export async function login(page: Page, account: { email: string; password: stri
   await page.getByRole("button", { name: "Oturum aç", exact: true }).click();
 }
 export async function expectReady(page: Page) {
-  await expect(page).toHaveURL(/\/workspace$/);
+  try { await expect(page).toHaveURL(/\/workspace$/); }
+  catch (error) {
+    // Error codes only: never include credential fields or session cookies.
+    const alert = await page.locator(".auth-form [role=alert]").textContent().catch(() => null);
+    const code = alert?.includes("Bağlantı") ? "NETWORK_ERROR" : alert?.includes("hatalı") ? "INVALID_CREDENTIALS" : "NO_LOGIN_ALERT";
+    throw new Error(`Workspace navigation failed; login state: ${code}`, { cause: error });
+  }
   await expect(page.getByRole("heading", { name: "Çalışma alanınız hazır." })).toBeVisible();
   await expect(page.getByText("Studio E2E · Bolu")).toBeVisible();
 }
