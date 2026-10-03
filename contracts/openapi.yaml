@@ -5583,6 +5583,8 @@ components:
       - BRAND_RESULT_INVALID
       - BRAND_RECIPE_NOT_FOUND
       - CATALOG_STATE_CONFLICT
+      - CONTROLLED_RECIPE_VERSION_CONFLICT
+      - CONTROLLED_RECIPE_CONTEXT_INVALID
     FieldError:
       type: object
       additionalProperties: false

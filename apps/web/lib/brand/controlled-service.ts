@@ -56,7 +56,10 @@ export async function createControlledRecipe(raw:unknown,correlationId:string,re
   sourceToken:p.snapshot.sourceToken,expiresAt:new Date(Date.now()+120000).toISOString(),result});
  const signature=createHmac("sha256",Buffer.from(secret,"hex")).update(envelope).digest("hex");
  const stored=await client.rpc("controlled_recipe_store",{p_membership_id:ctx.membership_id,p_location_id:ctx.location_id,p_envelope:envelope,p_signature:signature,p_correlation_id:correlationId});
- if(stored.error)throw new AccessError("NETWORK_ERROR",503);if(stored.data?.code)throw new AccessError(stored.data.code,stored.data.code.endsWith("CONFLICT")||stored.data.code==="CONTROLLED_RECIPE_CONTEXT_INVALID"?409:400);
+ if(stored.error)throw new AccessError("NETWORK_ERROR",503);if(stored.data?.code){const code=String(stored.data.code);throw new AccessError(code,
+  ["UNAUTHENTICATED","SESSION_EXPIRED"].includes(code)?401:
+  ["FORBIDDEN","MEMBERSHIP_REQUIRED","MEMBERSHIP_REVOKED","TENANT_CONTEXT_INVALID"].includes(code)?403:
+  code.endsWith("NOT_FOUND")?404:code.endsWith("CONFLICT")||code==="CONTROLLED_RECIPE_CONTEXT_INVALID"?409:400);}
  const value=storedControlledRecipe.safeParse(stored.data);
  if(!value.success||value.data.clientId!==q.client_id||value.data.planId!==q.plan_id||value.data.catalogId!==q.catalog_id||value.data.supersedesId!==q.supersedes_id||
   colorHash(value.data.result)!==colorHash(result))throw new AccessError("BRAND_RESULT_INVALID",503);
