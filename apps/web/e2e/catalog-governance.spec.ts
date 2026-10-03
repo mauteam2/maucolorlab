@@ -29,8 +29,10 @@ test("official pilot completes real Auth/RLS governance and renders at 320 px",a
   for(const op of ["START_REVIEW","COMPLETE_REVIEW","VALIDATE_GOLDEN","APPROVE","PUBLISH"]){const r=await api(id,op);expect(r.status(),op).toBe(200);}
   await page.reload();await expect(page.getByText(/Sürüm \d+ · PUBLISHED/)).toBeVisible();await expect(page.getByText("29 ton · 2 geliştirici · 58 bağlama bağlı kural")).toBeVisible();await expect(page.getByRole("button",{name:"Kataloğu emekliye ayır"})).toBeDisabled();
   await page.getByLabel("İnceleme / karar notu").fill("Test-only retirement after UI verification");await expect(page.getByRole("button",{name:"Kataloğu emekliye ayır"})).toBeEnabled();
+  await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:info.outputPath("client-catalog-published.png"),fullPage:true});
-  await page.setViewportSize({width:320,height:900});await expect(page.getByRole("heading",{name:"IGORA ROYAL ABSOLUTES",exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath("client-catalog-320.png"),fullPage:true});
+  await page.screenshot({path:info.outputPath("client-catalog-desktop.png")});
+  await page.setViewportSize({width:320,height:900});await expect(page.getByRole("heading",{name:"IGORA ROYAL ABSOLUTES",exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(await page.locator(".salon-table-scroll").evaluate(e=>e.scrollWidth>e.clientWidth)).toBe(true);await page.screenshot({path:info.outputPath("client-catalog-320.png")});await page.screenshot({path:info.outputPath("client-catalog-320-full.png"),fullPage:true});
   const packet=await page.request.get(`/api/brand-catalog/${id}/pilot`);expect(packet.status()).toBe(200);const p=(await packet.json()).data;const source=await page.request.get(`/api/catalog-sources/${p.sources[0].id}`);expect(source.status()).toBe(200);expect((await source.json()).data.verification_status).toBe("ELIFORA_VERIFIED");
   await page.getByRole("button",{name:"Kataloğu emekliye ayır"}).click();await expect(page.getByText(/Sürüm \d+ · RETIRED/)).toBeVisible();
   // Append-only global history retains the synthetic actor until this disposable
