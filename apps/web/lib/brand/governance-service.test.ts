@@ -1,9 +1,13 @@
 import { beforeEach,expect,it,vi } from "vitest";
 import { fixtureId } from "@/test/confidence-fixtures";
 import { pilotFixture } from "@/test/pilot-fixtures";
-const mocks=vi.hoisted(()=>({user:vi.fn(),rpc:vi.fn(),rows:vi.fn()}));
+import { brandFixture,orgId,actorId } from "@/test/brand-fixtures";
+import { workspaceReference } from "@/lib/tenant/context";
+const mocks=vi.hoisted(()=>({user:vi.fn(),rpc:vi.fn(),rows:vi.fn(),context:vi.fn(),color:vi.fn()}));
+vi.mock("@/lib/clients/service",()=>({verifiedClientContext:mocks.context}));
+vi.mock("@/lib/color/service",()=>({executeColorCommand:mocks.color}));
 vi.mock("@/lib/supabase/server",()=>({createClient:async()=>({auth:{getUser:mocks.user},rpc:mocks.rpc,from:()=>({select:()=>{const b={eq:()=>b,maybeSingle:mocks.rows};return b;}})})}));
-import { catalogOperator,catalogGovernance,readCatalogSource,readPilotCatalog } from "./governance-service";
+import { catalogOperator,catalogGovernance,readCatalogSource,readPilotCatalog,evaluatePilotRequest } from "./governance-service";
 const id=fixtureId(1),correlation=fixtureId(2);
 beforeEach(()=>{vi.clearAllMocks();mocks.user.mockResolvedValue({data:{user:{id}},error:null});mocks.rpc.mockImplementation(async name=>({data:name==="catalog_operator_access"?true:{catalogId:id},error:null}));});
 it("global governance requires the database-maintained operator",async()=>{mocks.rpc.mockResolvedValue({data:false,error:null});await expect(catalogOperator()).rejects.toMatchObject({code:"FORBIDDEN"});});
@@ -15,3 +19,14 @@ it.each(["23514","23505"])("state/lineage failure %s is a conflict",async code=>
 it("foreign source remains concealed by caller RLS",async()=>{mocks.rows.mockResolvedValue({data:null,error:null});await expect(readCatalogSource(id,correlation)).rejects.toMatchObject({code:"BRAND_CATALOG_NOT_FOUND",status:404});});
 it("pilot source schema is validated before delivery",async()=>{const {packet}=pilotFixture();mocks.rpc.mockResolvedValue({data:packet,error:null});expect(await readPilotCatalog(id)).toEqual(packet);});
 it("anonymous source lookup reports authentication requirement",async()=>{mocks.user.mockResolvedValue({data:{user:null},error:null});await expect(readCatalogSource(id,correlation)).rejects.toMatchObject({status:401});expect(mocks.rows).not.toHaveBeenCalled();});
+const ctx={membership_id:fixtureId(5),location_id:fixtureId(2),organization_id:orgId,organization_name:"Synthetic",location_name:"Synthetic",role:"owner" as const,membership_status:"active" as const,permissions:["clients.read","hair_passport.read","color_plan.read"]};
+function evaluationSetup(){
+ const f=brandFixture(),{packet}=pilotFixture(),planId=fixtureId(50),q={client_id:f.input.target.clientId,plan_id:planId,catalog_id:packet.catalog.release.id};
+ mocks.context.mockResolvedValue(ctx);mocks.color.mockResolvedValue({data:{id:planId,clientId:q.client_id,targetId:f.input.target.id,createdAt:f.plan.evaluatedAt,createdBy:actorId,result:f.plan}});
+ mocks.rpc.mockImplementation(async name=>({error:null,data:name==="brand_adapter_snapshot"?{data:f.input.snapshot,sourceToken:"a".repeat(64),correlationId:correlation}:packet}));return {q,f,packet};
+}
+it("pilot rechecks current passport and produces no executable result",async()=>{const {q}=evaluationSetup();const result=await evaluatePilotRequest(q,correlation,workspaceReference(ctx));expect(result.data.executable).toBe(false);expect(mocks.rpc).toHaveBeenCalledWith("brand_adapter_snapshot",expect.objectContaining({p_client_id:q.client_id}));});
+it("pilot rejects stale workspace before reading customer data",async()=>{const {q}=evaluationSetup();await expect(evaluatePilotRequest(q,correlation,"stale")).rejects.toMatchObject({code:"TENANT_CONTEXT_INVALID"});expect(mocks.color).not.toHaveBeenCalled();});
+it("changed passport invalidates the pilot's original plan",async()=>{const {q,f}=evaluationSetup();mocks.rpc.mockResolvedValue({data:{data:{...f.input.snapshot,pages:[{...f.input.snapshot.pages[0],passport:{...f.input.snapshot.pages[0]!.passport,version:999}}]},sourceToken:"a".repeat(64),correlationId:correlation}});await expect(evaluatePilotRequest(q,correlation,workspaceReference(ctx))).rejects.toMatchObject({code:"COLOR_PLAN_SOURCE_CONFLICT"});});
+it("pilot revocation before response conceals candidates",async()=>{const {q}=evaluationSetup();mocks.context.mockResolvedValueOnce(ctx).mockResolvedValueOnce({...ctx,permissions:[]});await expect(evaluatePilotRequest(q,correlation,workspaceReference(ctx))).rejects.toMatchObject({code:"TENANT_CONTEXT_INVALID"});});
+it.each(["compatibility","verificationStatus","normalizedResult"])("pilot input cannot forge %s",async key=>{const {q}=evaluationSetup();await expect(evaluatePilotRequest({...q,[key]:{}},correlation,workspaceReference(ctx))).rejects.toMatchObject({code:"VALIDATION_FAILED"});expect(mocks.color).not.toHaveBeenCalled();});
