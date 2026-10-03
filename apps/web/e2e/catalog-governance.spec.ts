@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { login,expectReady,seedAccount } from "./local-auth";
 
 test("normal salon owner cannot enter or forge global governance",async({page})=>{
- const account=await seedAccount();try{await login(page,account);await expectReady(page);await page.goto("/internal/catalogs");await expect(page.getByRole("alert")).toContainText("yetkili katalog");const r=await page.request.post("/api/admin/catalogs/import",{headers:{origin:"http://127.0.0.1:4173"},data:{operation:"IMPORT",note:"Unauthorized test"}});expect(r.status()).toBe(403);}finally{await account.cleanup();}
+ const account=await seedAccount();try{await login(page,account);await expectReady(page);await page.goto("/internal/catalogs");await expect(page.getByRole("alert").filter({hasText:"yetkili katalog"})).toBeVisible();const r=await page.request.post("/api/admin/catalogs/import",{headers:{origin:"http://127.0.0.1:4173"},data:{operation:"IMPORT",note:"Unauthorized test"}});expect(r.status()).toBe(403);}finally{await account.cleanup();}
 });
 
 test("official pilot completes real Auth/RLS governance and renders at 320 px",async({page},info)=>{

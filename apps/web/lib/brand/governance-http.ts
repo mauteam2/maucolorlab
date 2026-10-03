@@ -11,7 +11,10 @@ export async function governanceResponse(request:Request,kind:"governance"|"impo
   else if(kind==="versions")output=await readBrandVersions(id??"",correlationId);
   else{
    if(request.method!=="POST")throw new AccessError("VALIDATION_FAILED",405);
-   if(request.headers.get("origin")!==url.origin)throw new AccessError("FORBIDDEN",403);
+   // Next can normalize the request URL host. Compare the browser origin with
+   // the actual incoming Host, while retaining the protocol and port checks.
+   let sameOrigin=false;try{const origin=new URL(request.headers.get("origin")??"");sameOrigin=origin.protocol===url.protocol&&origin.host===(request.headers.get("host")??url.host);}catch{}
+   if(!sameOrigin)throw new AccessError("FORBIDDEN",403);
    if(request.headers.get("content-type")?.split(";",1)[0]?.trim().toLowerCase()!=="application/json")throw new AccessError("VALIDATION_FAILED",400);
    const reader=request.body?.getReader();let size=0;const chunks:Uint8Array[]=[];
    if(reader)try{for(;;){const {value,done}=await reader.read();if(done)break;size+=value.byteLength;if(size>8192){await reader.cancel();throw new AccessError("VALIDATION_FAILED",400);}chunks.push(value);}}finally{reader.releaseLock();}
