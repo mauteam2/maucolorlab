@@ -31,8 +31,9 @@ export const catalogPacket = z.strictObject({release:catalogRelease,brands:catal
 export type CatalogPacket = z.infer<typeof catalogPacket>;
 export type Product = z.infer<typeof catalogProduct>;
 export type Fact = z.infer<typeof technicalFact>;
-export const evaluateRequest = z.strictObject({request_id:z.uuid(),client_id:z.uuid(),plan_id:z.uuid(),catalog_id:z.uuid(),allow_salon_verified:z.boolean().default(false)});
-export const catalogQuery = z.strictObject({catalog_id:z.uuid(),brand_id:z.uuid().optional(),product_id:z.uuid().optional(),offset:z.coerce.number().int().min(0).max(10000).default(0),limit:z.coerce.number().int().min(1).max(50).default(25)});
+const requestIdentifier = z.uuid().transform(value => value.toLowerCase());
+export const evaluateRequest = z.strictObject({request_id:requestIdentifier,client_id:requestIdentifier,plan_id:requestIdentifier,catalog_id:requestIdentifier,allow_salon_verified:z.boolean().default(false)});
+export const catalogQuery = z.strictObject({catalog_id:requestIdentifier,brand_id:requestIdentifier.optional(),product_id:requestIdentifier.optional(),offset:z.coerce.number().int().min(0).max(10000).default(0),limit:z.coerce.number().int().min(1).max(50).default(25)});
 export const adapterStates = ["BRAND_READY","BRAND_MATCH_PENDING","BLOCKED_BY_SAFETY","BLOCKED_UNVERIFIED_PRODUCT","BLOCKED_COMPATIBILITY","BLOCKED_MISSING_TECHNICAL_DATA"] as const;
 export const requirement = z.strictObject({schemaVersion:z.literal(1),plan:colorPlanning,developerConstraints:z.literal("VERIFIED_COMPATIBILITY_ONLY")});
 export const brandRecipe = z.strictObject({schemaVersion:z.literal(2),version:z.literal(1),parentRecipeId:z.string().regex(/^[a-f0-9]{64}$/),executionStatus:z.literal("BRAND_READY"),executable:z.literal(false),professionalReviewRequired:z.literal(true),product:catalogProduct,developer:catalogProduct,compatibility:compatibilityRule,technicalRequirement:requirement,snapshots:z.strictObject({colorEngine:z.string(),riskEngine:z.string(),brandAdapter:z.literal("brand-adapter/1.0.0"),brandCatalogId:z.uuid(),brandCatalogVersion:z.int().positive(),catalogFingerprint:z.string().regex(/^[a-f0-9]{64}$/),compatibilityMatrixVersion:z.int().positive(),productVersions:z.int().positive().array().length(2),pigmentVectorVersion:z.literal("pigment-vector/1.0.0")})});

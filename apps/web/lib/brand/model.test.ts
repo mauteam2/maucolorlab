@@ -6,6 +6,12 @@ import * as model from "./model";
 import { storedBrandRecipe } from "./service";
 import { readPigmentVector } from "./pigment";
 import { evaluateBrandAdapter } from "./engine";
+it("normalizes valid UUID case before ownership and idempotency comparisons",()=>{
+ const id="C2000000-0000-4000-8000-000000000001";
+ const request=model.evaluateRequest.parse({request_id:id,client_id:id,plan_id:id,catalog_id:id});
+ expect(request).toEqual({request_id:id.toLowerCase(),client_id:id.toLowerCase(),plan_id:id.toLowerCase(),catalog_id:id.toLowerCase(),allow_salon_verified:false});
+ expect(model.catalogQuery.parse({catalog_id:id,product_id:id}).product_id).toBe(id.toLowerCase());
+});
 it("pigment vector keeps omitted channels unknown and source scales intact",()=>{const f=brandFixture(),v=readPigmentVector(f.catalog.products[0]!);expect(v.channels.neutral!.value).toBe(1);expect(v.channels.copper!.value).toBeNull();expect(v.channels.copper!.source).toBe("UNKNOWN");expect(v.schemaVersion).toBe("pigment-vector/1.0.0");});
 it("documented unit mismatch rejects catalogue data",()=>{const f=brandFixture();expect(model.technicalFact.safeParse({...f.catalog.products[0]!.facts[0],unit:"PERCENT"}).success).toBe(false);});
 it("duplicate fact keys and malformed ownership reject catalogues",()=>{const f=brandFixture(),p=f.catalog.products[0]!;expect(model.catalogProduct.safeParse({...p,facts:[...p.facts,p.facts[0]]}).success).toBe(false);expect(model.catalogRelease.safeParse({...f.catalog.release,organizationId:orgId}).success).toBe(false);});

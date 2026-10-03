@@ -65,9 +65,13 @@ export async function expectReady(page: Page) {
   try { await expect(page).toHaveURL(/\/workspace$/); }
   catch (error) {
     // Error codes only: never include credential fields or session cookies.
-    const alert = await page.locator(".auth-form [role=alert]").textContent().catch(() => null);
+    const alert = await page.locator(".auth-form [role=alert]").evaluateAll(nodes => nodes[0]?.textContent ?? null);
     const code = alert?.includes("Bağlantı") ? "NETWORK_ERROR" : alert?.includes("hatalı") ? "INVALID_CREDENTIALS" : "NO_LOGIN_ALERT";
-    throw new Error(`Workspace navigation failed; login state: ${code}`, { cause: error });
+    const fields = await page.locator(".auth-form input[name=email], .auth-form input[name=password]").evaluateAll(nodes => nodes.map(node => {
+      const input = node as HTMLInputElement;
+      return { field: input.name, length: input.value.length, disabled: input.disabled, valid: input.validity.valid };
+    }));
+    throw new Error(`Workspace navigation failed; login state: ${code}; field state: ${JSON.stringify(fields)}`, { cause: error });
   }
   await expect(page.getByRole("heading", { name: "Çalışma alanınız hazır." })).toBeVisible();
   await expect(page.getByText("Studio E2E · Bolu")).toBeVisible();
