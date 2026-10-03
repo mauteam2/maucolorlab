@@ -84,7 +84,7 @@
 .salon-layout textarea { resize:vertical; }
 .salon-layout input[type="checkbox"],.salon-layout input[type="radio"] { accent-color:var(--color-primary); }
 .salon-layout .salon-global-search input[type="search"] { padding:0; min-height:24px; border:0; background:none; }
-.salon-layout .clients-page > nav { display:none; }
+.salon-layout .clients-page > nav:not(.hp-tabs) { display:none; }
 .salon-layout .clients-page > .eyebrow { margin:0 8px 12px; font-size:11px; letter-spacing:.08em; }
 .salon-layout .clients-page > .lead { margin: -16px 8px 26px; }
 .salon-layout .client-search { background:var(--color-surface); border:1px solid var(--color-border); padding:16px; border-radius:12px; grid-template-columns:minmax(0,2fr) minmax(170px,1fr); align-items:end; gap:8px 16px; margin:24px 0 12px; }

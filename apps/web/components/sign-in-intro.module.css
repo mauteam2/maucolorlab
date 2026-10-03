@@ -46,7 +46,7 @@
 .card :global(.auth-form) { margin: 30px 0 0; gap: 10px; }
 .card label { font-size: 14px; font-weight: 500; margin-top: 10px; }
 .card input { background: #fffdfb; border-color: #e8d8cc; border-radius: 8px; font-size: 16px; }
-.card button { margin-top: 20px; width: 100%; min-height: 48px; border-radius: 8px; background: #3b2432; color: #fffdfb; border: 1px solid #3b2432; font-weight: 500; }
+.card button { margin-top: 20px; width: 100%; min-height: 48px; border-radius: 8px; background: #3b2432; color: #fffdfb; border: 1px solid #3b2432; font-weight: 500; transition: none; }
 .card button:hover:not(:disabled) { background: #503242; }
 .surface[data-intro="playing"] .logo { will-change: transform; }
 @media (max-width: 720px) {
