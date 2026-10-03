@@ -15,6 +15,15 @@ import { evaluateBrandAdapter } from "./engine";
 import { evaluateRequest, catalogQuery, catalogPacket, adapterEvaluation } from "./model";
 
 export const storedBrandRecipe=z.strictObject({id:z.uuid(),clientId:z.uuid(),planId:z.uuid(),catalogId:z.uuid(),createdAt:z.iso.datetime({offset:true}),result:adapterEvaluation});
+export async function readBrandRecipe(recipeId:string,correlationId:string){
+ if(!z.uuid().safeParse(recipeId).success)throw new AccessError("VALIDATION_FAILED",400);
+ const ctx=await verifiedClientContext("color_plan.read");if(!["clients.read","hair_passport.read"].every(p=>ctx.permissions.includes(p)))throw new AccessError("FORBIDDEN",403);
+ const client=await createClient(),{data,error}=await client.from("brand_recipe_drafts").select("id,client_id,plan_id,catalog_id,created_at,payload").eq("id",recipeId).eq("organization_id",ctx.organization_id).maybeSingle();
+ if(error)throw new AccessError("NETWORK_ERROR",503);if(!data)throw new AccessError("BRAND_RECIPE_NOT_FOUND",404);
+ const output=storedBrandRecipe.safeParse({id:data.id,clientId:data.client_id,planId:data.plan_id,catalogId:data.catalog_id,createdAt:data.created_at,result:data.payload});if(!output.success)throw new AccessError("BRAND_RESULT_INVALID",503);
+ const current=await verifiedClientContext("color_plan.read");if(workspaceReference(current)!==workspaceReference(ctx)||!["clients.read","hair_passport.read"].every(p=>current.permissions.includes(p)))throw new AccessError("TENANT_CONTEXT_INVALID",403);
+ return {data:output.data,correlationId};
+}
 const snapshotPacket=z.strictObject({data:confidenceInput,sourceToken:z.string().regex(/^[a-f0-9]{64}$/),correlationId:z.uuid()});
 export async function readBrandCatalog(raw:unknown,kind:"catalog"|"brands"|"brand"|"products"|"product"|"compatibility",correlationId:string) {
  const q=catalogQuery.safeParse(raw);if(!q.success)throw new AccessError("VALIDATION_FAILED",400);

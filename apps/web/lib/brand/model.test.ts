@@ -1,0 +1,22 @@
+import { expect,it } from "vitest";
+import { z } from "zod";
+import { mkdirSync,writeFileSync } from "node:fs";
+import { brandFixture,orgId } from "@/test/brand-fixtures";
+import * as model from "./model";
+import { storedBrandRecipe } from "./service";
+import { readPigmentVector } from "./pigment";
+import { evaluateBrandAdapter } from "./engine";
+it("pigment vector keeps omitted channels unknown and source scales intact",()=>{const f=brandFixture(),v=readPigmentVector(f.catalog.products[0]!);expect(v.channels.neutral!.value).toBe(1);expect(v.channels.copper!.value).toBeNull();expect(v.channels.copper!.source).toBe("UNKNOWN");expect(v.schemaVersion).toBe("pigment-vector/1.0.0");});
+it("documented unit mismatch rejects catalogue data",()=>{const f=brandFixture();expect(model.technicalFact.safeParse({...f.catalog.products[0]!.facts[0],unit:"PERCENT"}).success).toBe(false);});
+it("duplicate fact keys and malformed ownership reject catalogues",()=>{const f=brandFixture(),p=f.catalog.products[0]!;expect(model.catalogProduct.safeParse({...p,facts:[...p.facts,p.facts[0]]}).success).toBe(false);expect(model.catalogRelease.safeParse({...f.catalog.release,organizationId:orgId}).success).toBe(false);});
+it("all unknown facts retain null without changing verification",()=>{const f=brandFixture();for(const p of f.catalog.products)p.facts=[];expect(Object.values(readPigmentVector(f.catalog.products[0]!).channels).every(c=>c.value===null&&c.verificationStatus==="UNVERIFIED")).toBe(true);});
+it("public result cannot invent executable status or success without a recipe",()=>{const f=brandFixture(),r=evaluateBrandAdapter(f.plan,f.catalog,orgId);expect(model.adapterEvaluation.safeParse({...r,recipe:{...r.recipe,executable:true}}).success).toBe(false);expect(model.adapterEvaluation.safeParse({...r,recipe:null}).success).toBe(false);});
+it("shared catalog models export strict schemas and fictional examples",()=>{
+ const f=brandFixture(),result=evaluateBrandAdapter(f.plan,f.catalog,orgId);
+ expect(model.catalogPacket.parse(f.catalog)).toEqual(f.catalog);
+ if(process.env.ELIFORA_EXPORT_BRAND_FIXTURES!=="1")return;
+ const dir="captures/phase-2a";mkdirSync(dir,{recursive:true});
+ const schemas={BrandVerification:model.verification,BrandTechnicalSource:model.source,BrandTechnicalFact:model.technicalFact,BrandCatalogRelease:model.catalogRelease,Brand:model.catalogBrand,ProductLine:model.catalogLine,BrandProduct:model.catalogProduct,BrandCompatibility:model.compatibilityRule,EvaluateBrandAdapter:model.evaluateRequest,BrandRecipeDraft:model.brandRecipe,BrandAdapterEvaluation:model.adapterEvaluation,StoredBrandRecipe:storedBrandRecipe};
+ writeFileSync(`${dir}/schemas.json`,JSON.stringify(Object.fromEntries(Object.entries(schemas).map(([name,schema])=>[name,z.toJSONSchema(schema,{io:"input"})])),null,2));
+ writeFileSync(`${dir}/brand-contract.json`,JSON.stringify({notice:"TEST ONLY FICTIONAL DATA; NEVER SEED PRODUCTION",catalog:f.catalog,evaluation:result,request:{request_id:orgId,client_id:f.plan.recipeDraft!.target.clientId,plan_id:orgId,catalog_id:f.catalog.release.id}},null,2));
+});

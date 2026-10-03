@@ -1,0 +1,903 @@
+{
+  "notice": "TEST ONLY FICTIONAL DATA; NEVER SEED PRODUCTION",
+  "catalog": {
+    "release": {
+      "id": "c1000000-0000-4000-8000-000000008000",
+      "version": 1,
+      "scope": "GLOBAL",
+      "organizationId": null,
+      "state": "PUBLISHED",
+      "versionFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "brands": [
+      {
+        "id": "c1000000-0000-4000-8000-000000008002",
+        "catalogId": "c1000000-0000-4000-8000-000000008000",
+        "displayName": "Test-only fictional brand"
+      }
+    ],
+    "lines": [
+      {
+        "id": "c1000000-0000-4000-8000-000000008003",
+        "catalogId": "c1000000-0000-4000-8000-000000008000",
+        "brandId": "c1000000-0000-4000-8000-000000008002",
+        "displayName": "Test-only line"
+      }
+    ],
+    "products": [
+      {
+        "id": "c1000000-0000-4000-8000-000000008004",
+        "seriesId": "c1000000-0000-4000-8000-000000008005",
+        "version": 1,
+        "catalogId": "c1000000-0000-4000-8000-000000008000",
+        "brandId": "c1000000-0000-4000-8000-000000008002",
+        "lineId": "c1000000-0000-4000-8000-000000008003",
+        "manufacturerCode": "TEST-SHADE",
+        "displayName": "Synthetic shade, not a real product",
+        "productType": "SHADE",
+        "professionalCategory": "SYNTHETIC_TEST_ONLY",
+        "countryRegion": null,
+        "manufacturerSourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+        "verificationStatus": "ELIFORA_VERIFIED",
+        "active": true,
+        "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+        "verifiedAt": "2026-10-01T12:00:00.000Z",
+        "pigmentVectorVersion": "pigment-vector/1.0.0",
+        "facts": [
+          {
+            "key": "shade_level",
+            "value": 7,
+            "unit": "LEVEL",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "tone_family",
+            "value": "NEUTRAL",
+            "unit": "CATEGORY",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "level_effect",
+            "value": 0,
+            "unit": "SOURCE_SCALE",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "neutral",
+            "value": 1,
+            "unit": "SOURCE_SCALE",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "opacity",
+            "value": 1,
+            "unit": "SOURCE_SCALE",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "deposit_strength",
+            "value": 1,
+            "unit": "SOURCE_SCALE",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "deposit_capability",
+            "value": true,
+            "unit": "BOOLEAN",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "mixing_ratio",
+            "value": "1:1",
+            "unit": "RATIO",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "processing_minutes",
+            "value": 1,
+            "unit": "MINUTES",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          }
+        ]
+      },
+      {
+        "id": "c1000000-0000-4000-8000-000000008006",
+        "seriesId": "c1000000-0000-4000-8000-000000008007",
+        "version": 1,
+        "catalogId": "c1000000-0000-4000-8000-000000008000",
+        "brandId": "c1000000-0000-4000-8000-000000008002",
+        "lineId": "c1000000-0000-4000-8000-000000008003",
+        "manufacturerCode": "TEST-DEVELOPER",
+        "displayName": "Synthetic developer, not a real product",
+        "productType": "DEVELOPER",
+        "professionalCategory": "SYNTHETIC_TEST_ONLY",
+        "countryRegion": null,
+        "manufacturerSourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+        "verificationStatus": "ELIFORA_VERIFIED",
+        "active": true,
+        "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+        "verifiedAt": "2026-10-01T12:00:00.000Z",
+        "pigmentVectorVersion": "pigment-vector/1.0.0",
+        "facts": [
+          {
+            "key": "developer_strength",
+            "value": 1,
+            "unit": "PERCENT",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          }
+        ]
+      }
+    ],
+    "compatibility": [
+      {
+        "id": "c1000000-0000-4000-8000-000000008008",
+        "catalogId": "c1000000-0000-4000-8000-000000008000",
+        "version": 1,
+        "productId": "c1000000-0000-4000-8000-000000008004",
+        "developerId": "c1000000-0000-4000-8000-000000008006",
+        "technique": "ROOT_REFRESH",
+        "applicationContext": "STANDARD",
+        "outcome": "VERIFIED_ALLOWED",
+        "reason": "Synthetic fixture, no manufacturer claim",
+        "source": "MANUFACTURER_DOCUMENTATION",
+        "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+        "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+        "verifiedAt": "2026-10-01T12:00:00.000Z",
+        "conditions": [],
+        "restrictions": []
+      }
+    ]
+  },
+  "evaluation": {
+    "engineVersion": "brand-adapter/1.0.0",
+    "status": "BRAND_READY",
+    "candidateIds": [
+      "c1000000-0000-4000-8000-000000008004"
+    ],
+    "reasons": [],
+    "recipe": {
+      "schemaVersion": 2,
+      "version": 1,
+      "parentRecipeId": "f25a2db88ffc613550d7e4ee5211c256dc1e421ad758fee729a7e70ab9cdf153",
+      "executionStatus": "BRAND_READY",
+      "executable": false,
+      "professionalReviewRequired": true,
+      "product": {
+        "id": "c1000000-0000-4000-8000-000000008004",
+        "seriesId": "c1000000-0000-4000-8000-000000008005",
+        "version": 1,
+        "catalogId": "c1000000-0000-4000-8000-000000008000",
+        "brandId": "c1000000-0000-4000-8000-000000008002",
+        "lineId": "c1000000-0000-4000-8000-000000008003",
+        "manufacturerCode": "TEST-SHADE",
+        "displayName": "Synthetic shade, not a real product",
+        "productType": "SHADE",
+        "professionalCategory": "SYNTHETIC_TEST_ONLY",
+        "countryRegion": null,
+        "manufacturerSourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+        "verificationStatus": "ELIFORA_VERIFIED",
+        "active": true,
+        "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+        "verifiedAt": "2026-10-01T12:00:00.000Z",
+        "pigmentVectorVersion": "pigment-vector/1.0.0",
+        "facts": [
+          {
+            "key": "shade_level",
+            "value": 7,
+            "unit": "LEVEL",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "tone_family",
+            "value": "NEUTRAL",
+            "unit": "CATEGORY",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "level_effect",
+            "value": 0,
+            "unit": "SOURCE_SCALE",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "neutral",
+            "value": 1,
+            "unit": "SOURCE_SCALE",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "opacity",
+            "value": 1,
+            "unit": "SOURCE_SCALE",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "deposit_strength",
+            "value": 1,
+            "unit": "SOURCE_SCALE",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "deposit_capability",
+            "value": true,
+            "unit": "BOOLEAN",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "mixing_ratio",
+            "value": "1:1",
+            "unit": "RATIO",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          },
+          {
+            "key": "processing_minutes",
+            "value": 1,
+            "unit": "MINUTES",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          }
+        ]
+      },
+      "developer": {
+        "id": "c1000000-0000-4000-8000-000000008006",
+        "seriesId": "c1000000-0000-4000-8000-000000008007",
+        "version": 1,
+        "catalogId": "c1000000-0000-4000-8000-000000008000",
+        "brandId": "c1000000-0000-4000-8000-000000008002",
+        "lineId": "c1000000-0000-4000-8000-000000008003",
+        "manufacturerCode": "TEST-DEVELOPER",
+        "displayName": "Synthetic developer, not a real product",
+        "productType": "DEVELOPER",
+        "professionalCategory": "SYNTHETIC_TEST_ONLY",
+        "countryRegion": null,
+        "manufacturerSourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+        "verificationStatus": "ELIFORA_VERIFIED",
+        "active": true,
+        "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+        "verifiedAt": "2026-10-01T12:00:00.000Z",
+        "pigmentVectorVersion": "pigment-vector/1.0.0",
+        "facts": [
+          {
+            "key": "developer_strength",
+            "value": 1,
+            "unit": "PERCENT",
+            "source": "MANUFACTURER_DOCUMENTATION",
+            "verificationStatus": "ELIFORA_VERIFIED",
+            "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+            "version": 1,
+            "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+            "verifiedAt": "2026-10-01T12:00:00.000Z",
+            "confidence": 1
+          }
+        ]
+      },
+      "compatibility": {
+        "id": "c1000000-0000-4000-8000-000000008008",
+        "catalogId": "c1000000-0000-4000-8000-000000008000",
+        "version": 1,
+        "productId": "c1000000-0000-4000-8000-000000008004",
+        "developerId": "c1000000-0000-4000-8000-000000008006",
+        "technique": "ROOT_REFRESH",
+        "applicationContext": "STANDARD",
+        "outcome": "VERIFIED_ALLOWED",
+        "reason": "Synthetic fixture, no manufacturer claim",
+        "source": "MANUFACTURER_DOCUMENTATION",
+        "sourceReference": "TEST_ONLY_SYNTHETIC_DOCUMENT",
+        "verifiedBy": "c1000000-0000-4000-8000-000000000007",
+        "verifiedAt": "2026-10-01T12:00:00.000Z",
+        "conditions": [],
+        "restrictions": []
+      },
+      "technicalRequirement": {
+        "schemaVersion": 1,
+        "plan": {
+          "engineVersion": "color-engine/1.0.0",
+          "evaluatedAt": "2026-10-01T12:00:00.000Z",
+          "metadata": {
+            "colorVersion": "color-engine/1.0.0",
+            "colorRulesFingerprint": "ed5438071d3b1cb417aee5e2605ec5b4d5e081d73552fc5bde5bfe70f3a6472e",
+            "inputFingerprint": "4a1d42b08896c99008b4d75f9e91ebfb6aea3c96c4bf93a585ad1b4e9021595d",
+            "passportId": "c1000000-0000-4000-8000-000000000003",
+            "passportVersion": 1,
+            "hairFingerprint": "57568230571e258680824e053cc3705c7f83e2b38b57246b8a7bd49d88657477",
+            "targetId": "c1000000-0000-4000-8000-000000004000",
+            "targetVersion": 1,
+            "targetFingerprint": "340aa4e37006a17e850d474c8ea055df719d014b59663dc84204a957261dee64",
+            "confidenceVersion": "confidence-engine/1.0.0",
+            "confidenceFingerprint": "57568230571e258680824e053cc3705c7f83e2b38b57246b8a7bd49d88657477",
+            "confidenceRulesFingerprint": "9dbc228079f87bf2373f9edc8e0194cb48e5430db31ea73d08676158400eafed",
+            "riskVersion": "risk-engine/1.0.0",
+            "riskFingerprint": "213cfe29ff4805c2382dc33411cdc9ebe56df62bf1a9a7a28e2c6fdb4009fbdb",
+            "riskRulesFingerprint": "ec322876dbbba63c28a3454d14c3bc09a5f2017d8712e441aab400ba2b4f5e36"
+          },
+          "status": "DRAFT",
+          "feasibility": "DIRECT",
+          "targetIssues": [],
+          "regions": [
+            {
+              "regionId": "c1000000-0000-4000-8000-000000000010",
+              "currentLevel": 7,
+              "naturalLevel": 6,
+              "targetLevel": 7,
+              "delta": 0,
+              "actions": [
+                "SAME_LEVEL",
+                "TONE_ONLY"
+              ],
+              "separateHandling": false,
+              "porousEndsLater": false,
+              "naturalBaseSupport": false,
+              "reasonCodes": [
+                "TARGET_SAME_LEVEL",
+                "TONE_ADJUSTMENT_INTENT"
+              ]
+            },
+            {
+              "regionId": "c1000000-0000-4000-8000-000000000011",
+              "currentLevel": 7,
+              "naturalLevel": 6,
+              "targetLevel": null,
+              "delta": null,
+              "actions": [
+                "PRESERVE"
+              ],
+              "separateHandling": false,
+              "porousEndsLater": false,
+              "naturalBaseSupport": false,
+              "reasonCodes": [
+                "PRESERVE_EXISTING_REGION"
+              ]
+            },
+            {
+              "regionId": "c1000000-0000-4000-8000-000000000012",
+              "currentLevel": 7,
+              "naturalLevel": 6,
+              "targetLevel": null,
+              "delta": null,
+              "actions": [
+                "PRESERVE"
+              ],
+              "separateHandling": false,
+              "porousEndsLater": false,
+              "naturalBaseSupport": false,
+              "reasonCodes": [
+                "PRESERVE_EXISTING_REGION"
+              ]
+            }
+          ],
+          "safetyGate": {
+            "outcome": "CONTINUE_TECHNICAL_PLANNING",
+            "canProgress": true,
+            "reasonCodes": [
+              "NO_ESCALATING_STRUCTURED_FACT"
+            ]
+          },
+          "requiredPhysicalTests": [],
+          "requiredInformation": [],
+          "reasonCodes": [
+            "BRAND_ADAPTER_REQUIRED",
+            "PRESERVE_EXISTING_REGION",
+            "TARGET_SAME_LEVEL",
+            "TONE_ADJUSTMENT_INTENT"
+          ],
+          "primaryStrategy": {
+            "id": "09b22babc74ea81e99f74cc2814fa8cac5581b56c23047b21cc2665cb84c0205",
+            "type": "CONSERVATIVE",
+            "eligibility": "ELIGIBLE_FOR_PLANNING",
+            "engineVersion": "color-engine/1.0.0",
+            "sessions": {
+              "min": 1,
+              "max": 1
+            },
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000010",
+              "c1000000-0000-4000-8000-000000000011",
+              "c1000000-0000-4000-8000-000000000012"
+            ],
+            "stages": [
+              {
+                "sequence": 1,
+                "kind": "ASSESS",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000010",
+                  "c1000000-0000-4000-8000-000000000011",
+                  "c1000000-0000-4000-8000-000000000012"
+                ],
+                "checkpoint": true,
+                "reasonCodes": []
+              },
+              {
+                "sequence": 2,
+                "kind": "PREPARE",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000010",
+                  "c1000000-0000-4000-8000-000000000011",
+                  "c1000000-0000-4000-8000-000000000012"
+                ],
+                "checkpoint": false,
+                "reasonCodes": []
+              },
+              {
+                "sequence": 3,
+                "kind": "ROOT_APPLICATION",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000010"
+                ],
+                "checkpoint": false,
+                "reasonCodes": [
+                  "TARGET_SAME_LEVEL",
+                  "TONE_ADJUSTMENT_INTENT"
+                ]
+              },
+              {
+                "sequence": 4,
+                "kind": "TONE",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000010"
+                ],
+                "checkpoint": false,
+                "reasonCodes": []
+              },
+              {
+                "sequence": 5,
+                "kind": "FINALIZE",
+                "regionIds": [
+                  "c1000000-0000-4000-8000-000000000010",
+                  "c1000000-0000-4000-8000-000000000011",
+                  "c1000000-0000-4000-8000-000000000012"
+                ],
+                "checkpoint": true,
+                "reasonCodes": []
+              }
+            ],
+            "technicalIntent": [
+              {
+                "regionId": "c1000000-0000-4000-8000-000000000010",
+                "currentLevel": 7,
+                "naturalLevel": 6,
+                "targetLevel": 7,
+                "delta": 0,
+                "actions": [
+                  "SAME_LEVEL",
+                  "TONE_ONLY"
+                ],
+                "separateHandling": false,
+                "porousEndsLater": false,
+                "naturalBaseSupport": false,
+                "reasonCodes": [
+                  "TARGET_SAME_LEVEL",
+                  "TONE_ADJUSTMENT_INTENT"
+                ]
+              },
+              {
+                "regionId": "c1000000-0000-4000-8000-000000000011",
+                "currentLevel": 7,
+                "naturalLevel": 6,
+                "targetLevel": null,
+                "delta": null,
+                "actions": [
+                  "PRESERVE"
+                ],
+                "separateHandling": false,
+                "porousEndsLater": false,
+                "naturalBaseSupport": false,
+                "reasonCodes": [
+                  "PRESERVE_EXISTING_REGION"
+                ]
+              },
+              {
+                "regionId": "c1000000-0000-4000-8000-000000000012",
+                "currentLevel": 7,
+                "naturalLevel": 6,
+                "targetLevel": null,
+                "delta": null,
+                "actions": [
+                  "PRESERVE"
+                ],
+                "separateHandling": false,
+                "porousEndsLater": false,
+                "naturalBaseSupport": false,
+                "reasonCodes": [
+                  "PRESERVE_EXISTING_REGION"
+                ]
+              }
+            ],
+            "requiredCheckpoints": [
+              "RISK_REASSESSMENT",
+              "REGIONAL_INTEGRITY"
+            ],
+            "requiredPhysicalTests": [],
+            "requiredInformation": [],
+            "riskConsiderations": [],
+            "tradeoffs": {
+              "integrityPreservation": "PRIORITIZED",
+              "targetAccuracy": "FULL_INTENT",
+              "complexity": "SIMPLE",
+              "uncertainty": "LOW",
+              "maintenance": "REQUIRES_PROFESSIONAL_REVIEW"
+            },
+            "reasonCodes": [
+              "BRAND_ADAPTER_REQUIRED",
+              "PRESERVE_EXISTING_REGION",
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          },
+          "alternatives": [],
+          "recipeDraft": {
+            "id": "f25a2db88ffc613550d7e4ee5211c256dc1e421ad758fee729a7e70ab9cdf153",
+            "version": 1,
+            "parentVersionId": null,
+            "origin": "ENGINE",
+            "executionStatus": "REQUIRES_BRAND_ADAPTER",
+            "target": {
+              "id": "c1000000-0000-4000-8000-000000004000",
+              "seriesId": "c1000000-0000-4000-8000-000000004001",
+              "version": 1,
+              "previousVersionId": null,
+              "clientId": "c1000000-0000-4000-8000-000000000004",
+              "passportId": "c1000000-0000-4000-8000-000000000003",
+              "definition": {
+                "schemaVersion": 1,
+                "mode": "ROOT_REFRESH",
+                "globalIntent": "REFRESH",
+                "regions": [
+                  {
+                    "regionId": "c1000000-0000-4000-8000-000000000010",
+                    "level": 7,
+                    "toneFamily": "NEUTRAL",
+                    "mixedFamilies": [],
+                    "warmth": "NEUTRAL",
+                    "greyPriority": "NONE",
+                    "liftPriority": "NONE",
+                    "depositPriority": "NONE",
+                    "toneIntent": "CHANGE",
+                    "contrast": "NONE",
+                    "preserve": false,
+                    "handling": "STANDARD",
+                    "correction": "NONE",
+                    "intermediateLevel": null
+                  },
+                  {
+                    "regionId": "c1000000-0000-4000-8000-000000000011",
+                    "level": null,
+                    "toneFamily": null,
+                    "mixedFamilies": [],
+                    "warmth": "PRESERVE",
+                    "greyPriority": "NONE",
+                    "liftPriority": "NONE",
+                    "depositPriority": "NONE",
+                    "toneIntent": "PRESERVE",
+                    "contrast": "NONE",
+                    "preserve": true,
+                    "handling": "STANDARD",
+                    "correction": "NONE",
+                    "intermediateLevel": null
+                  },
+                  {
+                    "regionId": "c1000000-0000-4000-8000-000000000012",
+                    "level": null,
+                    "toneFamily": null,
+                    "mixedFamilies": [],
+                    "warmth": "PRESERVE",
+                    "greyPriority": "NONE",
+                    "liftPriority": "NONE",
+                    "depositPriority": "NONE",
+                    "toneIntent": "PRESERVE",
+                    "contrast": "NONE",
+                    "preserve": true,
+                    "handling": "STANDARD",
+                    "correction": "NONE",
+                    "intermediateLevel": null
+                  }
+                ]
+              },
+              "createdAt": "2026-10-01T12:00:00.000Z",
+              "createdBy": "c1000000-0000-4000-8000-000000000007"
+            },
+            "strategy": {
+              "id": "09b22babc74ea81e99f74cc2814fa8cac5581b56c23047b21cc2665cb84c0205",
+              "type": "CONSERVATIVE",
+              "eligibility": "ELIGIBLE_FOR_PLANNING",
+              "engineVersion": "color-engine/1.0.0",
+              "sessions": {
+                "min": 1,
+                "max": 1
+              },
+              "regionIds": [
+                "c1000000-0000-4000-8000-000000000010",
+                "c1000000-0000-4000-8000-000000000011",
+                "c1000000-0000-4000-8000-000000000012"
+              ],
+              "stages": [
+                {
+                  "sequence": 1,
+                  "kind": "ASSESS",
+                  "regionIds": [
+                    "c1000000-0000-4000-8000-000000000010",
+                    "c1000000-0000-4000-8000-000000000011",
+                    "c1000000-0000-4000-8000-000000000012"
+                  ],
+                  "checkpoint": true,
+                  "reasonCodes": []
+                },
+                {
+                  "sequence": 2,
+                  "kind": "PREPARE",
+                  "regionIds": [
+                    "c1000000-0000-4000-8000-000000000010",
+                    "c1000000-0000-4000-8000-000000000011",
+                    "c1000000-0000-4000-8000-000000000012"
+                  ],
+                  "checkpoint": false,
+                  "reasonCodes": []
+                },
+                {
+                  "sequence": 3,
+                  "kind": "ROOT_APPLICATION",
+                  "regionIds": [
+                    "c1000000-0000-4000-8000-000000000010"
+                  ],
+                  "checkpoint": false,
+                  "reasonCodes": [
+                    "TARGET_SAME_LEVEL",
+                    "TONE_ADJUSTMENT_INTENT"
+                  ]
+                },
+                {
+                  "sequence": 4,
+                  "kind": "TONE",
+                  "regionIds": [
+                    "c1000000-0000-4000-8000-000000000010"
+                  ],
+                  "checkpoint": false,
+                  "reasonCodes": []
+                },
+                {
+                  "sequence": 5,
+                  "kind": "FINALIZE",
+                  "regionIds": [
+                    "c1000000-0000-4000-8000-000000000010",
+                    "c1000000-0000-4000-8000-000000000011",
+                    "c1000000-0000-4000-8000-000000000012"
+                  ],
+                  "checkpoint": true,
+                  "reasonCodes": []
+                }
+              ],
+              "technicalIntent": [
+                {
+                  "regionId": "c1000000-0000-4000-8000-000000000010",
+                  "currentLevel": 7,
+                  "naturalLevel": 6,
+                  "targetLevel": 7,
+                  "delta": 0,
+                  "actions": [
+                    "SAME_LEVEL",
+                    "TONE_ONLY"
+                  ],
+                  "separateHandling": false,
+                  "porousEndsLater": false,
+                  "naturalBaseSupport": false,
+                  "reasonCodes": [
+                    "TARGET_SAME_LEVEL",
+                    "TONE_ADJUSTMENT_INTENT"
+                  ]
+                },
+                {
+                  "regionId": "c1000000-0000-4000-8000-000000000011",
+                  "currentLevel": 7,
+                  "naturalLevel": 6,
+                  "targetLevel": null,
+                  "delta": null,
+                  "actions": [
+                    "PRESERVE"
+                  ],
+                  "separateHandling": false,
+                  "porousEndsLater": false,
+                  "naturalBaseSupport": false,
+                  "reasonCodes": [
+                    "PRESERVE_EXISTING_REGION"
+                  ]
+                },
+                {
+                  "regionId": "c1000000-0000-4000-8000-000000000012",
+                  "currentLevel": 7,
+                  "naturalLevel": 6,
+                  "targetLevel": null,
+                  "delta": null,
+                  "actions": [
+                    "PRESERVE"
+                  ],
+                  "separateHandling": false,
+                  "porousEndsLater": false,
+                  "naturalBaseSupport": false,
+                  "reasonCodes": [
+                    "PRESERVE_EXISTING_REGION"
+                  ]
+                }
+              ],
+              "requiredCheckpoints": [
+                "RISK_REASSESSMENT",
+                "REGIONAL_INTEGRITY"
+              ],
+              "requiredPhysicalTests": [],
+              "requiredInformation": [],
+              "riskConsiderations": [],
+              "tradeoffs": {
+                "integrityPreservation": "PRIORITIZED",
+                "targetAccuracy": "FULL_INTENT",
+                "complexity": "SIMPLE",
+                "uncertainty": "LOW",
+                "maintenance": "REQUIRES_PROFESSIONAL_REVIEW"
+              },
+              "reasonCodes": [
+                "BRAND_ADAPTER_REQUIRED",
+                "PRESERVE_EXISTING_REGION",
+                "TARGET_SAME_LEVEL",
+                "TONE_ADJUSTMENT_INTENT"
+              ]
+            },
+            "metadata": {
+              "colorVersion": "color-engine/1.0.0",
+              "colorRulesFingerprint": "ed5438071d3b1cb417aee5e2605ec5b4d5e081d73552fc5bde5bfe70f3a6472e",
+              "inputFingerprint": "4a1d42b08896c99008b4d75f9e91ebfb6aea3c96c4bf93a585ad1b4e9021595d",
+              "passportId": "c1000000-0000-4000-8000-000000000003",
+              "passportVersion": 1,
+              "hairFingerprint": "57568230571e258680824e053cc3705c7f83e2b38b57246b8a7bd49d88657477",
+              "targetId": "c1000000-0000-4000-8000-000000004000",
+              "targetVersion": 1,
+              "targetFingerprint": "340aa4e37006a17e850d474c8ea055df719d014b59663dc84204a957261dee64",
+              "confidenceVersion": "confidence-engine/1.0.0",
+              "confidenceFingerprint": "57568230571e258680824e053cc3705c7f83e2b38b57246b8a7bd49d88657477",
+              "confidenceRulesFingerprint": "9dbc228079f87bf2373f9edc8e0194cb48e5430db31ea73d08676158400eafed",
+              "riskVersion": "risk-engine/1.0.0",
+              "riskFingerprint": "213cfe29ff4805c2382dc33411cdc9ebe56df62bf1a9a7a28e2c6fdb4009fbdb",
+              "riskRulesFingerprint": "ec322876dbbba63c28a3454d14c3bc09a5f2017d8712e441aab400ba2b4f5e36"
+            },
+            "reasonCodes": [
+              "BRAND_ADAPTER_REQUIRED",
+              "PRESERVE_EXISTING_REGION",
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          }
+        },
+        "developerConstraints": "VERIFIED_COMPATIBILITY_ONLY"
+      },
+      "snapshots": {
+        "colorEngine": "color-engine/1.0.0",
+        "riskEngine": "risk-engine/1.0.0",
+        "brandAdapter": "brand-adapter/1.0.0",
+        "brandCatalogId": "c1000000-0000-4000-8000-000000008000",
+        "brandCatalogVersion": 1,
+        "catalogFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "compatibilityMatrixVersion": 1,
+        "productVersions": [
+          1,
+          1
+        ],
+        "pigmentVectorVersion": "pigment-vector/1.0.0"
+      }
+    }
+  },
+  "request": {
+    "request_id": "c1000000-0000-4000-8000-000000008001",
+    "client_id": "c1000000-0000-4000-8000-000000000004",
+    "plan_id": "c1000000-0000-4000-8000-000000008001",
+    "catalog_id": "c1000000-0000-4000-8000-000000008000"
+  }
+}

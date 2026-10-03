@@ -193,3 +193,31 @@ generate_validator.validate({'request_id': identifier, 'target_id': identifier})
 for field in ('risk', 'confidence', 'evidence', 'organization_id', 'ignoreRisk'):
     assert list(generate_validator.iter_errors({'request_id': identifier, 'target_id': identifier, field: {}}))
 print('PASS: Color target/plan contracts, 2 immutable examples and 12 unsafe ownership/recipe/input rejections')
+
+brand = json.loads((root / 'contracts/fixtures/brand-contract.json').read_text())
+observation_validator('EvaluateBrandAdapter').validate(brand['request'])
+observation_validator('BrandCatalogRelease').validate(brand['catalog']['release'])
+for product in brand['catalog']['products']:
+    observation_validator('BrandProduct').validate(product)
+for rule in brand['catalog']['compatibility']:
+    observation_validator('BrandCompatibility').validate(rule)
+observation_validator('BrandAdapterEvaluation').validate(brand['evaluation'])
+for field in ('verificationStatus', 'pigment', 'compatibility', 'organization_id', 'created_by', 'ignoreRisk'):
+    assert list(observation_validator('EvaluateBrandAdapter').iter_errors(brand['request'] | {field: {}})), field
+unsafe = copy.deepcopy(brand['evaluation'])
+unsafe['recipe']['executable'] = True
+assert list(observation_validator('BrandAdapterEvaluation').iter_errors(unsafe)), 'Executable formulation invented'
+assert list(observation_validator('BrandAdapterEvaluation').iter_errors(brand['evaluation'] | {'recipe': None})), 'Success without a recipe'
+fact = brand['catalog']['products'][0]['facts'][0]
+for change in ({'source':'UNKNOWN'}, {'verifiedBy':None}, {'confidence':2}, {'unit':'PERCENT'}):
+    assert list(observation_validator('BrandTechnicalFact').iter_errors(fact | change)), change
+baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.json').read_text())
+for name, fingerprint in baseline.items():
+    current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
+    assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
+assert contract['info']['version'] == '0.11.0'
+brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
+assert len(brand_golden['cases']) >= 30
+assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
+assert set(contract['paths']['/api/brand-adapter/evaluate']) == {'post'}
+print(f"PASS: Brand catalog/adapter contract, {len(brand_golden['cases'])} golden scenarios, 12 forged/unsafe rejections, and unchanged Phase 1F schemas")

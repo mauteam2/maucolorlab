@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.10.0
+  version: 0.11.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -1208,6 +1208,556 @@ paths:
           $ref: '#/components/responses/AccessError'
         '503':
           $ref: '#/components/responses/AccessError'
+  /api/brands:
+    get:
+      operationId: listVerifiedBrands
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Caller-authorized, private no-store response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandListResult'
+        '400':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - in: query
+        name: catalog_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: offset
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          default: 0
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 25
+  /api/brands/{brandId}:
+    get:
+      operationId: getVerifiedBrand
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Caller-authorized, private no-store response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandDetailResult'
+        '400':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - in: path
+        name: brandId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: catalog_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: offset
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          default: 0
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 25
+  /api/brands/{brandId}/products:
+    get:
+      operationId: listBrandProducts
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Caller-authorized, private no-store response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandProductListResult'
+        '400':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - in: path
+        name: brandId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: catalog_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: offset
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          default: 0
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 25
+  /api/products/{productId}:
+    get:
+      operationId: getBrandProduct
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Caller-authorized, private no-store response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandProductDetailResult'
+        '400':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - in: path
+        name: productId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: catalog_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: offset
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          default: 0
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 25
+  /api/products/{productId}/compatibility:
+    get:
+      operationId: listProductCompatibility
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Caller-authorized, private no-store response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandCompatibilityListResult'
+        '400':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - in: path
+        name: productId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: catalog_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: offset
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          default: 0
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 25
+  /api/brand-catalog/{catalogId}:
+    get:
+      operationId: getBrandCatalogRelease
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Caller-authorized, private no-store response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandCatalogResult'
+        '400':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - in: path
+        name: catalogId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: offset
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          default: 0
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 25
+  /api/brand-adapter/evaluate:
+    post:
+      operationId: evaluateBrandAdapter
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Caller-authorized, private no-store response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandAdapterResult'
+        '400':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateBrandAdapter'
+      description: Same-origin JSON, at most 8192 bytes, and X-Workspace-Reference precondition required. Server derives fresh
+        Confidence, Risk and Color output. No manufacturer defaults or executable formulation. Salon opt-in additionally requires
+        brand_catalog.manage.
+  /api/brand-recipes/{recipeId}:
+    get:
+      operationId: readImmutableBrandRecipe
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Caller-authorized, private no-store response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandRecipeResult'
+        '400':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Controlled failure without protected data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - in: path
+        name: recipeId
+        required: true
+        schema:
+          type: string
+          format: uuid
 components:
   securitySchemes:
     bearerAuth:
@@ -4255,6 +4805,11 @@ components:
       - COLOR_PLAN_REQUIRES_ASSESSMENT
       - COLOR_PLAN_REQUIRES_TEST
       - COLOR_PLAN_REQUIRES_RECOVERY
+      - BRAND_CATALOG_NOT_FOUND
+      - BRAND_CATALOG_INVALID
+      - BRAND_RESULT_INVALID
+      - BRAND_RECIPE_NOT_FOUND
+      - CATALOG_STATE_CONFLICT
     FieldError:
       type: object
       additionalProperties: false
@@ -5727,3 +6282,1037 @@ components:
       additionalProperties: false
     ColorStrategyAlternative:
       $ref: '#/components/schemas/ColorStrategy'
+    BrandVerification:
+      type: string
+      enum:
+      - ELIFORA_VERIFIED
+      - SALON_VERIFIED
+      - UNVERIFIED
+      - DEPRECATED
+    BrandTechnicalSource:
+      type: string
+      enum:
+      - MANUFACTURER_DOCUMENTATION
+      - ELIFORA_EXPERT_VALIDATED
+      - SALON_VALIDATED
+      - IMPORTED_UNVERIFIED
+      - UNKNOWN
+    BrandTechnicalFact:
+      type: object
+      properties:
+        key:
+          type: string
+          enum:
+          - level_effect
+          - neutral
+          - ash
+          - blue
+          - violet
+          - green
+          - red
+          - copper
+          - gold
+          - pearl
+          - beige
+          - natural_base
+          - opacity
+          - coverage_strength
+          - deposit_strength
+          - lift_behavior
+          - shade_level
+          - tone_family
+          - mixing_ratio
+          - processing_minutes
+          - developer_strength
+          - lift_levels
+          - grey_coverage
+          - deposit_capability
+        value:
+          anyOf:
+          - anyOf:
+            - type: number
+            - type: string
+              minLength: 1
+              maxLength: 200
+            - type: boolean
+          - type: 'null'
+        unit:
+          anyOf:
+          - type: string
+            enum:
+            - SOURCE_SCALE
+            - LEVEL
+            - LEVELS
+            - PERCENT
+            - MINUTES
+            - RATIO
+            - CATEGORY
+            - BOOLEAN
+          - type: 'null'
+        source:
+          $ref: '#/components/schemas/BrandTechnicalSource'
+        verificationStatus:
+          $ref: '#/components/schemas/BrandVerification'
+        sourceReference:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 1000
+          - type: 'null'
+        version:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        verifiedBy:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        verifiedAt:
+          anyOf:
+          - type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          - type: 'null'
+        confidence:
+          anyOf:
+          - type: number
+            minimum: 0
+            maximum: 1
+          - type: 'null'
+      required:
+      - key
+      - value
+      - unit
+      - source
+      - verificationStatus
+      - sourceReference
+      - version
+      - verifiedBy
+      - verifiedAt
+      - confidence
+      additionalProperties: false
+      allOf:
+      - if:
+          properties:
+            verificationStatus:
+              enum:
+              - ELIFORA_VERIFIED
+              - SALON_VERIFIED
+        then:
+          properties:
+            value:
+              not:
+                type: 'null'
+            unit:
+              type: string
+            source:
+              enum:
+              - MANUFACTURER_DOCUMENTATION
+              - ELIFORA_EXPERT_VALIDATED
+              - SALON_VALIDATED
+            sourceReference:
+              type: string
+              minLength: 1
+            verifiedBy:
+              type: string
+              format: uuid
+            verifiedAt:
+              type: string
+              format: date-time
+            confidence:
+              type: number
+              minimum: 0
+              maximum: 1
+      - if:
+          properties:
+            source:
+              const: UNKNOWN
+        then:
+          properties:
+            value:
+              type: 'null'
+            unit:
+              type: 'null'
+            confidence:
+              type: 'null'
+            verificationStatus:
+              const: UNVERIFIED
+      - if:
+          properties:
+            verificationStatus:
+              const: SALON_VERIFIED
+        then:
+          properties:
+            source:
+              const: SALON_VALIDATED
+      - if:
+          properties:
+            verificationStatus:
+              const: ELIFORA_VERIFIED
+        then:
+          properties:
+            source:
+              enum:
+              - MANUFACTURER_DOCUMENTATION
+              - ELIFORA_EXPERT_VALIDATED
+      - if:
+          properties:
+            key:
+              enum:
+              - level_effect
+              - neutral
+              - ash
+              - blue
+              - violet
+              - green
+              - red
+              - copper
+              - gold
+              - pearl
+              - beige
+              - natural_base
+              - opacity
+              - coverage_strength
+              - deposit_strength
+              - lift_behavior
+            value:
+              not:
+                type: 'null'
+        then:
+          properties:
+            value:
+              type: number
+            unit:
+              const: SOURCE_SCALE
+      - if:
+          properties:
+            key:
+              enum:
+              - shade_level
+            value:
+              not:
+                type: 'null'
+        then:
+          properties:
+            value:
+              type: number
+            unit:
+              const: LEVEL
+      - if:
+          properties:
+            key:
+              enum:
+              - tone_family
+            value:
+              not:
+                type: 'null'
+        then:
+          properties:
+            value:
+              type: string
+            unit:
+              const: CATEGORY
+      - if:
+          properties:
+            key:
+              enum:
+              - mixing_ratio
+            value:
+              not:
+                type: 'null'
+        then:
+          properties:
+            value:
+              type: string
+            unit:
+              const: RATIO
+      - if:
+          properties:
+            key:
+              enum:
+              - processing_minutes
+            value:
+              not:
+                type: 'null'
+        then:
+          properties:
+            value:
+              type: number
+            unit:
+              const: MINUTES
+      - if:
+          properties:
+            key:
+              enum:
+              - developer_strength
+            value:
+              not:
+                type: 'null'
+        then:
+          properties:
+            value:
+              type: number
+            unit:
+              const: PERCENT
+      - if:
+          properties:
+            key:
+              enum:
+              - lift_levels
+            value:
+              not:
+                type: 'null'
+        then:
+          properties:
+            value:
+              type: number
+            unit:
+              const: LEVELS
+      - if:
+          properties:
+            key:
+              enum:
+              - grey_coverage
+              - deposit_capability
+            value:
+              not:
+                type: 'null'
+        then:
+          properties:
+            value:
+              type: boolean
+            unit:
+              const: BOOLEAN
+    BrandCatalogRelease:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        scope:
+          type: string
+          enum:
+          - GLOBAL
+          - ORGANIZATION
+        organizationId:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        state:
+          type: string
+          enum:
+          - DRAFT
+          - TECHNICAL_REVIEW
+          - GOLDEN_TEST
+          - APPROVED
+          - PUBLISHED
+          - RETIRED
+        versionFingerprint:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+      required:
+      - id
+      - version
+      - scope
+      - organizationId
+      - state
+      - versionFingerprint
+      additionalProperties: false
+      allOf:
+      - if:
+          properties:
+            scope:
+              const: GLOBAL
+        then:
+          properties:
+            organizationId:
+              type: 'null'
+        else:
+          properties:
+            organizationId:
+              type: string
+              format: uuid
+    Brand:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        catalogId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 160
+      required:
+      - id
+      - catalogId
+      - displayName
+      additionalProperties: false
+    ProductLine:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        catalogId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        brandId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 160
+      required:
+      - id
+      - catalogId
+      - brandId
+      - displayName
+      additionalProperties: false
+    BrandProduct:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        seriesId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        catalogId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        brandId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        lineId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        manufacturerCode:
+          type: string
+          minLength: 1
+          maxLength: 100
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 160
+        productType:
+          type: string
+          enum:
+          - SHADE
+          - DEVELOPER
+          - LIGHTENER
+          - TONER
+          - CORRECTOR
+          - ACTIVATOR
+          - TREATMENT
+          - BOND
+        professionalCategory:
+          type: string
+          minLength: 1
+          maxLength: 100
+        countryRegion:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+        manufacturerSourceReference:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+        verificationStatus:
+          $ref: '#/components/schemas/BrandVerification'
+        active:
+          type: boolean
+        verifiedBy:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        verifiedAt:
+          anyOf:
+          - type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          - type: 'null'
+        pigmentVectorVersion:
+          type: string
+          const: pigment-vector/1.0.0
+        facts:
+          maxItems: 24
+          type: array
+          items:
+            $ref: '#/components/schemas/BrandTechnicalFact'
+      required:
+      - id
+      - seriesId
+      - version
+      - catalogId
+      - brandId
+      - lineId
+      - manufacturerCode
+      - displayName
+      - productType
+      - professionalCategory
+      - countryRegion
+      - manufacturerSourceReference
+      - verificationStatus
+      - active
+      - verifiedBy
+      - verifiedAt
+      - pigmentVectorVersion
+      - facts
+      additionalProperties: false
+      allOf:
+      - if:
+          properties:
+            verificationStatus:
+              enum:
+              - ELIFORA_VERIFIED
+              - SALON_VERIFIED
+        then:
+          properties:
+            verifiedBy:
+              type: string
+              format: uuid
+            verifiedAt:
+              type: string
+              format: date-time
+    BrandCompatibility:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        catalogId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        productId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        developerId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        technique:
+          type: string
+          minLength: 1
+          maxLength: 100
+        applicationContext:
+          type: string
+          minLength: 1
+          maxLength: 100
+        outcome:
+          type: string
+          enum:
+          - VERIFIED_ALLOWED
+          - VERIFIED_RESTRICTED
+          - NOT_RECOMMENDED
+          - INCOMPATIBLE
+          - UNKNOWN
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+        source:
+          $ref: '#/components/schemas/BrandTechnicalSource'
+        sourceReference:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+        verifiedBy:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        verifiedAt:
+          anyOf:
+          - type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          - type: 'null'
+        conditions:
+          maxItems: 3
+          type: array
+          items:
+            type: string
+            enum:
+            - NO_LIFT
+            - NO_GREY_COVERAGE
+            - STANDARD_REGION_ONLY
+        restrictions:
+          maxItems: 10
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
+      required:
+      - id
+      - catalogId
+      - version
+      - productId
+      - developerId
+      - technique
+      - applicationContext
+      - outcome
+      - reason
+      - source
+      - sourceReference
+      - verifiedBy
+      - verifiedAt
+      - conditions
+      - restrictions
+      additionalProperties: false
+      allOf:
+      - if:
+          properties:
+            outcome:
+              enum:
+              - VERIFIED_ALLOWED
+              - VERIFIED_RESTRICTED
+        then:
+          properties:
+            source:
+              enum:
+              - MANUFACTURER_DOCUMENTATION
+              - ELIFORA_EXPERT_VALIDATED
+              - SALON_VALIDATED
+            sourceReference:
+              type: string
+              minLength: 1
+            verifiedBy:
+              type: string
+              format: uuid
+            verifiedAt:
+              type: string
+              format: date-time
+      - if:
+          properties:
+            outcome:
+              const: VERIFIED_RESTRICTED
+        then:
+          anyOf:
+          - properties:
+              conditions:
+                minItems: 1
+          - properties:
+              restrictions:
+                minItems: 1
+    EvaluateBrandAdapter:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        plan_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        catalog_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        allow_salon_verified:
+          default: false
+          type: boolean
+      required:
+      - request_id
+      - client_id
+      - plan_id
+      - catalog_id
+      additionalProperties: false
+    BrandRecipeDraft:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          const: 2
+        version:
+          type: number
+          const: 1
+        parentRecipeId:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        executionStatus:
+          type: string
+          const: BRAND_READY
+        executable:
+          type: boolean
+          const: false
+        professionalReviewRequired:
+          type: boolean
+          const: true
+        product:
+          $ref: '#/components/schemas/BrandProduct'
+        developer:
+          $ref: '#/components/schemas/BrandProduct'
+        compatibility:
+          $ref: '#/components/schemas/BrandCompatibility'
+        technicalRequirement:
+          type: object
+          additionalProperties: false
+          required:
+          - schemaVersion
+          - plan
+          - developerConstraints
+          properties:
+            schemaVersion:
+              const: 1
+            plan:
+              $ref: '#/components/schemas/ColorPlanning'
+            developerConstraints:
+              const: VERIFIED_COMPATIBILITY_ONLY
+        snapshots:
+          type: object
+          properties:
+            colorEngine:
+              type: string
+            riskEngine:
+              type: string
+            brandAdapter:
+              type: string
+              const: brand-adapter/1.0.0
+            brandCatalogId:
+              type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            brandCatalogVersion:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 9007199254740991
+            catalogFingerprint:
+              type: string
+              pattern: ^[a-f0-9]{64}$
+            compatibilityMatrixVersion:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 9007199254740991
+            productVersions:
+              minItems: 2
+              maxItems: 2
+              type: array
+              items:
+                type: integer
+                exclusiveMinimum: 0
+                maximum: 9007199254740991
+            pigmentVectorVersion:
+              type: string
+              const: pigment-vector/1.0.0
+          required:
+          - colorEngine
+          - riskEngine
+          - brandAdapter
+          - brandCatalogId
+          - brandCatalogVersion
+          - catalogFingerprint
+          - compatibilityMatrixVersion
+          - productVersions
+          - pigmentVectorVersion
+          additionalProperties: false
+      required:
+      - schemaVersion
+      - version
+      - parentRecipeId
+      - executionStatus
+      - executable
+      - professionalReviewRequired
+      - product
+      - developer
+      - compatibility
+      - technicalRequirement
+      - snapshots
+      additionalProperties: false
+    BrandAdapterEvaluation:
+      type: object
+      properties:
+        engineVersion:
+          type: string
+          const: brand-adapter/1.0.0
+        status:
+          type: string
+          enum:
+          - BRAND_READY
+          - BRAND_MATCH_PENDING
+          - BLOCKED_BY_SAFETY
+          - BLOCKED_UNVERIFIED_PRODUCT
+          - BLOCKED_COMPATIBILITY
+          - BLOCKED_MISSING_TECHNICAL_DATA
+        candidateIds:
+          maxItems: 100
+          type: array
+          items:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        reasons:
+          maxItems: 100
+          type: array
+          items:
+            type: string
+        recipe:
+          anyOf:
+          - $ref: '#/components/schemas/BrandRecipeDraft'
+          - type: 'null'
+      required:
+      - engineVersion
+      - status
+      - candidateIds
+      - reasons
+      - recipe
+      additionalProperties: false
+      allOf:
+      - if:
+          properties:
+            status:
+              const: BRAND_READY
+        then:
+          properties:
+            recipe:
+              $ref: '#/components/schemas/BrandRecipeDraft'
+        else:
+          properties:
+            recipe:
+              type: 'null'
+    StoredBrandRecipe:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        clientId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        planId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        catalogId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        createdAt:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        result:
+          $ref: '#/components/schemas/BrandAdapterEvaluation'
+      required:
+      - id
+      - clientId
+      - planId
+      - catalogId
+      - createdAt
+      - result
+      additionalProperties: false
+    BrandAdapterResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - correlationId
+      properties:
+        data:
+          $ref: '#/components/schemas/StoredBrandRecipe'
+        correlationId:
+          type: string
+          format: uuid
+    BrandRecipeResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - correlationId
+      properties:
+        data:
+          $ref: '#/components/schemas/StoredBrandRecipe'
+        correlationId:
+          type: string
+          format: uuid
+    BrandCatalogResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - correlationId
+      properties:
+        data:
+          $ref: '#/components/schemas/BrandCatalogRelease'
+        correlationId:
+          type: string
+          format: uuid
+    BrandListResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - pagination
+      - correlationId
+      properties:
+        data:
+          type: array
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/Brand'
+        pagination:
+          type: object
+          additionalProperties: false
+          required:
+          - offset
+          - limit
+          - total
+          properties:
+            offset:
+              type: integer
+              minimum: 0
+              maximum: 10000
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 50
+            total:
+              type: integer
+              minimum: 0
+              maximum: 1000
+        correlationId:
+          type: string
+          format: uuid
+    BrandProductListResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - pagination
+      - correlationId
+      properties:
+        data:
+          type: array
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/BrandProduct'
+        pagination:
+          type: object
+          additionalProperties: false
+          required:
+          - offset
+          - limit
+          - total
+          properties:
+            offset:
+              type: integer
+              minimum: 0
+              maximum: 10000
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 50
+            total:
+              type: integer
+              minimum: 0
+              maximum: 1000
+        correlationId:
+          type: string
+          format: uuid
+    BrandCompatibilityListResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - pagination
+      - correlationId
+      properties:
+        data:
+          type: array
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/BrandCompatibility'
+        pagination:
+          type: object
+          additionalProperties: false
+          required:
+          - offset
+          - limit
+          - total
+          properties:
+            offset:
+              type: integer
+              minimum: 0
+              maximum: 10000
+            limit:
+              type: integer
+              minimum: 1
+              maximum: 50
+            total:
+              type: integer
+              minimum: 0
+              maximum: 1000
+        correlationId:
+          type: string
+          format: uuid
+    BrandDetailResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - correlationId
+      properties:
+        data:
+          $ref: '#/components/schemas/Brand'
+        correlationId:
+          type: string
+          format: uuid
+    BrandProductDetailResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - correlationId
+      properties:
+        data:
+          $ref: '#/components/schemas/BrandProduct'
+        correlationId:
+          type: string
+          format: uuid
