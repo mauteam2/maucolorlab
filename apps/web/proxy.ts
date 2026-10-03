@@ -16,7 +16,7 @@ export async function proxy(request: NextRequest) {
     },
   });
   const { data: { user }, error } = await client.auth.getUser();
-  if (request.nextUrl.pathname === "/sign-in" && user && !error) {
+  if (request.method === "GET" && request.nextUrl.pathname === "/sign-in" && user && !error) {
     const destination = request.nextUrl.clone();
     destination.pathname = "/workspaces";
     destination.search = "";

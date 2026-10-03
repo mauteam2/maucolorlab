@@ -1,4 +1,5 @@
 import { StrictMode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -17,6 +18,16 @@ describe("sign-in intro", () => {
     Element.prototype.animate = animate;
   });
   afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); });
+
+  it("guards form controls in the server HTML before hydration can start the intro", async () => {
+    const { SignInIntro } = await import("./sign-in-intro");
+    const html = renderToStaticMarkup(<SignInIntro><form><input name="email" /><button>Submit</button></form></SignInIntro>);
+    expect(html).toContain('data-intro-gate="true" disabled=""');
+    render(<SignInIntro><input aria-label="Hydration gate" /></SignInIntro>);
+    expect(screen.getByLabelText("Hydration gate")).toBeDisabled();
+    act(() => { vi.advanceTimersByTime(1500); });
+    expect(screen.getByLabelText("Hydration gate")).toBeEnabled();
+  });
 
   it("uses one 1500ms clock, makes the form usable at the deadline, and does not replay on render or remount", async () => {
     const { SignInIntro } = await import("./sign-in-intro");

@@ -16,7 +16,11 @@ export function SignInIntro({ children, preview }: { children: ReactNode; previe
   useLayoutEffect(() => {
     const surface = root.current;
     if (!surface) return;
-    if (preview === "idle") return;
+    // SSR must also guard the hydration gap: otherwise an early fill/submit can
+    // race React hydration and lose the uncontrolled credentials.
+    const hydrationGate = surface.querySelector<HTMLFieldSetElement>("[data-intro-gate]")!;
+    const releaseGate = () => { hydrationGate.disabled = false; };
+    if (preview === "idle") { releaseGate(); return; }
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (!playback.current) {
       if (!preview) {
@@ -24,13 +28,13 @@ export function SignInIntro({ children, preview }: { children: ReactNode; previe
         try { seen ||= sessionStorage.getItem(INTRO_SESSION_KEY) === "played"; } catch { /* In-memory fallback. */ }
         playedInDocument = true;
         try { sessionStorage.setItem(INTRO_SESSION_KEY, "played"); } catch { /* Storage can be disabled. */ }
-        if (seen || motion.matches) return;
+        if (seen || motion.matches) { releaseGate(); return; }
       }
-      if (typeof Element.prototype.animate !== "function") return;
+      if (typeof Element.prototype.animate !== "function") { releaseGate(); return; }
       playback.current = { startedAt: performance.now(), done: false };
     }
     const current = playback.current;
-    if (current.done) return;
+    if (current.done) { releaseGate(); return; }
     const elapsed = performance.now() - current.startedAt;
     const logo = surface.querySelector<HTMLElement>("[data-intro-logo]")!;
     const content = surface.querySelector<HTMLElement>("[data-intro-content]")!;
@@ -45,6 +49,7 @@ export function SignInIntro({ children, preview }: { children: ReactNode; previe
       current.done = true;
       surface.dataset.intro = "complete";
       content.inert = false;
+      releaseGate();
       restoreControls();
       animations.forEach(animation => animation.cancel());
     };
@@ -97,6 +102,7 @@ export function SignInIntro({ children, preview }: { children: ReactNode; previe
       motion.removeEventListener("change", skip);
       animations.forEach(animation => animation.cancel());
       content.inert = false;
+      releaseGate();
       restoreControls();
       surface.dataset.intro = "complete";
       // Retain the original clock during React Strict Mode effect setup/cleanup.
@@ -120,7 +126,7 @@ export function SignInIntro({ children, preview }: { children: ReactNode; previe
           </div>
         </div>
       </section>
-      <section data-intro-content className={styles.card} aria-labelledby="sign-in-heading">{children}</section>
+      <section data-intro-content className={styles.card} aria-labelledby="sign-in-heading"><fieldset data-intro-gate disabled className={styles.gate}>{children}</fieldset></section>
     </div>
   </main>;
 }

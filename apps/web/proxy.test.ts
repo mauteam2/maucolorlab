@@ -32,3 +32,8 @@ it("keeps normal authenticated navigation unchanged", async () => {
   const response = await proxy(new NextRequest("http://localhost:3001/workspace"));
   expect(response.headers.get("location")).toBeNull();
 });
+it("allows a sign-in server action to process its POST instead of redirecting its body", async () => {
+  mocks.getUser.mockResolvedValue({ data: { user: { id: "synthetic-user" } }, error: null });
+  const response = await proxy(new NextRequest("http://localhost:3001/sign-in", { method: "POST" }));
+  expect(response.headers.get("location")).toBeNull();
+});

@@ -24,6 +24,7 @@
   gap: clamp(48px, 7vw, 100px);
 }
 .identity { min-width: 0; }
+.gate { display: contents; }
 .logo { width: min(100%, 420px); margin-inline: auto; position: relative; z-index: 2; transform-origin: center; }
 .decoration { padding-top: 14px; }
 .description { margin: 0; color: #786b6c; text-align: center; font-family: var(--sign-in-sans); font-size: 13px; line-height: 1.5; }
