@@ -1,12 +1,7 @@
 """Read-only official-source change check. Never verifies or publishes a catalog."""
-import hashlib,json
+import hashlib,json,shutil,subprocess
 from pathlib import Path
-from urllib.request import Request,urlopen,HTTPRedirectHandler,build_opener
 from urllib.parse import urlparse
-
-class NoRedirect(HTTPRedirectHandler):
-    def redirect_request(self,*args,**kwargs):
-        raise RuntimeError('Redirect requires separate official source qualification')
 
 def check(manifest):
     results=[]
@@ -14,11 +9,14 @@ def check(manifest):
         parsed=urlparse(source['sourceUrl'])
         if parsed.scheme!='https' or parsed.netloc!='dm.henkel-dam.com' or not parsed.path.startswith('/is/content/henkel/'):
             raise ValueError('Unqualified official source URL')
-        request=Request(source['sourceUrl'],headers={'User-Agent':'ELIFORA-source-change-check/1.0'})
-        with build_opener(NoRedirect).open(request,timeout=30) as response:
-            data=response.read(40*1024*1024+1)
-            if len(data)>40*1024*1024 or not data.startswith(b'%PDF-'):
-                raise ValueError('Expected bounded official PDF')
+        curl=shutil.which('curl.exe') or shutil.which('curl')
+        if not curl:
+            raise RuntimeError('curl is required for the bounded official-source check')
+        # curl supplies a total deadline, including DNS/TLS and streaming. It
+        # does not follow redirects; no shell interpolates the source URL.
+        data=subprocess.check_output([curl,'--fail','--silent','--show-error','--proto','=https','--connect-timeout','10','--max-time','45','--max-filesize',str(40*1024*1024),source['sourceUrl']],timeout=50)
+        if len(data)>40*1024*1024 or not data.startswith(b'%PDF-'):
+            raise ValueError('Expected bounded official PDF; redirects require fresh qualification')
         digest=hashlib.sha256(data).hexdigest()
         results.append({'sourceId':source['id'],'contentSha256':digest,'status':'UNCHANGED' if digest==source['contentSha256'] else 'CHANGED_NEW_DRAFT_REQUIRED'})
     return results
