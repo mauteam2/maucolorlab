@@ -19,6 +19,7 @@ OpenAPI `0.11.0`:
 - GET `/api/brand-catalog/{catalogId}`
 - POST `/api/brand-adapter/evaluate`: `request_id`, `client_id`, `plan_id`, `catalog_id`, optional `allow_salon_verified`; same-origin JSON ≤8 KiB plus `X-Workspace-Reference`.
 - GET `/api/brand-recipes/{recipeId}` for authorized immutable history.
+- POST `/rest/v1/rpc/brand_catalog_transition` on the environment's Supabase origin: caller JWT + publishable key, catalog UUID, ordered next state, review receipt and correlation UUID. The database requires a private operator for GLOBAL or owning-organization `brand_catalog.manage` for ORGANIZATION. It cannot accept product verification or ownership claims.
 
 All responses are private/no-store with a correlation ID. List parameters are bounded; duplicates and unexpected query/body fields fail validation. Signing envelopes/keys and private operator records are never returned.
 

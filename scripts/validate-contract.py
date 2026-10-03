@@ -221,3 +221,8 @@ assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
 assert set(contract['paths']['/api/brand-adapter/evaluate']) == {'post'}
 print(f"PASS: Brand catalog/adapter contract, {len(brand_golden['cases'])} golden scenarios, 12 forged/unsafe rejections, and unchanged Phase 1F schemas")
+transition = {'p_catalog_id': identifier, 'p_state': 'APPROVED', 'p_receipt': 'TEST_ONLY_REVIEW_RECEIPT', 'p_correlation_id': identifier}
+observation_validator('BrandCatalogTransitionRequest').validate(transition)
+for change in ({'p_receipt': None}, {'p_state': 'DRAFT'}, {'verificationStatus': 'ELIFORA_VERIFIED'}, {'organization_id': identifier}):
+    assert list(observation_validator('BrandCatalogTransitionRequest').iter_errors(transition | change)), change
+print('PASS: Catalog governance RPC contract and 4 invalid/forged request rejections')

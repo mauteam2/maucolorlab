@@ -1758,6 +1758,30 @@ paths:
         schema:
           type: string
           format: uuid
+  /rest/v1/rpc/brand_catalog_transition:
+    post:
+      operationId: transitionBrandCatalog
+      summary: Govern an authorized catalog release through ordered review states
+      description: Global transitions require a private central operator; organization transitions require brand_catalog.manage in the owning organization. Verification fields cannot be submitted. A golden review receipt is mandatory at approval. No direct application catalog writes are granted.
+      servers:
+        - url: http://127.0.0.1:54321
+          description: Disposable local Supabase; configure the environment origin for staging.
+      security:
+        - bearerAuth: []
+          publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BrandCatalogTransitionRequest'
+      responses:
+        '200':
+          description: Transition and append-only audit committed; returns no technical payload.
+        '400':
+          description: Invalid transition, missing approval receipt, or bounded catalog limit exceeded.
+        '403':
+          description: Central operator or owning-organization permission absent.
 components:
   securitySchemes:
     bearerAuth:
@@ -7316,3 +7340,30 @@ components:
         correlationId:
           type: string
           format: uuid
+    BrandCatalogTransitionRequest:
+      type: object
+      additionalProperties: false
+      required: [p_catalog_id, p_state, p_receipt, p_correlation_id]
+      properties:
+        p_catalog_id:
+          type: string
+          format: uuid
+        p_state:
+          type: string
+          enum: [TECHNICAL_REVIEW, GOLDEN_TEST, APPROVED, PUBLISHED, RETIRED]
+        p_receipt:
+          type: [string, 'null']
+          minLength: 1
+          maxLength: 1000
+        p_correlation_id:
+          type: string
+          format: uuid
+      allOf:
+        - if:
+            properties:
+              p_state:
+                const: APPROVED
+          then:
+            properties:
+              p_receipt:
+                type: string
