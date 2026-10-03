@@ -23,7 +23,7 @@ export const controlledRecipe = z.strictObject({
  schemaVersion: z.literal(3), engineVersion: z.literal("controlled-brand-recipe/1.0.0"),
  state: z.literal("DRAFT_FOR_PROFESSIONAL_REVIEW"), executable: z.literal(false), professionalReviewRequired: z.literal(true),
  selectionOrigin: z.literal("PROFESSIONAL_INPUT"), parentRecipeId: z.string().regex(/^[a-f0-9]{64}$/),
- selected: pilotCandidate, colorGrams, developerGrams: colorGrams, totalGrams: z.number().positive().max(2000),
+ selected: pilotCandidate, colorGrams, developerGrams: colorGrams, totalGrams: z.number().finite().positive().max(2000).refine(value=>Math.abs(value*100-Math.round(value*100))<1e-8).transform(value=>Math.round(value*100)/100),
  amountBasis: z.literal("USER_ENTERED_COLOR_GRAMS"),
  context: z.strictObject({ regionId: uuid, whiteRatio: z.number().min(0).max(1), evidenceIds: uuid.array().min(1).max(100) }),
  sources: sourceDocument.array().min(1).max(3),

@@ -8891,7 +8891,12 @@ components:
           type: string
           pattern: ^[a-f0-9]{64}$
         selected:
-          $ref: '#/components/schemas/VerifiedPilotCandidate'
+          allOf:
+          - $ref: '#/components/schemas/VerifiedPilotCandidate'
+          - type: object
+            properties:
+              mixingRatio:
+                const: '1:1'
         colorGrams:
           type: number
           exclusiveMinimum: 0
@@ -8936,7 +8941,14 @@ components:
           minItems: 1
           maxItems: 3
           items:
-            $ref: '#/components/schemas/CatalogSourceDocument'
+            allOf:
+            - $ref: '#/components/schemas/CatalogSourceDocument'
+            - type: object
+              properties:
+                review_status:
+                  const: APPROVED
+                verification_status:
+                  const: ELIFORA_VERIFIED
         snapshots:
           type: object
           additionalProperties: false

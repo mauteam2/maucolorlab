@@ -2,3 +2,5 @@
 # Exact historical finding fingerprints only; no path or generic rule exemption.
 7ac5e289f7ba63c03a14513a70d016d3773447d1:contracts/fixtures/verified-pilot-contract.json:generic-api-key:2771
 7ac5e289f7ba63c03a14513a70d016d3773447d1:contracts/fixtures/verified-pilot-contract.json:generic-api-key:2789
+5d585bfa83729faef124cd6eafdfda9af3b266b9:contracts/fixtures/controlled-recipe-contract.json:generic-api-key:74
+5d585bfa83729faef124cd6eafdfda9af3b266b9:contracts/fixtures/controlled-recipe-contract.json:generic-api-key:92

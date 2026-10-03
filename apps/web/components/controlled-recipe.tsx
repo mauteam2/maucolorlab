@@ -50,7 +50,7 @@ export function ControlledRecipe({clientId,planId,reference,enabled,canCreate}:P
  <button className="button button-primary" disabled={busy||!canCreate||!candidate||!colorGrams.safeParse(Number(grams)).success} onClick={()=>void request(true)}>{busy?"Kontrol ediliyor…":parent?"Yeni reçete sürümünü kaydet":"Kontrollü taslağı kaydet"}</button></>}</>}
  {saved&&<RecipeSummary record={saved}/>}
  <h3>Değişmez reçete geçmişi</h3><p className="salon-muted">Son 25 kayıt. Tarihsel sonuç güncel güvenlik veya uygulama onayı değildir.</p>
- {!history.length?<p>Henüz kayıt yok.</p>:<div className="salon-stack">{history.map(record=><details key={record.id}><summary>{record.result.selected.manufacturerCode} · Sürüm {record.version} · {record.result.colorGrams} g · {new Date(record.createdAt).toLocaleString("tr-TR")}</summary><RecipeSummary record={record}/>{record.planId===planId&&<button className="button button-secondary" disabled={busy||!canCreate} onClick={()=>{setParent(record);edit();}}>Bu kayıttan yeni sürüm oluştur</button>}</details>)}</div>}
+ {!history.length?<p>Henüz kayıt yok.</p>:<div className="salon-stack">{history.map(record=><details key={record.id}><summary>{record.result.selected.manufacturerCode} · Sürüm {record.version} · {record.result.colorGrams} g · {new Date(record.createdAt).toLocaleString("tr-TR")}</summary><RecipeSummary record={record}/><button className="button button-secondary" disabled={busy||!canCreate} onClick={()=>{setParent(record);edit();}}>Bu kayıttan yeni sürüm oluştur</button></details>)}</div>}
  </SalonCard></section>;
 }
 function RecipeSummary({record}:{record:Saved}){

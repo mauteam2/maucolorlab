@@ -268,3 +268,13 @@ assert round(r['totalGrams']*100) == round(r['colorGrams']*100)*2
 assert r['context']['whiteRatio'] > r['selected']['restrictions']['whitePercentGreaterThan']/100
 assert contract['paths']['/rest/v1/rpc/controlled_recipe_store']['post']['security'] == [{'bearerAuth': [], 'publishableKey': []}]
 print('PASS: Phase 2C controlled recipe contract, ratio arithmetic, source-backed white condition and 14 forged/unsafe rejections')
+
+for patch in ({'mixingRatio':'1:2'}, {'executable':True}):
+    changed = copy.deepcopy(controlled['stored']['result'])
+    changed['selected'].update(patch)
+    assert list(observation_validator('ControlledRecipe').iter_errors(changed))
+for patch in ({'review_status':'PENDING'}, {'verification_status':'UNVERIFIED'}):
+    changed = copy.deepcopy(controlled['stored']['result'])
+    changed['sources'][0].update(patch)
+    assert list(observation_validator('ControlledRecipe').iter_errors(changed))
+print('PASS: Controlled ratio and approved-source restrictions, 4 further unsafe result rejections')
