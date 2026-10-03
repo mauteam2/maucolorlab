@@ -1,0 +1,17 @@
+import { beforeEach,expect,it,vi } from "vitest";
+import { fixtureId } from "@/test/confidence-fixtures";
+import { pilotFixture } from "@/test/pilot-fixtures";
+const mocks=vi.hoisted(()=>({user:vi.fn(),rpc:vi.fn(),rows:vi.fn()}));
+vi.mock("@/lib/supabase/server",()=>({createClient:async()=>({auth:{getUser:mocks.user},rpc:mocks.rpc,from:()=>({select:()=>{const b={eq:()=>b,maybeSingle:mocks.rows};return b;}})})}));
+import { catalogOperator,catalogGovernance,readCatalogSource,readPilotCatalog } from "./governance-service";
+const id=fixtureId(1),correlation=fixtureId(2);
+beforeEach(()=>{vi.clearAllMocks();mocks.user.mockResolvedValue({data:{user:{id}},error:null});mocks.rpc.mockImplementation(async name=>({data:name==="catalog_operator_access"?true:{catalogId:id},error:null}));});
+it("global governance requires the database-maintained operator",async()=>{mocks.rpc.mockResolvedValue({data:false,error:null});await expect(catalogOperator()).rejects.toMatchObject({code:"FORBIDDEN"});});
+it("unauthenticated admin is rejected before database mutation",async()=>{mocks.user.mockResolvedValue({data:{user:null},error:null});await expect(catalogGovernance(null,{operation:"IMPORT",note:"review"},correlation)).rejects.toMatchObject({code:"UNAUTHENTICATED"});expect(mocks.rpc).not.toHaveBeenCalled();});
+it.each(["verificationStatus","reviewed_by","approved_by","published_status","organization_id"])("service rejects forged %s",async key=>{await expect(catalogGovernance(id,{operation:"PUBLISH",note:"review",[key]:id},correlation)).rejects.toMatchObject({code:"VALIDATION_FAILED"});expect(mocks.user).not.toHaveBeenCalled();});
+it("intake sends only server-selected manifest operation and optional previous UUID",async()=>{await catalogGovernance(null,{operation:"IMPORT",note:"review",previous_id:id},correlation);expect(mocks.rpc).toHaveBeenCalledWith("catalog_governance",{p_operation:"IMPORT",p_catalog_id:null,p_note:"review",p_correlation_id:correlation,p_previous_id:id});});
+it("operator revocation after commit conceals response",async()=>{mocks.rpc.mockResolvedValueOnce({data:true}).mockResolvedValueOnce({data:{catalogId:id}}).mockResolvedValueOnce({data:false});await expect(catalogGovernance(id,{operation:"PUBLISH",note:"review"},correlation)).rejects.toMatchObject({code:"FORBIDDEN"});});
+it.each(["23514","23505"])("state/lineage failure %s is a conflict",async code=>{mocks.rpc.mockResolvedValueOnce({data:true}).mockResolvedValueOnce({error:{code}});await expect(catalogGovernance(id,{operation:"PUBLISH",note:"review"},correlation)).rejects.toMatchObject({code:"CATALOG_STATE_CONFLICT",status:409});});
+it("foreign source remains concealed by caller RLS",async()=>{mocks.rows.mockResolvedValue({data:null,error:null});await expect(readCatalogSource(id,correlation)).rejects.toMatchObject({code:"BRAND_CATALOG_NOT_FOUND",status:404});});
+it("pilot source schema is validated before delivery",async()=>{const {packet}=pilotFixture();mocks.rpc.mockResolvedValue({data:packet,error:null});expect(await readPilotCatalog(id)).toEqual(packet);});
+it("anonymous source lookup reports authentication requirement",async()=>{mocks.user.mockResolvedValue({data:{user:null},error:null});await expect(readCatalogSource(id,correlation)).rejects.toMatchObject({status:401});expect(mocks.rows).not.toHaveBeenCalled();});

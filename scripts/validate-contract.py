@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.11.0'
+assert contract['info']['version'] == '0.12.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -226,3 +226,27 @@ observation_validator('BrandCatalogTransitionRequest').validate(transition)
 for change in ({'p_receipt': None}, {'p_state': 'DRAFT'}, {'verificationStatus': 'ELIFORA_VERIFIED'}, {'organization_id': identifier}):
     assert list(observation_validator('BrandCatalogTransitionRequest').iter_errors(transition | change)), change
 print('PASS: Catalog governance RPC contract and 4 invalid/forged request rejections')
+
+pilot = json.loads((root / 'contracts/fixtures/verified-pilot-contract.json').read_text())
+observation_validator('VerifiedPilotPacket').validate(pilot['packet'])
+observation_validator('VerifiedPilotResult').validate(pilot['result'])
+for document in pilot['packet']['sources']:
+    observation_validator('CatalogSourceDocument').validate(document)
+    unsafe = document | {'verified_by': None}
+    assert list(observation_validator('CatalogSourceDocument').iter_errors(unsafe))
+governance = {'operation':'PUBLISH','note':'Synthetic development review'}
+observation_validator('CatalogGovernanceRequest').validate(governance)
+for field in ('verificationStatus','reviewed_by','approved_by','published_status','compatibility','organization_id'):
+    assert list(observation_validator('CatalogGovernanceRequest').iter_errors(governance | {field:'forged'}))
+assert list(observation_validator('VerifiedPilotResult').iter_errors(pilot['result'] | {'executable':True}))
+assert list(observation_validator('VerifiedPilotResult').iter_errors(pilot['result'] | {'professionalReviewRequired':False}))
+golden = json.loads((root / 'contracts/fixtures/verified-pilot-golden.json').read_text())
+assert len(golden['cases']) == 15 and len({c['change'] for c in golden['cases']}) == 15
+manifest = json.loads((root / 'contracts/catalogs/schwarzkopf-igora-royal-absolutes.json').read_text())
+assert len(manifest['shades']) == 29 and len(manifest['developers']) == 2
+assert all(s['pigmentVector']=='UNKNOWN' for s in manifest['shades'])
+for source in manifest['sources']:
+    assert source['documentVersion'] is None and source['documentDate'] is None
+    assert source['sourceUrl'].startswith('https://dm.henkel-dam.com/is/content/henkel/')
+    assert len(source['contentSha256']) == 64
+print('PASS: Verified pilot/source/governance contracts, 15 official-source golden fixtures, 29 shades + 2 developers, 11 unsafe/forged rejections')

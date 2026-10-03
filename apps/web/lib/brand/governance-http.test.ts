@@ -1,0 +1,8 @@
+import { expect,it,vi } from "vitest";
+import { governanceResponse } from "./governance-http";
+import { fixtureId } from "@/test/confidence-fixtures";
+const request=(body:unknown,origin="http://localhost")=>new Request("http://localhost/api/admin/catalogs/import",{method:"POST",headers:{origin,"content-type":"application/json"},body:JSON.stringify(body)});
+it.each(["ELIFORA_VERIFIED","approved_by","verificationStatus","source","catalogVersion","compatibility"])("HTTP blocks forged %s",async field=>{const command=vi.fn();const r=await governanceResponse(request({operation:"IMPORT",note:"review",[field]:"forge"}),"import",null,command);expect(r.status).toBe(400);expect(command).not.toHaveBeenCalled();});
+it("HTTP rejects foreign origin before mutation",async()=>{const command=vi.fn();expect((await governanceResponse(request({operation:"IMPORT",note:"review"},"https://evil.example"),"import",null,command)).status).toBe(403);expect(command).not.toHaveBeenCalled();});
+it("HTTP enforces streamed body cap",async()=>{const command=vi.fn();expect((await governanceResponse(request({operation:"IMPORT",note:"x".repeat(9000)}),"import",null,command)).status).toBe(400);expect(command).not.toHaveBeenCalled();});
+it("HTTP returns private response and correlation ID",async()=>{const command=vi.fn().mockResolvedValue({data:{catalogId:fixtureId(1)}});const r=await governanceResponse(request({operation:"IMPORT",note:"review"}),"import",null,command);expect(r.status).toBe(200);expect(r.headers.get("cache-control")).toBe("private, no-store");expect(r.headers.get("x-correlation-id")).toBeTruthy();});

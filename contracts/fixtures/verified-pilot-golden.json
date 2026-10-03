@@ -1,0 +1,21 @@
+{
+ "notice":"Official-value fixtures use contracts/catalogs/schwarzkopf-igora-royal-absolutes.json. Review identities and lifecycle changes are synthetic test state, never manufacturer claims.",
+ "sourceSections":["Instructions For Use page 1 numbering","Instructions For Use page 2 developer usage","Assortment page 1 occupied shade cells"],
+ "cases":[
+  {"change":"natural","manufacturerCode":"8-01"},
+  {"change":"copper","manufacturerCode":"7-70"},
+  {"change":"unknown_tone"},
+  {"change":"unverified"},
+  {"change":"deprecated"},
+  {"change":"draft"},
+  {"change":"unknown_compatibility"},
+  {"change":"wrong_developer"},
+  {"change":"cross_brand"},
+  {"change":"missing_source"},
+  {"change":"new_version"},
+  {"change":"historical_version"},
+  {"change":"unsafe"},
+  {"change":"ratio"},
+  {"change":"missing_review"}
+ ]
+}

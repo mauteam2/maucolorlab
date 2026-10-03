@@ -1,0 +1,19 @@
+import manifest from "../../../contracts/catalogs/schwarzkopf-igora-royal-absolutes.json";
+import { fixtureId } from "./confidence-fixtures";
+import { brandFixture,actorId } from "./brand-fixtures";
+import { pilotPacket } from "@/lib/brand/pilot-model";
+export { manifest };
+// Official values, with explicitly synthetic test review identities. Never seeded in production.
+export function pilotFixture(){
+ const {plan,catalog}=brandFixture(),id=catalog.release.id,at="2026-10-03T11:50:00Z";
+ const sources=manifest.sources.map((s,i)=>({id:fixtureId(10000+i),catalog_id:id,document_key:s.id,manufacturer:s.manufacturer,document_title:s.documentTitle,document_version:s.documentVersion,document_date:s.documentDate,source_url:s.sourceUrl,retrieved_at:s.retrievedAt,source_type:s.sourceType,content_sha256:s.contentSha256,review_status:"APPROVED",verification_status:"ELIFORA_VERIFIED",created_by:actorId,verified_by:actorId,verified_at:at}));
+ const fact=(key:string,value:unknown,unit:string)=>({key,value,unit,source:"MANUFACTURER_DOCUMENTATION",verificationStatus:"ELIFORA_VERIFIED",sourceReference:sources[1]!.source_url,version:1,verifiedBy:actorId,verifiedAt:at,confidence:1});
+ const base={...catalog.products[0]!,professionalCategory:"PERMANENT_PROFESSIONAL",countryRegion:manifest.countryRegion,manufacturerSourceReference:sources[0]!.source_url,facts:[]};
+ const products=[...manifest.shades.map((s,i)=>({...base,id:fixtureId(11000+i),seriesId:fixtureId(12000+i),manufacturerCode:s.manufacturerCode,displayName:s.displayName,productType:"SHADE",facts:[fact("shade_level",s.level,"LEVEL"),...(s.normalizedTone?[fact("tone_family",s.normalizedTone,"CATEGORY")]:[]),fact("mixing_ratio","1:1","RATIO")]})),...manifest.developers.map((d,i)=>({...base,id:fixtureId(13000+i),seriesId:fixtureId(14000+i),manufacturerCode:d.manufacturerCode,displayName:d.displayName,productType:"DEVELOPER",facts:[fact("developer_strength",d.strengthPercent,"PERCENT")]}))];
+ const developers=products.slice(-2);
+ const compatibility=products.slice(0,-2).flatMap((p,i)=>developers.map((d,j)=>({id:fixtureId(15000+i*2+j),catalogId:id,version:1,productId:p.id,developerId:d.id,technique:"ROOT_REFRESH",applicationContext:"STANDARD",mixingRatio:"1:1",outcome:"VERIFIED_RESTRICTED",reason:"Source-backed regrowth rule; professional context review required",source:"MANUFACTURER_DOCUMENTATION",sourceReference:sources[1]!.source_url,verifiedBy:actorId,verifiedAt:at,conditions:[],restrictions:["REGROWTH_ONLY","PROFESSIONAL_SAFETY_REVIEW_REQUIRED"]})));
+ const evidence=products.map((p,i)=>{const s=manifest.shades[i];return {catalog_id:id,product_id:p.id,source_id:s?sources[0]!.id:sources[1]!.id,notation_source_id:sources[1]!.id,page_or_section:s?.section??manifest.usage.section,notation_section:s?.notationSection??manifest.usage.section,manufacturer_level:s?.level??null,manufacturer_tone:s?.manufacturerTone??null,manufacturer_tone_label:s?.toneLabel??null,normalized_tone:s?.normalizedTone??null,processing_minutes_min:s?30:null,processing_minutes_max:s?45:null};});
+ const packet=pilotPacket.parse({catalog:{...catalog,products,compatibility},pilotKey:"schwarzkopf-igora-royal-absolutes",sources,evidence,ruleSources:compatibility.map(r=>({catalog_id:id,rule_id:r.id,source_id:sources[1]!.id,page_or_section:manifest.usage.section,white_min_exclusive:r.developerId===developers[0]!.id?90:null,white_max_inclusive:r.developerId===developers[1]!.id?90:null,max_lift:r.developerId===developers[0]!.id?0:3,regrowth_only:true})),factSources:[],governance:{createdBy:actorId,reviewedBy:actorId,approvedBy:actorId,publishedBy:actorId}});
+ const goal=plan.recipeDraft!.target.definition.regions.find(r=>!r.preserve)!;goal.level=8;goal.toneFamily="NEUTRAL";const region=plan.regions.find(r=>r.regionId===goal.regionId)!;region.targetLevel=8;region.delta=0;
+ return {plan,packet};
+}
