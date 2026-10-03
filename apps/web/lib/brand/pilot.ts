@@ -10,6 +10,7 @@ export function evaluatePilotCandidates(plan:ColorPlanning,raw:PilotPacket){
  const goals=plan.recipeDraft.target.definition.regions.filter(r=>!r.preserve);
  if(goals.length!==1||plan.recipeDraft.target.definition.mode!=="ROOT_REFRESH"||plan.primaryStrategy?.sessions.max!==1||plan.primaryStrategy.tradeoffs.complexity!=="SIMPLE")return pilotResult.parse(result);
  const goal=goals[0]!,intent=plan.regions.find(r=>r.regionId===goal.regionId);
+ if(!plan.primaryStrategy.stages.some(s=>s.kind==="ROOT_APPLICATION"&&s.regionIds.includes(goal.regionId)))return pilotResult.parse(result);
  if(goal.mixedFamilies.length||goal.correction!=="NONE"||goal.toneIntent==="NEUTRALIZE"||goal.handling!=="STANDARD"||!intent||intent.delta===null)return pilotResult.parse(result);
  const approvedSource=(id:string)=>p.sources.some(s=>s.id===id&&s.review_status==="APPROVED"&&s.verification_status==="ELIFORA_VERIFIED");
  for(const product of [...catalog.products].sort((a,b)=>a.id.localeCompare(b.id))){
