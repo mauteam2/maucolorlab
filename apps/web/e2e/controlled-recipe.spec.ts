@@ -8,6 +8,7 @@ import { seedAccount,login,expectReady } from "./local-auth";
 
 test("controlled professional recipe keeps exact arithmetic, immutable history, current safety and real tenant isolation",async({page,browser},info)=>{
  test.setTimeout(240000);
+ page.setDefaultTimeout(15000);
  const lock=join(tmpdir(),"elifora-pilot-browser-governance-lock");let locked=false;const start=Date.now();
  while(!locked&&Date.now()-start<180000){try{await mkdir(lock);locked=true;}catch(e){if((e as NodeJS.ErrnoException).code!=="EEXIST")throw e;await new Promise(r=>setTimeout(r,200));}}
  if(!locked)throw new Error("Pilot governance lock timed out");
@@ -36,8 +37,9 @@ test("controlled professional recipe keeps exact arithmetic, immutable history, 
  await page.goto("/workspace/colorlab");await page.getByLabel("Renk planı müşterisi").selectOption(client.id);
  await page.getByLabel("Çalışma türü").selectOption("ROOT_REFRESH");await page.getByLabel("Genel amaç").selectOption("REFRESH");
  const regions=page.locator(".salon-region-editor");await expect(regions).toHaveCount(3);
- await regions.nth(0).getByLabel("Hedef seviye",{exact:true}).fill("8");await regions.nth(0).getByLabel("Ton ailesi",{exact:true}).selectOption("NEUTRAL");
- for(const index of [1,2])await regions.nth(index).getByLabel("Mevcut rengi koru").check();
+ const root=regions.filter({has:page.locator("legend",{hasText:/^Dip/})});await expect(root).toHaveCount(1);
+ await root.getByLabel("Hedef seviye",{exact:true}).fill("8");await root.getByLabel("Ton ailesi").selectOption("NEUTRAL");
+ for(let index=0;index<3;index++)if(!await regions.nth(index).locator("legend").innerText().then(text=>text.startsWith("Dip")))await regions.nth(index).getByLabel("Mevcut rengi koru").check();
  const planResponse=page.waitForResponse(r=>r.url().endsWith("/color-plans")&&r.request().method()==="POST");
  await page.getByRole("button",{name:"Renk planı oluştur",exact:true}).click();const generated=await planResponse;expect(generated.ok(),await generated.text()).toBeTruthy();const plan=(await generated.json()).data;expect(plan.result.status).toBe("DRAFT");
  const panel=page.getByRole("region",{name:"Kontrollü marka reçetesi"});await expect(panel).toBeVisible();await expect(panel.getByLabel("Doğrulanmış katalog")).toHaveValue(catalogId);
@@ -59,7 +61,8 @@ test("controlled professional recipe keeps exact arithmetic, immutable history, 
  const foreign=await seedAccount(),foreignContext=await browser.newContext({baseURL:"http://127.0.0.1:4173"});
  try{const other=await foreignContext.newPage();await login(other,foreign);await expectReady(other);const denied=await other.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`);expect(denied.status()).toBe(404);expect(await denied.json()).not.toHaveProperty("data");}finally{await foreignContext.close();}
  const current=(await(await page.request.get(`${base}/hair-passport`)).json()).data;
- const changed=await page.request.post(`${base}/hair-passport/observations`,{headers,data:{request_id:randomUUID(),expected_version:current.regions[0].version,region_id:current.regions[0].id,technical:{...technical,grey_ratio:{state:"KNOWN",value:.95}},evidence:{source:"PROFESSIONAL_VERIFIED",attestation:"PERSONALLY_ASSESSED",confidence:{state:"KNOWN",value:1}}}});expect(changed.ok(),await changed.text()).toBeTruthy();
+ const currentRoot=current.regions.find((r:{type:string})=>r.type==="ROOT");
+ const changed=await page.request.post(`${base}/hair-passport/observations`,{headers,data:{request_id:randomUUID(),expected_version:currentRoot.version,region_id:currentRoot.id,technical:{...technical,grey_ratio:{state:"KNOWN",value:.95}},evidence:{source:"PROFESSIONAL_VERIFIED",attestation:"PERSONALLY_ASSESSED",confidence:{state:"KNOWN",value:1}}}});expect(changed.ok(),await changed.text()).toBeTruthy();
  expect((await page.request.post("/api/controlled-brand-recipes",{headers,data:{...original,request_id:randomUUID()}})).status()).toBe(409);
  expect((await page.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`)).status()).toBe(200);
  await account.revoke();expect((await page.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`)).status()).toBe(403);

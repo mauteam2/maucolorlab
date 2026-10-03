@@ -33,3 +33,11 @@ it("keeps target and planning writes disabled for read-only users",async()=>{
  expect(await screen.findByRole("button",{name:"Hedefi kaydet"})).toBeDisabled();
  expect(screen.getByRole("button",{name:"Renk planı oluştur"})).toBeDisabled();
 });
+it("orders technical regions by type instead of generated UUID order",async()=>{
+ setup();const loaded=await vi.mocked(loadPassport).getMockImplementation()!(client.id,{},new AbortController().signal);
+ loaded.snapshot!.regions.reverse();vi.mocked(loadPassport).mockResolvedValue(loaded);
+ const view=render(<ColorWorkspace/>);fireEvent.change(await screen.findByLabelText("Renk planı müşterisi"),{target:{value:client.id}});
+ await screen.findByRole("button",{name:"Hedefi kaydet"});
+ const legends=[...view.container.querySelectorAll(".salon-region-editor legend")].map(e=>e.textContent);
+ expect(legends[0]).toMatch(/^Dip/);
+});

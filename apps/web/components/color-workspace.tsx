@@ -5,7 +5,7 @@ import { SalonFrame, SalonHeading, SalonCard } from "./salon-frame";
 import { clientDirectory } from "@/lib/clients/contracts";
 import { tenantContextSchema, workspaceReference } from "@/lib/tenant/context";
 import { loadPassport, PassportLoadError } from "@/lib/hair-passport/load";
-import { regionName } from "@/lib/hair-passport/display";
+import { regionName, orderedRegions } from "@/lib/hair-passport/display";
 import { targetResult, planResult } from "@/lib/color/contracts";
 import { colorRules } from "@/lib/color/rules";
 import { validateTarget, type RegionalColorTarget, type TargetDefinition } from "@/lib/color/target";
@@ -59,7 +59,7 @@ export function ColorWorkspace() {
    const snapshot = next?.snapshot;
    const currentSnapshot = snapshot ? JSON.stringify(snapshot) : null;
    if (sourceSnapshot.current !== currentSnapshot) { setPlan(null);setPlanId(null); sourceSnapshot.current = currentSnapshot; }
-   if (snapshot) setDefinition(previous => previous && previous.regions.length === snapshot.regions.filter(r=>r.status==="ACTIVE").length && previous.regions.every(r=>snapshot.regions.some(region=>region.id===r.regionId&&region.status==="ACTIVE")) ? previous : { schemaVersion:1, mode:"MULTI_REGION_CUSTOM", globalIntent:"TRANSFORM", regions:snapshot.regions.filter(r=>r.status==="ACTIVE").map(r=>initialRegion(r.id)) });
+   if (snapshot) setDefinition(previous => previous && previous.regions.length === snapshot.regions.filter(r=>r.status==="ACTIVE").length && previous.regions.every(r=>snapshot.regions.some(region=>region.id===r.regionId&&region.status==="ACTIVE")) ? previous : { schemaVersion:1, mode:"MULTI_REGION_CUSTOM", globalIntent:"TRANSFORM", regions:orderedRegions(snapshot).filter(r=>r.status==="ACTIVE").map(r=>initialRegion(r.id)) });
    setVisible(true);
   } catch (cause) { if(current===generation.current) { const code = cause instanceof Error ? cause.message : "NETWORK_ERROR"; if(cause instanceof PassportLoadError && ["SESSION_EXPIRED","MEMBERSHIP_REVOKED","TENANT_CONTEXT_INVALID","MEMBERSHIP_REQUIRED"].includes(cause.code)) { window.location.replace(cause.code==="SESSION_EXPIRED"?"/sign-in?reason=SESSION_EXPIRED":"/auth/workspace-reset"); } setError(errorText(code)); } }
  }, [clientId, query, offset]);
