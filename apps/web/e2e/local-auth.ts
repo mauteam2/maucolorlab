@@ -32,7 +32,7 @@ export async function seedAccount(locationCount = 1) {
     location_id: null, role_code: "owner", status: "active", joined_at: new Date().toISOString(),
   }));
   return {
-    email, password, membershipId, locations,
+    email, password, membershipId, locations, userId,
     async addMember(roleCode: "assistant" | "colorist" | "manager") {
       const memberEmail = `e2e-${randomUUID()}@elifora.test`;
       const memberPassword = `E2e-${randomUUID()}!`;
