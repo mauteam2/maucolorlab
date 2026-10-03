@@ -2043,6 +2043,7 @@ paths:
       operationId: governCatalogRpc
       security:
       - bearerAuth: []
+        publishableKey: []
       responses:
         '200':
           description: Caller-authorized response; private/no-store
@@ -2073,6 +2074,7 @@ paths:
       operationId: readCatalogPilotRpc
       security:
       - bearerAuth: []
+        publishableKey: []
       responses:
         '200':
           description: Caller-authorized response; private/no-store
@@ -2110,6 +2112,7 @@ paths:
       operationId: getCatalogOperatorAccess
       security:
       - bearerAuth: []
+        publishableKey: []
       responses:
         '200':
           description: Caller-authorized response; private/no-store

@@ -250,3 +250,5 @@ for source in manifest['sources']:
     assert source['sourceUrl'].startswith('https://dm.henkel-dam.com/is/content/henkel/')
     assert len(source['contentSha256']) == 64
 print('PASS: Verified pilot/source/governance contracts, 15 official-source golden fixtures, 29 shades + 2 developers, 11 unsafe/forged rejections')
+for rpc in ('catalog_governance','catalog_pilot_packet','catalog_operator_access'):
+    assert contract['paths']['/rest/v1/rpc/'+rpc]['post']['security']==[{'bearerAuth':[], 'publishableKey':[]}]
