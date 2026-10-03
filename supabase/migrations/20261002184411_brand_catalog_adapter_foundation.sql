@@ -163,7 +163,7 @@ begin
    if not found or prev.series_id<>new.series_id or prev.version+1<>new.version or prev.scope<>new.scope or prev.organization_id is distinct from new.organization_id then raise exception using errcode='23514',message='CATALOG_VERSION_CONFLICT';end if;
   end if;
  elsif new.id<>old.id or new.series_id<>old.series_id or new.version<>old.version or new.previous_id is distinct from old.previous_id or new.scope<>old.scope or new.organization_id is distinct from old.organization_id or new.created_by<>old.created_by or new.created_at<>old.created_at then raise exception using errcode='23514',message='IMMUTABLE_CATALOG_IDENTITY';
- elsif new.state is distinct from case old.state when 'DRAFT' then 'TECHNICAL_REVIEW' when 'TECHNICAL_REVIEW' then 'GOLDEN_TEST' when 'GOLDEN_TEST' then 'APPROVED' when 'APPROVED' then 'PUBLISHED' when 'PUBLISHED' then 'RETIRED' end then raise exception using errcode='23514',message='CATALOG_STATE_CONFLICT';
+ elsif new.state is distinct from (case old.state when 'DRAFT' then 'TECHNICAL_REVIEW' when 'TECHNICAL_REVIEW' then 'GOLDEN_TEST' when 'GOLDEN_TEST' then 'APPROVED' when 'APPROVED' then 'PUBLISHED' when 'PUBLISHED' then 'RETIRED' end) then raise exception using errcode='23514',message='CATALOG_STATE_CONFLICT';
  end if;
  return new;
 end $$;
