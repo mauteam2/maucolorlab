@@ -9,3 +9,6 @@ Missing, unknown, incompatible and not-recommended rules never yield a brand-rea
 Compatibility does not override Color safety. Adapter evaluation follows a fresh Risk/Color check, unresolved physical tests or critical information stop the chain, and blocked Color Plans are independently rejected by persistence if a brand-ready result is attempted. There is no executable status in Phase 2A; even verified allowed combinations remain professional-review drafts.
 
 No manufacturer compatibility values are supplied with this phase. All controlled test values explicitly identify themselves as fictional. Real catalog publication requires official documentation or expert/salon validation with appropriate scope, a reviewed golden receipt and the full governance sequence.
+# Ratio binding
+
+Each rule has a nullable documented `mixingRatio` under its own source/reference/version. The adapter requires it to match the product's independently verified ratio fact; null or a mismatch blocks the combination. It never assumes a product ratio is approved for every developer. Existing snapshots keep their stored rule content.

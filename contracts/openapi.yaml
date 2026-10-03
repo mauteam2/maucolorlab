@@ -6907,6 +6907,12 @@ components:
             type: string
             minLength: 1
             maxLength: 200
+        mixingRatio:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+          maxLength: 200
       required:
       - id
       - catalogId
@@ -6923,6 +6929,7 @@ components:
       - verifiedAt
       - conditions
       - restrictions
+      - mixingRatio
       additionalProperties: false
       allOf:
       - if:

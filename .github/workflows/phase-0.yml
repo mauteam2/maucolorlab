@@ -96,6 +96,22 @@ jobs:
       - run: sdkmanager "platforms;android-37.0" "build-tools;36.0.0"
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest
+      - name: Report executed Android unit tests
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree
+          reports = list(Path("app/build/test-results/testDebugUnitTest").glob("TEST-*.xml"))
+          assert reports, "Android unit test reports missing"
+          totals = dict(tests=0, failures=0, errors=0, skipped=0)
+          for report in reports:
+              suite = ElementTree.parse(report).getroot()
+              for name in totals:
+                  totals[name] += int(suite.attrib.get(name, "0"))
+          assert totals["tests"] > 0 and totals["failures"] == totals["errors"] == 0
+          print("Android unit results:", totals)
+          print("Instrumentation APK compiled; device tests are not executed by this job.")
+          PY
 
   database:
     name: Database and RLS

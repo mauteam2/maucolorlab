@@ -27,7 +27,7 @@ export function evaluateBrandAdapter(rawPlan:ColorPlanning,rawCatalog:CatalogPac
  if(!trusted.length)return stop("BLOCKED_UNVERIFIED_PRODUCT","NO_ACTIVE_VERIFIED_PRODUCT");
  let missing=false,compatibility=false;
  for(const p of [...trusted].sort((a,b)=>a.id.localeCompare(b.id))) {
-  const fact=(k:string)=>verifiedFact(p,k,allowSalon);
+  const fact=(k:string)=>verifiedFact(p,k,allowSalon&&catalog.release.scope==="ORGANIZATION");
   if(fact("shade_level")?.value!==goal.level||fact("tone_family")?.value!==goal.toneFamily){missing=true;continue;}
   const needed=["level_effect",toneChannel[goal.toneFamily!]!,"opacity",...(intent.delta!>0?["lift_behavior","lift_levels"]:["deposit_strength","deposit_capability"]),...(goal.greyPriority==="COVER"?["coverage_strength","grey_coverage"]:[])];
   if(needed.some(k=>!fact(k))||intent.delta!>0&&(typeof fact("lift_levels")?.value!=="number"||Number(fact("lift_levels")!.value)<intent.delta!)||intent.delta!<=0&&fact("deposit_capability")?.value!==true||goal.greyPriority==="COVER"&&fact("grey_coverage")?.value!==true){missing=true;continue;}
@@ -39,8 +39,9 @@ export function evaluateBrandAdapter(rawPlan:ColorPlanning,rawCatalog:CatalogPac
    // Ambiguous or contradictory rules fail closed; no optimistic rule selection.
    if(rules.filter(r=>r.developerId===d.id).length!==1||rule.restrictions.length||rule.conditions.some(c=>c==="NO_LIFT"&&intent.delta!>0||c==="NO_GREY_COVERAGE"&&goal.greyPriority!=="NONE"||c==="STANDARD_REGION_ONLY"&&(intent.separateHandling||goal.handling!=="STANDARD"))){compatibility=true;continue;}
    if(catalog.release.scope==="GLOBAL"&&rule.source==="SALON_VALIDATED"||catalog.release.scope==="ORGANIZATION"&&rule.source!=="SALON_VALIDATED"){compatibility=true;continue;}
-   const ratio=fact("mixing_ratio"),time=fact("processing_minutes"),strength=verifiedFact(d,"developer_strength",allowSalon);
+   const ratio=fact("mixing_ratio"),time=fact("processing_minutes"),strength=verifiedFact(d,"developer_strength",allowSalon&&catalog.release.scope==="ORGANIZATION");
    if(!ratio||ratio.unit!=="RATIO"||typeof ratio.value!=="string"||!/^\d+(\.\d+)?:\d+(\.\d+)?$/.test(ratio.value)||ratio.value.split(":").some(v=>Number(v)<=0)||!time||time.unit!=="MINUTES"||typeof time.value!=="number"||time.value<=0||!strength||strength.unit!=="PERCENT"||typeof strength.value!=="number"||strength.value<=0){missing=true;continue;}
+   if(rule.mixingRatio!==ratio.value){compatibility=true;continue;}
    return adapterEvaluation.parse({...result,status:"BRAND_READY",recipe:{schemaVersion:2,version:1,parentRecipeId:plan.recipeDraft!.id,executionStatus:"BRAND_READY",executable:false,professionalReviewRequired:true,product:p,developer:d,compatibility:rule,technicalRequirement,snapshots:{colorEngine:plan.engineVersion,riskEngine:plan.metadata.riskVersion,brandAdapter:result.engineVersion,brandCatalogId:catalog.release.id,brandCatalogVersion:catalog.release.version,catalogFingerprint:catalog.release.versionFingerprint,compatibilityMatrixVersion:rule.version,productVersions:[p.version,d.version],pigmentVectorVersion:"pigment-vector/1.0.0"}}});
   }
   if(!rules.length)compatibility=true;
