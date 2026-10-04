@@ -2592,7 +2592,6 @@
         "const": true
       },
       "color_case_link": {
-        "default": null,
         "anyOf": [
           {
             "type": "string",
@@ -2605,7 +2604,6 @@
         ]
       },
       "appointment_link": {
-        "default": null,
         "anyOf": [
           {
             "type": "string",
@@ -3993,5 +3991,57 @@
         "additionalProperties": false
       }
     ]
+  },
+  "LiveSessionError": {
+    "type": "object",
+    "properties": {
+      "code": {
+        "type": "string",
+        "enum": [
+          "UNAUTHENTICATED",
+          "SESSION_EXPIRED",
+          "MEMBERSHIP_REQUIRED",
+          "MEMBERSHIP_REVOKED",
+          "TENANT_CONTEXT_INVALID",
+          "FORBIDDEN",
+          "VALIDATION_FAILED",
+          "NETWORK_ERROR",
+          "SESSION_START_BLOCKED_STALE_INPUT",
+          "LIVE_SESSION_NOT_FOUND",
+          "LIVE_SESSION_CONFLICT",
+          "LIVE_CONTROLLER_CONFLICT",
+          "LIVE_SESSION_IMMUTABLE",
+          "LIVE_SESSION_TRANSITION_INVALID",
+          "LIVE_CHECKPOINT_REQUIRED",
+          "LIVE_USAGE_INVALID",
+          "LIVE_REGION_UNSUPPORTED",
+          "LIVE_USE_STRUCTURED_COMMAND",
+          "LIVE_COMPLETION_INCOMPLETE",
+          "LIVE_PHOTO_NOT_FOUND",
+          "LIVE_PHOTO_UPLOAD_FAILED",
+          "LIVE_PHOTO_MISSING",
+          "LIVE_RESULT_INVALID",
+          "COLOR_PLAN_SIGNATURE_INVALID",
+          "COLOR_ENGINE_UNAVAILABLE",
+          "CONFIDENCE_INPUT_INVALID",
+          "BRAND_RECIPE_NOT_FOUND",
+          "BRAND_CATALOG_NOT_FOUND"
+        ]
+      },
+      "message": {
+        "type": "string"
+      },
+      "correlationId": {
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+      }
+    },
+    "required": [
+      "code",
+      "message",
+      "correlationId"
+    ],
+    "additionalProperties": false
   }
 }

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { storedControlledRecipe } from "@/lib/brand/controlled-model";
 import { colorTarget } from "@/lib/color/target";
-const id=z.uuid(),time=z.iso.datetime({offset:true}),text=z.string().trim().min(1).max(2000);
+const id=z.uuid().transform(value=>value.toLowerCase()),time=z.iso.datetime({offset:true}),text=z.string().trim().min(1).max(2000);
 export const grams=z.number().finite().min(0).max(2000).refine(v=>Math.abs(v*100-Math.round(v*100))<1e-8).transform(v=>Math.round(v*100)/100);
 export const sessionStatuses=["PREPARING","READY","IN_PROGRESS","PAUSED","CHECKPOINT_REQUIRED","COMPLETION_REVIEW","COMPLETED","CANCELLED","ABORTED"] as const;
 export const terminal=(status:string)=>["COMPLETED","CANCELLED","ABORTED"].includes(status);
@@ -47,4 +47,5 @@ export const liveCommand=z.discriminatedUnion("type",[
 ]);
 export type LiveCommand=z.infer<typeof liveCommand>;
 export const livePermissions=["live_session.view","live_session.start","live_session.control","live_session.contribute","live_session.usage","live_session.checkpoint","live_session.revise","live_session.complete","live_session.cancel"] as const;
+export const liveError=z.strictObject({code:z.enum(["UNAUTHENTICATED","SESSION_EXPIRED","MEMBERSHIP_REQUIRED","MEMBERSHIP_REVOKED","TENANT_CONTEXT_INVALID","FORBIDDEN","VALIDATION_FAILED","NETWORK_ERROR","SESSION_START_BLOCKED_STALE_INPUT","LIVE_SESSION_NOT_FOUND","LIVE_SESSION_CONFLICT","LIVE_CONTROLLER_CONFLICT","LIVE_SESSION_IMMUTABLE","LIVE_SESSION_TRANSITION_INVALID","LIVE_CHECKPOINT_REQUIRED","LIVE_USAGE_INVALID","LIVE_REGION_UNSUPPORTED","LIVE_USE_STRUCTURED_COMMAND","LIVE_COMPLETION_INCOMPLETE","LIVE_PHOTO_NOT_FOUND","LIVE_PHOTO_UPLOAD_FAILED","LIVE_PHOTO_MISSING","LIVE_RESULT_INVALID","COLOR_PLAN_SIGNATURE_INVALID","COLOR_ENGINE_UNAVAILABLE","CONFIDENCE_INPUT_INVALID","BRAND_RECIPE_NOT_FOUND","BRAND_CATALOG_NOT_FOUND"]),message:z.string(),correlationId:id});
 export function permissionFor(c:LiveCommand["type"]){return c==="USAGE"?"live_session.usage":c==="CHECKPOINT_RECORD"||c==="CHECKPOINT_ADD"?"live_session.checkpoint":c==="NOTE"||c==="PHOTO"||c==="RISK_EVENT"?"live_session.contribute":c==="RECIPE_REVISION"?"live_session.revise":c==="COMPLETE"||c==="COMPLETION_REVIEW"?"live_session.complete":c==="CANCEL"||c==="ABORT"?"live_session.cancel":"live_session.control";}

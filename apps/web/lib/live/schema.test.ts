@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import * as model from "./model";
 import { liveFixture } from "@/test/live-fixtures";
 it("shared live schemas and fixture match runtime boundaries",()=>{
- const schemas=Object.fromEntries(Object.entries({LiveSession:model.liveSession,LiveSessionStep:model.liveStep,LiveBowl:model.liveBowl,LiveTimer:model.liveTimer,LiveCheckpoint:model.liveCheckpoint,LiveUsage:model.liveUsage,LiveDeviation:model.liveDeviation,LiveRiskEvent:model.liveRiskEvent,OutcomeProfile:model.outcomeProfile,CompletionReview:model.completionReview,CreateLiveSession:model.createLiveRequest,LiveSessionCommand:model.liveCommand}).map(([name,schema])=>{const value=z.toJSONSchema(schema,{io:"input",unrepresentable:"any"});delete value.$schema;return [name,value];}));
+ const schemas=Object.fromEntries(Object.entries({LiveSession:model.liveSession,LiveSessionStep:model.liveStep,LiveBowl:model.liveBowl,LiveTimer:model.liveTimer,LiveCheckpoint:model.liveCheckpoint,LiveUsage:model.liveUsage,LiveDeviation:model.liveDeviation,LiveRiskEvent:model.liveRiskEvent,OutcomeProfile:model.outcomeProfile,CompletionReview:model.completionReview,CreateLiveSession:model.createLiveRequest,LiveSessionCommand:model.liveCommand,LiveSessionError:model.liveError}).map(([name,schema])=>{const value=z.toJSONSchema(schema,{io:"input",unrepresentable:"any"});delete value.$schema;return [name,value];}));
  const file=resolve("../../contracts/live-session.schemas.json");
  const fixture=resolve("../../contracts/fixtures/live-session-contract.json");
  const f=liveFixture();

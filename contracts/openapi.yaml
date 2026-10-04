@@ -2546,7 +2546,7 @@ paths:
       responses:
         '200':
           description: Authorized live session / bounded history
-          content: &live_path_id001
+          content:
             application/json:
               schema:
                 type: object
@@ -2565,14 +2565,22 @@ paths:
                 additionalProperties: false
         default:
           description: Structured access, validation or conflict error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveSessionError'
     post:
       operationId: createReviewedLiveSession
       security:
       - sessionCookie: []
-      description: Caller JWT; verified workspace header and same origin. Server revalidation,
-        optimistic version, device control epoch, idempotent mutation_id. No client
-        authoritative snapshots. Non-executable controlled recipe remains immutable.
-      parameters: []
+      description: Caller JWT; verified workspace header and same origin. Server revalidation, optimistic version, device control epoch, idempotent mutation_id. No client authoritative snapshots. Non-executable
+        controlled recipe remains immutable.
+      parameters:
+      - name: X-Workspace-Reference
+        in: header
+        required: true
+        schema:
+          type: string
       requestBody:
         required: true
         content:
@@ -2582,16 +2590,32 @@ paths:
       responses:
         '200':
           description: Committed immutable version and current session
-          content: *live_path_id001
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - correlationId
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LiveSession'
+                  correlationId:
+                    type: string
+                    format: uuid
+                additionalProperties: false
         default:
-          description: Structured error; stale input and version conflicts are HTTP
-            409
+          description: Structured error; stale input and version conflicts are HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveSessionError'
   /api/live-sessions/{sessionId}:
     get:
       operationId: getLiveSession
       security:
       - sessionCookie: []
-      parameters: &live_path_id002
+      parameters:
       - name: client_id
         in: query
         required: true
@@ -2604,10 +2628,15 @@ paths:
         schema:
           type: string
           format: uuid
+      - name: X-Workspace-Reference
+        in: header
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Authorized live session / bounded history
-          content: &live_path_id003
+          content:
             application/json:
               schema:
                 type: object
@@ -2623,14 +2652,34 @@ paths:
                 additionalProperties: false
         default:
           description: Structured access, validation or conflict error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveSessionError'
     post:
       operationId: mutateLiveSession
       security:
       - sessionCookie: []
-      description: Caller JWT; verified workspace header and same origin. Server revalidation,
-        optimistic version, device control epoch, idempotent mutation_id. No client
-        authoritative snapshots. Non-executable controlled recipe remains immutable.
-      parameters: *live_path_id002
+      description: Caller JWT; verified workspace header and same origin. Server revalidation, optimistic version, device control epoch, idempotent mutation_id. No client authoritative snapshots. Non-executable
+        controlled recipe remains immutable.
+      parameters:
+      - name: client_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Workspace-Reference
+        in: header
+        required: true
+        schema:
+          type: string
       requestBody:
         required: true
         content:
@@ -2640,16 +2689,32 @@ paths:
       responses:
         '200':
           description: Committed immutable version and current session
-          content: *live_path_id003
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - correlationId
+                properties:
+                  data:
+                    $ref: '#/components/schemas/LiveSession'
+                  correlationId:
+                    type: string
+                    format: uuid
+                additionalProperties: false
         default:
-          description: Structured error; stale input and version conflicts are HTTP
-            409
+          description: Structured error; stale input and version conflicts are HTTP 409
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveSessionError'
   /api/live-sessions/{sessionId}/photos/{photoId}:
     get:
       operationId: readPrivateLivePhoto
       security:
       - sessionCookie: []
-      parameters: &live_path_id004
+      parameters:
       - name: sessionId
         in: path
         required: true
@@ -2668,6 +2733,11 @@ paths:
         schema:
           type: string
           format: uuid
+      - name: X-Workspace-Reference
+        in: header
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Private authenticated technical photo
@@ -2686,11 +2756,38 @@ paths:
                 format: binary
         default:
           description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveSessionError'
     post:
       operationId: uploadPrivateLivePhoto
       security:
       - sessionCookie: []
-      parameters: *live_path_id004
+      parameters:
+      - name: sessionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: photoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: client_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: X-Workspace-Reference
+        in: header
+        required: true
+        schema:
+          type: string
       requestBody:
         required: true
         content:
@@ -2711,6 +2808,10 @@ paths:
           description: Immutable photo upload recorded and audited
         default:
           description: Structured error; max 10 MiB; metadata must be reserved first
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveSessionError'
   /rest/v1/rpc/live_session_store:
     post:
       operationId: persistSignedLiveSession
@@ -2725,8 +2826,108 @@ paths:
               $ref: '#/components/schemas/LiveSessionStoreRequest'
       responses:
         '200':
-          description: JWT, signature, membership, version and critical dependency validation
-            result
+          description: JWT, signature, membership, version and critical dependency validation result
+  /rest/v1/rpc/live_session_clock:
+    post:
+      operationId: liveSessionClock
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      responses:
+        '200':
+          description: Authenticated database clock; no client elapsed authority
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date-time
+  /rest/v1/rpc/live_session_transfer_allowed:
+    post:
+      operationId: liveSessionTransferAllowed
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      responses:
+        '200':
+          description: Fresh database membership/control permission in the current salon location
+          content:
+            application/json:
+              schema:
+                type: boolean
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - p_user_id
+              - p_organization_id
+              - p_location_id
+              properties:
+                p_user_id:
+                  type: string
+                  format: uuid
+                p_organization_id:
+                  type: string
+                  format: uuid
+                p_location_id:
+                  type: string
+                  format: uuid
+              additionalProperties: false
+  /rest/v1/rpc/live_session_receipt:
+    post:
+      operationId: liveSessionReceipt
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      responses:
+        '200':
+          description: Actor-scoped exact-input receipt; rechecks active location/membership; null when absent
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/LiveSession'
+                - $ref: '#/components/schemas/LiveSessionError'
+                - type: 'null'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - p_membership_id
+              - p_location_id
+              - p_mutation_id
+              - p_input
+              - p_session_id
+              - p_correlation_id
+              properties:
+                p_membership_id:
+                  type: string
+                  format: uuid
+                p_location_id:
+                  type: string
+                  format: uuid
+                p_mutation_id:
+                  type: string
+                  format: uuid
+                p_input:
+                  oneOf:
+                  - $ref: '#/components/schemas/CreateLiveSession'
+                  - $ref: '#/components/schemas/LiveSessionCommand'
+                p_session_id:
+                  type:
+                  - string
+                  - 'null'
+                  format: uuid
+                p_correlation_id:
+                  type: string
+                  format: uuid
+              additionalProperties: false
+
 components:
   securitySchemes:
     bearerAuth:
@@ -11178,14 +11379,12 @@ components:
           type: boolean
           const: true
         color_case_link:
-          default: null
           anyOf:
           - type: string
             format: uuid
             pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
           - type: 'null'
         appointment_link:
-          default: null
           anyOf:
           - type: string
             format: uuid
@@ -12249,6 +12448,51 @@ components:
         - type
         - reason
         additionalProperties: false
+    LiveSessionError:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - UNAUTHENTICATED
+          - SESSION_EXPIRED
+          - MEMBERSHIP_REQUIRED
+          - MEMBERSHIP_REVOKED
+          - TENANT_CONTEXT_INVALID
+          - FORBIDDEN
+          - VALIDATION_FAILED
+          - NETWORK_ERROR
+          - SESSION_START_BLOCKED_STALE_INPUT
+          - LIVE_SESSION_NOT_FOUND
+          - LIVE_SESSION_CONFLICT
+          - LIVE_CONTROLLER_CONFLICT
+          - LIVE_SESSION_IMMUTABLE
+          - LIVE_SESSION_TRANSITION_INVALID
+          - LIVE_CHECKPOINT_REQUIRED
+          - LIVE_USAGE_INVALID
+          - LIVE_REGION_UNSUPPORTED
+          - LIVE_USE_STRUCTURED_COMMAND
+          - LIVE_COMPLETION_INCOMPLETE
+          - LIVE_PHOTO_NOT_FOUND
+          - LIVE_PHOTO_UPLOAD_FAILED
+          - LIVE_PHOTO_MISSING
+          - LIVE_RESULT_INVALID
+          - COLOR_PLAN_SIGNATURE_INVALID
+          - COLOR_ENGINE_UNAVAILABLE
+          - CONFIDENCE_INPUT_INVALID
+          - BRAND_RECIPE_NOT_FOUND
+          - BRAND_CATALOG_NOT_FOUND
+        message:
+          type: string
+        correlationId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - code
+      - message
+      - correlationId
+      additionalProperties: false
     LiveSessionStoreRequest:
       type: object
       additionalProperties: false
@@ -12263,9 +12507,7 @@ components:
           type: string
           format: uuid
         p_location_id:
-          type:
-          - string
-          - 'null'
+          type: string
           format: uuid
         p_envelope:
           type: string
