@@ -41,6 +41,20 @@ async function prepare(q:z.infer<typeof controlledOptionsRequest>,correlationId:
  const fresh=plan.recipeDraft?evaluateColorPlanning(snapshot.data.data,confidence,risk,plan.recipeDraft.target):plan;
  return {stored,fresh,snapshot:snapshot.data,packet:await readPilotCatalog(q.catalog_id)};
 }
+// Phase 3 reuses the exact controlled-review path; it does not turn historical
+// recipes into executable engine results or relax the pilot's restrictions.
+export async function revalidateControlledRecipe(clientId:string,recipeId:string,correlationId:string){
+ const record=storedControlledRecipe.parse((await readControlledRecipes(clientId,recipeId,correlationId)).data);
+ if(Date.now()-Date.parse(record.createdAt)>24*60*60*1000)throw new AccessError("SESSION_START_BLOCKED_STALE_INPUT",409);
+ try{
+  const p=await prepare({client_id:clientId,plan_id:record.planId,catalog_id:record.catalogId},correlationId);
+  const fresh=buildControlledRecipe(p.fresh,p.packet,p.snapshot.data,{client_id:clientId,plan_id:record.planId,catalog_id:record.catalogId,request_id:recipeId,product_id:record.result.selected.productId,developer_id:record.result.selected.developerId,color_grams:record.result.colorGrams,supersedes_id:record.supersedesId},record.result.parentRecipeId);
+  if(colorHash(fresh.selected)!==colorHash(record.result.selected)||fresh.snapshots.catalogFingerprint!==record.result.snapshots.catalogFingerprint||fresh.context.whiteRatio!==record.result.context.whiteRatio||fresh.context.regionId!==record.result.context.regionId)throw new Error();
+  const confidence=evaluateConfidence(p.snapshot.data),risk=evaluateRisk(p.snapshot.data,confidence);
+  if(!risk.gate.canProgress||!p.fresh.safetyGate.canProgress)throw new Error();
+  return {recipe:record,target:p.fresh.recipeDraft!.target,sourceToken:p.snapshot.sourceToken,passportId:risk.passportId,risk:{engineVersion:risk.engineVersion,gate:risk.gate.outcome,fingerprint:colorHash(risk)}};
+ }catch(error){if(error instanceof AccessError&&[401,403,404,503].includes(error.status))throw error;throw new AccessError("SESSION_START_BLOCKED_STALE_INPUT",409);}
+}
 export async function controlledOptionsService(raw:unknown,correlationId:string,reference:string|null){
  const parsed=controlledOptionsRequest.safeParse(raw);if(!parsed.success)throw new AccessError("VALIDATION_FAILED",400);
  const ctx=await access(false,reference),p=await prepare(parsed.data,correlationId);

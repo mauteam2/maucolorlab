@@ -1,0 +1,272 @@
+{
+  "request": {
+    "mutation_id": "c1000000-0000-4000-8000-000000000504",
+    "device_id": "c1000000-0000-4000-8000-000000000505",
+    "client_id": "c1000000-0000-4000-8000-000000000004",
+    "recipe_id": "c1000000-0000-4000-8000-000000000502",
+    "review_note": "Personally reviewed verified pilot and customer",
+    "professional_review": true,
+    "color_case_link": null,
+    "appointment_link": null
+  },
+  "session": {
+    "schemaVersion": 1,
+    "id": "c1000000-0000-4000-8000-000000000600",
+    "clientId": "c1000000-0000-4000-8000-000000000004",
+    "locationId": "c1000000-0000-4000-8000-000000000002",
+    "passportId": "c1000000-0000-4000-8000-000000000001",
+    "colorCaseLink": null,
+    "appointmentLink": null,
+    "status": "PREPARING",
+    "recordVersion": 1,
+    "controllerUserId": "c1000000-0000-4000-8000-000000000007",
+    "controllerDeviceId": "c1000000-0000-4000-8000-000000000505",
+    "controlEpoch": 1,
+    "startedBy": "c1000000-0000-4000-8000-000000000007",
+    "createdAt": "2026-10-04T12:00:00Z",
+    "updatedAt": "2026-10-04T12:00:00Z",
+    "startedAt": null,
+    "pausedAt": null,
+    "completedAt": null,
+    "cancelledAt": null,
+    "originalRecipeId": "c1000000-0000-4000-8000-000000000502",
+    "currentRecipeId": "c1000000-0000-4000-8000-000000000502",
+    "recipes": [
+      {
+        "id": "c1000000-0000-4000-8000-000000000502",
+        "seriesId": "c1000000-0000-4000-8000-000000000503",
+        "version": 1,
+        "supersedesId": null,
+        "clientId": "c1000000-0000-4000-8000-000000000004",
+        "planId": "c1000000-0000-4000-8000-000000000500",
+        "catalogId": "c1000000-0000-4000-8000-000000008000",
+        "createdAt": "2026-10-01T12:00:00.000Z",
+        "createdBy": "c1000000-0000-4000-8000-000000000007",
+        "result": {
+          "schemaVersion": 3,
+          "engineVersion": "controlled-brand-recipe/1.0.0",
+          "state": "DRAFT_FOR_PROFESSIONAL_REVIEW",
+          "executable": false,
+          "professionalReviewRequired": true,
+          "selectionOrigin": "PROFESSIONAL_INPUT",
+          "parentRecipeId": "c60cc8cfbfff79bad89c42da8e3f58314c0f9fe093d3c9a5b2fc2be119d4cec9",
+          "selected": {
+            "productId": "c1000000-0000-4000-8000-000000011006",
+            "manufacturerCode": "8-01",
+            "displayName": "IGORA ROYAL ABSOLUTES 8-01",
+            "manufacturerTone": "01",
+            "normalizedTone": "NEUTRAL",
+            "developerId": "c1000000-0000-4000-8000-000000013001",
+            "developerName": "IGORA ROYAL Oil Developer 9% / 30 Vol.",
+            "compatibilityRuleId": "c1000000-0000-4000-8000-000000015013",
+            "compatibility": "VERIFIED_RESTRICTED",
+            "mixingRatio": "1:1",
+            "processingMinutes": {
+              "min": 30,
+              "max": 45
+            },
+            "restrictions": {
+              "whitePercentGreaterThan": null,
+              "whitePercentAtMost": 90,
+              "maxLift": 3,
+              "regrowthOnly": true,
+              "safetyReviewRequired": true
+            },
+            "sourceIds": [
+              "c1000000-0000-4000-8000-000000010000",
+              "c1000000-0000-4000-8000-000000010001"
+            ],
+            "executable": false
+          },
+          "colorGrams": 30,
+          "developerGrams": 30,
+          "totalGrams": 60,
+          "amountBasis": "USER_ENTERED_COLOR_GRAMS",
+          "context": {
+            "regionId": "c1000000-0000-4000-8000-000000000010",
+            "whiteRatio": 0.9,
+            "evidenceIds": [
+              "c1000000-0000-4000-8000-000000000121"
+            ]
+          },
+          "sources": [
+            {
+              "id": "c1000000-0000-4000-8000-000000010000",
+              "catalog_id": "c1000000-0000-4000-8000-000000008000",
+              "document_key": "1f6a6290-0737-5938-82f7-726fff26c0bb",
+              "manufacturer": "Schwarzkopf Professional",
+              "document_title": "IGORA ROYAL ABSOLUTES Assortment",
+              "document_version": null,
+              "document_date": null,
+              "source_url": "https://dm.henkel-dam.com/is/content/henkel/SKP_ICT_IG_Igora_Assortments_Absolutes_920x660",
+              "retrieved_at": "2026-10-03T11:50:00Z",
+              "source_type": "MANUFACTURER_TECHNICAL_DOCUMENT",
+              "content_sha256": "7fd50ca3e97bd40dc4861f65e2b56f59eeb654b42b74df5f145d504c7164fd6d",
+              "review_status": "APPROVED",
+              "verification_status": "ELIFORA_VERIFIED",
+              "created_by": "c1000000-0000-4000-8000-000000000007",
+              "verified_by": "c1000000-0000-4000-8000-000000000007",
+              "verified_at": "2026-10-03T11:50:00Z"
+            },
+            {
+              "id": "c1000000-0000-4000-8000-000000010001",
+              "catalog_id": "c1000000-0000-4000-8000-000000008000",
+              "document_key": "3a5e72af-428f-5674-8ebb-890e26e5f42a",
+              "manufacturer": "Schwarzkopf Professional",
+              "document_title": "IGORA ROYAL ABSOLUTES Instructions For Use",
+              "document_version": null,
+              "document_date": null,
+              "source_url": "https://dm.henkel-dam.com/is/content/henkel/IGORA_ROYAL_ABSOLUTES_Instruction_For_Use",
+              "retrieved_at": "2026-10-03T11:50:00Z",
+              "source_type": "MANUFACTURER_TECHNICAL_DOCUMENT",
+              "content_sha256": "4be6f4e16016649ac5a18edc000cb09b8f4e61f84669e3d87526cd56656d6ac1",
+              "review_status": "APPROVED",
+              "verification_status": "ELIFORA_VERIFIED",
+              "created_by": "c1000000-0000-4000-8000-000000000007",
+              "verified_by": "c1000000-0000-4000-8000-000000000007",
+              "verified_at": "2026-10-03T11:50:00Z"
+            }
+          ],
+          "snapshots": {
+            "catalogId": "c1000000-0000-4000-8000-000000008000",
+            "catalogVersion": 1,
+            "catalogFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "productVersion": 1,
+            "developerVersion": 1,
+            "ruleVersion": 1,
+            "colorEngine": "color-engine/1.0.0",
+            "riskEngine": "risk-engine/1.0.0",
+            "hairFingerprint": "60f5170637d3b72c473e3f268f69645868e5ce99bdab00d6a5188c42025fe12a",
+            "evaluatedAt": "2026-10-01T12:00:00.000Z"
+          }
+        }
+      }
+    ],
+    "targetSnapshot": {
+      "id": "c1000000-0000-4000-8000-000000004000",
+      "seriesId": "c1000000-0000-4000-8000-000000004001",
+      "version": 1,
+      "previousVersionId": null,
+      "clientId": "c1000000-0000-4000-8000-000000000004",
+      "passportId": "c1000000-0000-4000-8000-000000000003",
+      "definition": {
+        "schemaVersion": 1,
+        "mode": "ROOT_REFRESH",
+        "globalIntent": "REFRESH",
+        "regions": [
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000010",
+            "level": 8,
+            "toneFamily": "NEUTRAL",
+            "mixedFamilies": [],
+            "warmth": "NEUTRAL",
+            "greyPriority": "NONE",
+            "liftPriority": "NONE",
+            "depositPriority": "NONE",
+            "toneIntent": "CHANGE",
+            "contrast": "NONE",
+            "preserve": false,
+            "handling": "STANDARD",
+            "correction": "NONE",
+            "intermediateLevel": null
+          },
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000011",
+            "level": null,
+            "toneFamily": null,
+            "mixedFamilies": [],
+            "warmth": "PRESERVE",
+            "greyPriority": "NONE",
+            "liftPriority": "NONE",
+            "depositPriority": "NONE",
+            "toneIntent": "PRESERVE",
+            "contrast": "NONE",
+            "preserve": true,
+            "handling": "STANDARD",
+            "correction": "NONE",
+            "intermediateLevel": null
+          },
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000012",
+            "level": null,
+            "toneFamily": null,
+            "mixedFamilies": [],
+            "warmth": "PRESERVE",
+            "greyPriority": "NONE",
+            "liftPriority": "NONE",
+            "depositPriority": "NONE",
+            "toneIntent": "PRESERVE",
+            "contrast": "NONE",
+            "preserve": true,
+            "handling": "STANDARD",
+            "correction": "NONE",
+            "intermediateLevel": null
+          }
+        ]
+      },
+      "createdAt": "2026-10-01T12:00:00.000Z",
+      "createdBy": "c1000000-0000-4000-8000-000000000007"
+    },
+    "review": {
+      "by": "c1000000-0000-4000-8000-000000000007",
+      "at": "2026-10-04T12:00:00Z",
+      "note": "Personally reviewed verified pilot and customer"
+    },
+    "riskSnapshot": {
+      "engineVersion": "risk-engine/1.0.0",
+      "gate": "PROCEED",
+      "fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "sourceToken": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "steps": [
+      {
+        "id": "c1000000-0000-4000-8000-000000000602",
+        "sequenceIndex": 0,
+        "regionId": "c1000000-0000-4000-8000-000000000010",
+        "bowlId": "c1000000-0000-4000-8000-000000000601",
+        "instructionType": "APPLICATION",
+        "instructionText": "Onaylı dip yenileme reçetesi. Ayrıntılı uygulama sırasını profesyonel belirler.",
+        "createdFrom": "VERIFIED_RECIPE",
+        "professionalModified": false,
+        "status": "PENDING",
+        "actualStart": null,
+        "actualFinish": null
+      }
+    ],
+    "bowls": [
+      {
+        "id": "c1000000-0000-4000-8000-000000000601",
+        "label": "Kap A · Dip",
+        "recipeId": "c1000000-0000-4000-8000-000000000502",
+        "regionIds": [
+          "c1000000-0000-4000-8000-000000000010"
+        ],
+        "plannedGrams": 60,
+        "preparedGrams": null,
+        "usedGrams": null,
+        "wasteGrams": null,
+        "closed": false
+      }
+    ],
+    "timers": [],
+    "checkpoints": [
+      {
+        "id": "c1000000-0000-4000-8000-000000000603",
+        "type": "HAIR_INTEGRITY_CHECK",
+        "stepId": "c1000000-0000-4000-8000-000000000602",
+        "required": true,
+        "result": "PENDING",
+        "note": "",
+        "completedBy": null,
+        "completedAt": null
+      }
+    ],
+    "usage": [],
+    "deviations": [],
+    "riskEvents": [],
+    "photos": [],
+    "notes": [],
+    "outcome": null,
+    "actualProcessSeconds": null
+  }
+}

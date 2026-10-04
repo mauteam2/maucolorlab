@@ -1,0 +1,14 @@
+import { it,expect,vi,beforeEach } from "vitest";
+import { fixtureId } from "@/test/confidence-fixtures";
+const mock=vi.hoisted(()=>({mutate:vi.fn(),read:vi.fn(),photo:vi.fn()}));
+vi.mock("./service",()=>({mutateLiveSession:mock.mutate,readLiveSessions:mock.read,livePhoto:mock.photo}));
+import { liveResponse } from "./http";
+beforeEach(()=>{vi.clearAllMocks();mock.mutate.mockResolvedValue({data:{id:fixtureId(1)}});mock.read.mockResolvedValue({data:[]});});
+const req=(data:unknown,headers:Record<string,string>={})=>new Request("http://localhost:3001/api/live-sessions",{method:"POST",headers:{origin:"http://localhost:3001","content-type":"application/json",...headers},body:JSON.stringify(data)});
+it("response is private and correlated",async()=>{const r=await liveResponse(req({}));expect(r.status).toBe(200);expect(r.headers.get("cache-control")).toBe("private, no-store");expect(r.headers.get("x-correlation-id")).toMatch(/^[a-f0-9-]{36}$/);});
+it.each(["http://foreign:3001","http://localhost:3002",""])("cross origin or port %s cannot mutate",async origin=>{expect((await liveResponse(req({},{origin}))).status).toBe(403);expect(mock.mutate).not.toHaveBeenCalled();});
+it("bounded JSON rejects oversized input before service",async()=>{expect((await liveResponse(req({text:"a".repeat(66000)}))).status).toBe(400);expect(mock.mutate).not.toHaveBeenCalled();});
+it("extra query cannot change ownership",async()=>expect((await liveResponse(new Request("http://localhost/api/live-sessions?client_id=x&organization_id=y"))).status).toBe(400));
+it("duplicate client query rejected",async()=>expect((await liveResponse(new Request("http://localhost/api/live-sessions?client_id=x&client_id=y"))).status).toBe(400));
+it("GET needs a client identity",async()=>expect((await liveResponse(new Request("http://localhost/api/live-sessions"))).status).toBe(400));
+it("internal errors do not reveal implementation",async()=>{mock.mutate.mockRejectedValue(new Error("private details"));const r=await liveResponse(req({}));expect(r.status).toBe(503);expect(await r.text()).not.toContain("private details");});

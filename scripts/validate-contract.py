@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.13.0'
+assert contract['info']['version'] == '0.14.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -278,3 +278,16 @@ for patch in ({'review_status':'PENDING'}, {'verification_status':'UNVERIFIED'})
     changed['sources'][0].update(patch)
     assert list(observation_validator('ControlledRecipe').iter_errors(changed))
 print('PASS: Controlled ratio and approved-source restrictions, 4 further unsafe result rejections')
+
+# Phase 3 runtime-generated schemas preserve existing contracts.
+live_schemas = json.loads((root / 'contracts/live-session.schemas.json').read_text())
+for name, schema in live_schemas.items():
+    assert contract['components']['schemas'][name] == schema, name
+live_fixture = json.loads((root / 'contracts/fixtures/live-session-contract.json').read_text())
+observation_validator('CreateLiveSession').validate(live_fixture['request'])
+observation_validator('LiveSession').validate(live_fixture['session'])
+for field in ('organization_id', 'controller_user_id', 'risk_result', 'elapsed', 'audit_actor'):
+    assert list(observation_validator('CreateLiveSession').iter_errors(live_fixture['request'] | {field: True}))
+assert list(observation_validator('CreateLiveSession').iter_errors(live_fixture['request'] | {'professional_review': False}))
+assert contract['paths']['/rest/v1/rpc/live_session_store']['post']['security'] == contract['paths']['/rest/v1/rpc/controlled_recipe_store']['post']['security']
+print('PASS: Phase 3 shared live schemas, controlled-review fixture and six forgery rejections')

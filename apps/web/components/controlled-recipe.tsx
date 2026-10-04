@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { controlledCatalogs, controlledOptions, storedControlledRecipe, colorGrams } from "@/lib/brand/controlled-model";
 import { SalonCard } from "./salon-frame";
+import Link from "next/link";
 type Saved=ReturnType<typeof storedControlledRecipe.parse>;
 type Props={clientId:string;planId:string;reference:string;enabled:boolean;canCreate:boolean};
 const errors:Record<string,string>={COLOR_PLAN_SOURCE_CONFLICT:"Saç kaydı değişti. Yeni renk planı oluşturun.",CONTROLLED_RECIPE_CONTEXT_INVALID:"Güncel değerlendirme veya üretici koşulları bu seçime izin vermiyor.",CONTROLLED_RECIPE_VERSION_CONFLICT:"Bu sürüm değişmiş. Geçmişi yeniden yükleyin.",TENANT_CONTEXT_INVALID:"Çalışma alanını yeniden doğrulayın.",VALIDATION_FAILED:"Ton ve boya miktarını kontrol edin.",FORBIDDEN:"Bu işlem için yetkiniz yok."};
@@ -55,5 +56,5 @@ export function ControlledRecipe({clientId,planId,reference,enabled,canCreate}:P
 }
 function RecipeSummary({record}:{record:Saved}){
  const r=record.result;
- return <div className="salon-notice" role="status"><strong>Profesyonel inceleme gerekli · Sürüm {record.version}</strong><p>{r.selected.manufacturerCode} · {r.selected.developerName} · {r.selected.mixingRatio}</p><p>Boya: {r.colorGrams} g · Geliştirici: {r.developerGrams} g · Toplam: {r.totalGrams} g</p><p>Uygulama başlatılamaz. Belgelendirilmiş süre: {r.selected.processingMinutes.min}–{r.selected.processingMinutes.max} dakika.</p><p>Kaynaklar: {r.sources.map(s=><a key={s.id} href={s.source_url} target="_blank" rel="noreferrer" style={{display:"block",overflowWrap:"anywhere"}}>{s.document_title}</a>)}</p></div>;
+ return <div className="salon-notice" role="status"><strong>Profesyonel inceleme gerekli · Sürüm {record.version}</strong><p>{r.selected.manufacturerCode} · {r.selected.developerName} · {r.selected.mixingRatio}</p><p>Boya: {r.colorGrams} g · Geliştirici: {r.developerGrams} g · Toplam: {r.totalGrams} g</p><p>Uygulama başlatılamaz. Belgelendirilmiş süre: {r.selected.processingMinutes.min}–{r.selected.processingMinutes.max} dakika.</p><p>Kaynaklar: {r.sources.map(s=><a key={s.id} href={s.source_url} target="_blank" rel="noreferrer" style={{display:"block",overflowWrap:"anywhere"}}>{s.document_title}</a>)}</p><Link className="button button-secondary" href={`/workspace/live-sessions?client_id=${record.clientId}&recipe_id=${record.id}`}>Profesyonel inceleme ve canlı seans</Link><Link href={`/workspace/live-sessions?client_id=${record.clientId}`}>Canlı seans geçmişi</Link></div>;
 }
