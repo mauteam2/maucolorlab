@@ -2628,11 +2628,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: X-Workspace-Reference
-        in: header
-        required: true
-        schema:
-          type: string
       responses:
         '200':
           description: Authorized live session / bounded history
@@ -2733,11 +2728,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: X-Workspace-Reference
-        in: header
-        required: true
-        schema:
-          type: string
       responses:
         '200':
           description: Private authenticated technical photo
