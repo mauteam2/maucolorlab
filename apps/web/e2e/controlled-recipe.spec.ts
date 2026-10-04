@@ -58,13 +58,15 @@ test("controlled professional recipe keeps exact arithmetic, immutable history, 
  expect((await(await page.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`)).json()).data.result.colorGrams).toBe(30.15);
  expect((await page.request.post("/api/controlled-brand-recipes",{headers,data:{...original,request_id:randomUUID(),supersedes_id:v1.id}})).status()).toBe(409);
  await panel.scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath("client-controlled-desktop.png")});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:info.outputPath("client-controlled-full.png"),fullPage:true});
+ await panel.screenshot({path:info.outputPath("client-controlled-panel-desktop.png")});
  await page.setViewportSize({width:320,height:900});await panel.scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath("client-controlled-320.png")});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:info.outputPath("client-controlled-320-full.png"),fullPage:true});
+ await panel.screenshot({path:info.outputPath("client-controlled-panel-320.png")});
  const foreign=await seedAccount(),foreignContext=await browser.newContext({baseURL:"http://127.0.0.1:4173"});
  try{const other=await foreignContext.newPage();await login(other,foreign);await expectReady(other);const denied=await other.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`);expect(denied.status()).toBe(404);expect(await denied.json()).not.toHaveProperty("data");}finally{await foreignContext.close();}
  const current=(await(await page.request.get(`${base}/hair-passport`)).json()).data;
  const currentRoot=current.regions.find((r:{type:string})=>r.type==="ROOT");
  const changed=await page.request.post(`${base}/hair-passport/observations`,{headers,data:{request_id:randomUUID(),expected_version:currentRoot.version,region_id:currentRoot.id,technical:{...technical,grey_ratio:{state:"KNOWN",value:.95}},evidence:{source:"PROFESSIONAL_VERIFIED",attestation:"PERSONALLY_ASSESSED",confidence:{state:"KNOWN",value:1}}}});expect(changed.ok(),await changed.text()).toBeTruthy();
- expect((await page.request.post("/api/controlled-brand-recipes",{headers,data:{...original,request_id:randomUUID()}})).status()).toBe(409);
+ const stale=await page.request.post("/api/controlled-brand-recipes",{headers,data:{...original,request_id:randomUUID()}});expect(stale.status(),await stale.text()).toBe(409);expect((await stale.json()).code).toBe("COLOR_PLAN_SOURCE_CONFLICT");
  expect((await page.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`)).status()).toBe(200);
  await account.revoke();expect((await page.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`)).status()).toBe(403);
  await page.context().clearCookies();expect((await page.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`)).status()).toBe(401);

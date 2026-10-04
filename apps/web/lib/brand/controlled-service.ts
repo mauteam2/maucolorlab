@@ -32,7 +32,11 @@ async function prepare(q:z.infer<typeof controlledOptionsRequest>,correlationId:
  const snapshot=z.strictObject({data:confidenceInput,sourceToken:z.string().regex(/^[a-f0-9]{64}$/),correlationId:z.uuid()}).safeParse(data);
  if(!snapshot.success||snapshot.data.correlationId!==correlationId)throw new AccessError("CONFIDENCE_INPUT_INVALID",503);
  const plan=stored.result;
- if(colorHash(normalizeInput({...snapshot.data.data,evaluatedAt:plan.evaluatedAt}))!==plan.metadata.hairFingerprint)throw new AccessError("COLOR_PLAN_SOURCE_CONFLICT",409);
+ // Validate the current snapshot against its own clock first. A legitimate new
+ // observation may be newer than the old plan; it is a conflict, not invalid input.
+ let normalized;
+ try{normalized=normalizeInput(snapshot.data.data);}catch{throw new AccessError("CONFIDENCE_INPUT_INVALID",503);}
+ if(colorHash({...normalized,evaluatedAt:new Date(plan.evaluatedAt).toISOString()})!==plan.metadata.hairFingerprint)throw new AccessError("COLOR_PLAN_SOURCE_CONFLICT",409);
  const confidence=evaluateConfidence(snapshot.data.data),risk=evaluateRisk(snapshot.data.data,confidence);
  const fresh=plan.recipeDraft?evaluateColorPlanning(snapshot.data.data,confidence,risk,plan.recipeDraft.target):plan;
  return {stored,fresh,snapshot:snapshot.data,packet:await readPilotCatalog(q.catalog_id)};
