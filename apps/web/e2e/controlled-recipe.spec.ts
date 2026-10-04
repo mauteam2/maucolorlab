@@ -5,6 +5,7 @@ import { mkdir,rmdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { seedAccount,login,expectReady } from "./local-auth";
+import { verifyLiveSession } from "./live-session-flow";
 
 test("controlled professional recipe keeps exact arithmetic, immutable history, current safety and real tenant isolation",async({page,browser},info)=>{
  test.setTimeout(240000);
@@ -61,6 +62,7 @@ test("controlled professional recipe keeps exact arithmetic, immutable history, 
  await panel.screenshot({path:info.outputPath("client-controlled-panel-desktop.png")});
  await page.setViewportSize({width:320,height:900});await panel.scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath("client-controlled-320.png")});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:info.outputPath("client-controlled-320-full.png"),fullPage:true});
  await panel.screenshot({path:info.outputPath("client-controlled-panel-320.png")});
+ await verifyLiveSession(page,browser,info,client.id,v2.id,headers);
  const foreign=await seedAccount(),foreignContext=await browser.newContext({baseURL:"http://127.0.0.1:4173"});
  try{const other=await foreignContext.newPage();await login(other,foreign);await expectReady(other);const denied=await other.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`);expect(denied.status()).toBe(404);expect(await denied.json()).not.toHaveProperty("data");}finally{await foreignContext.close();}
  const current=(await(await page.request.get(`${base}/hair-passport`)).json()).data;

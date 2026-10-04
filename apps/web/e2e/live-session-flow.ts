@@ -1,0 +1,39 @@
+import { expect,type Page,type TestInfo,type Browser } from "@playwright/test";
+import { randomUUID } from "node:crypto";
+import { login,seedAccount,expectReady } from "./local-auth";
+export async function verifyLiveSession(page:Page,browser:Browser,info:TestInfo,clientId:string,recipeId:string,headers:Record<string,string>){
+ const timings:Record<string,number>={};let at=Date.now();
+ await page.goto(`/workspace/live-sessions?client_id=${clientId}&recipe_id=${recipeId}`);await page.getByLabel("Profesyonel inceleme notu").fill("Disposable professional personally reviewed verified recipe and client");await page.getByLabel("Reçeteyi ve resmi koşulları bu uygulama için değerlendirdim.").check();
+ const created=page.waitForResponse(r=>r.url().endsWith("/api/live-sessions")&&r.request().method()==="POST");await page.getByRole("button",{name:"Onayla ve seans hazırla"}).click();const response=await created;expect(response.status(),await response.text()).toBe(200);let s=(await response.json()).data;const id=s.id;expect(s.status).toBe("PREPARING");expect(s.recipes[0].result.executable).toBe(false);
+ await expect(page.getByRole("button",{name:"Hazırlığı onayla"})).toBeVisible();timings.sessionLoadMs=Date.now()-at;
+ const mutate=async(patch:Record<string,unknown>,status=200)=>{const body={mutation_id:randomUUID(),device_id:s.controllerDeviceId,expected_version:s.recordVersion,control_epoch:s.controlEpoch,...patch};const r=await page.request.post(`/api/live-sessions/${id}?client_id=${clientId}`,{headers,data:body});expect(r.status(),await r.text()).toBe(status);if(status===200)s=(await r.json()).data;return {r,body};};
+ await mutate({type:"READY"});await mutate({type:"START"});expect(s.status).toBe("IN_PROGRESS");
+ await mutate({type:"STEP_START",step_id:s.steps[0].id,device_id:randomUUID()},409);
+ at=Date.now();await mutate({type:"STEP_START",step_id:s.steps[0].id});timings.stepMutationMs=Date.now()-at;
+ await mutate({type:"STEP_COMPLETE",step_id:s.steps[0].id},409);
+ await mutate({type:"TIMER_ADD",label:"Dip",step_id:s.steps[0].id,region_id:s.steps[0].regionId,duration_seconds:1800});await mutate({type:"TIMER_ADD",label:"Görsel kontrol",step_id:s.steps[0].id,region_id:s.steps[0].regionId,duration_seconds:300});expect(s.timers).toHaveLength(2);
+ await page.reload();await expect(page.getByLabel("Dip kalan süre")).toBeVisible();await expect(page.getByLabel("Görsel kontrol kalan süre")).toBeVisible();
+ const timerId=s.timers[0].id;await mutate({type:"TIMER_ACTION",timer_id:timerId,action:"PAUSE"});const paused=s.timers[0].elapsedSeconds;await mutate({type:"TIMER_ACTION",timer_id:timerId,action:"RESUME"});expect(s.timers[0].elapsedSeconds).toBe(paused);
+ await page.getByRole("button",{name:"Güncel kaydı yükle"}).click();await expect(page.getByText(`Uygulama sürüyor · Sürüm ${s.recordVersion}`,{exact:true})).toBeVisible();
+ // The open offline workflow keeps timestamp timers and stores local drafts.
+ await page.context().setOffline(true);await page.evaluate(()=>window.dispatchEvent(new Event("offline")));
+ await page.getByLabel("Hızlı not").fill("Offline professional note");await page.getByRole("button",{name:"Notu kaydet",exact:true}).click();await expect(page.getByText("READY_FOR_EXPLICIT_SYNC",{exact:false})).toBeVisible();
+ const before=await page.getByLabel("Dip kalan süre").innerText();await page.waitForTimeout(1100);expect(await page.getByLabel("Dip kalan süre").innerText()).not.toBe(before);
+ await page.context().setOffline(false);await page.evaluate(()=>window.dispatchEvent(new Event("online")));await expect(page.getByRole("button",{name:"Taslağı açık onayla senkronize et"})).toBeEnabled();await page.getByRole("button",{name:"Taslağı açık onayla senkronize et"}).click();await expect(page.getByText("Offline professional note",{exact:true})).toBeVisible();
+ s=(await(await page.request.get(`/api/live-sessions/${id}?client_id=${clientId}`)).json()).data;
+ // Real second-device handoff; old device cannot control, original recipe preserved.
+ const oldDevice=s.controllerDeviceId,newDevice=randomUUID();await mutate({type:"TRANSFER_CONTROL",user_id:s.controllerUserId,target_device_id:newDevice,reason:"Explicit synthetic handoff"});await mutate({type:"PAUSE",device_id:oldDevice},409);await mutate({type:"TRANSFER_CONTROL",user_id:s.controllerUserId,target_device_id:oldDevice,reason:"Explicit synthetic return"});
+ await mutate({type:"CHECKPOINT_ADD",step_id:s.steps[0].id,checkpoint_type:"VISUAL_CHECK",required:false});await mutate({type:"CHECKPOINT_RECORD",checkpoint_id:s.checkpoints[0].id,result:"PASS",note:"Professionally checked integrity"});await mutate({type:"STEP_COMPLETE",step_id:s.steps[0].id});
+ const timerIds=s.timers.map((t:{id:string})=>t.id);for(const timer_id of timerIds)await mutate({type:"TIMER_ACTION",timer_id,action:"COMPLETE"});
+ at=Date.now();const usage=await mutate({type:"USAGE",bowl_id:s.bowls[0].id,prepared_grams:90,used_grams:80,reason:"Actual measured; leftover disposed"});timings.usageMutationMs=Date.now()-at;expect(s.usage).toHaveLength(2);expect(s.usage[0]).toMatchObject({preparedGrams:45,usedGrams:40,wasteGrams:5});const retry=await page.request.post(`/api/live-sessions/${id}?client_id=${clientId}`,{headers,data:usage.body});expect(retry.status()).toBe(200);expect((await retry.json()).data.usage).toHaveLength(2);
+ await mutate({type:"COMPLETE"},409);
+ const beforeHistory=(await(await page.request.get(`/api/clients/${clientId}/hair-passport`)).json()).data.history.items.length;
+ const outcome={regionalResults:[{regionId:s.steps[0].regionId,achievedLevel:8,achievedTone:"NEUTRAL",uniformity:"ACCEPTABLE",hairIntegrity:"ACCEPTABLE",assessment:"Personally verified root outcome"}],profile:{colorAccuracy:"ACCEPTABLE",uniformity:"ACCEPTABLE",hairIntegrity:"ACCEPTABLE",processEfficiency:"UNKNOWN",formulaStability:"UNKNOWN"},professionalAssessment:"Actual result personally verified",deviationsReviewed:true};
+ await mutate({type:"COMPLETION_REVIEW",outcome});await page.getByRole("button",{name:"Güncel kaydı yükle"}).click();await expect(page.getByRole("button",{name:"Seansı tamamla ve Hair Passport’a ekle"})).toBeVisible();
+ for(const [name,width,height] of [["desktop",1536,1024],["tablet",1024,900],["mobile-320",320,900]] as const){await page.setViewportSize({width,height});at=Date.now();await page.screenshot({path:info.outputPath(`client-live-${name}.png`),fullPage:true});timings[`${name}RenderMs`]=Date.now()-at;expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
+ await mutate({type:"COMPLETE"});expect(s.status).toBe("COMPLETED");const completedVersion=s.recordVersion;await mutate({type:"NOTE",text:"Illegal rewrite"},409);expect(s.recordVersion).toBe(completedVersion);
+ const after=(await(await page.request.get(`/api/clients/${clientId}/hair-passport`)).json()).data;expect(after.history.items.length).toBe(beforeHistory+1);
+ const foreign=await seedAccount(),context=await browser.newContext({baseURL:"http://127.0.0.1:4173"});try{const other=await context.newPage();await login(other,foreign);await expectReady(other);expect((await other.request.get(`/api/live-sessions/${id}?client_id=${clientId}`)).status()).toBe(404);}finally{await context.close();}
+ await info.attach("live-performance",{body:JSON.stringify({...timings,realtimePropagation:"NOT_IMPLEMENTED_MANUAL_REFRESH"},null,2),contentType:"application/json"});
+ return id;
+}
