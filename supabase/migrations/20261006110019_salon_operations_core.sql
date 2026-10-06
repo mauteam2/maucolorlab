@@ -458,9 +458,11 @@ declare ctx jsonb;org uuid;tz text;svc public.salon_services%rowtype;d date;fini
 exception when data_exception then return jsonb_build_object('code','VALIDATION_FAILED');
 end $$;
 
+grant create on schema app_private to elifora_salon_writer;
 alter function app_private.salon_operation(uuid,uuid,jsonb,uuid) owner to elifora_salon_writer;
 alter function app_private.salon_snapshot(uuid,uuid,date,date,uuid) owner to elifora_salon_writer;
 alter function app_private.salon_slots(uuid,uuid,jsonb) owner to elifora_salon_writer;
+revoke create on schema app_private from elifora_salon_writer;
 revoke all on function app_private.salon_operation(uuid,uuid,jsonb,uuid),app_private.salon_snapshot(uuid,uuid,date,date,uuid),app_private.salon_slots(uuid,uuid,jsonb) from public,anon,service_role;
 grant execute on function app_private.salon_operation(uuid,uuid,jsonb,uuid),app_private.salon_snapshot(uuid,uuid,date,date,uuid),app_private.salon_slots(uuid,uuid,jsonb) to authenticated;
 revoke all on function app_private.salon_keys(jsonb,text[]),app_private.salon_types(jsonb,jsonb),app_private.salon_rank(text),app_private.salon_local_instant(text,text,integer),app_private.salon_appointment_json(public.salon_appointments),app_private.salon_resource_peak(uuid,timestamptz,timestamptz,uuid),app_private.salon_booking_check(uuid,uuid,uuid,uuid,uuid,timestamptz,integer,uuid) from public,anon,authenticated,service_role;
