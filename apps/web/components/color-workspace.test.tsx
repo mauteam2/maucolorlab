@@ -41,3 +41,10 @@ it("orders technical regions by type instead of generated UUID order",async()=>{
  const legends=[...view.container.querySelectorAll(".salon-region-editor legend")].map(e=>e.textContent);
  expect(legends[0]).toMatch(/^Dip/);
 });
+it("appointment link selects its actual customer after fresh reads without creating a plan",async()=>{
+ setup();render(<ColorWorkspace initialClientId={client.id}/>);
+ expect(await screen.findByLabelText("Renk planı müşterisi")).toHaveValue(client.id);
+ expect(loadPassport).toHaveBeenCalledWith(client.id,{},expect.any(AbortSignal));
+ expect(screen.getByRole("button",{name:"Hedefi kaydet"})).toBeVisible();
+ expect(vi.mocked(fetch).mock.calls.every(([url])=>url==="/api/session"||url==="/api/clients")).toBe(true);
+});

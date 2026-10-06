@@ -16,9 +16,9 @@ const modes = ["Tek renk", "Dip yenileme", "Dip gölgeleme", "Beyaz kapama", "A�
 const states = { DRAFT: "Renk planı taslağı", REQUIRES_ASSESSMENT: "Değerlendirme gerekli", REQUIRES_TEST: "Fiziksel test gerekli", REQUIRES_RECOVERY: "Toparlanma gerekli", BLOCKED_BY_RISK: "Güvenlik değerlendirmesi ilerlemeyi durdurdu" };
 function initialRegion(regionId: string): RegionalColorTarget { return { regionId, level: null, toneFamily: null, mixedFamilies: [], warmth: "NEUTRAL", greyPriority: "NONE", liftPriority: "NONE", depositPriority: "NORMAL", toneIntent: "CHANGE", contrast: "NONE", preserve: false, handling: "STANDARD", correction: "NONE", intermediateLevel: null }; }
 function errorText(code: string) { return ({ NETWORK_ERROR: "Bağlantı kurulamadı. Yeniden deneyin.", FORBIDDEN: "Bu işlem için yetkiniz yok.", COLOR_TARGET_INVALID: "Bölgesel hedefleri kontrol edin.", COLOR_PLAN_SOURCE_CONFLICT: "Saç kaydı değişti. Güncel kaydı yeniden açın.", COLOR_ENGINE_UNAVAILABLE: "Renk değerlendirmesi şu anda tamamlanamıyor." } as Record<string,string>)[code] ?? "İşlem tamamlanamadı. Güncel saç kaydını ve hedef bilgilerini kontrol edin."; }
-export function ColorWorkspace() {
+export function ColorWorkspace({initialClientId}:{initialClientId?:string}={}) {
  const [directory, setDirectory] = useState<ReturnType<typeof clientDirectory.parse> | null>(null);
- const [clientId, setClientId] = useState("");
+ const [clientId, setClientId] = useState(initialClientId??"");
  const [loaded, setLoaded] = useState<Awaited<ReturnType<typeof loadPassport>> | null>(null);
  const [definition, setDefinition] = useState<TargetDefinition | null>(null);
  const [targetId, setTargetId] = useState<string | null>(null);
