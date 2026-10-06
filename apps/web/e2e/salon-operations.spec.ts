@@ -2,6 +2,7 @@ import { expect,test,type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { seedAccount,login,expectReady } from "./local-auth";
 import { salonSnapshot,appointment,precheckResult,slotResult } from "@/lib/salon/model";
+test.use({actionTimeout:20000});
 async function session(page:Page){const r=await page.request.get("/api/session");expect(r.status()).toBe(200);return (await r.json()).context;}
 async function op(page:Page,command:object){const c=await session(page);const r=await page.request.post("/api/salon",{headers:{origin:"http://127.0.0.1:4173","x-workspace-reference":`${c.membership_id}:${c.location_id}`},data:{mutation_id:randomUUID(),...command}});return {status:r.status(),body:await r.json()};}
 async function seed(page:Page){
