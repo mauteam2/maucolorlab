@@ -33,7 +33,7 @@ export async function readSalon(from: string, to: string, correlationId: string,
  if (!z.iso.date().safeParse(from).success || !z.iso.date().safeParse(to).success || Date.parse(to) < Date.parse(from) || Date.parse(to) - Date.parse(from) > 30 * 86400000 || appointmentId !== undefined && !z.uuid().safeParse(appointmentId).success) throw new AccessError("VALIDATION_FAILED", 400);
  const context = await access("salon.read"), client = await createClient();
  const data = salonSnapshot.parse(unwrap(await client.rpc("salon_snapshot", { p_membership_id: context.membership_id, p_location_id: context.location_id, p_from: from, p_to: to, p_appointment_id: appointmentId ?? null })));
- if (data.location.id !== context.location_id || data.location.organization_id !== context.organization_id || data.appointments.some(a => a.organization_id !== context.organization_id || a.location_id !== context.location_id) || appointmentId && (data.appointments.length !== 1 || data.appointments[0]!.id !== appointmentId)) throw new AccessError("NETWORK_ERROR", 503);
+ if (data.location.id !== context.location_id || data.location.organization_id !== context.organization_id || [...data.appointments,...data.staff,...data.resources,...data.exceptions,...data.availability].some(a => a.organization_id !== context.organization_id || a.location_id !== context.location_id) || data.services.some(s=>s.organization_id!==context.organization_id||s.location_id!==null&&s.location_id!==context.location_id) || appointmentId && (data.appointments.length !== 1 || data.appointments[0]!.id !== appointmentId)) throw new AccessError("NETWORK_ERROR", 503);
  await finish(context, "salon.read");
  return { data, context, correlationId };
 }

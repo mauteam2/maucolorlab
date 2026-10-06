@@ -1,0 +1,15 @@
+import { beforeEach, expect, it, vi } from "vitest";
+const mock=vi.hoisted(()=>({read:vi.fn(),mutate:vi.fn(),slots:vi.fn(),precheck:vi.fn()}));
+vi.mock("./service",()=>({readSalon:mock.read,mutateSalon:mock.mutate,searchSlots:mock.slots,readPrecheck:mock.precheck}));
+import { salonResponse } from "./http";
+import { AccessError } from "@/lib/tenant/bootstrap";
+const req=(body:unknown,headers:Record<string,string>={})=>new Request("http://localhost:3001/api/salon",{method:"POST",headers:{origin:"http://localhost:3001","content-type":"application/json",...headers},body:JSON.stringify(body)});
+beforeEach(()=>{vi.clearAllMocks();mock.read.mockResolvedValue({data:{}});mock.mutate.mockResolvedValue({data:{}});});
+it("private correlated GET uses only bounded date parameters",async()=>{const r=await salonResponse(new Request("http://localhost/api/salon?from=2026-10-12&to=2026-10-18"));expect(r.status).toBe(200);expect(r.headers.get("cache-control")).toBe("private, no-store");expect(r.headers.get("x-correlation-id")).toMatch(/^[a-f0-9-]{36}$/);expect(mock.read).toHaveBeenCalledWith("2026-10-12","2026-10-18",expect.any(String));});
+it.each(["", "?from=2026-10-12&from=2026-10-13&to=2026-10-18", "?from=2026-10-12&to=2026-10-18&organization_id=foreign"])("rejects ambiguous or forged read %s",async q=>{expect((await salonResponse(new Request("http://localhost/api/salon"+q))).status).toBe(400);expect(mock.read).not.toHaveBeenCalled();});
+it.each(["", "http://foreign:3001", "http://localhost:3002"])("denies write origin %s",async origin=>{expect((await salonResponse(req({},{origin}))).status).toBe(403);expect(mock.mutate).not.toHaveBeenCalled();});
+it("rejects oversized chunked JSON before authorization",async()=>{expect((await salonResponse(req({note:"x".repeat(66000)}))).status).toBe(400);expect(mock.mutate).not.toHaveBeenCalled();});
+it("preserves workspace precondition for mutations",async()=>{await salonResponse(req({type:"TEST"},{"x-workspace-reference":"member:location"}));expect(mock.mutate).toHaveBeenCalledWith({type:"TEST"},expect.any(String),"member:location");});
+it("precheck is GET only and cannot create recipes",async()=>{await salonResponse(new Request("http://localhost/api/salon/appointments/id/precheck"),"precheck","id");expect(mock.precheck).toHaveBeenCalledWith("id",expect.any(String));expect(mock.mutate).not.toHaveBeenCalled();expect((await salonResponse(req({}),"precheck","id")).status).toBe(400);});
+it("structured conflicts retain HTTP status and correlation",async()=>{mock.mutate.mockRejectedValue(new AccessError("RESOURCE_UNAVAILABLE",409));const r=await salonResponse(req({}));expect(r.status).toBe(409);expect(await r.json()).toMatchObject({code:"RESOURCE_UNAVAILABLE",correlationId:r.headers.get("x-correlation-id")});});
+it("conceals internal failures",async()=>{mock.read.mockRejectedValue(new Error("private provider payload"));const r=await salonResponse(new Request("http://localhost/api/salon?from=2026-10-12&to=2026-10-18"));expect(r.status).toBe(503);expect(await r.text()).not.toContain("private provider");});

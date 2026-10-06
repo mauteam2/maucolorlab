@@ -7,6 +7,7 @@ import { type ActiveTenantContext, tenantContextSchema } from "@/lib/tenant/cont
 import { tr } from "@/lib/i18n/tr";
 import { logout } from "@/app/sign-in/actions";
 import { changeWorkspace } from "@/app/workspaces/actions";
+import { SalonOperations } from "./salon-operations";
 export function WorkspaceShell() {
   // Router/back-forward caches can retain old server payloads. Start concealed on every mount.
   const [context, setContext] = useState<ActiveTenantContext | null>(null);
@@ -45,7 +46,7 @@ export function WorkspaceShell() {
       {context.permissions.includes("clients.read") && <Link prefetch={false} className="salon-quick" href="/workspace/clients"><span className="salon-icon-disc"><SalonIcon name="clients" /></span><strong>Müşteriler</strong><SalonIcon name="arrow" /></Link>}
       {context.permissions.includes("clients.create") && <Link prefetch={false} className="salon-quick" href="/workspace/clients/new"><span className="salon-icon-disc"><SalonIcon name="plus" /></span><strong>Yeni müşteri</strong><SalonIcon name="arrow" /></Link>}
       {context.permissions.includes("hair_passport.read") && <Link prefetch={false} className="salon-quick" href="/workspace/colorlab"><span className="salon-icon-disc"><SalonIcon name="brush" /></span><strong>ColorLab</strong><SalonIcon name="arrow" /></Link>}
-      </div></SalonCard></div></>
+      </div></SalonCard></div>{context.permissions.includes("salon.read")&&<SalonOperations section="dashboard"/>}</>
       : <p role="status">{failed ? tr.network : tr.loading}</p>}
     {failed && <a href="/workspace" className="text-link">{tr.retry}</a>}
     <form action={logout}><button className="button button-primary">{tr.logout}</button></form>

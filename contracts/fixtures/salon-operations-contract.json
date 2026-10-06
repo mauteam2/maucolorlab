@@ -1,0 +1,240 @@
+{
+  "command": {
+    "type": "APPOINTMENT_SAVE",
+    "mutation_id": "a4000000-0000-4000-8000-000000000201",
+    "id": "a4000000-0000-4000-8000-000000000301",
+    "expected_version": 0,
+    "definition": {
+      "client_id": "a4000000-0000-4000-8000-000000000031",
+      "service_id": "a4000000-0000-4000-8000-000000000101",
+      "staff_membership_id": "a4000000-0000-4000-8000-000000000111",
+      "local_start": "2026-10-12T10:00",
+      "utc_offset_minutes": null,
+      "scheduled_duration_minutes": null,
+      "adjustment_reason": null,
+      "notes": null,
+      "status": "CONFIRMED"
+    }
+  },
+  "snapshot": {
+    "location": {
+      "id": "a4000000-0000-4000-8000-000000000011",
+      "organization_id": "a4000000-0000-4000-8000-000000000001",
+      "name": "Synthetic branch",
+      "timezone": "Europe/Istanbul",
+      "currency": "TRY"
+    },
+    "categories": [
+      {
+        "code": "COLOR",
+        "label": "Renklendirme",
+        "version": 1
+      }
+    ],
+    "services": [
+      {
+        "name": "Synthetic color",
+        "category": "COLOR",
+        "description": null,
+        "base_duration_minutes": 60,
+        "buffer_before_minutes": 5,
+        "buffer_after_minutes": 10,
+        "base_price": 1000,
+        "tax_rate": 20,
+        "tax_inclusive": false,
+        "requires_colorlab": true,
+        "requires_hair_passport": true,
+        "requires_precheck": true,
+        "active": true,
+        "eligible_membership_ids": [
+          "a4000000-0000-4000-8000-000000000111"
+        ],
+        "capabilities": [
+          {
+            "code": "GENERAL_COLOR",
+            "level": "INDEPENDENT"
+          }
+        ],
+        "resources": [
+          {
+            "type": "CHAIR",
+            "units": 1
+          }
+        ],
+        "id": "a4000000-0000-4000-8000-000000000101",
+        "organization_id": "a4000000-0000-4000-8000-000000000001",
+        "location_id": "a4000000-0000-4000-8000-000000000011",
+        "version": 1,
+        "created_at": "2026-10-06T09:00:00Z",
+        "updated_at": "2026-10-06T09:00:00Z",
+        "currency": "TRY",
+        "created_by": "a4000000-0000-4000-8000-000000000021",
+        "updated_by": "a4000000-0000-4000-8000-000000000021"
+      }
+    ],
+    "staff": [
+      {
+        "display_name": "Synthetic professional",
+        "active": true,
+        "bookable": true,
+        "working_capacity": null,
+        "notes": null,
+        "competencies": [
+          {
+            "code": "GENERAL_COLOR",
+            "level": "INDEPENDENT"
+          }
+        ],
+        "shifts": [
+          {
+            "day": 1,
+            "type": "SHIFT",
+            "starts": 540,
+            "ends": 1080
+          }
+        ],
+        "membership_id": "a4000000-0000-4000-8000-000000000111",
+        "organization_id": "a4000000-0000-4000-8000-000000000001",
+        "location_id": "a4000000-0000-4000-8000-000000000011",
+        "version": 1,
+        "created_at": "2026-10-06T09:00:00Z",
+        "updated_at": "2026-10-06T09:00:00Z",
+        "default_location_id": "a4000000-0000-4000-8000-000000000011",
+        "role": "owner",
+        "membership_status": "active",
+        "user_id": "a4000000-0000-4000-8000-000000000021",
+        "created_by": "a4000000-0000-4000-8000-000000000021",
+        "updated_by": "a4000000-0000-4000-8000-000000000021"
+      }
+    ],
+    "resources": [
+      {
+        "name": "Synthetic chair",
+        "type": "CHAIR",
+        "capacity": 1,
+        "active": true,
+        "id": "a4000000-0000-4000-8000-000000000102",
+        "organization_id": "a4000000-0000-4000-8000-000000000001",
+        "location_id": "a4000000-0000-4000-8000-000000000011",
+        "version": 1,
+        "created_at": "2026-10-06T09:00:00Z",
+        "updated_at": "2026-10-06T09:00:00Z",
+        "created_by": "a4000000-0000-4000-8000-000000000021",
+        "updated_by": "a4000000-0000-4000-8000-000000000021"
+      }
+    ],
+    "members": [
+      {
+        "id": "a4000000-0000-4000-8000-000000000111",
+        "user_id": "a4000000-0000-4000-8000-000000000021",
+        "role": "owner",
+        "display_name": null
+      }
+    ],
+    "hours": {
+      "version": 1,
+      "days": [
+        {
+          "day": 1,
+          "closed": false,
+          "opens": 540,
+          "closes": 1080
+        },
+        {
+          "day": 2,
+          "closed": false,
+          "opens": 540,
+          "closes": 1080
+        },
+        {
+          "day": 3,
+          "closed": false,
+          "opens": 540,
+          "closes": 1080
+        },
+        {
+          "day": 4,
+          "closed": false,
+          "opens": 540,
+          "closes": 1080
+        },
+        {
+          "day": 5,
+          "closed": false,
+          "opens": 540,
+          "closes": 1080
+        },
+        {
+          "day": 6,
+          "closed": false,
+          "opens": 540,
+          "closes": 1080
+        },
+        {
+          "day": 7,
+          "closed": false,
+          "opens": 540,
+          "closes": 1080
+        }
+      ]
+    },
+    "exceptions": [],
+    "availability": [],
+    "appointments": [
+      {
+        "id": "a4000000-0000-4000-8000-000000000301",
+        "organization_id": "a4000000-0000-4000-8000-000000000001",
+        "location_id": "a4000000-0000-4000-8000-000000000011",
+        "version": 1,
+        "created_at": "2026-10-06T09:00:00Z",
+        "updated_at": "2026-10-06T09:00:00Z",
+        "client_id": "a4000000-0000-4000-8000-000000000031",
+        "client_name": "Synthetic client",
+        "service_id": "a4000000-0000-4000-8000-000000000101",
+        "service_name": "Synthetic color",
+        "service_version": 1,
+        "staff_membership_id": "a4000000-0000-4000-8000-000000000111",
+        "staff_user_id": "a4000000-0000-4000-8000-000000000021",
+        "staff_display_name": "Synthetic professional",
+        "start_at": "2026-10-12T07:00:00Z",
+        "end_at": "2026-10-12T08:00:00Z",
+        "occupied_start_at": "2026-10-12T06:55:00Z",
+        "occupied_end_at": "2026-10-12T08:10:00Z",
+        "timezone": "Europe/Istanbul",
+        "status": "CONFIRMED",
+        "default_duration_minutes": 60,
+        "scheduled_duration_minutes": 60,
+        "adjustment_reason": null,
+        "base_price": 1000,
+        "tax_rate": 20,
+        "tax_inclusive": false,
+        "quoted_total": 1200,
+        "currency": "TRY",
+        "buffer_before_minutes": 5,
+        "buffer_after_minutes": 10,
+        "colorlab_required": true,
+        "hair_passport_required": true,
+        "precheck_required": true,
+        "notes": null,
+        "created_by": "a4000000-0000-4000-8000-000000000021",
+        "updated_by": "a4000000-0000-4000-8000-000000000021",
+        "cancelled_at": null,
+        "arrived_at": null,
+        "started_at": null,
+        "completed_at": null,
+        "actual_duration_seconds": null,
+        "resources": [
+          {
+            "resource_id": "a4000000-0000-4000-8000-000000000102",
+            "name": "Synthetic chair",
+            "type": "CHAIR",
+            "units": 1
+          }
+        ],
+        "live_session_ids": []
+      }
+    ],
+    "has_more": false,
+    "evaluated_at": "2026-10-06T09:00:00Z"
+  }
+}

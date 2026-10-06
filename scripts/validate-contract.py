@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.14.0'
+assert contract['info']['version'] == '0.15.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -291,3 +291,19 @@ for field in ('organization_id', 'controller_user_id', 'risk_result', 'elapsed',
 assert list(observation_validator('CreateLiveSession').iter_errors(live_fixture['request'] | {'professional_review': False}))
 assert contract['paths']['/rest/v1/rpc/live_session_store']['post']['security'] == contract['paths']['/rest/v1/rpc/controlled_recipe_store']['post']['security']
 print('PASS: Phase 3 shared live schemas, controlled-review fixture and six forgery rejections')
+
+# Phase 4A: additive shared salon boundaries, no client-supplied authority or quote.
+salon_schemas = json.loads((root / 'contracts/salon-operations.schemas.json').read_text())
+for name, schema in salon_schemas.items():
+    assert contract['components']['schemas'][name] == schema, name
+salon = json.loads((root / 'contracts/fixtures/salon-operations-contract.json').read_text())
+observation_validator('SalonCommand').validate(salon['command'])
+observation_validator('SalonSnapshot').validate(salon['snapshot'])
+for field in ('organization_id','location_id','role','quoted_total','ignore_conflicts'):
+    assert list(observation_validator('SalonCommand').iter_errors(salon['command'] | {field: True})), field
+for field in ('base_price','tax_rate','timezone'):
+    forged = copy.deepcopy(salon['command'])
+    forged['definition'][field] = 1
+    assert list(observation_validator('SalonCommand').iter_errors(forged)), field
+assert set(contract['paths']['/api/salon/appointments/{id}/precheck']) == {'get'}
+print('PASS: Phase 4A shared salon schemas, actual-data fixtures and eight forgery rejections')

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.14.0
+  version: 0.15.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -2917,6 +2917,351 @@ paths:
                   type: string
                   format: uuid
               additionalProperties: false
+
+  /api/salon:
+    get:
+      operationId: readSalonOperations
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Freshly authorized result; private, no-store
+          headers:
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - data
+                - context
+                - correlationId
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SalonSnapshot'
+                  context:
+                    $ref: '#/components/schemas/ActiveTenantContext'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '401':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '403':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '404':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '409':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '503':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+      parameters:
+      - in: query
+        name: from
+        required: true
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: to
+        required: true
+        schema:
+          type: string
+          format: date
+      description: At most 31 inclusive local dates, up to 500 appointments; has_more
+        requires narrowing. No synthetic operational rows.
+    post:
+      operationId: mutateSalonOperations
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Freshly authorized result; private, no-store
+          headers:
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - data
+                - context
+                - correlationId
+                properties:
+                  data:
+                    oneOf:
+                    - $ref: '#/components/schemas/SalonAppointment'
+                    - type: object
+                      additionalProperties: false
+                      required:
+                      - id
+                      - version
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        version:
+                          type: integer
+                          minimum: 1
+                  context:
+                    $ref: '#/components/schemas/ActiveTenantContext'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '401':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '403':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '404':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '409':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '503':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+      parameters:
+      - in: header
+        name: Origin
+        required: true
+        schema:
+          type: string
+        description: Exact application origin including port.
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+        description: Selected membership:location precondition; never authorization.
+      description: Atomic organization-serialized command; permanent actor idempotency,
+        optimistic version, audit and append-only history. Configuration returns id/version;
+        booking returns appointment. Body <=65536 bytes. Price/tenant/role claims rejected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalonCommand'
+  /api/salon/slots:
+    post:
+      operationId: findSalonSlots
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Freshly authorized result; private, no-store
+          headers:
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - data
+                - context
+                - correlationId
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SalonSlotResult'
+                  context:
+                    $ref: '#/components/schemas/ActiveTenantContext'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '401':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '403':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '404':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '409':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '503':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+      parameters:
+      - in: header
+        name: Origin
+        required: true
+        schema:
+          type: string
+        description: Exact application origin including port.
+      - in: header
+        name: X-Workspace-Reference
+        required: true
+        schema:
+          type: string
+        description: Selected membership:location precondition; never authorization.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalonSlotRequest'
+      description: Read only; fixed service/staff/current location and authoritative
+        resource requirements. At most seven dates, 672 candidates, 20 results; no automatic
+        rescheduling.
+  /api/salon/appointments/{id}/precheck:
+    get:
+      operationId: readAppointmentPrecheck
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Freshly authorized result; private, no-store
+          headers:
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - data
+                - context
+                - correlationId
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SalonPrecheck'
+                  context:
+                    $ref: '#/components/schemas/ActiveTenantContext'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '401':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '403':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '404':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '409':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+        '503':
+          description: Structured salon access, validation or scheduling conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalonError'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      description: Read-only actual technical history and Risk Engine reuse; missing
+        recovery explicitly NOT_ASSESSED. No recipe creation.
 
 components:
   securitySchemes:
@@ -12508,3 +12853,2587 @@ components:
         p_correlation_id:
           type: string
           format: uuid
+    SalonCommand:
+      oneOf:
+      - type: object
+        properties:
+          type:
+            type: string
+            const: CATEGORY_SAVE
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          code:
+            type: string
+            pattern: ^[A-Z][A-Z0-9_]{0,39}$
+          label:
+            type: string
+            minLength: 1
+            maxLength: 120
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+        required:
+        - type
+        - mutation_id
+        - code
+        - label
+        - expected_version
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: SERVICE_SAVE
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          definition:
+            type: object
+            properties:
+              name:
+                type: string
+                minLength: 1
+                maxLength: 160
+              category:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{0,39}$
+              description:
+                anyOf:
+                - type: string
+                  maxLength: 2000
+                - type: 'null'
+              organization_wide:
+                type: boolean
+              base_duration_minutes:
+                type: integer
+                minimum: 5
+                maximum: 720
+              buffer_before_minutes:
+                type: integer
+                minimum: 0
+                maximum: 120
+              buffer_after_minutes:
+                type: integer
+                minimum: 0
+                maximum: 120
+              base_price:
+                type: number
+                minimum: 0
+                maximum: 9999999.99
+                multipleOf: 0.01
+              tax_rate:
+                type: number
+                minimum: 0
+                maximum: 100
+                multipleOf: 0.01
+              tax_inclusive:
+                type: boolean
+              requires_colorlab:
+                type: boolean
+              requires_hair_passport:
+                type: boolean
+              requires_precheck:
+                type: boolean
+              active:
+                type: boolean
+              eligible_membership_ids:
+                maxItems: 200
+                type: array
+                items:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              capabilities:
+                maxItems: 7
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      enum:
+                      - GENERAL_COLOR
+                      - GREY_COVERAGE
+                      - BLONDING
+                      - ADVANCED_BLONDING
+                      - CORRECTION
+                      - VIVID
+                      - RECOVERY
+                    level:
+                      type: string
+                      enum:
+                      - ASSISTED
+                      - INDEPENDENT
+                      - SENIOR_REVIEWER
+                  required:
+                  - code
+                  - level
+                  additionalProperties: false
+              resources:
+                maxItems: 5
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - CHAIR
+                      - WASH_UNIT
+                      - COLOR_STATION
+                      - EQUIPMENT
+                      - CUSTOM
+                    units:
+                      type: integer
+                      minimum: 1
+                      maximum: 100
+                  required:
+                  - type
+                  - units
+                  additionalProperties: false
+            required:
+            - name
+            - category
+            - description
+            - organization_wide
+            - base_duration_minutes
+            - buffer_before_minutes
+            - buffer_after_minutes
+            - base_price
+            - tax_rate
+            - tax_inclusive
+            - requires_colorlab
+            - requires_hair_passport
+            - requires_precheck
+            - active
+            - eligible_membership_ids
+            - capabilities
+            - resources
+            additionalProperties: false
+        required:
+        - type
+        - mutation_id
+        - id
+        - expected_version
+        - definition
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: STAFF_SAVE
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          membership_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          definition:
+            type: object
+            properties:
+              display_name:
+                type: string
+                minLength: 1
+                maxLength: 120
+              active:
+                type: boolean
+              bookable:
+                type: boolean
+              working_capacity:
+                anyOf:
+                - type: integer
+                  minimum: 1
+                  maximum: 20
+                - type: 'null'
+              notes:
+                anyOf:
+                - type: string
+                  maxLength: 2000
+                - type: 'null'
+              competencies:
+                maxItems: 7
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      enum:
+                      - GENERAL_COLOR
+                      - GREY_COVERAGE
+                      - BLONDING
+                      - ADVANCED_BLONDING
+                      - CORRECTION
+                      - VIVID
+                      - RECOVERY
+                    level:
+                      type: string
+                      enum:
+                      - NOT_AUTHORIZED
+                      - ASSISTED
+                      - INDEPENDENT
+                      - SENIOR_REVIEWER
+                  required:
+                  - code
+                  - level
+                  additionalProperties: false
+              shifts:
+                maxItems: 42
+                type: array
+                items:
+                  type: object
+                  properties:
+                    day:
+                      type: integer
+                      minimum: 1
+                      maximum: 7
+                    type:
+                      type: string
+                      enum:
+                      - SHIFT
+                      - BREAK
+                    starts:
+                      type: integer
+                      minimum: 0
+                      maximum: 1440
+                    ends:
+                      type: integer
+                      minimum: 0
+                      maximum: 1440
+                  required:
+                  - day
+                  - type
+                  - starts
+                  - ends
+                  additionalProperties: false
+            required:
+            - display_name
+            - active
+            - bookable
+            - working_capacity
+            - notes
+            - competencies
+            - shifts
+            additionalProperties: false
+        required:
+        - type
+        - mutation_id
+        - membership_id
+        - expected_version
+        - definition
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: HOURS_SAVE
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          days:
+            minItems: 7
+            maxItems: 7
+            type: array
+            items:
+              type: object
+              properties:
+                day:
+                  type: integer
+                  minimum: 1
+                  maximum: 7
+                closed:
+                  type: boolean
+                opens:
+                  anyOf:
+                  - type: integer
+                    minimum: 0
+                    maximum: 1440
+                  - type: 'null'
+                closes:
+                  anyOf:
+                  - type: integer
+                    minimum: 0
+                    maximum: 1440
+                  - type: 'null'
+              required:
+              - day
+              - closed
+              - opens
+              - closes
+              additionalProperties: false
+        required:
+        - type
+        - mutation_id
+        - expected_version
+        - days
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: EXCEPTION_SAVE
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          date:
+            type: string
+            format: date
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 500
+          active:
+            type: boolean
+          closed:
+            type: boolean
+          opens:
+            anyOf:
+            - type: integer
+              minimum: 0
+              maximum: 1440
+            - type: 'null'
+          closes:
+            anyOf:
+            - type: integer
+              minimum: 0
+              maximum: 1440
+            - type: 'null'
+        required:
+        - type
+        - mutation_id
+        - id
+        - expected_version
+        - date
+        - reason
+        - active
+        - closed
+        - opens
+        - closes
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: AVAILABILITY_SAVE
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          membership_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          type_of_absence:
+            type: string
+            enum:
+            - SHIFT
+            - BREAK
+            - LEAVE
+            - UNAVAILABLE
+          starts_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          ends_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 500
+          active:
+            type: boolean
+        required:
+        - type
+        - mutation_id
+        - id
+        - expected_version
+        - membership_id
+        - type_of_absence
+        - starts_at
+        - ends_at
+        - reason
+        - active
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: RESOURCE_SAVE
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          definition:
+            type: object
+            properties:
+              name:
+                type: string
+                minLength: 1
+                maxLength: 120
+              type:
+                type: string
+                enum:
+                - CHAIR
+                - WASH_UNIT
+                - COLOR_STATION
+                - EQUIPMENT
+                - CUSTOM
+              capacity:
+                type: integer
+                minimum: 1
+                maximum: 100
+              active:
+                type: boolean
+            required:
+            - name
+            - type
+            - capacity
+            - active
+            additionalProperties: false
+        required:
+        - type
+        - mutation_id
+        - id
+        - expected_version
+        - definition
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: APPOINTMENT_SAVE
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          definition:
+            type: object
+            properties:
+              client_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              service_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              staff_membership_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              local_start:
+                type: string
+                pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$
+              utc_offset_minutes:
+                anyOf:
+                - type: integer
+                  minimum: -840
+                  maximum: 840
+                - type: 'null'
+              scheduled_duration_minutes:
+                anyOf:
+                - type: integer
+                  minimum: 5
+                  maximum: 720
+                - type: 'null'
+              adjustment_reason:
+                anyOf:
+                - type: string
+                  minLength: 1
+                  maxLength: 500
+                - type: 'null'
+              notes:
+                anyOf:
+                - type: string
+                  maxLength: 2000
+                - type: 'null'
+              status:
+                type: string
+                enum:
+                - DRAFT
+                - CONFIRMED
+            required:
+            - client_id
+            - service_id
+            - staff_membership_id
+            - local_start
+            - utc_offset_minutes
+            - scheduled_duration_minutes
+            - adjustment_reason
+            - notes
+            - status
+            additionalProperties: false
+        required:
+        - type
+        - mutation_id
+        - id
+        - expected_version
+        - definition
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: APPOINTMENT_TRANSITION
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          status:
+            type: string
+            enum:
+            - DRAFT
+            - CONFIRMED
+            - ARRIVED
+            - IN_SERVICE
+            - COMPLETED
+            - CANCELLED
+            - NO_SHOW
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 500
+        required:
+        - type
+        - mutation_id
+        - id
+        - expected_version
+        - status
+        - reason
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: LINK_LIVE_SESSION
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          live_session_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        required:
+        - type
+        - mutation_id
+        - id
+        - expected_version
+        - live_session_id
+        additionalProperties: false
+    SalonSnapshot:
+      type: object
+      properties:
+        location:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            organization_id:
+              type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            name:
+              type: string
+            timezone:
+              type: string
+            currency:
+              type: string
+              minLength: 3
+              maxLength: 3
+          required:
+          - id
+          - organization_id
+          - name
+          - timezone
+          - currency
+          additionalProperties: false
+        categories:
+          maxItems: 64
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{0,39}$
+              label:
+                type: string
+              version:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+            required:
+            - code
+            - label
+            - version
+            additionalProperties: false
+        services:
+          maxItems: 200
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                minLength: 1
+                maxLength: 160
+              category:
+                type: string
+                pattern: ^[A-Z][A-Z0-9_]{0,39}$
+              description:
+                anyOf:
+                - type: string
+                  maxLength: 2000
+                - type: 'null'
+              base_duration_minutes:
+                type: integer
+                minimum: 5
+                maximum: 720
+              buffer_before_minutes:
+                type: integer
+                minimum: 0
+                maximum: 120
+              buffer_after_minutes:
+                type: integer
+                minimum: 0
+                maximum: 120
+              base_price:
+                type: number
+                minimum: 0
+                maximum: 9999999.99
+                multipleOf: 0.01
+              tax_rate:
+                type: number
+                minimum: 0
+                maximum: 100
+                multipleOf: 0.01
+              tax_inclusive:
+                type: boolean
+              requires_colorlab:
+                type: boolean
+              requires_hair_passport:
+                type: boolean
+              requires_precheck:
+                type: boolean
+              active:
+                type: boolean
+              eligible_membership_ids:
+                maxItems: 200
+                type: array
+                items:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              capabilities:
+                maxItems: 7
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      enum:
+                      - GENERAL_COLOR
+                      - GREY_COVERAGE
+                      - BLONDING
+                      - ADVANCED_BLONDING
+                      - CORRECTION
+                      - VIVID
+                      - RECOVERY
+                    level:
+                      type: string
+                      enum:
+                      - ASSISTED
+                      - INDEPENDENT
+                      - SENIOR_REVIEWER
+                  required:
+                  - code
+                  - level
+                  additionalProperties: false
+              resources:
+                maxItems: 5
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum:
+                      - CHAIR
+                      - WASH_UNIT
+                      - COLOR_STATION
+                      - EQUIPMENT
+                      - CUSTOM
+                    units:
+                      type: integer
+                      minimum: 1
+                      maximum: 100
+                  required:
+                  - type
+                  - units
+                  additionalProperties: false
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              location_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              version:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              updated_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              currency:
+                type: string
+                minLength: 3
+                maxLength: 3
+              created_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              updated_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            required:
+            - name
+            - category
+            - description
+            - base_duration_minutes
+            - buffer_before_minutes
+            - buffer_after_minutes
+            - base_price
+            - tax_rate
+            - tax_inclusive
+            - requires_colorlab
+            - requires_hair_passport
+            - requires_precheck
+            - active
+            - eligible_membership_ids
+            - capabilities
+            - resources
+            - id
+            - organization_id
+            - location_id
+            - version
+            - created_at
+            - updated_at
+            - currency
+            - created_by
+            - updated_by
+            additionalProperties: false
+        staff:
+          maxItems: 200
+          type: array
+          items:
+            type: object
+            properties:
+              display_name:
+                type: string
+                minLength: 1
+                maxLength: 120
+              active:
+                type: boolean
+              bookable:
+                type: boolean
+              working_capacity:
+                anyOf:
+                - type: integer
+                  minimum: 1
+                  maximum: 20
+                - type: 'null'
+              notes:
+                anyOf:
+                - type: string
+                  maxLength: 2000
+                - type: 'null'
+              competencies:
+                maxItems: 7
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      enum:
+                      - GENERAL_COLOR
+                      - GREY_COVERAGE
+                      - BLONDING
+                      - ADVANCED_BLONDING
+                      - CORRECTION
+                      - VIVID
+                      - RECOVERY
+                    level:
+                      type: string
+                      enum:
+                      - NOT_AUTHORIZED
+                      - ASSISTED
+                      - INDEPENDENT
+                      - SENIOR_REVIEWER
+                  required:
+                  - code
+                  - level
+                  additionalProperties: false
+              shifts:
+                maxItems: 42
+                type: array
+                items:
+                  type: object
+                  properties:
+                    day:
+                      type: integer
+                      minimum: 1
+                      maximum: 7
+                    type:
+                      type: string
+                      enum:
+                      - SHIFT
+                      - BREAK
+                    starts:
+                      type: integer
+                      minimum: 0
+                      maximum: 1440
+                    ends:
+                      type: integer
+                      minimum: 0
+                      maximum: 1440
+                  required:
+                  - day
+                  - type
+                  - starts
+                  - ends
+                  additionalProperties: false
+              membership_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              location_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              version:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              updated_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              default_location_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              role:
+                type: string
+                enum:
+                - owner
+                - manager
+                - colorist
+                - assistant
+                - reception
+              membership_status:
+                type: string
+                enum:
+                - active
+                - invited
+                - revoked
+              user_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              created_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              updated_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            required:
+            - display_name
+            - active
+            - bookable
+            - working_capacity
+            - notes
+            - competencies
+            - shifts
+            - membership_id
+            - organization_id
+            - location_id
+            - version
+            - created_at
+            - updated_at
+            - default_location_id
+            - role
+            - membership_status
+            - user_id
+            - created_by
+            - updated_by
+            additionalProperties: false
+        resources:
+          maxItems: 100
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                minLength: 1
+                maxLength: 120
+              type:
+                type: string
+                enum:
+                - CHAIR
+                - WASH_UNIT
+                - COLOR_STATION
+                - EQUIPMENT
+                - CUSTOM
+              capacity:
+                type: integer
+                minimum: 1
+                maximum: 100
+              active:
+                type: boolean
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              location_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              version:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              updated_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              created_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              updated_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            required:
+            - name
+            - type
+            - capacity
+            - active
+            - id
+            - organization_id
+            - location_id
+            - version
+            - created_at
+            - updated_at
+            - created_by
+            - updated_by
+            additionalProperties: false
+        members:
+          maxItems: 200
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              user_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              role:
+                type: string
+              display_name:
+                type:
+                - string
+                - 'null'
+            required:
+            - id
+            - user_id
+            - role
+            - display_name
+            additionalProperties: false
+        hours:
+          type: object
+          properties:
+            version:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            days:
+              maxItems: 7
+              type: array
+              items:
+                type: object
+                properties:
+                  day:
+                    type: integer
+                    minimum: 1
+                    maximum: 7
+                  closed:
+                    type: boolean
+                  opens:
+                    anyOf:
+                    - type: integer
+                      minimum: 0
+                      maximum: 1440
+                    - type: 'null'
+                  closes:
+                    anyOf:
+                    - type: integer
+                      minimum: 0
+                      maximum: 1440
+                    - type: 'null'
+                required:
+                - day
+                - closed
+                - opens
+                - closes
+                additionalProperties: false
+          required:
+          - version
+          - days
+          additionalProperties: false
+        exceptions:
+          maxItems: 400
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              location_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              version:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              updated_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              date:
+                type: string
+                format: date
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+              reason:
+                type: string
+              active:
+                type: boolean
+              closed:
+                type: boolean
+              opens:
+                anyOf:
+                - type: integer
+                  minimum: 0
+                  maximum: 1440
+                - type: 'null'
+              closes:
+                anyOf:
+                - type: integer
+                  minimum: 0
+                  maximum: 1440
+                - type: 'null'
+              created_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              updated_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            required:
+            - id
+            - organization_id
+            - location_id
+            - version
+            - created_at
+            - updated_at
+            - date
+            - reason
+            - active
+            - closed
+            - opens
+            - closes
+            - created_by
+            - updated_by
+            additionalProperties: false
+        availability:
+          maxItems: 400
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              location_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              version:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              updated_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              membership_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              type:
+                type: string
+                enum:
+                - SHIFT
+                - BREAK
+                - LEAVE
+                - UNAVAILABLE
+              starts_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              ends_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              reason:
+                type: string
+              active:
+                type: boolean
+              created_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              updated_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            required:
+            - id
+            - organization_id
+            - location_id
+            - version
+            - created_at
+            - updated_at
+            - membership_id
+            - type
+            - starts_at
+            - ends_at
+            - reason
+            - active
+            - created_by
+            - updated_by
+            additionalProperties: false
+        appointments:
+          maxItems: 500
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              location_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              version:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              updated_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              client_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              client_name:
+                type: string
+              service_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              service_name:
+                type: string
+              service_version:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+              staff_membership_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              staff_user_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              staff_display_name:
+                type: string
+              start_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              end_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              occupied_start_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              occupied_end_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              timezone:
+                type: string
+              status:
+                type: string
+                enum:
+                - DRAFT
+                - CONFIRMED
+                - ARRIVED
+                - IN_SERVICE
+                - COMPLETED
+                - CANCELLED
+                - NO_SHOW
+              default_duration_minutes:
+                type: integer
+                exclusiveMinimum: 0
+                maximum: 9007199254740991
+              scheduled_duration_minutes:
+                type: integer
+                exclusiveMinimum: 0
+                maximum: 9007199254740991
+              adjustment_reason:
+                type:
+                - string
+                - 'null'
+              base_price:
+                type: number
+              tax_rate:
+                type: number
+              tax_inclusive:
+                type: boolean
+              quoted_total:
+                type: number
+              currency:
+                type: string
+                minLength: 3
+                maxLength: 3
+              buffer_before_minutes:
+                type: integer
+                minimum: -9007199254740991
+                maximum: 9007199254740991
+              buffer_after_minutes:
+                type: integer
+                minimum: -9007199254740991
+                maximum: 9007199254740991
+              colorlab_required:
+                type: boolean
+              hair_passport_required:
+                type: boolean
+              precheck_required:
+                type: boolean
+              notes:
+                type:
+                - string
+                - 'null'
+              created_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              updated_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              cancelled_at:
+                anyOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                - type: 'null'
+              arrived_at:
+                anyOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                - type: 'null'
+              started_at:
+                anyOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                - type: 'null'
+              completed_at:
+                anyOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                - type: 'null'
+              actual_duration_seconds:
+                anyOf:
+                - type: integer
+                  minimum: 0
+                  maximum: 9007199254740991
+                - type: 'null'
+              resources:
+                maxItems: 100
+                type: array
+                items:
+                  type: object
+                  properties:
+                    resource_id:
+                      type: string
+                      format: uuid
+                      pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                    name:
+                      type: string
+                    type:
+                      type: string
+                      enum:
+                      - CHAIR
+                      - WASH_UNIT
+                      - COLOR_STATION
+                      - EQUIPMENT
+                      - CUSTOM
+                    units:
+                      type: integer
+                      exclusiveMinimum: 0
+                      maximum: 9007199254740991
+                  required:
+                  - resource_id
+                  - name
+                  - type
+                  - units
+                  additionalProperties: false
+              live_session_ids:
+                maxItems: 25
+                type: array
+                items:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            required:
+            - id
+            - organization_id
+            - location_id
+            - version
+            - created_at
+            - updated_at
+            - client_id
+            - client_name
+            - service_id
+            - service_name
+            - service_version
+            - staff_membership_id
+            - staff_user_id
+            - staff_display_name
+            - start_at
+            - end_at
+            - occupied_start_at
+            - occupied_end_at
+            - timezone
+            - status
+            - default_duration_minutes
+            - scheduled_duration_minutes
+            - adjustment_reason
+            - base_price
+            - tax_rate
+            - tax_inclusive
+            - quoted_total
+            - currency
+            - buffer_before_minutes
+            - buffer_after_minutes
+            - colorlab_required
+            - hair_passport_required
+            - precheck_required
+            - notes
+            - created_by
+            - updated_by
+            - cancelled_at
+            - arrived_at
+            - started_at
+            - completed_at
+            - actual_duration_seconds
+            - resources
+            - live_session_ids
+            additionalProperties: false
+        has_more:
+          type: boolean
+        evaluated_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+      required:
+      - location
+      - categories
+      - services
+      - staff
+      - resources
+      - members
+      - hours
+      - exceptions
+      - availability
+      - appointments
+      - has_more
+      - evaluated_at
+      additionalProperties: false
+    SalonAppointment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        updated_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        client_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_name:
+          type: string
+        service_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        service_name:
+          type: string
+        service_version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        staff_membership_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        staff_user_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        staff_display_name:
+          type: string
+        start_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        end_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        occupied_start_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        occupied_end_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        timezone:
+          type: string
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - CONFIRMED
+          - ARRIVED
+          - IN_SERVICE
+          - COMPLETED
+          - CANCELLED
+          - NO_SHOW
+        default_duration_minutes:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        scheduled_duration_minutes:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        adjustment_reason:
+          type:
+          - string
+          - 'null'
+        base_price:
+          type: number
+        tax_rate:
+          type: number
+        tax_inclusive:
+          type: boolean
+        quoted_total:
+          type: number
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+        buffer_before_minutes:
+          type: integer
+          minimum: -9007199254740991
+          maximum: 9007199254740991
+        buffer_after_minutes:
+          type: integer
+          minimum: -9007199254740991
+          maximum: 9007199254740991
+        colorlab_required:
+          type: boolean
+        hair_passport_required:
+          type: boolean
+        precheck_required:
+          type: boolean
+        notes:
+          type:
+          - string
+          - 'null'
+        created_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        updated_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        cancelled_at:
+          anyOf:
+          - type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          - type: 'null'
+        arrived_at:
+          anyOf:
+          - type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          - type: 'null'
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          - type: 'null'
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          - type: 'null'
+        actual_duration_seconds:
+          anyOf:
+          - type: integer
+            minimum: 0
+            maximum: 9007199254740991
+          - type: 'null'
+        resources:
+          maxItems: 100
+          type: array
+          items:
+            type: object
+            properties:
+              resource_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              name:
+                type: string
+              type:
+                type: string
+                enum:
+                - CHAIR
+                - WASH_UNIT
+                - COLOR_STATION
+                - EQUIPMENT
+                - CUSTOM
+              units:
+                type: integer
+                exclusiveMinimum: 0
+                maximum: 9007199254740991
+            required:
+            - resource_id
+            - name
+            - type
+            - units
+            additionalProperties: false
+        live_session_ids:
+          maxItems: 25
+          type: array
+          items:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - id
+      - organization_id
+      - location_id
+      - version
+      - created_at
+      - updated_at
+      - client_id
+      - client_name
+      - service_id
+      - service_name
+      - service_version
+      - staff_membership_id
+      - staff_user_id
+      - staff_display_name
+      - start_at
+      - end_at
+      - occupied_start_at
+      - occupied_end_at
+      - timezone
+      - status
+      - default_duration_minutes
+      - scheduled_duration_minutes
+      - adjustment_reason
+      - base_price
+      - tax_rate
+      - tax_inclusive
+      - quoted_total
+      - currency
+      - buffer_before_minutes
+      - buffer_after_minutes
+      - colorlab_required
+      - hair_passport_required
+      - precheck_required
+      - notes
+      - created_by
+      - updated_by
+      - cancelled_at
+      - arrived_at
+      - started_at
+      - completed_at
+      - actual_duration_seconds
+      - resources
+      - live_session_ids
+      additionalProperties: false
+    SalonService:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        category:
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]{0,39}$
+        description:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+        base_duration_minutes:
+          type: integer
+          minimum: 5
+          maximum: 720
+        buffer_before_minutes:
+          type: integer
+          minimum: 0
+          maximum: 120
+        buffer_after_minutes:
+          type: integer
+          minimum: 0
+          maximum: 120
+        base_price:
+          type: number
+          minimum: 0
+          maximum: 9999999.99
+          multipleOf: 0.01
+        tax_rate:
+          type: number
+          minimum: 0
+          maximum: 100
+          multipleOf: 0.01
+        tax_inclusive:
+          type: boolean
+        requires_colorlab:
+          type: boolean
+        requires_hair_passport:
+          type: boolean
+        requires_precheck:
+          type: boolean
+        active:
+          type: boolean
+        eligible_membership_ids:
+          maxItems: 200
+          type: array
+          items:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        capabilities:
+          maxItems: 7
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                enum:
+                - GENERAL_COLOR
+                - GREY_COVERAGE
+                - BLONDING
+                - ADVANCED_BLONDING
+                - CORRECTION
+                - VIVID
+                - RECOVERY
+              level:
+                type: string
+                enum:
+                - ASSISTED
+                - INDEPENDENT
+                - SENIOR_REVIEWER
+            required:
+            - code
+            - level
+            additionalProperties: false
+        resources:
+          maxItems: 5
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - CHAIR
+                - WASH_UNIT
+                - COLOR_STATION
+                - EQUIPMENT
+                - CUSTOM
+              units:
+                type: integer
+                minimum: 1
+                maximum: 100
+            required:
+            - type
+            - units
+            additionalProperties: false
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        updated_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+        created_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        updated_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - name
+      - category
+      - description
+      - base_duration_minutes
+      - buffer_before_minutes
+      - buffer_after_minutes
+      - base_price
+      - tax_rate
+      - tax_inclusive
+      - requires_colorlab
+      - requires_hair_passport
+      - requires_precheck
+      - active
+      - eligible_membership_ids
+      - capabilities
+      - resources
+      - id
+      - organization_id
+      - location_id
+      - version
+      - created_at
+      - updated_at
+      - currency
+      - created_by
+      - updated_by
+      additionalProperties: false
+    SalonStaff:
+      type: object
+      properties:
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        active:
+          type: boolean
+        bookable:
+          type: boolean
+        working_capacity:
+          anyOf:
+          - type: integer
+            minimum: 1
+            maximum: 20
+          - type: 'null'
+        notes:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+        competencies:
+          maxItems: 7
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                enum:
+                - GENERAL_COLOR
+                - GREY_COVERAGE
+                - BLONDING
+                - ADVANCED_BLONDING
+                - CORRECTION
+                - VIVID
+                - RECOVERY
+              level:
+                type: string
+                enum:
+                - NOT_AUTHORIZED
+                - ASSISTED
+                - INDEPENDENT
+                - SENIOR_REVIEWER
+            required:
+            - code
+            - level
+            additionalProperties: false
+        shifts:
+          maxItems: 42
+          type: array
+          items:
+            type: object
+            properties:
+              day:
+                type: integer
+                minimum: 1
+                maximum: 7
+              type:
+                type: string
+                enum:
+                - SHIFT
+                - BREAK
+              starts:
+                type: integer
+                minimum: 0
+                maximum: 1440
+              ends:
+                type: integer
+                minimum: 0
+                maximum: 1440
+            required:
+            - day
+            - type
+            - starts
+            - ends
+            additionalProperties: false
+        membership_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        updated_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        default_location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        role:
+          type: string
+          enum:
+          - owner
+          - manager
+          - colorist
+          - assistant
+          - reception
+        membership_status:
+          type: string
+          enum:
+          - active
+          - invited
+          - revoked
+        user_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        created_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        updated_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - display_name
+      - active
+      - bookable
+      - working_capacity
+      - notes
+      - competencies
+      - shifts
+      - membership_id
+      - organization_id
+      - location_id
+      - version
+      - created_at
+      - updated_at
+      - default_location_id
+      - role
+      - membership_status
+      - user_id
+      - created_by
+      - updated_by
+      additionalProperties: false
+    SalonResource:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        type:
+          type: string
+          enum:
+          - CHAIR
+          - WASH_UNIT
+          - COLOR_STATION
+          - EQUIPMENT
+          - CUSTOM
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        active:
+          type: boolean
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        updated_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        created_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        updated_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - name
+      - type
+      - capacity
+      - active
+      - id
+      - organization_id
+      - location_id
+      - version
+      - created_at
+      - updated_at
+      - created_by
+      - updated_by
+      additionalProperties: false
+    SalonSlotRequest:
+      type: object
+      properties:
+        client_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        service_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        staff_membership_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        from_date:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        to_date:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        duration_minutes:
+          anyOf:
+          - type: integer
+            minimum: 5
+            maximum: 720
+          - type: 'null'
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 20
+      required:
+      - client_id
+      - service_id
+      - staff_membership_id
+      - from_date
+      - to_date
+      - duration_minutes
+      - limit
+      additionalProperties: false
+    SalonSlotResult:
+      type: object
+      properties:
+        timezone:
+          type: string
+        slots:
+          maxItems: 20
+          type: array
+          items:
+            type: object
+            properties:
+              start_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              end_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              local_start:
+                type: string
+              utc_offset_minutes:
+                type: integer
+                minimum: -9007199254740991
+                maximum: 9007199254740991
+            required:
+            - start_at
+            - end_at
+            - local_start
+            - utc_offset_minutes
+            additionalProperties: false
+        candidates_checked:
+          type: integer
+          minimum: -9007199254740991
+          maximum: 672
+        truncated:
+          type: boolean
+      required:
+      - timezone
+      - slots
+      - candidates_checked
+      - truncated
+      additionalProperties: false
+    SalonPrecheck:
+      type: object
+      properties:
+        appointment_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        appointment_version:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        evaluated_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        statuses:
+          minItems: 1
+          type: array
+          items:
+            type: string
+            enum:
+            - READY
+            - INFORMATION_REQUIRED
+            - TEST_REQUIRED
+            - REVIEW_REQUIRED
+            - RECOVERY_CONSTRAINT
+            - TIME_WARNING
+            - TECHNICAL_ESCALATION
+        reasons:
+          type: array
+          items:
+            type: string
+        risk:
+          anyOf:
+          - type: object
+            properties:
+              gate:
+                type: string
+              band:
+                type: string
+              can_progress:
+                type: boolean
+              passport_version:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+            required:
+            - gate
+            - band
+            - can_progress
+            - passport_version
+            additionalProperties: false
+          - type: 'null'
+        freshness:
+          type: object
+          properties:
+            state:
+              type: string
+              enum:
+              - MISSING
+              - CURRENT
+              - REVIEW_REQUIRED
+            updated_at:
+              anyOf:
+              - type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              - type: 'null'
+          required:
+          - state
+          - updated_at
+          additionalProperties: false
+        recovery:
+          type: string
+          enum:
+          - NOT_ASSESSED
+          - REASSESSMENT_REQUIRED
+        complexity:
+          type: string
+          enum:
+          - UNKNOWN
+          - LOW
+          - MODERATE
+          - HIGH
+          - CRITICAL
+        integrity_history:
+          maxItems: 20
+          type: array
+          items:
+            type: string
+        recent_technical_history:
+          maxItems: 100
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              category:
+                type: string
+              date:
+                type:
+                - string
+                - 'null'
+              date_state:
+                type: string
+            required:
+            - id
+            - category
+            - date
+            - date_state
+            additionalProperties: false
+        last_formula:
+          anyOf:
+          - type: object
+            properties:
+              session_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              recipe_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              label:
+                type: string
+              color_grams:
+                type: number
+              developer_grams:
+                type: number
+              completed_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            required:
+            - session_id
+            - recipe_id
+            - label
+            - color_grams
+            - developer_grams
+            - completed_at
+            additionalProperties: false
+          - type: 'null'
+        last_outcome:
+          anyOf:
+          - type: object
+            properties:
+              session_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              assessment:
+                type: string
+              actual_duration_seconds:
+                anyOf:
+                - type: integer
+                  minimum: 0
+                  maximum: 9007199254740991
+                - type: 'null'
+              used_grams:
+                type: number
+                minimum: 0
+              waste_grams:
+                type: number
+                minimum: 0
+            required:
+            - session_id
+            - assessment
+            - actual_duration_seconds
+            - used_grams
+            - waste_grams
+            additionalProperties: false
+          - type: 'null'
+        duration:
+          type: object
+          properties:
+            source:
+              type: string
+              enum:
+              - SERVICE_DEFAULT
+              - OWN_SALON_MEDIAN
+            sample_count:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            estimated_minutes:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 9007199254740991
+            allocated_minutes:
+              type: integer
+              exclusiveMinimum: 0
+              maximum: 9007199254740991
+            additional_minutes:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+          required:
+          - source
+          - sample_count
+          - estimated_minutes
+          - allocated_minutes
+          - additional_minutes
+          additionalProperties: false
+        competencies:
+          maxItems: 7
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                enum:
+                - GENERAL_COLOR
+                - GREY_COVERAGE
+                - BLONDING
+                - ADVANCED_BLONDING
+                - CORRECTION
+                - VIVID
+                - RECOVERY
+              level:
+                type: string
+                enum:
+                - NOT_AUTHORIZED
+                - ASSISTED
+                - INDEPENDENT
+                - SENIOR_REVIEWER
+            required:
+            - code
+            - level
+            additionalProperties: false
+        recipe_created:
+          type: boolean
+          const: false
+      required:
+      - appointment_id
+      - appointment_version
+      - evaluated_at
+      - statuses
+      - reasons
+      - risk
+      - freshness
+      - recovery
+      - complexity
+      - integrity_history
+      - recent_technical_history
+      - last_formula
+      - last_outcome
+      - duration
+      - competencies
+      - recipe_created
+      additionalProperties: false
+    SalonError:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - LOCATION_CLOSED
+          - STAFF_UNAVAILABLE
+          - STAFF_DOUBLE_BOOKED
+          - STAFF_NOT_ELIGIBLE
+          - RESOURCE_UNAVAILABLE
+          - INVALID_DURATION
+          - OUTSIDE_WORKING_HOURS
+          - TECHNICAL_ESCALATION
+          - UNAUTHENTICATED
+          - SESSION_EXPIRED
+          - FORBIDDEN
+          - MEMBERSHIP_REQUIRED
+          - MEMBERSHIP_REVOKED
+          - TENANT_CONTEXT_INVALID
+          - VALIDATION_FAILED
+          - NETWORK_ERROR
+          - SALON_NOT_FOUND
+          - SALON_CONFLICT
+          - INVALID_TRANSITION
+          - APPOINTMENT_IMMUTABLE
+          - INVALID_LOCAL_TIME
+          - AMBIGUOUS_LOCAL_TIME
+          - SALON_LIMIT_REACHED
+          - RESOURCE_HAS_BOOKINGS
+        message:
+          type: string
+        correlationId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - code
+      - message
+      - correlationId
+      additionalProperties: false

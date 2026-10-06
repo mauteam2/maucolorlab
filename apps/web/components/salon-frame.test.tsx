@@ -8,7 +8,10 @@ it("marks exactly one current section and never links unfinished modules into th
  expect(navigation.querySelectorAll('[aria-current="page"]')).toHaveLength(1);
  expect(screen.getByRole("link",{name:"Müşteriler bölümü"})).toHaveAttribute("href","/workspace/clients");
  expect(screen.queryByRole("link",{name:"Finans bölümü"})).toBeNull();
- expect(screen.getAllByText("Yakında")).toHaveLength(5);
+ expect(screen.getAllByText("Yakında")).toHaveLength(2);
+ expect(screen.getByRole("link",{name:"Randevular bölümü"})).toHaveAttribute("href","/workspace/appointments");
+ expect(screen.getByRole("link",{name:"Ekip bölümü"})).toHaveAttribute("href","/workspace/team");
+ expect(screen.getByRole("link",{name:"Ayarlar bölümü"})).toHaveAttribute("href","/workspace/settings");
 });
 it("opens the mobile menu and gives a skip link to the actual main content", () => {
  render(<SalonFrame active="dashboard"><main id="main-content"/></SalonFrame>);

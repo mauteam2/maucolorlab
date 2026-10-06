@@ -7,11 +7,11 @@ export const salonSections = [
  { id: "dashboard", label: "Ana panel", icon: "dashboard", href: "/workspace" },
  { id: "colorlab", label: "ColorLab", icon: "brush", href: "/workspace/colorlab" },
  { id: "clients", label: "Müşteriler", icon: "clients", href: "/workspace/clients" },
- { id: "appointments", label: "Randevular", icon: "calendar", href: null },
+ { id: "appointments", label: "Randevular", icon: "calendar", href: "/workspace/appointments" },
  { id: "finance", label: "Finans", icon: "finance", href: null },
  { id: "reports", label: "Raporlar", icon: "reports", href: null },
- { id: "team", label: "Ekip", icon: "team", href: null },
- { id: "settings", label: "Ayarlar", icon: "settings", href: null },
+ { id: "team", label: "Ekip", icon: "team", href: "/workspace/team" },
+ { id: "settings", label: "Ayarlar", icon: "settings", href: "/workspace/settings" },
 ] as const;
 export type SalonSection = typeof salonSections[number]["id"];
 export function SalonFrame({ children, active, workspace, preview = false }: { children: ReactNode; active: SalonSection; workspace?: string; preview?: boolean }) {

@@ -14,8 +14,8 @@ export function durationEstimate(defaultMinutes: number, seconds: number[]) {
  const middle = Math.floor(samples.length / 2), median = samples.length % 2 ? samples[middle]! : (samples[middle - 1]! + samples[middle]!) / 2;
  return { source: "OWN_SALON_MEDIAN" as const, sample_count: samples.length, estimated_minutes: Math.ceil(median / 60) };
 }
-export function localDate(instant: Date, timezone: string) {
- const parts = new Intl.DateTimeFormat("en-CA", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(instant);
+export function localDate(instant: Date | string, timezone: string) {
+ const parts = new Intl.DateTimeFormat("en-CA", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(instant));
  return ["year", "month", "day"].map(key => parts.find(p => p.type === key)!.value).join("-");
 }
 export function localTime(instant: string, timezone: string) {
