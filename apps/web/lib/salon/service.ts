@@ -50,7 +50,14 @@ export async function mutateSalon(raw: unknown, correlationId: string, reference
 export async function searchSlots(raw: unknown, correlationId: string, reference: string | null) {
  const q = slotRequest.safeParse(raw);if (!q.success) throw new AccessError("VALIDATION_FAILED", 400);
  const context = await access("salon.read", reference), client = await createClient();
- const data = slotResult.parse(unwrap(await client.rpc("salon_slots", { p_membership_id: context.membership_id, p_location_id: context.location_id, p_request: q.data })));
+ const result = await client.rpc("salon_slots", { p_membership_id: context.membership_id, p_location_id: context.location_id, p_request: q.data });
+ if (result.error) {
+  const diagnostic=z.object({code:z.string().regex(/^[A-Z0-9]{1,16}$/)}).safeParse(result.error);
+  console.error("ELIFORA salon slot RPC failed",{correlationId,code:diagnostic.success?diagnostic.data.code:"UNKNOWN"});
+ }
+ const parsed=slotResult.safeParse(unwrap(result));
+ if(!parsed.success){console.error("ELIFORA salon slot result rejected",{correlationId,paths:parsed.error.issues.slice(0,5).map(issue=>issue.path.join("."))});throw new AccessError("NETWORK_ERROR",503);}
+ const data=parsed.data;
  await finish(context, "salon.read");return { data, context, correlationId };
 }
 export async function readPrecheck(id: string, correlationId: string) {
