@@ -1,0 +1,17 @@
+import { expect, it } from "vitest";
+import { durationEstimate, competencySatisfies, transitions, localDate, localTime } from "./engine";
+import { salonCommand, slotRequest, serviceDefinition, staff } from "./model";
+import { randomUUID } from "node:crypto";
+it.each(["COMPLETED", "CANCELLED", "NO_SHOW"] as const)("%s is immutable", s => expect(transitions[s]).toEqual([]));
+it("cannot skip confirmed arrival before service", () => expect(transitions.CONFIRMED).not.toContain("IN_SERVICE"));
+it.each([[undefined,"INDEPENDENT",false],["NOT_AUTHORIZED","ASSISTED",false],["ASSISTED","INDEPENDENT",false],["INDEPENDENT","ASSISTED",true],["SENIOR_REVIEWER","INDEPENDENT",true]] as const)("competency %s versus %s", (a,b,ok) => expect(competencySatisfies(a,b)).toBe(ok));
+it("defaults when own salon has fewer than five actual durations", () => expect(durationEstimate(90,[7200,7100])).toEqual({source:"SERVICE_DEFAULT",sample_count:2,estimated_minutes:90}));
+it("uses deterministic median and excludes invalid durations", () => expect(durationEstimate(90,[3600,4200,4800,5400,6000,NaN,-1,100000])).toEqual({source:"OWN_SALON_MEDIAN",sample_count:5,estimated_minutes:80}));
+it("uses the average middle pair for even samples", () => expect(durationEstimate(90,[60,120,180,240,300,360]).estimated_minutes).toBe(4));
+it("interprets the business date in location timezone", () => expect(localDate(new Date("2026-10-05T22:30:00Z"),"Europe/Istanbul")).toBe("2026-10-06"));
+it("renders appointment time independently of host timezone", () => expect(localTime("2026-10-06T07:00:00Z","Europe/Istanbul")).toBe("10:00"));
+it("weekly schedule requires all seven distinct days", () => expect(salonCommand.safeParse({type:"HOURS_SAVE",mutation_id:randomUUID(),expected_version:0,days:Array.from({length:7},()=>({day:1,closed:true,opens:null,closes:null}))}).success).toBe(false));
+it("closed date exception cannot carry opening hours", () => expect(salonCommand.safeParse({type:"EXCEPTION_SAVE",id:randomUUID(),mutation_id:randomUUID(),expected_version:0,date:"2026-10-29",reason:"Holiday",active:true,closed:true,opens:540,closes:1080}).success).toBe(false));
+it("bounded slot search rejects eight days and unknown ownership claims", () => {const q={client_id:randomUUID(),service_id:randomUUID(),staff_membership_id:randomUUID(),from_date:"2026-10-06",to_date:"2026-10-13",duration_minutes:null,limit:10};expect(slotRequest.safeParse(q).success).toBe(false);expect(slotRequest.safeParse({...q,to_date:"2026-10-06",organization_id:randomUUID()}).success).toBe(false);});
+it("booking rejects forged price and authoritative controller fields", () => expect(salonCommand.safeParse({type:"APPOINTMENT_SAVE",mutation_id:randomUUID(),id:randomUUID(),expected_version:0,definition:{client_id:randomUUID(),service_id:randomUUID(),staff_membership_id:randomUUID(),local_start:"2026-10-06T10:00",utc_offset_minutes:null,scheduled_duration_minutes:null,adjustment_reason:null,notes:null,status:"CONFIRMED",base_price:1}}).success).toBe(false));
+it("service categories remain extensible and configurations remain strict", () => {expect(serviceDefinition.shape.category.parse("SALON_SPECIAL")).toBe("SALON_SPECIAL");expect(staff.shape.membership_status.parse("revoked")).toBe("revoked");});
