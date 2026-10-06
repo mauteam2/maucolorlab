@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const id = z.uuid();
+const id = z.uuid().transform(value=>value.toLowerCase());
 const text = (n: number) => z.string().trim().min(1).max(n);
 const version = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 const timestamp = z.iso.datetime({ offset: true });
@@ -80,7 +80,7 @@ export const precheckResult = z.strictObject({ appointment_id: id, appointment_v
  recovery: z.enum(["NOT_ASSESSED", "REASSESSMENT_REQUIRED"]), complexity: z.enum(["UNKNOWN", "LOW", "MODERATE", "HIGH", "CRITICAL"]),
  integrity_history: z.string().array().max(20), recent_technical_history: z.strictObject({ id, category: z.string(), date: z.string().nullable(), date_state: z.string() }).array().max(100),
  last_formula: z.strictObject({ session_id: id, recipe_id: id, label: z.string(), color_grams: z.number(), developer_grams: z.number(), completed_at: timestamp }).nullable(),
- last_outcome: z.strictObject({ session_id: id, assessment: z.string(), actual_duration_seconds: z.number().int().nonnegative().nullable(), used_grams: z.number().nonnegative(), waste_grams: z.number().nonnegative() }).nullable(),
+ last_outcome: z.strictObject({ session_id: id, assessment: z.string(), actual_duration_seconds: z.number().nonnegative().nullable(), used_grams: z.number().nonnegative(), waste_grams: z.number().nonnegative() }).nullable(),
  duration: z.strictObject({ source: z.enum(["SERVICE_DEFAULT", "OWN_SALON_MEDIAN"]), sample_count: z.number().int().nonnegative(), estimated_minutes: z.number().int().positive(), allocated_minutes: z.number().int().positive(), additional_minutes: z.number().int().nonnegative() }),
  competencies: competency.array().max(7), recipe_created: z.literal(false),
 });

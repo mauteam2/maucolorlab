@@ -12,3 +12,5 @@ export function precheckReason(reason:string) {
 }
 export function minuteText(value:number|null) {return value===null?"":`${String(Math.floor(value/60)).padStart(2,"0")}:${String(value%60).padStart(2,"0")}`;}
 export function minuteValue(value:string) {const [hour,minute]=value.split(":").map(Number);return hour!*60+minute!;}
+
+export const historyLabels:Record<string,string> = {BLEACH_LIGHTENING:"Açma",COLOR:"Renklendirme",TONER_GLOSS:"Tonlama"};

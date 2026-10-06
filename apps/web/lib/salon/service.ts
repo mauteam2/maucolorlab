@@ -78,12 +78,12 @@ export async function readPrecheck(id: string, correlationId: string) {
   if (!ctx.permissions.includes("hair_passport.read") || !ctx.permissions.includes("clients.read")) throw new AccessError("FORBIDDEN", 403);
   try {
    const [risk, passport] = await Promise.all([readCaseRisk(a.client_id, {}, correlationId), readHairPassport(a.client_id, { page_size: 100 }, correlationId)]);
-   if (risk.data.passportId !== passport.data.passport.id || risk.data.passportVersion !== passport.data.passport.version) throw new AccessError("SALON_CONFLICT", 409);
+   if (passport.data.passport.client_id !== a.client_id || risk.data.passportId !== passport.data.passport.id || risk.data.passportVersion !== passport.data.passport.version) throw new AccessError("SALON_CONFLICT", 409);
    data.risk = { gate: risk.data.gate.outcome, band: risk.data.overallBand, can_progress: risk.data.gate.canProgress, passport_version: risk.data.passportVersion };
    data.freshness = { state: risk.data.gate.canProgress ? "CURRENT" : "REVIEW_REQUIRED", updated_at: passport.data.passport.updated_at };data.complexity = risk.data.overallBand;
    if (risk.data.requiredInformation.length) add("INFORMATION_REQUIRED", "RISK_INFORMATION_REQUIRED");
    if (risk.data.requiredPhysicalTests.some(t => t.status !== "SATISFIED")) add("TEST_REQUIRED", "RISK_PHYSICAL_TEST_REQUIRED");
-   if (risk.data.gate.outcome === "REQUIRE_RECOVERY_REASSESSMENT") { data.recovery = "REASSESSMENT_REQUIRED";add("RECOVERY_CONSTRAINT", "RISK_RECOVERY_REASSESSMENT"); }
+   if (risk.data.gate.outcome === "REQUIRE_RECOVERY_REASSESSMENT" || risk.data.hardStops.some(stop=>stop.outcome==="REQUIRE_RECOVERY_REASSESSMENT")) { data.recovery = "REASSESSMENT_REQUIRED";add("RECOVERY_CONSTRAINT", "RISK_RECOVERY_REASSESSMENT"); }
    if (!risk.data.gate.canProgress) add("REVIEW_REQUIRED", `RISK_GATE:${risk.data.gate.outcome}`);
    if (risk.data.overallBand === "HIGH" || risk.data.overallBand === "CRITICAL") add("TECHNICAL_ESCALATION", `RISK_BAND:${risk.data.overallBand}`);
    data.integrity_history = risk.data.dimensions.filter(d => ["HAIR_INTEGRITY", "POROSITY_ELASTICITY"].includes(d.dimension)).flatMap(d => d.reasons.map(r => r.code)).slice(0, 20);

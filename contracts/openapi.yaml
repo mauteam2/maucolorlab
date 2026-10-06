@@ -15299,9 +15299,8 @@ components:
                 type: string
               actual_duration_seconds:
                 anyOf:
-                - type: integer
+                - type: number
                   minimum: 0
-                  maximum: 9007199254740991
                 - type: 'null'
               used_grams:
                 type: number
