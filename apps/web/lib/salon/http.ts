@@ -2,6 +2,7 @@ import "server-only";
 import { AccessError } from "@/lib/tenant/bootstrap";
 import { assertOrigin } from "@/lib/live/http";
 import { readSalon, mutateSalon, searchSlots, readPrecheck } from "./service";
+import { salonError } from "./model";
 export async function salonResponse(request: Request, endpoint: "main" | "slots" | "precheck" = "main", id?: string) {
  const correlationId = crypto.randomUUID(), headers = { "Cache-Control": "private, no-store", "X-Correlation-ID": correlationId };
  try {
@@ -19,5 +20,5 @@ export async function salonResponse(request: Request, endpoint: "main" | "slots"
    result = endpoint === "slots" ? await searchSlots(raw, correlationId, ref) : await mutateSalon(raw, correlationId, ref);
   }
   return Response.json(result, { headers });
- } catch (e) { const error = e instanceof AccessError ? e : new AccessError("NETWORK_ERROR", 503);return Response.json({ code: error.code, message: error.code, correlationId }, { status: error.status, headers }); }
+ } catch (e) { const error = e instanceof AccessError && salonError.shape.code.options.some(code=>code===e.code) ? e : new AccessError("NETWORK_ERROR", 503);return Response.json({ code: error.code, message: error.code, correlationId }, { status: error.status, headers }); }
 }
