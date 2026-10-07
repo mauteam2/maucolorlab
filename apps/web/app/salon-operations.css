@@ -24,5 +24,6 @@
 
 .salon-team-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px; }.salon-team-person { display:flex;gap:14px;align-items:center; }.salon-team-person h2 { margin-bottom:6px;font-size:28px; }
 .salon-real-work-hour { grid-template-columns:minmax(100px,1fr) 150px 150px; }.salon-real-work-hour label { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }.salon-real-work-hour label small { flex-basis:100%; }.salon-real-work-hour input[type="time"] { width:100%;min-width:0; }
+@media(min-width:601px) and (max-width:1100px) { .salon-real-work-hour { grid-template-columns:repeat(2,minmax(0,1fr)); }.salon-real-work-hour label { grid-column:1/-1; } }
 @media(max-width:1250px) { .salon-team-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { .salon-team-grid { grid-template-columns:1fr; }.salon-real-work-hour { grid-template-columns:1fr;gap:8px; } }
