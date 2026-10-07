@@ -84,6 +84,10 @@ insert into salon_results values('merge_command',jsonb_build_object('type','MERG
 insert into salon_results values('merge',pg_temp.crm((select value from salon_results where name='merge_command')));
 select ok((select value ? 'data' from salon_results where name='merge'),'authorized reviewed merge commits');
 select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-4000-8000-000000000032"}')#>>'{data,summary,total_completed_visits}','1','merged canonical profile composes original appointment history once');
+select is(pg_temp.crm('{"type":"ACTION_CREATE","mutation_id":"a4000000-0000-4000-8000-000000000524","id":"a4000000-0000-4000-8000-000000000616","client_id":"a4000000-0000-4000-8000-000000000032","kind":"REBOOK","source_domain":"salon_appointment","source_id":"a4000000-0000-4000-8000-000000000301"}')->>'code','CRM_CONFLICT','merged canonical identity cannot duplicate an original-source action');
+select is((select count(*)::integer from public.client_crm_actions where kind='REBOOK' and source_id='a4000000-0000-4000-8000-000000000301'),1,'failed merged action creation preserves one source event');
+select is((select client_id::text from public.client_crm_actions where id='a4000000-0000-4000-8000-000000000601'),'a4000000-0000-4000-8000-000000000031','source action attribution remains unchanged after merge');
+
 select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-4000-8000-000000000032"}')#>>'{data,technical_sources,0,client_id}','a4000000-0000-4000-8000-000000000031','merged Hair Passport reference preserves source identity');
 select is((select client_id::text from public.hair_passports where id='a4000000-0000-4000-8000-000000000701'),'a4000000-0000-4000-8000-000000000031','merge never rewrites passport attribution');
 select is((select client_id::text from public.salon_appointments where id='a4000000-0000-4000-8000-000000000301'),'a4000000-0000-4000-8000-000000000031','merge never rewrites historical appointment');
