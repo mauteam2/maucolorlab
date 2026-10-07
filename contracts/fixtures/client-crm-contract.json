@@ -46,6 +46,7 @@
         "max_days": null,
         "policy_version": null
       },
+      "last_technical_memory": null,
       "finance": "NOT_AVAILABLE",
       "recovery_state": "NOT_ASSESSED"
     },

@@ -120,6 +120,43 @@ select is(pg_temp.salon_transition('b4000000-0000-4000-8000-000000001302',1,'ARR
 select is(pg_temp.salon_transition('b4000000-0000-4000-8000-000000001302',2,'IN_SERVICE')#>>'{data,status}','IN_SERVICE','second client starts');
 select is(pg_temp.salon(jsonb_set(jsonb_set((select value from result where name='salon-link-command'),'{id}','"b4000000-0000-4000-8000-000000001302"'),'{mutation_id}',to_jsonb(gen_random_uuid())))->>'code','SALON_NOT_FOUND','same-salon session from another customer cannot link');
 select is((select count(*) from public.audit_events where action='salon.link_live_session'),1::bigint,'one immutable association audit with no retry duplication');
+-- Phase 4B: compose a genuinely persisted signed recipe/session/outcome and preserve attribution.
+reset role;
+update public.salon_memberships set location_id=null where id='b4000000-0000-4000-8000-000000000111';
+create function pg_temp.crmread(q jsonb) returns jsonb language sql volatile security invoker as $$select public.crm_read('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011',q);$$;
+create function pg_temp.crm(q jsonb) returns jsonb language sql volatile security invoker as $$select public.crm_operation('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011',q,gen_random_uuid());$$;
+set local role authenticated;
+-- Signed service packets exercise database persistence; the live engine golden tests protect sequencing.
+do $$declare op text;packet jsonb;v jsonb;prev text:=repeat('e',64);n integer:=2;begin
+ foreach op in array array['START','COMPLETION_REVIEW','COMPLETE'] loop
+ n:=n+1;packet:=(select value from result where name='live-envelope');v:=packet->'result';
+ v:=v||jsonb_build_object('recordVersion',n,'status',case op when 'START' then 'IN_PROGRESS' when 'COMPLETION_REVIEW' then 'COMPLETION_REVIEW' else 'COMPLETED' end,'updatedAt',statement_timestamp(),'startedAt',statement_timestamp(),'completedAt',case when op='COMPLETE' then statement_timestamp() end,'actualProcessSeconds',0,
+ 'bowls',jsonb_build_array(jsonb_build_object('id','b4000000-0000-4000-8000-000000001901','label','Synthetic bowl','recipeId',v->>'currentRecipeId','regionIds',jsonb_build_array('b4000000-0000-4000-8000-000000000051'),'plannedGrams',60.30,'preparedGrams',60.30,'usedGrams',60.30,'wasteGrams',0,'closed',true)),
+ 'outcome',jsonb_build_object('regionalResults',jsonb_build_array(jsonb_build_object('regionId','b4000000-0000-4000-8000-000000000051','achievedLevel',8,'achievedTone','NEUTRAL','uniformity','ACCEPTABLE','hairIntegrity','CONCERN','assessment','Synthetic verified regional result')),'profile',jsonb_build_object('colorAccuracy','CONCERN','uniformity','ACCEPTABLE','hairIntegrity','CONCERN','processEfficiency','UNKNOWN','formulaStability','UNKNOWN'),'professionalAssessment','Synthetic professional outcome','deviationsReviewed',true));
+ packet:=packet||jsonb_build_object('previousHash',prev,'resultHash',md5(op)||md5(op),'input',jsonb_build_object('type',op,'mutation_id',gen_random_uuid(),'device_id','b4000000-0000-4000-8000-000000000802','expected_version',n-1,'control_epoch',1),'result',v);
+ insert into result values('crm-live-'||op,pg_temp.live_store(packet));
+ update result set value=packet where name='live-envelope';prev:=md5(op)||md5(op);
+ end loop;end $$;
+select is((select value->>'status' from result where name='crm-live-COMPLETE'),'COMPLETED','CRM technical fixture completes through signed live persistence');
+select is((select count(*) from public.session_outcomes),1::bigint,'actual immutable outcome is stored');
+select is(pg_temp.crmread('{"operation":"summary","client_id":"b4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,last_technical_memory,professional_assessment}','Synthetic professional outcome','CRM memory comes from actual session result');
+select is((pg_temp.crmread('{"operation":"summary","client_id":"b4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,last_technical_memory,color_grams}')::numeric,30.15::numeric,'CRM preserves actual controlled recipe quantity');
+select is(jsonb_array_length(pg_temp.crmread('{"operation":"summary","client_id":"b4000000-0000-4000-8000-000000000031"}')#>'{data,summary,technical_followups}'),2,'actual integrity and color concerns produce two explainable follow-ups');
+select is(pg_temp.crm('{"type":"ACTION_CREATE","mutation_id":"b4000000-0000-4000-8000-000000002901","id":"b4000000-0000-4000-8000-000000002902","client_id":"b4000000-0000-4000-8000-000000000031","kind":"CARE_CHECK","source_domain":"live_session","source_id":"b4000000-0000-4000-8000-000000000803"}')#>>'{data,version}','1','technical action references the actual outcome session');
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);
+select is(public.crm_read('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"operation":"summary","client_id":"b4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,last_technical_memory}',null,'reception never receives technical outcome memory');
+select is((select count(*) from public.client_crm_actions),0::bigint,'technical CRM actions hidden from reception by RLS');
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000021',true);
+insert into result values('crm-merge-review',pg_temp.crmread('{"operation":"merge_review","source_client_id":"b4000000-0000-4000-8000-000000000031","target_client_id":"b4000000-0000-4000-8000-000000000032"}'));
+insert into result values('crm-merge',pg_temp.crm(jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',(select value#>>'{data,review_token}' from result where name='crm-merge-review'),'decisions',(select jsonb_object_agg(f,'SOURCE') from unnest(array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) f))));
+select ok((select value ? 'data' from result where name='crm-merge'),'reviewed CRM merge accepts actual multi-domain history');
+select is((select client_id::text from public.live_sessions),'b4000000-0000-4000-8000-000000000031','merge never reattributes the live session');
+select is((select client_id::text from public.session_outcomes),'b4000000-0000-4000-8000-000000000031','merge never reattributes immutable outcome');
+select is((select client_id::text from public.controlled_brand_recipes),'b4000000-0000-4000-8000-000000000031','merge never reattributes controlled recipe');
+select is((select client_id::text from public.color_plans),'b4000000-0000-4000-8000-000000000031','merge never reattributes ColorLab plan');
+select is(pg_temp.crmread('{"operation":"summary","client_id":"b4000000-0000-4000-8000-000000000032"}')#>>'{data,summary,last_technical_memory,client_id}','b4000000-0000-4000-8000-000000000031','canonical technical memory preserves its original source client');
+select is((select count(*)::integer from jsonb_array_elements(pg_temp.crmread('{"operation":"timeline","client_id":"b4000000-0000-4000-8000-000000000032","limit":50}')#>'{data,items}') e where e->>'event_type'='OUTCOME_RECORDED'),1,'merged timeline includes the actual outcome once by source ID');
+select is(pg_temp.crm(jsonb_build_object('type','MERGE_REVERSE','mutation_id',gen_random_uuid(),'merge_id',(select value#>>'{data,id}' from result where name='crm-merge'),'reason','Synthetic technical lineage reversal'))#>>'{data,version}','3','administrative reverse restores original technical identity boundaries');
 reset role;
 update public.salon_memberships set status='revoked',revoked_at=now() where id='b4000000-0000-4000-8000-000000000111';
 set local role authenticated;

@@ -33,7 +33,7 @@ export async function seedAccount(locationCount = 1) {
   }));
   return {
     email, password, membershipId, locations, userId,
-    async addMember(roleCode: "assistant" | "colorist" | "manager") {
+    async addMember(roleCode: "assistant" | "colorist" | "manager" | "reception") {
       const memberEmail = `e2e-${randomUUID()}@elifora.test`;
       const memberPassword = `E2e-${randomUUID()}!`;
       const { data: member, error: memberError } = await admin.auth.admin.createUser({ email: memberEmail, password: memberPassword, email_confirm: true });

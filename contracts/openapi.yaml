@@ -16036,6 +16036,7 @@ components:
                 enum:
                 - live_session
                 - client
+                - color_plan
               source_id:
                 type: string
                 format: uuid
@@ -16109,6 +16110,104 @@ components:
           - max_days
           - policy_version
           additionalProperties: false
+        last_technical_memory:
+          anyOf:
+          - type: object
+            properties:
+              session_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              client_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              recipe_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              completed_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              recipe_label:
+                type:
+                - string
+                - 'null'
+              color_grams:
+                anyOf:
+                - type: number
+                  minimum: 0
+                - type: 'null'
+              developer_grams:
+                anyOf:
+                - type: number
+                  minimum: 0
+                - type: 'null'
+              professional_assessment:
+                anyOf:
+                - type: string
+                  maxLength: 4000
+                - type: 'null'
+              profile:
+                anyOf:
+                - type: object
+                  properties:
+                    colorAccuracy:
+                      type: string
+                      enum:
+                      - UNKNOWN
+                      - ACCEPTABLE
+                      - CONCERN
+                      - UNACCEPTABLE
+                    uniformity:
+                      type: string
+                      enum:
+                      - UNKNOWN
+                      - ACCEPTABLE
+                      - CONCERN
+                      - UNACCEPTABLE
+                    hairIntegrity:
+                      type: string
+                      enum:
+                      - UNKNOWN
+                      - ACCEPTABLE
+                      - CONCERN
+                      - UNACCEPTABLE
+                    processEfficiency:
+                      type: string
+                      enum:
+                      - UNKNOWN
+                      - ACCEPTABLE
+                      - CONCERN
+                      - UNACCEPTABLE
+                    formulaStability:
+                      type: string
+                      enum:
+                      - UNKNOWN
+                      - ACCEPTABLE
+                      - CONCERN
+                      - UNACCEPTABLE
+                  required:
+                  - colorAccuracy
+                  - uniformity
+                  - hairIntegrity
+                  - processEfficiency
+                  - formulaStability
+                  additionalProperties: false
+                - type: 'null'
+            required:
+            - session_id
+            - client_id
+            - recipe_id
+            - completed_at
+            - recipe_label
+            - color_grams
+            - developer_grams
+            - professional_assessment
+            - profile
+            additionalProperties: false
+          - type: 'null'
         finance:
           type: string
           const: NOT_AVAILABLE
@@ -16139,6 +16238,7 @@ components:
       - appointment_facts
       - technical_followups
       - return_signal
+      - last_technical_memory
       - finance
       - recovery_state
       additionalProperties: false
@@ -16421,6 +16521,7 @@ components:
                     enum:
                     - live_session
                     - client
+                    - color_plan
                   source_id:
                     type: string
                     format: uuid
@@ -16494,6 +16595,104 @@ components:
               - max_days
               - policy_version
               additionalProperties: false
+            last_technical_memory:
+              anyOf:
+              - type: object
+                properties:
+                  session_id:
+                    type: string
+                    format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                  client_id:
+                    type: string
+                    format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                  recipe_id:
+                    type: string
+                    format: uuid
+                    pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                  completed_at:
+                    type: string
+                    format: date-time
+                    pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                  recipe_label:
+                    type:
+                    - string
+                    - 'null'
+                  color_grams:
+                    anyOf:
+                    - type: number
+                      minimum: 0
+                    - type: 'null'
+                  developer_grams:
+                    anyOf:
+                    - type: number
+                      minimum: 0
+                    - type: 'null'
+                  professional_assessment:
+                    anyOf:
+                    - type: string
+                      maxLength: 4000
+                    - type: 'null'
+                  profile:
+                    anyOf:
+                    - type: object
+                      properties:
+                        colorAccuracy:
+                          type: string
+                          enum:
+                          - UNKNOWN
+                          - ACCEPTABLE
+                          - CONCERN
+                          - UNACCEPTABLE
+                        uniformity:
+                          type: string
+                          enum:
+                          - UNKNOWN
+                          - ACCEPTABLE
+                          - CONCERN
+                          - UNACCEPTABLE
+                        hairIntegrity:
+                          type: string
+                          enum:
+                          - UNKNOWN
+                          - ACCEPTABLE
+                          - CONCERN
+                          - UNACCEPTABLE
+                        processEfficiency:
+                          type: string
+                          enum:
+                          - UNKNOWN
+                          - ACCEPTABLE
+                          - CONCERN
+                          - UNACCEPTABLE
+                        formulaStability:
+                          type: string
+                          enum:
+                          - UNKNOWN
+                          - ACCEPTABLE
+                          - CONCERN
+                          - UNACCEPTABLE
+                      required:
+                      - colorAccuracy
+                      - uniformity
+                      - hairIntegrity
+                      - processEfficiency
+                      - formulaStability
+                      additionalProperties: false
+                    - type: 'null'
+                required:
+                - session_id
+                - client_id
+                - recipe_id
+                - completed_at
+                - recipe_label
+                - color_grams
+                - developer_grams
+                - professional_assessment
+                - profile
+                additionalProperties: false
+              - type: 'null'
             finance:
               type: string
               const: NOT_AVAILABLE
@@ -16524,6 +16723,7 @@ components:
           - appointment_facts
           - technical_followups
           - return_signal
+          - last_technical_memory
           - finance
           - recovery_state
           additionalProperties: false
@@ -16866,6 +17066,7 @@ components:
           - salon_appointment
           - live_session
           - client
+          - color_plan
         source_id:
           type: string
           format: uuid
@@ -17924,6 +18125,7 @@ components:
                       enum:
                       - live_session
                       - client
+                      - color_plan
                     source_id:
                       type: string
                       format: uuid
@@ -17997,6 +18199,104 @@ components:
                 - max_days
                 - policy_version
                 additionalProperties: false
+              last_technical_memory:
+                anyOf:
+                - type: object
+                  properties:
+                    session_id:
+                      type: string
+                      format: uuid
+                      pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                    client_id:
+                      type: string
+                      format: uuid
+                      pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                    recipe_id:
+                      type: string
+                      format: uuid
+                      pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                    completed_at:
+                      type: string
+                      format: date-time
+                      pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                    recipe_label:
+                      type:
+                      - string
+                      - 'null'
+                    color_grams:
+                      anyOf:
+                      - type: number
+                        minimum: 0
+                      - type: 'null'
+                    developer_grams:
+                      anyOf:
+                      - type: number
+                        minimum: 0
+                      - type: 'null'
+                    professional_assessment:
+                      anyOf:
+                      - type: string
+                        maxLength: 4000
+                      - type: 'null'
+                    profile:
+                      anyOf:
+                      - type: object
+                        properties:
+                          colorAccuracy:
+                            type: string
+                            enum:
+                            - UNKNOWN
+                            - ACCEPTABLE
+                            - CONCERN
+                            - UNACCEPTABLE
+                          uniformity:
+                            type: string
+                            enum:
+                            - UNKNOWN
+                            - ACCEPTABLE
+                            - CONCERN
+                            - UNACCEPTABLE
+                          hairIntegrity:
+                            type: string
+                            enum:
+                            - UNKNOWN
+                            - ACCEPTABLE
+                            - CONCERN
+                            - UNACCEPTABLE
+                          processEfficiency:
+                            type: string
+                            enum:
+                            - UNKNOWN
+                            - ACCEPTABLE
+                            - CONCERN
+                            - UNACCEPTABLE
+                          formulaStability:
+                            type: string
+                            enum:
+                            - UNKNOWN
+                            - ACCEPTABLE
+                            - CONCERN
+                            - UNACCEPTABLE
+                        required:
+                        - colorAccuracy
+                        - uniformity
+                        - hairIntegrity
+                        - processEfficiency
+                        - formulaStability
+                        additionalProperties: false
+                      - type: 'null'
+                  required:
+                  - session_id
+                  - client_id
+                  - recipe_id
+                  - completed_at
+                  - recipe_label
+                  - color_grams
+                  - developer_grams
+                  - professional_assessment
+                  - profile
+                  additionalProperties: false
+                - type: 'null'
               finance:
                 type: string
                 const: NOT_AVAILABLE
@@ -18027,6 +18327,7 @@ components:
             - appointment_facts
             - technical_followups
             - return_signal
+            - last_technical_memory
             - finance
             - recovery_state
             additionalProperties: false
@@ -18431,6 +18732,7 @@ components:
                             enum:
                             - live_session
                             - client
+                            - color_plan
                           source_id:
                             type: string
                             format: uuid
@@ -18504,6 +18806,104 @@ components:
                       - max_days
                       - policy_version
                       additionalProperties: false
+                    last_technical_memory:
+                      anyOf:
+                      - type: object
+                        properties:
+                          session_id:
+                            type: string
+                            format: uuid
+                            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                          client_id:
+                            type: string
+                            format: uuid
+                            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                          recipe_id:
+                            type: string
+                            format: uuid
+                            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                          completed_at:
+                            type: string
+                            format: date-time
+                            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                          recipe_label:
+                            type:
+                            - string
+                            - 'null'
+                          color_grams:
+                            anyOf:
+                            - type: number
+                              minimum: 0
+                            - type: 'null'
+                          developer_grams:
+                            anyOf:
+                            - type: number
+                              minimum: 0
+                            - type: 'null'
+                          professional_assessment:
+                            anyOf:
+                            - type: string
+                              maxLength: 4000
+                            - type: 'null'
+                          profile:
+                            anyOf:
+                            - type: object
+                              properties:
+                                colorAccuracy:
+                                  type: string
+                                  enum:
+                                  - UNKNOWN
+                                  - ACCEPTABLE
+                                  - CONCERN
+                                  - UNACCEPTABLE
+                                uniformity:
+                                  type: string
+                                  enum:
+                                  - UNKNOWN
+                                  - ACCEPTABLE
+                                  - CONCERN
+                                  - UNACCEPTABLE
+                                hairIntegrity:
+                                  type: string
+                                  enum:
+                                  - UNKNOWN
+                                  - ACCEPTABLE
+                                  - CONCERN
+                                  - UNACCEPTABLE
+                                processEfficiency:
+                                  type: string
+                                  enum:
+                                  - UNKNOWN
+                                  - ACCEPTABLE
+                                  - CONCERN
+                                  - UNACCEPTABLE
+                                formulaStability:
+                                  type: string
+                                  enum:
+                                  - UNKNOWN
+                                  - ACCEPTABLE
+                                  - CONCERN
+                                  - UNACCEPTABLE
+                              required:
+                              - colorAccuracy
+                              - uniformity
+                              - hairIntegrity
+                              - processEfficiency
+                              - formulaStability
+                              additionalProperties: false
+                            - type: 'null'
+                        required:
+                        - session_id
+                        - client_id
+                        - recipe_id
+                        - completed_at
+                        - recipe_label
+                        - color_grams
+                        - developer_grams
+                        - professional_assessment
+                        - profile
+                        additionalProperties: false
+                      - type: 'null'
                     finance:
                       type: string
                       const: NOT_AVAILABLE
@@ -18534,6 +18934,7 @@ components:
                   - appointment_facts
                   - technical_followups
                   - return_signal
+                  - last_technical_memory
                   - finance
                   - recovery_state
                   additionalProperties: false
@@ -18841,6 +19242,7 @@ components:
                   - salon_appointment
                   - live_session
                   - client
+                  - color_plan
                 source_id:
                   type: string
                   format: uuid
@@ -19620,6 +20022,7 @@ components:
             - salon_appointment
             - live_session
             - client
+            - color_plan
           source_id:
             type: string
             format: uuid
@@ -20075,6 +20478,7 @@ components:
                           enum:
                           - live_session
                           - client
+                          - color_plan
                         source_id:
                           type: string
                           format: uuid
@@ -20148,6 +20552,104 @@ components:
                     - max_days
                     - policy_version
                     additionalProperties: false
+                  last_technical_memory:
+                    anyOf:
+                    - type: object
+                      properties:
+                        session_id:
+                          type: string
+                          format: uuid
+                          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                        client_id:
+                          type: string
+                          format: uuid
+                          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                        recipe_id:
+                          type: string
+                          format: uuid
+                          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                        completed_at:
+                          type: string
+                          format: date-time
+                          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                        recipe_label:
+                          type:
+                          - string
+                          - 'null'
+                        color_grams:
+                          anyOf:
+                          - type: number
+                            minimum: 0
+                          - type: 'null'
+                        developer_grams:
+                          anyOf:
+                          - type: number
+                            minimum: 0
+                          - type: 'null'
+                        professional_assessment:
+                          anyOf:
+                          - type: string
+                            maxLength: 4000
+                          - type: 'null'
+                        profile:
+                          anyOf:
+                          - type: object
+                            properties:
+                              colorAccuracy:
+                                type: string
+                                enum:
+                                - UNKNOWN
+                                - ACCEPTABLE
+                                - CONCERN
+                                - UNACCEPTABLE
+                              uniformity:
+                                type: string
+                                enum:
+                                - UNKNOWN
+                                - ACCEPTABLE
+                                - CONCERN
+                                - UNACCEPTABLE
+                              hairIntegrity:
+                                type: string
+                                enum:
+                                - UNKNOWN
+                                - ACCEPTABLE
+                                - CONCERN
+                                - UNACCEPTABLE
+                              processEfficiency:
+                                type: string
+                                enum:
+                                - UNKNOWN
+                                - ACCEPTABLE
+                                - CONCERN
+                                - UNACCEPTABLE
+                              formulaStability:
+                                type: string
+                                enum:
+                                - UNKNOWN
+                                - ACCEPTABLE
+                                - CONCERN
+                                - UNACCEPTABLE
+                            required:
+                            - colorAccuracy
+                            - uniformity
+                            - hairIntegrity
+                            - processEfficiency
+                            - formulaStability
+                            additionalProperties: false
+                          - type: 'null'
+                      required:
+                      - session_id
+                      - client_id
+                      - recipe_id
+                      - completed_at
+                      - recipe_label
+                      - color_grams
+                      - developer_grams
+                      - professional_assessment
+                      - profile
+                      additionalProperties: false
+                    - type: 'null'
                   finance:
                     type: string
                     const: NOT_AVAILABLE
@@ -20178,6 +20680,7 @@ components:
                 - appointment_facts
                 - technical_followups
                 - return_signal
+                - last_technical_memory
                 - finance
                 - recovery_state
                 additionalProperties: false
