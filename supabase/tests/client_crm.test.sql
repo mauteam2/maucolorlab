@@ -132,7 +132,7 @@ select pg_temp.measure('action_list','{"operation":"actions","limit":25}');
 select pg_temp.measure('duplicate_candidates','{"operation":"duplicates","client_id":"a4000000-0000-4000-8000-000000000031"}');
 select is((select count(*)::integer from crm_benchmark where successful),30,'six representative CRM queries succeed across five measured repetitions');
 select ok(jsonb_array_length(pg_temp.crmread('{"operation":"list","limit":25}')#>'{data,items}')<=25,'representative client results remain bounded');
-do $$declare r record;begin for r in select name,round(percentile_cont(.5) within group(order by milliseconds)::numeric,2) p50,round(percentile_cont(.95) within group(order by milliseconds)::numeric,2) p95 from crm_benchmark group by name order by name loop raise notice 'CRM_BENCHMARK % p50_ms=% p95_ms=% clients=303 appointments=904 repetitions=5',r.name,r.p50,r.p95;end loop;end $$;
+do $$declare r record;begin for r in select name,round(percentile_cont(.5) within group(order by milliseconds)::numeric,2) p50,round(percentile_cont(.95) within group(order by milliseconds)::numeric,2) p95 from crm_benchmark group by name order by name loop raise notice 'CRM_BENCHMARK % p50_ms=% p95_ms=% clients=303 appointments=905 repetitions=5',r.name,r.p50,r.p95;end loop;end $$;
 set local role anon;
 select throws_ok($$select public.crm_read('a4000000-0000-4000-8000-000000000111','a4000000-0000-4000-8000-000000000011','{}')$$,'42501',null,'anonymous CRM RPC is denied');
 set local role service_role;

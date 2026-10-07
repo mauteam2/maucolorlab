@@ -4,7 +4,7 @@ CRM extends `public.clients`; it does not introduce another customer identity ta
 
 `crm_read` and `crm_operation` resolve an authenticated membership, organization, location and actual role permissions before accessing data. Web validates inputs, RPC output scope and membership again before release. Android uses the same RPC shapes with authenticated transport and a membership check before and after reads. Organization/location/role claims in request bodies are rejected. UI filtering is not isolation; every tenant table has forced RLS.
 
-The responsive Web directory supports identity search, relationship filters, an editable interpreted search, and the CRM action center. Profiles expose overview, bounded timeline, appointment history, preferences, notes and reviewed duplicate resolution. Existing identity forms and Hair Passport remain separate. Android adds the professional customer summary, next appointment, timeline pagination and versioned action completion/dismissal inside the existing customer screen. Background/resume or workspace changes conceal protected snapshots before revalidation.
+The responsive Web directory supports identity search, relationship filters, an editable interpreted search, and the CRM action center. Profiles expose four CRM sections: overview, bounded timeline, notes and appointment history. Preferences, source-backed actions and reviewed duplicate resolution are collapsed within the overview. Existing identity forms and Hair Passport remain separate. Android adds the professional customer summary, next appointment, timeline pagination and versioned action completion/dismissal inside the existing customer screen. Background/resume or workspace changes conceal protected snapshots before revalidation. Web derived summaries refresh after local writes and every 15 seconds while visible and online; refresh is deferred while a CRM form is being edited. An explicit refresh button is available.
 
 ## Unknowns and configuration
 
@@ -27,3 +27,5 @@ Database migrations apply only in forward order. Development validation uses dis
 The directory scans at most 200 candidates per request and returns at most 50 results with the next scan offset. Timeline/history/actions are independently bounded. Option catalogs are bounded to 200 visible services/staff. No technical media is transferred by the CRM directory or timeline. Larger option catalogs require a later paged selector, not a silently invented name match.
 
 Phase 4C is not implemented by this slice. It can consider further booking/operational workflows after Phase 4B acceptance.
+
+The last technical memory projects the actual completed session assessment and its stored recipe quantities, with original client/session/recipe IDs. Reception receives no technical memory. Recovery follow-ups point to the newest existing recovery Color Plan ID/time; CRM performs no new risk assessment.
