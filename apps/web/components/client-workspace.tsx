@@ -8,6 +8,8 @@ import { type ActiveTenantContext, tenantContextSchema, workspaceReference } fro
 import { type Candidate, type Client, type Directory, clientDetail, clientDirectory, duplicateCandidate, clientErrorText } from "@/lib/clients/contracts";
 import { formatClientDate as date } from "@/lib/clients/display";
 import { hairTr } from "@/lib/i18n/hair-tr";
+import { ClientCrm } from "./client-crm";
+import { ClientCrmDirectory } from "./client-crm-directory";
 
 type Draft = { full_name: string; phone: string; email: string; birth_date: string; request_id: string; expected_version?: number };
 type Review = { candidates: Candidate[]; token: string };
@@ -121,12 +123,12 @@ export function ClientWorkspace({ route }: { route: string }) {
       {route === "directory" ? <>
         <div className="client-heading"><h1>Müşteriler</h1>{context?.permissions.includes("clients.create") && <Link prefetch={false} className="button button-primary" href="/workspace/clients/new">Yeni müşteri</Link>}</div>
         <p className="lead">Müşteri bilgilerini ve renk geçmişini düzenleyin.</p>
-        <form className="client-search" onSubmit={event => { event.preventDefault(); setFilter({ ...filter, query, offset: 0 }); }}>
+        {context?.permissions.includes("crm.read") ? <ClientCrmDirectory context={context}/> : <><form className="client-search" onSubmit={event => { event.preventDefault(); setFilter({ ...filter, query, offset: 0 }); }}>
           <label htmlFor="client-search">Ad soyad veya telefon</label><div className="client-actions"><input id="client-search" value={query} onChange={event => setQuery(event.target.value)} maxLength={80} type="search" /><button className="button button-secondary" disabled={checking}>Ara</button></div>
           <label htmlFor="client-status">Kayıt durumu</label><select disabled={checking} id="client-status" value={filter.status} onChange={event => setFilter({ ...filter, status: event.target.value, offset: 0 })}><option value="ACTIVE">Aktif müşteriler</option><option value="ARCHIVED">Arşivlenen müşteriler</option></select>
         </form>
         {directory?.items.length === 0 ? <div className="client-notice"><h2>{filter.query ? "Eşleşen müşteri bulunamadı" : "Henüz müşteri yok"}</h2><p>{filter.query ? "Adı veya telefon numarasını kontrol edin." : "İlk müşterinizi yalnızca ad soyad ve telefonla oluşturun."}</p></div> : <SalonCard title="Müşteri listesi"><div className="salon-table-scroll"><table className="salon-table"><thead><tr><th>Müşteri</th><th>Telefon</th><th>Son güncelleme</th><th>Kayıt durumu</th><th><span className="salon-muted">Profil</span></th></tr></thead><tbody>{directory?.items.map(item => <tr key={item.id}><td><Link className="salon-person" prefetch={false} href={`/workspace/clients/${item.id}`}><span className="salon-avatar" aria-hidden="true">{item.full_name.slice(0,1)}</span><strong>{item.full_name}</strong></Link></td><td>{item.phone_masked}</td><td>{date(item.updated_at)}</td><td><span className={`salon-badge ${item.status === "ACTIVE" ? "success" : ""}`}>{item.status === "ACTIVE" ? "Aktif" : "Arşivde"}</span></td><td><Link prefetch={false} href={`/workspace/clients/${item.id}`} aria-label="Profili aç"><SalonIcon name="arrow" width={20} /></Link></td></tr>)}</tbody></table></div></SalonCard>}
-        <div className="client-actions"><button className="button button-secondary" disabled={checking || !filter.offset} onClick={() => setFilter({ ...filter, offset: Math.max(0, filter.offset - 25) })}>Önceki</button><span>Sayfa {filter.offset / 25 + 1}</span><button className="button button-secondary" disabled={checking || !directory?.has_more || filter.offset >= 10000} onClick={() => setFilter({ ...filter, offset: filter.offset + 25 })}>Sonraki</button></div>
+        <div className="client-actions"><button className="button button-secondary" disabled={checking || !filter.offset} onClick={() => setFilter({ ...filter, offset: Math.max(0, filter.offset - 25) })}>Önceki</button><span>Sayfa {filter.offset / 25 + 1}</span><button className="button button-secondary" disabled={checking || !directory?.has_more || filter.offset >= 10000} onClick={() => setFilter({ ...filter, offset: filter.offset + 25 })}>Sonraki</button></div></>}
       </> : <>
         <h1>{route === "new" ? "Yeni müşteri" : draft ? "Müşteriyi düzenle" : "Müşteri profili"}</h1>
         {client && !draft && <div className="salon-card salon-profile-banner"><span className="salon-avatar" aria-hidden="true">{client.full_name.split(" ").map(part => part[0]).slice(0,2).join("")}</span><div><h2>{client.full_name}</h2><span className="salon-muted">Son güncelleme: {date(client.updated_at)}</span></div></div>}
@@ -143,6 +145,7 @@ export function ClientWorkspace({ route }: { route: string }) {
           <p className="client-status">{client.status === "ACTIVE" ? "Aktif müşteri" : "Arşivde"}</p>
           {context?.permissions.includes("hair_passport.read") && <nav className="hp-tabs" aria-label={hairTr.navigation}><span aria-current="page">{hairTr.overview}</span><Link prefetch={false} href={`/workspace/clients/${client.id}/hair-passport`}>{hairTr.title}</Link></nav>}
           <dl className="client-details"><dt>Telefon</dt><dd>{client.phone}</dd><dt>E-posta</dt><dd>{client.email ?? "Eklenmedi"}</dd><dt>Doğum Tarihi</dt><dd>{client.birth_date ? date(client.birth_date) : "Eklenmedi"}</dd><dt>Oluşturma</dt><dd>{date(client.created_at)}</dd><dt>Son güncelleme</dt><dd>{date(client.updated_at)}</dd></dl>
+          {context?.permissions.includes("crm.read")&&<ClientCrm clientId={client.id} context={context}/>}
           <div className="client-actions">{client.status === "ACTIVE" && context?.permissions.includes("clients.update") && <button className="button button-primary" disabled={saving || checking} onClick={() => setDraft({ full_name: client.full_name, phone: client.phone, email: client.email ?? "", birth_date: client.birth_date ?? "", expected_version: client.version, request_id: crypto.randomUUID() })}>Düzenle</button>}
           {context?.permissions.includes("clients.archive") && <button className="button button-secondary" disabled={saving || checking} onClick={() => {
             archiveRequest.current ??= crypto.randomUUID();

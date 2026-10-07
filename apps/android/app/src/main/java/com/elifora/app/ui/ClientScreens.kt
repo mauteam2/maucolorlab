@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 @Composable
-fun ClientScreens(controller: ClientController, passports: HairPassportController, permissions: Set<String>) {
+fun ClientScreens(controller: ClientController, passports: HairPassportController, permissions: Set<String>, crm: com.elifora.app.domain.crm.ClientCrmController) {
     val state by controller.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val list = { scope.launch { controller.list() }; Unit }
@@ -74,6 +74,7 @@ fun ClientScreens(controller: ClientController, passports: HairPassportControlle
                 DetailField(R.string.clients_birth, client.birthDate)
                 DetailField(R.string.clients_created, displayDate(client.createdAt))
                 DetailField(R.string.clients_updated, displayDate(client.updatedAt))
+                if ("crm.read" in permissions) ClientCrmScreen(crm, client.id, permissions)
                 if ("hair_passport.read" in permissions) OutlinedButton(onClick = {
                     scope.launch { passports.open(client) }
                 }) { Text(stringResource(R.string.hair_passport_title)) }

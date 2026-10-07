@@ -87,6 +87,8 @@ class SupabaseAuthRepository(
     suspend fun hairPassportSnapshot(body: String): HttpReply = mutex.withLock {
         authenticated("POST", "/rest/v1/rpc/hair_passport_snapshot", body)
     }
+    suspend fun crmRead(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/crm_read", body) }
+    suspend fun crmOperation(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/crm_operation", body) }
     suspend fun hairMutation(rpc: String, body: String): HttpReply = mutex.withLock {
         require(rpc in setOf("hair_core_operation", "hair_observation_operation", "hair_physical_test_operation", "hair_history_operation"))
         authenticated("POST", "/rest/v1/rpc/$rpc", body)

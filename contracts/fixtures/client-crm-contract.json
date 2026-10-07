@@ -1,0 +1,106 @@
+{
+  "overview": {
+    "summary": {
+      "client_id": "a4000000-0000-4000-8000-000000000031",
+      "requested_client_id": "a4000000-0000-4000-8000-000000000031",
+      "organization_id": "a4000000-0000-4000-8000-000000000001",
+      "location_id": "a4000000-0000-4000-8000-000000000011",
+      "source_client_ids": [
+        "a4000000-0000-4000-8000-000000000031"
+      ],
+      "computed_at": "2026-10-07T09:00:00Z",
+      "relationship_status": "NEW",
+      "last_visit_at": null,
+      "first_visit_at": null,
+      "total_completed_visits": 0,
+      "cancellation_count": 0,
+      "no_show_count": 0,
+      "days_since_last_visit": null,
+      "average_visit_interval_days": null,
+      "interval_basis": "INSUFFICIENT_DATA",
+      "last_completed_service": null,
+      "last_staff_member": null,
+      "upcoming_appointment": null,
+      "usual_services": [],
+      "preferred_staff": {
+        "source": "UNKNOWN",
+        "membership_id": null,
+        "name": null,
+        "count": null,
+        "sample_size": null
+      },
+      "appointment_facts": {
+        "sample_size": 0,
+        "completed": 0,
+        "cancelled": 0,
+        "no_show": 0,
+        "last_status": null
+      },
+      "technical_followups": [],
+      "return_signal": {
+        "status": "INSUFFICIENT_DATA",
+        "service_id": null,
+        "appointment_id": null,
+        "days_since": null,
+        "min_days": null,
+        "max_days": null,
+        "policy_version": null
+      },
+      "finance": "NOT_AVAILABLE",
+      "recovery_state": "NOT_ASSESSED"
+    },
+    "preferences": {
+      "preferred_staff_id": null,
+      "preferred_service_ids": [],
+      "request_notes": null,
+      "preferred_channel": "WHATSAPP",
+      "allow_manual_contact": true,
+      "do_not_contact": false,
+      "client_id": "a4000000-0000-4000-8000-000000000031",
+      "organization_id": "a4000000-0000-4000-8000-000000000001",
+      "version": 1,
+      "updated_at": "2026-10-07T09:00:00Z",
+      "updated_by": "a4000000-0000-4000-8000-000000000021"
+    },
+    "technical_sources": []
+  },
+  "command": {
+    "type": "PREFERENCE_SAVE",
+    "mutation_id": "a4000000-0000-4000-8000-000000000900",
+    "client_id": "a4000000-0000-4000-8000-000000000031",
+    "expected_version": 0,
+    "definition": {
+      "preferred_staff_id": null,
+      "preferred_service_ids": [],
+      "request_notes": null,
+      "preferred_channel": "WHATSAPP",
+      "allow_manual_contact": true,
+      "do_not_contact": false
+    }
+  },
+  "options": {
+    "services": [
+      {
+        "id": "a4000000-0000-4000-8000-000000000101",
+        "name": "Dip boya",
+        "active": true,
+        "return_window": null
+      },
+      {
+        "id": "a4000000-0000-4000-8000-000000000102",
+        "name": "Balayage",
+        "active": true,
+        "return_window": null
+      }
+    ],
+    "staff": [
+      {
+        "id": "a4000000-0000-4000-8000-000000000111",
+        "name": "Selin Yılmaz",
+        "active": true,
+        "bookable": true
+      }
+    ],
+    "policy": null
+  }
+}

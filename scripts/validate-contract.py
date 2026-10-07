@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.15.0'
+assert contract['info']['version'] == '0.16.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -307,3 +307,22 @@ for field in ('base_price','tax_rate','timezone'):
     assert list(observation_validator('SalonCommand').iter_errors(forged)), field
 assert set(contract['paths']['/api/salon/appointments/{id}/precheck']) == {'get'}
 print('PASS: Phase 4A shared salon schemas, actual-data fixtures and eight forgery rejections')
+
+# Phase 4B: shared CRM vocabulary and controlled request AST.
+crm_schemas = json.loads((root / 'contracts/client-crm.schemas.json').read_text())
+for name, schema in crm_schemas.items():
+    assert contract['components']['schemas'][name] == schema, name
+crm = json.loads((root / 'contracts/fixtures/client-crm-contract.json').read_text())
+observation_validator('ClientCrmOverview').validate(crm['overview'])
+observation_validator('CrmCommand').validate(crm['command'])
+observation_validator('CrmOptions').validate(crm['options'])
+for field in ('organization_id','location_id','role','risk_result','audit_actor','executable'):
+    assert list(observation_validator('CrmCommand').iter_errors(crm['command'] | {field: True})), field
+for change in ({'sql':'select * from clients'}, {'last_visit_min_days':0}, {'last_no_show':'true'}, {'technical_followup_kind':'RISK_SCORE'}, {'query':'x'*81}):
+    assert list(observation_validator('ClientSearchFilter').iter_errors(change)), change
+for rpc in ('crm_read','crm_operation'):
+    assert contract['paths']['/rest/v1/rpc/'+rpc]['post']['security'] == [{'bearerAuth':[], 'publishableKey':[]}]
+android_crm = (root / 'apps/android/app/src/main/java/com/elifora/app/data/crm/SupabaseClientCrmRepository.kt').read_text()
+for field in ('p_membership_id','p_location_id','p_request','p_command','p_correlation_id','expected_version','mutation_id','source_client_ids','preferred_staff','effective_status'):
+    assert field in android_crm, field
+print('PASS: Phase 4B shared CRM schemas, Android RPC vocabulary and eleven forgery rejections')

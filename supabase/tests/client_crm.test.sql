@@ -97,7 +97,7 @@ set local role anon;
 select throws_ok($$select public.crm_read('a4000000-0000-4000-8000-000000000111','a4000000-0000-4000-8000-000000000011','{}')$$,'42501',null,'anonymous CRM RPC is denied');
 set local role service_role;
 select throws_ok($$select public.crm_read('a4000000-0000-4000-8000-000000000111','a4000000-0000-4000-8000-000000000011','{}')$$,'42501',null,'privileged client key is not a CRM mutation escape');
-reset role;update public.salon_memberships set status='revoked' where id='a4000000-0000-4000-8000-000000000111';set local role authenticated;
+reset role;update public.salon_memberships set status='revoked',revoked_at=statement_timestamp() where id='a4000000-0000-4000-8000-000000000111';set local role authenticated;
 select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-4000-8000-000000000031"}')->>'code','MEMBERSHIP_REVOKED','revoked membership cannot read cached-looking summary');
 select is(pg_temp.crm((select value from salon_results where name='action_cmd'))->>'code','MEMBERSHIP_REVOKED','revoked actor cannot retrieve permanent mutation receipt');
 select * from finish();rollback;

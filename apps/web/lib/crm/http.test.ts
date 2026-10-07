@@ -1,0 +1,10 @@
+import { beforeEach,expect,it,vi } from "vitest";
+const m=vi.hoisted(()=>({read:vi.fn(),write:vi.fn(),interpret:vi.fn(),contact:vi.fn()}));
+vi.mock("./service",()=>({readCrm:m.read,mutateCrm:m.write,interpretCrm:m.interpret,manualContact:m.contact}));
+import { crmResponse } from "./http";
+beforeEach(()=>{vi.clearAllMocks();m.read.mockResolvedValue({data:{}});});
+const request=(body:string,headers:Record<string,string>={},url="https://elifora.test/api/crm/read")=>new Request(url,{method:"POST",headers:{origin:"https://elifora.test","content-type":"application/json","x-workspace-reference":"member:location",...headers},body});
+it("private no-store responses retain correlation and selected-workspace precondition",async()=>{const r=await crmResponse(request('{"operation":"options"}'),"read");expect(r.status).toBe(200);expect(r.headers.get("cache-control")).toBe("private, no-store");expect(r.headers.get("x-correlation-id")).toMatch(/^[0-9a-f-]{36}$/);expect(m.read).toHaveBeenCalledWith({operation:"options"},expect.any(String),"member:location");});
+it.each([request('{}',{origin:"https://other.test"}),request('{}',{"content-type":"text/plain"}),request("{"),request('"'+"x".repeat(32768)+'"'),request('{}',{},"https://elifora.test/api/crm/read?sql=true")])("rejects invalid transport before service",async req=>{const r=await crmResponse(req,"read");expect(r.status).toBeGreaterThanOrEqual(400);expect(m.read).not.toHaveBeenCalled();});
+it("GET never mutates or exposes protected data",async()=>{const r=await crmResponse(new Request("https://elifora.test/api/crm",{headers:{origin:"https://elifora.test"}}),"write");expect(r.status).toBe(400);expect(m.write).not.toHaveBeenCalled();});
+it("unknown failures never expose exception or customer payloads",async()=>{m.read.mockRejectedValue(new Error("Private customer record"));const r=await crmResponse(request('{}'),"read");expect(r.status).toBe(503);expect(await r.text()).not.toContain("Private customer");});
