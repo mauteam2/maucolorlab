@@ -1,0 +1,13 @@
+# ELIFORA safe identity merge
+
+Duplicate candidates come from normalized phone, normalized email or name similarity in the authorized organization. A common household/business phone may belong to separate people. Candidates never create an automatic merge or a phone uniqueness rule.
+
+Only an organization-wide owner/manager membership can review and commit a merge. Review verifies two active canonical identities, authorized organization and at most twenty combined identities. It issues an actor/location-bound token valid ten minutes, fingerprinting current identity rows, preferences and lineage. Commit obtains the organization lock, rechecks membership and fingerprint and requires SOURCE/TARGET decisions for all ten fields: name, phone, email, birth date, preferred staff, preferred services, requests, contact channel, contact allowance and contact prohibition. Nulls and arbitrary field decisions are rejected.
+
+The target becomes canonical; the source is archived and linked as an alias. Existing source aliases flatten to the new canonical target. Immutable merge history stores original before-values, explicit choices, actor/time, previous links and resulting versions. Two append-only audit events describe the merge and resolved field choices. Ordinary client restore/update cannot reactivate an alias independently of merge administration.
+
+Appointments, Hair Passport, observations/evidence/history, color plans, controlled recipes, live sessions and actual outcomes retain their original client references and professional attribution. CRM summaries, timeline, notes and actions compose the canonical family, deduplicating each actual source ID. No recipe payload, original actor, evidence result or technical history is silently rewritten. Multiple original passports are exposed as separate source links; CRM never combines incompatible structured technical states.
+
+The `MERGE_REVERSE` administrative foundation supports an explicit reason and actor-bound mutation receipt. It requires unchanged source/target/preference versions, intact current link and a still-canonical target. It restores pre-merge identity fields/preferences and previous links, appending a reversal record. Post-merge appointment/technical records are not moved between people. A record edited after merge returns a conflict and requires a future reviewed split/recovery workflow. This phase does not implement a broad merge-administration dashboard or arbitrary historical rewrites.
+
+Forced RLS protects tenant rows, private management lineage and revoked memberships. Normal roles cannot update/delete merge or reversal history. Neither browser nor Android uses a privileged service key. A receipt never bypasses current authorization.

@@ -30,6 +30,7 @@ export const duplicates=z.strictObject({items:duplicateCandidate.array().max(20)
 export const mergeFields=["full_name","phone","email","birth_date","preferred_staff_id","preferred_service_ids","request_notes","preferred_channel","allow_manual_contact","do_not_contact"] as const;
 export const mergeDecisions=z.strictObject(Object.fromEntries(mergeFields.map(f=>[f,z.enum(["SOURCE","TARGET"])])) as Record<typeof mergeFields[number],z.ZodEnum<{SOURCE:"SOURCE";TARGET:"TARGET"}>>);
 export const mergeReview=z.strictObject({review_token:id,source:clientDetail,target:clientDetail,source_preferences:clientPreference.nullable(),target_preferences:clientPreference.nullable(),source_client_ids:id.array().max(20),target_client_ids:id.array().max(20),required_decisions:z.enum(mergeFields).array().length(10)});
+export const crmReadResult=z.union([crmOverview,crmDirectory,page(clientTimelineEvent),page(clientNote),page(crmAppointment),page(crmAction),duplicates,mergeReview,options]);
 const pagination={offset:z.int().min(0).max(10000).optional(),limit:z.int().min(1).max(50).optional()},mutation={mutation_id:id},target={id,expected_version:version};
 export const crmReadRequest=z.discriminatedUnion("operation",[
  z.strictObject({operation:z.literal("list"),filter:clientSearchFilter.optional(),...pagination}),z.strictObject({operation:z.literal("summary"),client_id:id}),z.strictObject({operation:z.literal("duplicates"),client_id:id}),z.strictObject({operation:z.literal("options")}),

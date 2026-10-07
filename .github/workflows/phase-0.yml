@@ -53,7 +53,9 @@ jobs:
               config = config.replace(original, temporary)
           path.write_text(config)
           PY
-      - run: python scripts/start-local-supabase.py
+      - run: |
+          python scripts/configure-disposable-supabase-ports.py
+          python scripts/start-local-supabase.py
         working-directory: .
       - name: Configure disposable local auth tests
         working-directory: .
@@ -140,7 +142,9 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: 2.117.0
-      - run: python scripts/start-local-supabase.py
+      - run: |
+          python scripts/configure-disposable-supabase-ports.py
+          python scripts/start-local-supabase.py
       - run: supabase db lint --local --fail-on warning
       - run: supabase test db
       - name: Stop local Supabase
@@ -160,6 +164,7 @@ jobs:
       - run: pip install -r scripts/verification-requirements.txt
       - run: python scripts/validate-contract.py
       - run: python scripts/test-start-local-supabase.py
+      - run: python scripts/test-configure-disposable-supabase-ports.py
       - run: python scripts/test-check-catalog-sources.py
       - name: Scan repository history for secrets
         run: |
