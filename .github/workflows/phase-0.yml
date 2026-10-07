@@ -91,6 +91,7 @@ jobs:
           name: client-ui-verification
           path: |
             apps/web/test-results/**/client-*.png
+            apps/web/test-results/**/error-context.md
             apps/web/test-results/**/client-live-performance.json
           if-no-files-found: ignore
           retention-days: 7

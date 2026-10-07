@@ -112,6 +112,12 @@ select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-400
 select is(pg_temp.crmread('{"operation":"list","filter":{"last_no_show":true}}')#>>'{data,items,0,id}','a4000000-0000-4000-8000-000000000033','last no-show finder uses the actual terminal appointment');
 select is(pg_temp.crmread('{"operation":"merge_review","source_client_id":"a4000000-0000-4000-8000-000000000031","target_client_id":"a4000000-0000-4000-8000-000000000034"}')->>'code','CRM_NOT_FOUND','cross-tenant target never enters merge review');
 select is(pg_temp.crmread('{"operation":"list","filter":{"service_id":"a4000000-0000-4000-8000-000000000101","service_last_visit_min_days":15}}')#>>'{data,items}','[]','service-specific recency uses the latest completed matching service');
+select is(pg_temp.crm('{"type":"ACTION_CREATE","mutation_id":"a4000000-0000-4000-8000-000000000522","id":"a4000000-0000-4000-8000-000000000615","client_id":"a4000000-0000-4000-8000-000000000031","kind":"DUPLICATE_REVIEW","source_domain":"client","source_id":"a4000000-0000-4000-8000-000000000031"}')#>>'{data,version}','1','duplicate review action requires a real shared-phone warning');
+select is(pg_temp.crm('{"type":"ACTION_TRANSITION","mutation_id":"a4000000-0000-4000-8000-000000000523","id":"a4000000-0000-4000-8000-000000000615","expected_version":1,"status":"DISMISSED","snoozed_until":null}')#>>'{data,version}','2','explicit dismissal persists with an optimistic version');
+select is(pg_temp.crmread('{"operation":"actions","status":"DISMISSED"}')#>>'{data,items,0,id}','a4000000-0000-4000-8000-000000000615','action center filters persisted dismissed actions');
+select set_config('request.jwt.claim.sub','a4000000-0000-4000-8000-000000000022',true);
+select is((select count(*)::integer from public.client_crm_actions),0,'cross-organization CRM actions are isolated by RLS');
+select set_config('request.jwt.claim.sub','a4000000-0000-4000-8000-000000000021',true);
 -- Visibility edits are checked against both previous and new classes and are audited.
 select is(pg_temp.crm('{"type":"NOTE_SAVE","mutation_id":"a4000000-0000-4000-8000-000000000520","id":"a4000000-0000-4000-8000-000000000612","client_id":"a4000000-0000-4000-8000-000000000031","expected_version":1,"visibility":"PRIVATE_MANAGEMENT","body":"Visibility changed after review","archived":false}')#>>'{data,version}','2','authorized visibility change is versioned');
 select set_config('request.jwt.claim.sub','a4000000-0000-4000-8000-000000000024',true);
