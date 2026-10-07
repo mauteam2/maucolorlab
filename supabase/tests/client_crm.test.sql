@@ -29,7 +29,7 @@ select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-400
 insert into salon_results values('past',pg_temp.op(pg_temp.book('a4000000-0000-4000-8000-000000000301','2026-10-12T10:00')));
 select is((select value#>>'{data,status}' from salon_results where name='past'),'CONFIRMED','fixture books through authoritative appointment engine');
 reset role;
-update public.salon_appointments set status='COMPLETED',completed_at=statement_timestamp()-interval '30 days',actual_duration_seconds=3600 where id='a4000000-0000-4000-8000-000000000301';
+update public.salon_appointments set version=version+1,status='COMPLETED',completed_at=statement_timestamp()-interval '30 days',actual_duration_seconds=3600 where id='a4000000-0000-4000-8000-000000000301';
 set local role authenticated;
 select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,relationship_status}','ACTIVE','one completed visit is an active factual client');
 select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,preferred_staff,source}','UNKNOWN','one visit does not invent preferred staff');
