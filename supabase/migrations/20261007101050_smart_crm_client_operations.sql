@@ -101,7 +101,7 @@ do $$ declare t text;begin
  end loop;
 end $$;
 
-create function app_private.crm_timeline(org uuid,loc uuid,ids uuid[]) returns table(event_key text,event_type text,timestamp timestamptz,source_domain text,source_id uuid,source_client_id uuid,actor_id uuid,summary text,visibility text)
+create function app_private.crm_timeline(org uuid,loc uuid,ids uuid[]) returns table(event_key text,event_type text,"timestamp" timestamptz,source_domain text,source_id uuid,source_client_id uuid,actor_id uuid,summary text,visibility text)
 language sql stable security invoker set search_path='' as $$
  select 'client:'||c.id||':created','CLIENT_CREATED',c.created_at,'client',c.id,c.id,c.created_by,'Müşteri oluşturuldu','OPERATIONAL' from public.clients c where c.organization_id=org and c.id=any(ids)
  union all select 'appointment:'||a.id||':created','APPOINTMENT_CREATED',a.created_at,'salon_appointment',a.id,a.client_id,a.created_by,a.service_name,'OPERATIONAL' from public.salon_appointments a where a.organization_id=org and a.location_id=loc and a.client_id=any(ids)
@@ -133,10 +133,10 @@ begin
  'technical_sources',coalesce((select jsonb_agg(jsonb_build_object('domain','hair_passport','id',p.id,'client_id',p.client_id,'version',p.version,'updated_at',p.updated_at)) from public.hair_passports p where p.organization_id=org and p.client_id=any(ids) and app_private.user_has_permission(org,p_location,'crm.notes.technical')),'[]'));
  elsif op='list' then
  filter:=coalesce(q->'filter','{}');
- if not app_private.salon_keys(filter,array['query','record_status','relationship_status','last_visit_min_days','upcoming','preferred_staff_id','service_id','last_no_show','technical_followup']) then return jsonb_build_object('code','VALIDATION_FAILED');end if;
+ if not app_private.salon_keys(filter,array['query','record_status','relationship_status','last_visit_min_days','upcoming','preferred_staff_id','staff_history_id','service_id','last_no_show','technical_followup','technical_followup_kind']) then return jsonb_build_object('code','VALIDATION_FAILED');end if;
  if exists(select 1 from jsonb_each(filter) e where jsonb_typeof(e.value) is distinct from case when e.key in ('last_no_show','technical_followup') then 'boolean' when e.key='last_visit_min_days' then 'number' else 'string' end) then return jsonb_build_object('code','VALIDATION_FAILED');end if;
  if coalesce(filter->>'record_status','ACTIVE') not in ('ACTIVE','ARCHIVED') or coalesce(filter->>'upcoming','ANY') not in ('ANY','HAS','NONE') or (filter ? 'last_visit_min_days' and (filter->>'last_visit_min_days')::integer not between 1 and 3650) or char_length(coalesce(filter->>'query',''))>80 or (filter ? 'relationship_status' and filter->>'relationship_status' not in ('NEW','ACTIVE','RETURNING','OVERDUE','INACTIVE','UPCOMING','FOLLOW_UP_REQUIRED')) then return jsonb_build_object('code','VALIDATION_FAILED');end if;
- if filter ? 'technical_followup' and not app_private.user_has_permission(org,p_location,'crm.notes.technical') then return jsonb_build_object('code','FORBIDDEN');end if;
+ if (filter ? 'technical_followup' or filter ? 'technical_followup_kind') and not app_private.user_has_permission(org,p_location,'crm.notes.technical') then return jsonb_build_object('code','FORBIDDEN');end if;
  needle:=app_private.client_name_key(coalesce(filter->>'query',''));
  -- A bounded candidate scan avoids one technical/relationship aggregation per tenant row.
  with candidates as materialized(select c.*,row_number() over(order by c.name_normalized,c.id) rn from public.clients c where c.organization_id=org and c.status=coalesce(filter->>'record_status','ACTIVE') and not exists(select 1 from public.client_merge_links l where l.source_client_id=c.id)
@@ -146,6 +146,8 @@ begin
  and (not(filter ? 'last_visit_min_days') or (c.s->>'days_since_last_visit')::integer >=(filter->>'last_visit_min_days')::integer)
  and (coalesce(filter->>'upcoming','ANY')='ANY' or (filter->>'upcoming'='NONE')=(c.s->'upcoming_appointment'='null'::jsonb))
  and (not(filter ? 'preferred_staff_id') or c.s#>>'{preferred_staff,membership_id}'=filter->>'preferred_staff_id')
+ and (not(filter ? 'staff_history_id') or exists(select 1 from public.salon_appointments a where a.organization_id=org and a.location_id=p_location and a.client_id=any(app_private.crm_family(org,c.id)) and a.staff_membership_id=(filter->>'staff_history_id')::uuid and a.status='COMPLETED'))
+ and (not(filter ? 'technical_followup_kind') or exists(select 1 from jsonb_array_elements(c.s->'technical_followups') x where x->>'kind'=filter->>'technical_followup_kind'))
  and (not(filter ? 'service_id') or exists(select 1 from public.salon_appointments a where a.organization_id=org and a.location_id=p_location and a.client_id=any(app_private.crm_family(org,c.id)) and a.service_id=(filter->>'service_id')::uuid and a.status='COMPLETED'))
  and (not(filter ? 'last_no_show') or (c.s#>>'{appointment_facts,last_status}'='NO_SHOW')=(filter->>'last_no_show')::boolean)
  and (not(filter ? 'technical_followup') or (jsonb_array_length(c.s->'technical_followups')>0)=(filter->>'technical_followup')::boolean)
@@ -153,7 +155,7 @@ begin
  select coalesce((select jsonb_agg(item order by rn) from shown),'[]'),(select count(*) from matched)>v_limit or (select count(*) from candidates)>200,case when (select count(*) from matched)>v_limit then (select max(rn)::integer from shown) else v_offset+200 end into items,more,next_offset;
  data:=jsonb_build_object('items',items,'has_more',more,'offset',v_offset,'next_offset',next_offset,'scan_limit',200);
  elsif op='timeline' then
- select coalesce(jsonb_agg(to_jsonb(x)),'[]') into items from(select * from app_private.crm_timeline(org,p_location,ids) order by timestamp desc,event_key offset v_offset limit v_limit+1) x;
+ select coalesce(jsonb_agg(to_jsonb(x)),'[]') into items from(select * from app_private.crm_timeline(org,p_location,ids) order by "timestamp" desc,event_key offset v_offset limit v_limit+1) x;
  data:=jsonb_build_object('items',items,'has_more',jsonb_array_length(items)>v_limit,'offset',v_offset);
  data:=jsonb_set(data,'{items}',(select coalesce(jsonb_agg(v),'[]') from jsonb_array_elements(items) with ordinality t(v,n) where n<=v_limit));
  elsif op='appointments' then
@@ -288,7 +290,7 @@ end $$;
 
 create function app_private.crm_operation(p_membership uuid,p_location uuid,q jsonb,p_correlation uuid) returns jsonb language plpgsql security definer set search_path='' set row_security='on' as $$
 declare org uuid;ctx jsonb;actor uuid:=auth.uid();stamp timestamptz:=statement_timestamp();op text:=q->>'type';permission text;allowed text[];mid uuid;eid uuid;cid uuid;expected bigint;v bigint;response jsonb;receipt app_private.crm_receipts%rowtype;d jsonb;prev jsonb;summary jsonb;basis jsonb;due timestamptz;note public.client_notes%rowtype;action public.client_crm_actions%rowtype;
- source public.clients%rowtype;target public.clients%rowtype;review app_private.crm_merge_reviews%rowtype;merge public.client_merge_operations%rowtype;sp jsonb;tp jsonb;selected jsonb:='{}';decisions jsonb;f text;fingerprint text;links jsonb;family uuid[];item jsonb;pref_version bigint;window public.service_return_windows%rowtype;
+ source public.clients%rowtype;target public.clients%rowtype;review app_private.crm_merge_reviews%rowtype;merge public.client_merge_operations%rowtype;sp jsonb;tp jsonb;selected jsonb:='{}';decisions jsonb;f text;fingerprint text;links jsonb;family uuid[];item jsonb;pref_version bigint;
 begin
  permission:=case when op='PREFERENCE_SAVE' then 'crm.preferences.manage' when op='NOTE_SAVE' then app_private.crm_note_permission(q->>'visibility') when op='RETURN_WINDOW_SAVE' then 'salon.catalog.manage' when op='POLICY_SAVE' then 'crm.policy.manage' when op in ('ACTION_CREATE','ACTION_TRANSITION') then 'crm.actions.manage' when op in ('MERGE','MERGE_REVERSE') then 'crm.merge' end;
  if permission is null or actor is null or p_correlation is null or pg_column_size(q)>32768 or jsonb_typeof(q)<>'object' then return jsonb_build_object('code','VALIDATION_FAILED');end if;
@@ -361,7 +363,7 @@ begin
  fingerprint:=encode(extensions.digest(jsonb_build_array(to_jsonb(source),to_jsonb(target),sp,tp,app_private.crm_family(org,source.id),app_private.crm_family(org,target.id))::text,'sha256'),'hex');
  if fingerprint<>review.fingerprint or source.status<>'ACTIVE' or target.status<>'ACTIVE' or exists(select 1 from public.client_merge_links l where l.source_client_id in (source.id,target.id)) then return jsonb_build_object('code','CRM_REVIEW_EXPIRED');end if;
  decisions:=q->'decisions';
- if not app_private.salon_keys(decisions,array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) or not(decisions ?& array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) or exists(select 1 from jsonb_each_text(decisions) x where x.value not in ('SOURCE','TARGET')) then return jsonb_build_object('code','CRM_DECISIONS_REQUIRED');end if;
+ if not app_private.salon_keys(decisions,array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) or not(decisions ?& array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) or exists(select 1 from jsonb_each(decisions) x where jsonb_typeof(x.value)<>'string' or x.value#>>'{}' not in ('SOURCE','TARGET')) then return jsonb_build_object('code','CRM_DECISIONS_REQUIRED');end if;
  foreach f in array array['full_name','phone','phone_normalized','email','birth_date'] loop
  selected:=selected||jsonb_build_object(f,case when decisions->>(case when f='phone_normalized' then 'phone' else f end)='SOURCE' then to_jsonb(source)->f else to_jsonb(target)->f end);end loop;
  foreach f in array array['preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact'] loop
