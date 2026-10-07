@@ -112,6 +112,18 @@ select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-400
 select is(pg_temp.crmread('{"operation":"list","filter":{"last_no_show":true}}')#>>'{data,items,0,id}','a4000000-0000-4000-8000-000000000033','last no-show finder uses the actual terminal appointment');
 select is(pg_temp.crmread('{"operation":"merge_review","source_client_id":"a4000000-0000-4000-8000-000000000031","target_client_id":"a4000000-0000-4000-8000-000000000034"}')->>'code','CRM_NOT_FOUND','cross-tenant target never enters merge review');
 select is(pg_temp.crmread('{"operation":"list","filter":{"service_id":"a4000000-0000-4000-8000-000000000101","service_last_visit_min_days":15}}')#>>'{data,items}','[]','service-specific recency uses the latest completed matching service');
+-- Visibility edits are checked against both previous and new classes and are audited.
+select is(pg_temp.crm('{"type":"NOTE_SAVE","mutation_id":"a4000000-0000-4000-8000-000000000520","id":"a4000000-0000-4000-8000-000000000612","client_id":"a4000000-0000-4000-8000-000000000031","expected_version":1,"visibility":"PRIVATE_MANAGEMENT","body":"Visibility changed after review","archived":false}')#>>'{data,version}','2','authorized visibility change is versioned');
+select set_config('request.jwt.claim.sub','a4000000-0000-4000-8000-000000000024',true);
+select is((select count(*)::integer from public.client_notes),0,'reception loses visibility immediately after management classification');
+select is(public.crm_operation('a4000000-0000-4000-8000-000000000114','a4000000-0000-4000-8000-000000000011','{"type":"NOTE_SAVE","mutation_id":"a4000000-0000-4000-8000-000000000521","id":"a4000000-0000-4000-8000-000000000612","client_id":"a4000000-0000-4000-8000-000000000031","expected_version":2,"visibility":"RECEPTION","body":"Forged visibility downgrade","archived":false}',gen_random_uuid())->>'code','CRM_CONFLICT','reception cannot downgrade an existing private note');
+select set_config('request.jwt.claim.sub','a4000000-0000-4000-8000-000000000021',true);
+reset role;
+select is((select count(*)::integer from public.audit_events where action='crm.note.visibility_changed'),1,'one immutable visibility audit without private body');
+set local role authenticated;
+insert into salon_results values('stale-review',pg_temp.crmread('{"operation":"merge_review","source_client_id":"a4000000-0000-4000-8000-000000000031","target_client_id":"a4000000-0000-4000-8000-000000000032"}'));
+reset role;update public.clients set email='changed-after-review@elifora.test',version=version+1 where id='a4000000-0000-4000-8000-000000000032';set local role authenticated;
+select is(pg_temp.crm(jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',(select value#>>'{data,review_token}' from salon_results where name='stale-review'),'decisions',(select value->'decisions' from salon_results where name='merge_command')))->>'code','CRM_REVIEW_EXPIRED','identity change invalidates an older reviewed merge token');
 -- Representative bounded-query benchmark, synthetic data only, rolled back with this test.
 reset role;
 insert into public.clients(id,organization_id,full_name,phone,phone_normalized,created_by,updated_by,creation_location_id)

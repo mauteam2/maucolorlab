@@ -19,6 +19,7 @@ export function ClientWorkspace({ route }: { route: string }) {
   const [context, setContext] = useState<ActiveTenantContext | null>(null);
   const [directory, setDirectory] = useState<Directory | null>(null);
   const [client, setClient] = useState<Client | null>(null);
+  const [canonicalClientId,setCanonicalClientId] = useState<string|null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [review, setReview] = useState<Review | null>(null);
   const [archive, setArchive] = useState(false);
@@ -145,9 +146,9 @@ export function ClientWorkspace({ route }: { route: string }) {
           <p className="client-status">{client.status === "ACTIVE" ? "Aktif müşteri" : "Arşivde"}</p>
           {context?.permissions.includes("hair_passport.read") && <nav className="hp-tabs" aria-label={hairTr.navigation}><span aria-current="page">{hairTr.overview}</span><Link prefetch={false} href={`/workspace/clients/${client.id}/hair-passport`}>{hairTr.title}</Link></nav>}
           <dl className="client-details"><dt>Telefon</dt><dd>{client.phone}</dd><dt>E-posta</dt><dd>{client.email ?? "Eklenmedi"}</dd><dt>Doğum Tarihi</dt><dd>{client.birth_date ? date(client.birth_date) : "Eklenmedi"}</dd><dt>Oluşturma</dt><dd>{date(client.created_at)}</dd><dt>Son güncelleme</dt><dd>{date(client.updated_at)}</dd></dl>
-          {context?.permissions.includes("crm.read")&&<ClientCrm clientId={client.id} context={context}/>}
+          {context?.permissions.includes("crm.read")&&<ClientCrm clientId={client.id} context={context} onCanonicalClientId={setCanonicalClientId}/>}
           <div className="client-actions">{client.status === "ACTIVE" && context?.permissions.includes("clients.update") && <button className="button button-primary" disabled={saving || checking} onClick={() => setDraft({ full_name: client.full_name, phone: client.phone, email: client.email ?? "", birth_date: client.birth_date ?? "", expected_version: client.version, request_id: crypto.randomUUID() })}>Düzenle</button>}
-          {context?.permissions.includes("clients.archive") && <button className="button button-secondary" disabled={saving || checking} onClick={() => {
+          {(!canonicalClientId||canonicalClientId===client.id) && context?.permissions.includes("clients.archive") && <button className="button button-secondary" disabled={saving || checking} onClick={() => {
             archiveRequest.current ??= crypto.randomUUID();
             if (client.status === "ACTIVE") setArchive(true);
             else void mutate("restore", { client_id: client.id, expected_version: client.version, request_id: archiveRequest.current });
