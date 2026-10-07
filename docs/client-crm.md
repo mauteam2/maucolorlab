@@ -29,3 +29,5 @@ The directory scans at most 200 candidates per request and returns at most 50 re
 Phase 4C is not implemented by this slice. It can consider further booking/operational workflows after Phase 4B acceptance.
 
 The last technical memory projects the actual completed session assessment and its stored recipe quantities, with original client/session/recipe IDs. Reception receives no technical memory. Recovery follow-ups point to the newest existing recovery Color Plan ID/time; CRM performs no new risk assessment.
+
+Appointment precheck presentation is bound to its requested appointment ID. A delayed result cannot describe a replacement upcoming appointment; periodic summary refresh clears previously displayed precheck findings.
