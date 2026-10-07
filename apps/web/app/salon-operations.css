@@ -23,5 +23,6 @@
 @media(max-width:600px) { .salon-operations-dialog { padding:16px; }.salon-dialog-heading h2 { font-size:25px; }.salon-configuration-row { flex-wrap:wrap; }.salon-toolbar label { display:grid;gap:8px;min-width:0; }.salon-shift-row { grid-template-columns:1fr 1fr; }.salon-operations-dialog .salon-form-grid { grid-template-columns:1fr; } }
 
 .salon-team-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px; }.salon-team-person { display:flex;gap:14px;align-items:center; }.salon-team-person h2 { margin-bottom:6px;font-size:28px; }
+.salon-real-work-hour { grid-template-columns:minmax(100px,1fr) 150px 150px; }.salon-real-work-hour label { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }.salon-real-work-hour label small { flex-basis:100%; }.salon-real-work-hour input[type="time"] { width:100%;min-width:0; }
 @media(max-width:1250px) { .salon-team-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-@media(max-width:600px) { .salon-team-grid { grid-template-columns:1fr; } }
+@media(max-width:600px) { .salon-team-grid { grid-template-columns:1fr; }.salon-real-work-hour { grid-template-columns:1fr;gap:8px; } }
