@@ -80,7 +80,7 @@ def prefix_fixture(name, stop, table):
     # shared test helpers because concurrent connections cannot see each other's
     # temporary schema. No test helper is part of production migrations.
     lines=[line for line in text.splitlines() if not line.startswith(("begin;", "select no_plan", "select is(", "select ok(", "select throws_ok(", "select lives_ok("))]
-    text="\n".join(lines).replace("create temporary table", "create table gate_test.").replace("pg_temp.", "gate_test.")
+    text="\n".join(lines).replace("create temporary table "+table, "create table gate_test."+table).replace("pg_temp.", "gate_test.")
     # Table creation already has schema; qualify remaining references.
     import re
     text=re.sub(r"\b(from|into|on)\s+"+table+r"\b", lambda match: match[1]+" gate_test."+table,text,flags=re.I)
@@ -175,6 +175,13 @@ try:
     merge_id=result(observer.execute(f"select jsonb_build_object('id',id) from public.client_merge_operations where source_client_id='{source}';"))["id"]
     observer.execute("reset role;")
     race("reversal vs target edit",rpc({"type":"MERGE_REVERSE","mutation_id":str(uuid.uuid4()),"merge_id":merge_id,"reason":"Explicit reversal"}),edit(target),code("CONFLICT"))
+    for ordering in ["edit-first","reverse-first"]:
+        pair();command=review();auth(observer,"a4000000-0000-4000-8000-000000000021")
+        merge_id=result(observer.execute(rpc(command)))['data']['id'];observer.execute("reset role;")
+        reversal=rpc({"type":"MERGE_REVERSE","mutation_id":str(uuid.uuid4()),"merge_id":merge_id,"reason":"Source identity race"})
+        source_edit=edit(source)
+        if ordering=="edit-first":race("archived source edit vs reversal",source_edit,reversal,lambda value: "data" in value or (_ for _ in ()).throw(AssertionError(value)),first_expected="CLIENT_ARCHIVED")
+        else:race("reversal vs source edit",reversal,source_edit,code("CONFLICT"))
     pair();forward=review()
     source,target=target,source;backward=review();source,target=target,source
     race("opposite-direction merges use deterministic locks",rpc(forward),rpc(backward),code("CRM_REVIEW_EXPIRED"))
@@ -206,7 +213,7 @@ try:
         text=text.replace("'catalogVersion',1", "'catalogVersion',(value#>>'{catalog,release,version}')::integer")
         text=text.replace("'productVersion',1", "'productVersion',(select version from public.catalog_products where id=chosen.product_id)")
         text=text.replace("'developerVersion',1", "'developerVersion',(select version from public.catalog_products where id=chosen.developer_id)")
-        observer.execute("reset role;begin;"+text+"commit;")
+        observer.execute("reset role;drop table if exists pg_temp.chosen;begin;"+text+"commit;")
         owner=prefix+"000000-0000-4000-8000-000000000021"
         member_id=prefix+"000000-0000-4000-8000-000000000111"
         location=prefix+"000000-0000-4000-8000-000000000011"
