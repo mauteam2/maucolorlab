@@ -2,7 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
 select no_plan();
-\ir fixtures/gate-1-live.sql
+\ir fixtures/gate-1-live.inc
 create temporary table salon_results(name text primary key,value jsonb);grant all on salon_results to authenticated;
 create function pg_temp.op(q jsonb) returns jsonb language sql volatile security invoker as $$select public.salon_operation('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011',q,gen_random_uuid());$$;
 create function pg_temp.book(i uuid,local_time text,m uuid default 'b4000000-0000-4000-8000-000000000111',v bigint default 0) returns jsonb language sql volatile security invoker as $$select jsonb_build_object('type','APPOINTMENT_SAVE','mutation_id',gen_random_uuid(),'id',i,'expected_version',v,'definition',jsonb_build_object('client_id','b4000000-0000-4000-8000-000000000031','service_id','b4000000-0000-4000-8000-000000000101','staff_membership_id',m,'local_start',local_time,'utc_offset_minutes',null,'scheduled_duration_minutes',null,'adjustment_reason',null,'notes',null,'status','CONFIRMED'));$$;

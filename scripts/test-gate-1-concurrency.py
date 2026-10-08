@@ -201,6 +201,11 @@ try:
         for name in ["controlled-a","controlled-b","live-assistant","live-viewer"]:
             text=text.replace(name+"@",name+"-"+prefix+"@")
         text=text.replace("'controlled-a'","'controlled-a-"+prefix+"'").replace("'controlled-b'","'controlled-b-"+prefix+"'")
+        previous=observer.execute("select id from public.brand_catalog_releases where pilot_key='schwarzkopf-igora-royal-absolutes' and state in ('PUBLISHED','RETIRED') order by version desc limit 1;")[-1]
+        text=text.replace("'IMPORT',null", "'IMPORT','"+previous+"'")
+        text=text.replace("'catalogVersion',1", "'catalogVersion',(value#>>'{catalog,release,version}')::integer")
+        text=text.replace("'productVersion',1", "'productVersion',(select version from public.catalog_products where id=chosen.product_id)")
+        text=text.replace("'developerVersion',1", "'developerVersion',(select version from public.catalog_products where id=chosen.developer_id)")
         observer.execute("reset role;begin;"+text+"commit;")
         owner=prefix+"000000-0000-4000-8000-000000000021"
         member_id=prefix+"000000-0000-4000-8000-000000000111"
@@ -252,6 +257,11 @@ try:
     observer.execute("reset role;")
     merge=f"select public.crm_operation('{live_member}','{live_loc}',{literal({'type':'MERGE','mutation_id':str(uuid.uuid4()),'review_token':token,'decisions':decisions})},gen_random_uuid());"
     race("MERGE guard vs Live START",merge,start,lambda value: value['status']=="IN_PROGRESS" or (_ for _ in ()).throw(AssertionError("start failed")),owner,first_expected="CRM_MERGE_ACTIVE_OPERATION")
+    owner,_,_,_,cat,start,_=fresh_live("bb")
+    rule=observer.execute(f"select id from public.catalog_compatibility_rules where catalog_id='{cat}' limit 1;")[-1]
+    observer.execute("create function gate_test.change_compatibility(rule_id uuid) returns jsonb language plpgsql security definer set search_path='' as $$begin update public.catalog_compatibility_rules set outcome='UNKNOWN' where id=rule_id;return jsonb_build_object('code','UNEXPECTED_WRITE');exception when check_violation then return jsonb_build_object('code',sqlerrm);end $$;")
+    race("Live execution vs immutable compatibility change",start,f"select gate_test.change_compatibility('{rule}');",code("IMMUTABLE_CATALOG_CONTENT"),owner)
+    assert observer.execute(f"select outcome<>'UNKNOWN' from public.catalog_compatibility_rules where id='{rule}';")[-1]=="t"
     print(f"Gate 1 real multi-connection cases executed: {count}")
 finally:
     for connection in sessions:
