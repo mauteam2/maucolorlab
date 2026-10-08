@@ -31,7 +31,7 @@ export async function mutateLiveSession(raw:unknown,id:string|null,clientId:stri
  const authority:Authority={actorId:auth.data.user.id,now:clock.data,permissions:ctx.permissions,id:randomUUID};let current=null;
  if(id){if(!clientId)throw new AccessError("VALIDATION_FAILED",400);current=liveSession.parse((await readLiveSessions(clientId,id,correlationId)).data);}
  const recipeId=q?.recipe_id??(command?.type==="RECIPE_REVISION"?command.recipe_id:current?.currentRecipeId);
- if(q||command&&["START","RESUME","REASSESS","RECIPE_REVISION"].includes(command.type)){
+ if(q||command&&["START","STEP_START","RESUME","REASSESS","RECIPE_REVISION"].includes(command.type)){
   Object.assign(authority,await revalidateControlledRecipe(q?.client_id??current!.clientId,recipeId!,correlationId));
  }
  if(command?.type==="TRANSFER_CONTROL"){

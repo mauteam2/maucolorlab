@@ -7233,6 +7233,7 @@
           "TENANT_CONTEXT_INVALID",
           "CRM_NOT_FOUND",
           "CRM_CONFLICT",
+          "CRM_MERGE_ACTIVE_OPERATION",
           "CRM_SIGNAL_CHANGED",
           "CRM_INVALID_TRANSITION",
           "CRM_REVIEW_EXPIRED",

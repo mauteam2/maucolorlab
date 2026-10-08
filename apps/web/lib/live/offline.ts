@@ -1,6 +1,6 @@
 import { liveCommand,type LiveCommand } from "./model";
 export type Draft={key:string;scope:string;command:LiveCommand;createdAt:string;photo?:Blob};
-export const draftable=(type:string)=>["NOTE","USAGE","CHECKPOINT_RECORD","PHOTO"].includes(type);
+export const draftable=(type:string)=>["NOTE","USAGE","MATERIAL_RECONCILE","CHECKPOINT_RECORD","PHOTO"].includes(type);
 function database(){return new Promise<IDBDatabase>((resolve,reject)=>{const r=indexedDB.open("elifora-live-drafts",1);r.onupgradeneeded=()=>r.result.createObjectStore("drafts",{keyPath:"key"});r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
 export async function storeDraft(d:Draft){if(!draftable(d.command.type))throw new Error("OFFLINE_CRITICAL_OPERATION");liveCommand.parse(d.command);const db=await database();try{await new Promise<void>((resolve,reject)=>{const t=db.transaction("drafts","readwrite");t.objectStore("drafts").put(d);t.oncomplete=()=>resolve();t.onerror=()=>reject(t.error);});}finally{db.close();}}
 export async function readDrafts(scope:string){const db=await database();try{return await new Promise<Draft[]>((resolve,reject)=>{const r=db.transaction("drafts").objectStore("drafts").getAll();r.onsuccess=()=>resolve((r.result as Draft[]).filter(d=>d.scope===scope).sort((a,b)=>a.createdAt.localeCompare(b.createdAt)));r.onerror=()=>reject(r.error);});}finally{db.close();}}

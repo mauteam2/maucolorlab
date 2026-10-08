@@ -10894,6 +10894,7 @@ components:
                 - PENDING
                 - IN_PROGRESS
                 - COMPLETED
+                - SUPERSEDED
               actualStart:
                 anyOf:
                 - type: string
@@ -11324,6 +11325,77 @@ components:
             - by
             - at
             additionalProperties: false
+        materialReconciliations:
+          maxItems: 100
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              mutationId:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              bowlId:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              recipeId:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              supersedesId:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              preparedGrams:
+                anyOf:
+                - type: number
+                  minimum: 0
+                  maximum: 2000
+                - type: 'null'
+              usedGrams:
+                anyOf:
+                - type: number
+                  minimum: 0
+                  maximum: 2000
+                - type: 'null'
+              wasteGrams:
+                anyOf:
+                - type: number
+                  minimum: 0
+                  maximum: 2000
+                - type: 'null'
+              reason:
+                type: string
+                minLength: 1
+                maxLength: 2000
+              recordedBy:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              recordedAt:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            required:
+            - id
+            - mutationId
+            - bowlId
+            - recipeId
+            - supersedesId
+            - preparedGrams
+            - usedGrams
+            - wasteGrams
+            - reason
+            - recordedBy
+            - recordedAt
+            additionalProperties: false
         outcome:
           anyOf:
           - type: object
@@ -11518,6 +11590,7 @@ components:
           - PENDING
           - IN_PROGRESS
           - COMPLETED
+          - SUPERSEDED
         actualStart:
           anyOf:
           - type: string
@@ -12044,11 +12117,8 @@ components:
             pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
           - type: 'null'
         appointment_link:
-          anyOf:
-          - type: string
-            format: uuid
-            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
-          - type: 'null'
+          default: null
+          type: 'null'
       required:
       - mutation_id
       - device_id
@@ -12444,6 +12514,72 @@ components:
         - bowl_id
         - prepared_grams
         - used_grams
+        - reason
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          device_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            exclusiveMinimum: 0
+            maximum: 9007199254740991
+          control_epoch:
+            type: integer
+            exclusiveMinimum: 0
+            maximum: 9007199254740991
+          type:
+            type: string
+            const: MATERIAL_RECONCILE
+          bowl_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          supersedes_id:
+            anyOf:
+            - type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            - type: 'null'
+          prepared_grams:
+            anyOf:
+            - type: number
+              minimum: 0
+              maximum: 2000
+            - type: 'null'
+          used_grams:
+            anyOf:
+            - type: number
+              minimum: 0
+              maximum: 2000
+            - type: 'null'
+          waste_grams:
+            anyOf:
+            - type: number
+              minimum: 0
+              maximum: 2000
+            - type: 'null'
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+        required:
+        - mutation_id
+        - device_id
+        - expected_version
+        - control_epoch
+        - type
+        - bowl_id
+        - supersedes_id
+        - prepared_grams
+        - used_grams
+        - waste_grams
         - reason
         additionalProperties: false
       - type: object
@@ -20860,6 +20996,7 @@ components:
           - TENANT_CONTEXT_INVALID
           - CRM_NOT_FOUND
           - CRM_CONFLICT
+          - CRM_MERGE_ACTIVE_OPERATION
           - CRM_SIGNAL_CHANGED
           - CRM_INVALID_TRANSITION
           - CRM_REVIEW_EXPIRED

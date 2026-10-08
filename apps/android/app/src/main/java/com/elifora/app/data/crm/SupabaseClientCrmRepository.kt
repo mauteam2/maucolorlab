@@ -21,7 +21,7 @@ class SupabaseClientCrmRepository(private val read: suspend (String) -> HttpRepl
         val body = JSONObject(reply.body)
         if (body.has("code")) {
             val code = body.getString("code")
-            val known = setOf("UNAUTHENTICATED", "SESSION_EXPIRED", "FORBIDDEN", "MEMBERSHIP_REQUIRED", "MEMBERSHIP_REVOKED", "TENANT_CONTEXT_INVALID", "CRM_NOT_FOUND", "CRM_CONFLICT", "CRM_SIGNAL_CHANGED", "CRM_INVALID_TRANSITION", "CRM_REVIEW_EXPIRED", "CRM_DECISIONS_REQUIRED", "VALIDATION_FAILED", "NETWORK_ERROR")
+            val known = setOf("UNAUTHENTICATED", "SESSION_EXPIRED", "FORBIDDEN", "MEMBERSHIP_REQUIRED", "MEMBERSHIP_REVOKED", "TENANT_CONTEXT_INVALID", "CRM_NOT_FOUND", "CRM_CONFLICT", "CRM_MERGE_ACTIVE_OPERATION", "CRM_SIGNAL_CHANGED", "CRM_INVALID_TRANSITION", "CRM_REVIEW_EXPIRED", "CRM_DECISIONS_REQUIRED", "VALIDATION_FAILED", "NETWORK_ERROR")
             throw ClientFailure(if (code in known) code else "NETWORK_ERROR", correlation)
         }
         return body.getJSONObject("data")

@@ -148,6 +148,8 @@ jobs:
           python scripts/start-local-supabase.py
       - run: supabase db lint --local --fail-on warning
       - run: supabase test db
+      - name: Gate 1 real PostgreSQL concurrency barriers
+        run: python scripts/test-gate-1-concurrency.py
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
