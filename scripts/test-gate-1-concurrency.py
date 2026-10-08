@@ -269,6 +269,14 @@ try:
     observer.execute("create function gate_test.change_compatibility(rule_id uuid) returns jsonb language plpgsql security definer set search_path='' as $$begin update public.catalog_compatibility_rules set outcome='UNKNOWN' where id=rule_id;return jsonb_build_object('code','UNEXPECTED_WRITE');exception when check_violation then return jsonb_build_object('code',sqlerrm);end $$;")
     race("Live execution vs immutable compatibility change",start,f"select gate_test.change_compatibility('{rule}');",code("IMMUTABLE_CATALOG_CONTENT"),owner)
     assert observer.execute(f"select outcome<>'UNKNOWN' from public.catalog_compatibility_rules where id='{rule}';")[-1]=="t"
+    owner,_,_,_,cat,start,_=fresh_live("bc")
+    auth(observer,owner)
+    next_catalog=result(observer.execute(f"select public.catalog_governance('IMPORT',null,'Next version start-first regression',gen_random_uuid(),'{cat}');"))["catalogId"]
+    observer.execute(f"select public.catalog_governance(op,'{next_catalog}','Next version start-first regression',gen_random_uuid()) from unnest(array['START_REVIEW','COMPLETE_REVIEW','VALIDATE_GOLDEN','APPROVE']) op;")
+    observer.execute("reset role;")
+    race("old catalog START vs new catalog PUBLISH",start,f"select public.catalog_governance('PUBLISH','{next_catalog}','Start committed before publish',gen_random_uuid());",lambda value: value['catalogId']==next_catalog or (_ for _ in ()).throw(AssertionError(value)),owner)
+    assert observer.execute(f"select status from public.live_sessions where id='bc000000-0000-4000-8000-000000000803';")[-1]=="IN_PROGRESS"
+    assert observer.execute(f"select state from public.brand_catalog_releases where id='{cat}';")[-1]=="RETIRED"
     print(f"Gate 1 real multi-connection cases executed: {count}")
 finally:
     for connection in sessions:
