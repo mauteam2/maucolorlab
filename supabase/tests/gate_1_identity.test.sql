@@ -2,7 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
 select no_plan();
-\ir ../test-fixtures/gate-1-identity.sql
+\ir fixtures/gate-1-identity.sql
 -- Remove only synthetic resource allocations before moving this test appointment.
 delete from public.salon_appointment_resources where appointment_id='a4000000-0000-4000-8000-000000000301';
 create function pg_temp.merge_command() returns jsonb language sql volatile as $$select jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',pg_temp.crmread('{"operation":"merge_review","source_client_id":"a4000000-0000-4000-8000-000000000031","target_client_id":"a4000000-0000-4000-8000-000000000032"}')#>>'{data,review_token}','decisions',(select jsonb_object_agg(f,'TARGET') from unnest(array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) f));$$;

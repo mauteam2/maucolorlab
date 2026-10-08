@@ -2,7 +2,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
 select no_plan();
-\ir ../test-fixtures/gate-1-live.sql
+\ir fixtures/gate-1-live.sql
 -- Minimal boundary fixture: give the already signed synthetic session a bowl.
 update public.live_sessions set payload=jsonb_set(payload,'{bowls}',jsonb_build_array(jsonb_build_object('id','b4000000-0000-4000-8000-000000000901','recipeId',current_recipe_id,'regionIds',jsonb_build_array('b4000000-0000-4000-8000-000000000051'),'plannedGrams',60,'preparedGrams',null,'usedGrams',null,'wasteGrams',null,'closed',false))) where id='b4000000-0000-4000-8000-000000000803';
 create function pg_temp.command(t text,extra jsonb default '{}') returns jsonb language sql volatile security definer set search_path='' as $$

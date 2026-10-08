@@ -156,6 +156,11 @@ select is(public.crm_read('b4000000-0000-4000-8000-000000000114','b4000000-0000-
 select is((select count(*) from public.client_crm_actions),0::bigint,'technical CRM actions hidden from reception by RLS');
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000021',true);
 insert into result values('crm-merge-review',pg_temp.crmread('{"operation":"merge_review","source_client_id":"b4000000-0000-4000-8000-000000000031","target_client_id":"b4000000-0000-4000-8000-000000000032"}'));
+-- Gate 1 strengthens this scenario: retain all original lineage assertions,
+-- explicitly prove the active guard, then complete both real appointments.
+select is(pg_temp.crm(jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',(select value#>>'{data,review_token}' from result where name='crm-merge-review'),'decisions',(select jsonb_object_agg(f,'SOURCE') from unnest(array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) f)))->>'code','CRM_MERGE_ACTIVE_OPERATION','active source and target appointments block historical merge');
+select is(pg_temp.salon_transition('b4000000-0000-4000-8000-000000001301',4,'COMPLETED')#>>'{data,status}','COMPLETED','source appointment finishes before merge');
+select is(pg_temp.salon_transition('b4000000-0000-4000-8000-000000001302',3,'COMPLETED')#>>'{data,status}','COMPLETED','target appointment finishes before merge');
 insert into result values('crm-merge',pg_temp.crm(jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',(select value#>>'{data,review_token}' from result where name='crm-merge-review'),'decisions',(select jsonb_object_agg(f,'SOURCE') from unnest(array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) f))));
 select ok((select value ? 'data' from result where name='crm-merge'),'reviewed CRM merge accepts actual multi-domain history');
 select is((select client_id::text from public.live_sessions),'b4000000-0000-4000-8000-000000000031','merge never reattributes the live session');
