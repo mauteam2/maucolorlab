@@ -175,6 +175,8 @@ try:
     merge_id=result(observer.execute(f"select jsonb_build_object('id',id) from public.client_merge_operations where source_client_id='{source}';"))["id"]
     observer.execute("reset role;")
     race("reversal vs target edit",rpc({"type":"MERGE_REVERSE","mutation_id":str(uuid.uuid4()),"merge_id":merge_id,"reason":"Explicit reversal"}),edit(target),code("CONFLICT"))
+    pair();command=review();source_edit=edit(source)
+    race("merge vs source edit",rpc(command),source_edit,code("CONFLICT"))
     for ordering in ["edit-first","reverse-first"]:
         pair();command=review();auth(observer,"a4000000-0000-4000-8000-000000000021")
         merge_id=result(observer.execute(rpc(command)))['data']['id'];observer.execute("reset role;")
