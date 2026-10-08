@@ -9,8 +9,11 @@ create function pg_temp.clone_appointment(i uuid,patch jsonb) returns void langu
 end $$;
 
 create function pg_temp.merge_command() returns jsonb language sql volatile as $$select jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',pg_temp.crmread('{"operation":"merge_review","source_client_id":"a4000000-0000-4000-8000-000000000031","target_client_id":"a4000000-0000-4000-8000-000000000032"}')#>>'{data,review_token}','decisions',(select jsonb_object_agg(f,'TARGET') from unnest(array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) f));$$;
-select pg_temp.clone_appointment('a4000000-0000-4000-8000-000000000391','{"status":"CONFIRMED","completed_at":null}');
+select pg_temp.clone_appointment('a4000000-0000-4000-8000-000000000391','{"status":"DRAFT","completed_at":null}');
 set local role authenticated;
+select is(pg_temp.crm(pg_temp.merge_command())->>'code','CRM_MERGE_ACTIVE_OPERATION','draft source appointment also blocks merge');
+select is(public.client_operation('a4000000-0000-4000-8000-000000000111','a4000000-0000-4000-8000-000000000011','archive',jsonb_build_object('client_id','a4000000-0000-4000-8000-000000000031','expected_version',1,'request_id',gen_random_uuid()),gen_random_uuid())->>'code','CRM_MERGE_ACTIVE_OPERATION','manual archive also blocked by active operation');
+reset role;update public.salon_appointments set status='CONFIRMED',version=version+1 where id='a4000000-0000-4000-8000-000000000391';set local role authenticated;
 select is(pg_temp.crm(pg_temp.merge_command())->>'code','CRM_MERGE_ACTIVE_OPERATION','confirmed source appointment blocks merge');
 select is((select status from public.clients where id='a4000000-0000-4000-8000-000000000031'),'ACTIVE','blocked merge never archives identity');
 reset role;
@@ -35,7 +38,8 @@ insert into public.clients(id,organization_id,full_name,phone,phone_normalized,c
 create function pg_temp.chain_command() returns jsonb language sql volatile as $$select jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',pg_temp.crmread('{"operation":"merge_review","source_client_id":"a4000000-0000-4000-8000-000000000032","target_client_id":"a4000000-0000-4000-8000-000000000035"}')#>>'{data,review_token}','decisions',(select jsonb_object_agg(f,'TARGET') from unnest(array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) f));$$;
 -- Legacy alias activity must still block a second merge of the canonical family.
 select pg_temp.clone_appointment('a4000000-0000-4000-8000-000000000392','{"status":"CONFIRMED","completed_at":null}');set local role authenticated;
-select is(pg_temp.crm(pg_temp.chain_command())->>'code','CRM_MERGE_ACTIVE_OPERATION','active alias record blocks chained canonical-family merge');reset role;
+select is(pg_temp.crm(pg_temp.chain_command())->>'code','CRM_MERGE_ACTIVE_OPERATION','active alias record blocks chained canonical-family merge');
+select is(public.client_operation('a4000000-0000-4000-8000-000000000111','a4000000-0000-4000-8000-000000000011','archive',jsonb_build_object('client_id','a4000000-0000-4000-8000-000000000032','expected_version',(select version from public.clients where id='a4000000-0000-4000-8000-000000000032'),'request_id',gen_random_uuid()),gen_random_uuid())->>'code','CRM_MERGE_ACTIVE_OPERATION','manual canonical archive sees active alias');reset role;
 update public.salon_appointments set status='CANCELLED',version=version+1,cancelled_at=now() where id='a4000000-0000-4000-8000-000000000392';set local role authenticated;
 insert into salon_results values('gate-chain',pg_temp.crm(pg_temp.chain_command()));
 select ok((select value ? 'data' from salon_results where name='gate-chain'),'terminal alias history allows reviewed chain');

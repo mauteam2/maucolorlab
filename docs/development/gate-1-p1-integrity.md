@@ -9,11 +9,15 @@ Tenant critical writes serialize on the existing transaction advisory key
 their organization-row lock. Client mutations and Live already use that key.
 Merge/reversal lock source and target client rows in ascending UUID order,
 reload them and validate the review fingerprint under lock. Conditional updates
-return actual after-versions used in the immutable merge record.
+return actual after-versions used in the immutable merge record. A failed
+conditional update raises a handled serialization conflict so the entire function
+block rolls back, including an earlier target update.
 
 Ordering: organization advisory → organization row (where required) → ascending
 client rows → session/appointment rows → catalog series advisory (seed 2).
 Catalog governance never acquires a tenant advisory lock after the series lock.
+Its content writes enter the same barrier, including compatibility writes;
+published rules remain immutable and must change through a new release.
 All commit-sensitive catalog consumers use `app_private.lock_brand_catalog`,
 then read authoritative published/source/product/compatibility state. Historical
 catalog versions remain readable; retirement is not retroactive history editing.
@@ -23,7 +27,10 @@ catalog versions remain readable; retirement is not retroactive history editing.
 Merge rejects either canonical family containing any non-terminal appointment
 or Live Session, across all organization locations. The error is
 `CRM_MERGE_ACTIVE_OPERATION`. Close the operational work, refresh the review and
-make explicit field decisions. No technical FK/history is reassigned.
+make explicit field decisions. Manual client archive uses the same family-wide
+active guard with fresh clients.archive authority and the same structured error;
+its probe is executable only by the NOLOGIN client service. No technical FK/history
+is reassigned.
 The private boolean helper derives organization from fresh authenticated global
 owner/manager membership. It returns no operational or technical payload.
 
@@ -34,7 +41,11 @@ Already-started/completed steps, original bowls and usage are retained. A new
 reviewed recipe projects a fresh bowl, pending root step and required integrity
 checkpoint. The target snapshot follows the reviewed revision. STEP_START also
 revalidates current technical input/catalog/recipe and rejects old-recipe bowls.
-An invalidated unit cannot be restored by a generic sequence edit.
+An invalidated unit cannot be restored by a generic sequence edit. Professional
+sequence editing preserves completed/in-progress/superseded history and only
+replans current-recipe pending units. Each revision explicitly supersedes the
+current recipe; execution validates the current tip of its immutable series.
+Completion does not invent an outcome for a superseded, never-executed region.
 
 ## Post-stop material accounting
 
@@ -84,6 +95,15 @@ New pgTAP tests cover active-family guards, version/history preservation and
 append-only material events/authorization. Web tests cover execution invalidation,
 historical hash compatibility, late quantities and explicit offline conflict review.
 
+The terminal head trigger permits only the exact accounting append delta; it
+still rejects status, controller, recipe, step, usage, outcome or ownership edits.
+
 This document describes the correction contract, not a declaration of completed
 validation. Final executed counts and CI checkpoint belong in the delivery report.
 Gate 1 P2/P3 findings remain out of scope.
+
+The existing multi-domain history regression retains all original attribution
+assertions. It now first asserts the active-operation error, completes both real
+appointments through the service and then verifies the original merge/reversal.
+Fixture includes use `.inc` so Supabase does not execute them as standalone tests.
+No trigger, policy or existing assertion is disabled for fixture setup.

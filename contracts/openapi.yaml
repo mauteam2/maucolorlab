@@ -105,6 +105,7 @@ paths:
         review. Expired/changed reviews must be requested again without the token.
         Never auto-merge. Successful retries of the identical request_id and payload
         return the original result for 24 hours without another write/audit event.
+        Archive returns CRM_MERGE_ACTIVE_OPERATION while any canonical-family appointment or Live Session is non-terminal, including another organization location.
         Reusing the key for a different payload returns CONFLICT. Retrying an uncertain
         mutation must retain its request_id, including confirmation_token if present.
       security:

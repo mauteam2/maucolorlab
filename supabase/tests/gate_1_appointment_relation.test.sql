@@ -22,7 +22,7 @@ select is(pg_temp.op('{"type":"APPOINTMENT_TRANSITION","mutation_id":"b4000000-0
 reset role;
 create function pg_temp.link(sid uuid,aid uuid default 'b4000000-0000-4000-8000-000000000301',v bigint default 3) returns jsonb language sql volatile as $$select pg_temp.op(jsonb_build_object('type','LINK_LIVE_SESSION','mutation_id',gen_random_uuid(),'id',aid,'expected_version',v,'live_session_id',sid));$$;
 -- Historical legacy reference intentionally disagrees; it has no authority.
-update public.live_sessions set appointment_link='b4000000-0000-4000-8000-000000000999',payload=jsonb_set(payload,'{appointmentLink}','"b4000000-0000-4000-8000-000000000999"') where id='b4000000-0000-4000-8000-000000000803';
+update public.live_sessions set record_version=record_version+1,appointment_link='b4000000-0000-4000-8000-000000000999',payload=jsonb_set(jsonb_set(payload,'{recordVersion}',to_jsonb(record_version+1)),'{appointmentLink}','"b4000000-0000-4000-8000-000000000999"') where id='b4000000-0000-4000-8000-000000000803';
 set local role authenticated;
 select is(pg_temp.link(gen_random_uuid())->>'code','SALON_NOT_FOUND','random live UUID rejected');
 select is(pg_temp.link('b4000000-0000-4000-8000-000000000998')->>'code','SALON_NOT_FOUND','nonexistent session rejected');

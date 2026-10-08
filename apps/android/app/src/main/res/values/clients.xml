@@ -45,4 +45,5 @@
     <string name="clients_archived_error">Düzenlemek için müşteriyi önce arşivden çıkarın.</string>
     <string name="clients_conflict">Kayıt değişti. Listeye dönüp güncel kaydı açın.</string>
     <string name="clients_review_expired">İnceleme süresi doldu veya kayıtlar değişti. Listeye dönüp yeniden deneyin.</string>
+    <string name="clients_active_operation">Aktif randevu veya renk oturumu tamamlanmadan müşteri arşivlenemez.</string>
 </resources>

@@ -156,11 +156,11 @@ try:
     observer.execute(f"insert into app_private.catalog_operators(user_id) values('{user}') on conflict do nothing;")
     auth(observer,user)
     seed=result(observer.execute("select value from gate_test.result where name='live-envelope';"))
-    observer.execute("reset role;update public.live_sessions set status='READY',payload=jsonb_set(payload,'{status}','\"READY\"') where id='b4000000-0000-4000-8000-000000000803';")
+    observer.execute("reset role;update public.live_sessions set status='READY',record_version=record_version+1,payload=jsonb_set(jsonb_set(payload,'{recordVersion}',to_jsonb(record_version+1)),'{status}','\"READY\"') where id='b4000000-0000-4000-8000-000000000803';")
     current=result(observer.execute("select payload from public.live_sessions where id='b4000000-0000-4000-8000-000000000803';"))
     start=dict(seed);start['sessionId']=current['id'];start['previousHash']='e'*64
-    start['input']={"type":"START","mutation_id":str(uuid.uuid4()),"device_id":current['controllerDeviceId'],"expected_version":1,"control_epoch":1}
-    start['result']=dict(current,status="IN_PROGRESS",recordVersion=2)
+    start['input']={"type":"START","mutation_id":str(uuid.uuid4()),"device_id":current['controllerDeviceId'],"expected_version":current["recordVersion"],"control_epoch":1}
+    start['result']=dict(current,status="IN_PROGRESS",recordVersion=current["recordVersion"]+1)
     live=f"select gate_test.live_store({literal(start)});"
     retire=f"select public.catalog_governance('RETIRE','{catalog}','Concurrency regression',gen_random_uuid());"
     race("RETIRE vs Live START",retire,live,code("SESSION_START_BLOCKED_STALE_INPUT"),user)
@@ -219,14 +219,14 @@ try:
         location=prefix+"000000-0000-4000-8000-000000000011"
         client=prefix+"000000-0000-4000-8000-000000000031"
         sid=prefix+"000000-0000-4000-8000-000000000803"
-        observer.execute(f"update public.salon_memberships set location_id=null where id='{member_id}';update public.live_sessions set status='READY',payload=jsonb_set(payload,'{{status}}','\"READY\"') where id='{sid}';")
+        observer.execute(f"update public.salon_memberships set location_id=null where id='{member_id}';update public.live_sessions set status='READY',record_version=record_version+1,payload=jsonb_set(jsonb_set(payload,'{{recordVersion}}',to_jsonb(record_version+1)),'{{status}}','\"READY\"') where id='{sid}';")
         record=result(observer.execute(f"select payload from public.live_sessions where id='{sid}';"))
         env=result(observer.execute(f"select value from gate_test.{table} where name='live-envelope';"))
         stamp=observer.execute("select statement_timestamp()::text;")[-1]
         expires=observer.execute("select (statement_timestamp()+interval '2 minutes')::text;")[-1]
         env.update(sessionId=sid,previousHash='e'*64,expiresAt=expires)
-        env['input']={"type":"START","mutation_id":str(uuid.uuid4()),"device_id":record['controllerDeviceId'],"expected_version":1,"control_epoch":1}
-        env['result']=dict(record,status="IN_PROGRESS",recordVersion=2,updatedAt=stamp,startedAt=stamp)
+        env['input']={"type":"START","mutation_id":str(uuid.uuid4()),"device_id":record['controllerDeviceId'],"expected_version":record["recordVersion"],"control_epoch":1}
+        env['result']=dict(record,status="IN_PROGRESS",recordVersion=record["recordVersion"]+1,updatedAt=stamp,startedAt=stamp)
         recipe=result(observer.execute(f"select value from gate_test.{table} where name='envelope';"))
         recipe['input']['request_id']=str(uuid.uuid4());recipe['expiresAt']=expires
         catalog_id=observer.execute(f"select current_recipe_id from public.live_sessions where id='{sid}';")[-1]

@@ -140,6 +140,7 @@ private fun displayDate(value: String) = runCatching { OffsetDateTime.parse(valu
 private fun clientErrorResource(code: String) = when (code) {
     "VALIDATION_FAILED" -> R.string.clients_validation
     "CLIENT_NOT_FOUND" -> R.string.clients_not_found
+    "CRM_MERGE_ACTIVE_OPERATION" -> R.string.clients_active_operation
     "CLIENT_ARCHIVED" -> R.string.clients_archived_error
     "CONFLICT" -> R.string.clients_conflict
     "DUPLICATE_CONFIRMATION_INVALID" -> R.string.clients_review_expired

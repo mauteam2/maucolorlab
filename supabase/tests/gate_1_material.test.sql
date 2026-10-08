@@ -4,7 +4,7 @@ set local search_path=public,extensions;
 select no_plan();
 \ir fixtures/gate-1-live.inc
 -- Minimal boundary fixture: give the already signed synthetic session a bowl.
-update public.live_sessions set payload=jsonb_set(payload,'{bowls}',jsonb_build_array(jsonb_build_object('id','b4000000-0000-4000-8000-000000000901','recipeId',current_recipe_id,'regionIds',jsonb_build_array('b4000000-0000-4000-8000-000000000051'),'plannedGrams',60,'preparedGrams',null,'usedGrams',null,'wasteGrams',null,'closed',false))) where id='b4000000-0000-4000-8000-000000000803';
+update public.live_sessions set record_version=record_version+1,payload=jsonb_set(jsonb_set(payload,'{recordVersion}',to_jsonb(record_version+1)),'{bowls}',jsonb_build_array(jsonb_build_object('id','b4000000-0000-4000-8000-000000000901','recipeId',current_recipe_id,'regionIds',jsonb_build_array('b4000000-0000-4000-8000-000000000051'),'plannedGrams',60,'preparedGrams',null,'usedGrams',null,'wasteGrams',null,'closed',false))) where id='b4000000-0000-4000-8000-000000000803';
 create function pg_temp.command(t text,extra jsonb default '{}') returns jsonb language sql volatile security definer set search_path='' as $$
 select pg_temp.live_store(jsonb_build_object('organizationId',s.organization_id,'actorId',auth.uid(),'membershipId','b4000000-0000-4000-8000-000000000111','locationId',s.location_id,'sessionId',s.id,'previousHash',s.content_hash,'resultHash',repeat('f',64),'expiresAt',statement_timestamp()+interval '2 minutes','input',jsonb_build_object('type',t,'mutation_id',gen_random_uuid(),'device_id',s.controller_device_id,'expected_version',s.record_version,'control_epoch',s.control_epoch)||extra,'result',s.payload||jsonb_build_object('status','ABORTED','recordVersion',s.record_version+1,'updatedAt',statement_timestamp()))) from public.live_sessions s where id='b4000000-0000-4000-8000-000000000803';$$;
 set local role authenticated;
@@ -23,12 +23,17 @@ select is((select count(*) from public.live_material_reconciliations),2::bigint,
 select is((select count(*) from public.live_material_reconciliations where prepared_grams is null),1::bigint,'older UNKNOWN event was not overwritten');
 select is(pg_temp.reconcile(60,20,40,(select id from public.live_material_reconciliations where supersedes_id is not null),gen_random_uuid(),'{"status":"IN_PROGRESS"}')->>'code','LIVE_RESULT_INVALID','signed reconciliation cannot mutate technical execution');
 select is(pg_temp.command('STEP_START','{"step_id":"b4000000-0000-4000-8000-000000000902"}')->>'code','LIVE_SESSION_IMMUTABLE','no application after STOP');
+select throws_ok($$insert into public.live_material_reconciliations select * from public.live_material_reconciliations limit 1$$,'42501',null,'normal role cannot bypass signed accounting command');
 select throws_ok($$update public.live_material_reconciliations set reason='rewrite'$$,'42501',null,'normal role cannot update accounting history');
 select throws_ok($$delete from public.live_material_reconciliations$$,'42501',null,'normal role cannot delete accounting history');
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000022',true);
 select is((select count(*) from public.live_material_reconciliations),0::bigint,'cross-organization reconciliation read denied');
 reset role;
 select throws_ok($$update public.live_material_reconciliations set reason='privileged rewrite'$$,'23514','IMMUTABLE_LIVE_HISTORY','append-only trigger protects even privileged accidental update');
+insert into public.locations(id,organization_id,name,timezone) values('b4000000-0000-4000-8000-000000000019','b4000000-0000-4000-8000-000000000001','Synthetic other branch','Europe/Istanbul');
+update public.salon_memberships set location_id='b4000000-0000-4000-8000-000000000019' where id='b4000000-0000-4000-8000-000000000114';
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);set local role authenticated;
+select is((select count(*) from public.live_material_reconciliations),0::bigint,'same organization other-location member cannot read events');reset role;
 update public.salon_memberships set status='revoked' where id='b4000000-0000-4000-8000-000000000111';
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000021',true);set local role authenticated;
 select is((select count(*) from public.live_material_reconciliations),0::bigint,'revoked membership cannot read events');

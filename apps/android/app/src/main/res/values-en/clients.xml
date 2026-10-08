@@ -45,4 +45,5 @@
     <string name="clients_archived_error">Restore the client before editing.</string>
     <string name="clients_conflict">The record changed. Return to the list and open the current record.</string>
     <string name="clients_review_expired">The review expired or candidates changed. Return to the list and try again.</string>
+    <string name="clients_active_operation">Complete active appointments and color sessions before archiving this client.</string>
 </resources>
