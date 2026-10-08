@@ -34,7 +34,7 @@ insert into public.locations(id,organization_id,name,timezone) values('b4000000-
 update public.salon_memberships set location_id='b4000000-0000-4000-8000-000000000019' where id='b4000000-0000-4000-8000-000000000114';
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);set local role authenticated;
 select is((select count(*) from public.live_material_reconciliations),0::bigint,'same organization other-location member cannot read events');reset role;
-update public.salon_memberships set status='revoked' where id='b4000000-0000-4000-8000-000000000111';
+update public.salon_memberships set status='revoked',revoked_at=now() where id='b4000000-0000-4000-8000-000000000111';
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000021',true);set local role authenticated;
 select is((select count(*) from public.live_material_reconciliations),0::bigint,'revoked membership cannot read events');
 select is(pg_temp.reconcile(null,null,null)->>'code','MEMBERSHIP_REVOKED','revoked membership cannot append events');

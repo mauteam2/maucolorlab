@@ -45,5 +45,6 @@ insert into salon_results values('gate-chain',pg_temp.crm(pg_temp.chain_command(
 select ok((select value ? 'data' from salon_results where name='gate-chain'),'terminal alias history allows reviewed chain');
 select is((select count(*) from public.client_merge_links where target_client_id='a4000000-0000-4000-8000-000000000035'),2::bigint,'A to B to C has two flattened unique aliases');
 select throws_ok($$select app_private.crm_merge_has_active_operation('a4000000-0000-4000-8000-000000000111','a4000000-0000-4000-8000-000000000011','a4000000-0000-4000-8000-000000000031','a4000000-0000-4000-8000-000000000032')$$,'42501',null,'unexposed merge probe not callable by ordinary authenticated role');
+select throws_ok($$select app_private.client_archive_has_active_operation('a4000000-0000-4000-8000-000000000111','a4000000-0000-4000-8000-000000000011','a4000000-0000-4000-8000-000000000035')$$,'42501',null,'archive activity probe not callable by normal role');
 reset role;
 select * from finish();rollback;

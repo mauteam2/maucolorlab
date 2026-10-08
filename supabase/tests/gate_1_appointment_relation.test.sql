@@ -21,17 +21,20 @@ select is(pg_temp.op('{"type":"APPOINTMENT_TRANSITION","mutation_id":"b4000000-0
 select is(pg_temp.op('{"type":"APPOINTMENT_TRANSITION","mutation_id":"b4000000-0000-4000-8000-000000000312","id":"b4000000-0000-4000-8000-000000000301","expected_version":2,"status":"IN_SERVICE","reason":"Synthetic service"}')#>>'{data,status}','IN_SERVICE','appointment service validated');
 reset role;
 create function pg_temp.link(sid uuid,aid uuid default 'b4000000-0000-4000-8000-000000000301',v bigint default 3) returns jsonb language sql volatile as $$select pg_temp.op(jsonb_build_object('type','LINK_LIVE_SESSION','mutation_id',gen_random_uuid(),'id',aid,'expected_version',v,'live_session_id',sid));$$;
+set local role authenticated;
+select is(pg_temp.live_store((select value||jsonb_build_object('input',(value->'input')||jsonb_build_object('mutation_id',gen_random_uuid(),'appointment_link',gen_random_uuid()),'result',(value->'result')||jsonb_build_object('id',gen_random_uuid(),'appointmentLink',gen_random_uuid())) from result where name='live-envelope'))->>'code','VALIDATION_FAILED','new signed session cannot accept arbitrary legacy appointment UUID');
+reset role;
 -- Historical legacy reference intentionally disagrees; it has no authority.
 update public.live_sessions set record_version=record_version+1,appointment_link='b4000000-0000-4000-8000-000000000999',payload=jsonb_set(jsonb_set(payload,'{recordVersion}',to_jsonb(record_version+1)),'{appointmentLink}','"b4000000-0000-4000-8000-000000000999"') where id='b4000000-0000-4000-8000-000000000803';
 set local role authenticated;
 select is(pg_temp.link(gen_random_uuid())->>'code','SALON_NOT_FOUND','random live UUID rejected');
 select is(pg_temp.link('b4000000-0000-4000-8000-000000000998')->>'code','SALON_NOT_FOUND','nonexistent session rejected');
-select is(pg_temp.link('b4000000-0000-4000-8000-000000000803','b4000000-0000-4000-8000-000000000997')->>'code','SALON_NOT_FOUND','nonexistent appointment rejected');
+select is(pg_temp.link('b4000000-0000-4000-8000-000000000803','b4000000-0000-4000-8000-000000000997')->>'code','SALON_CONFLICT','nonexistent appointment rejected');
 reset role;
 -- Synthetic identities/branches exercise each explicit relational predicate.
 insert into public.clients(id,organization_id,full_name,phone,phone_normalized,created_by,updated_by,creation_location_id) values('b4000000-0000-4000-8000-000000000032','b4000000-0000-4000-8000-000000000001','Synthetic different client','+905321111111','+905321111111','b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000011');
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000022',true);set local role authenticated;
-select is(public.salon_operation('b4000000-0000-4000-8000-000000000112','b4000000-0000-4000-8000-000000000012',jsonb_build_object('type','LINK_LIVE_SESSION','mutation_id',gen_random_uuid(),'id','b4000000-0000-4000-8000-000000000301','expected_version',3,'live_session_id','b4000000-0000-4000-8000-000000000803'),gen_random_uuid())->>'code','SALON_NOT_FOUND','other organization cannot link appointment/session');
+select is(public.salon_operation('b4000000-0000-4000-8000-000000000112','b4000000-0000-4000-8000-000000000012',jsonb_build_object('type','LINK_LIVE_SESSION','mutation_id',gen_random_uuid(),'id','b4000000-0000-4000-8000-000000000301','expected_version',3,'live_session_id','b4000000-0000-4000-8000-000000000803'),gen_random_uuid())->>'code','SALON_CONFLICT','other organization cannot link appointment/session');
 reset role;select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000021',true);
 insert into public.locations(id,organization_id,name,timezone) values('b4000000-0000-4000-8000-000000000019','b4000000-0000-4000-8000-000000000001','Synthetic other branch','Europe/Istanbul');
 set local role authenticated;
