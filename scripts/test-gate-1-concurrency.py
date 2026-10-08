@@ -209,7 +209,7 @@ try:
             text=text.replace(name+"@",name+"-"+prefix+"@")
         text=text.replace("'controlled-a'","'controlled-a-"+prefix+"'").replace("'controlled-b'","'controlled-b-"+prefix+"'")
         previous=observer.execute("select id from public.brand_catalog_releases where pilot_key='schwarzkopf-igora-royal-absolutes' and state in ('PUBLISHED','RETIRED') order by version desc limit 1;")[-1]
-        text=text.replace("'IMPORT',null", "'IMPORT','"+previous+"'")
+        text=text.replace("public.catalog_governance('IMPORT',null,'Synthetic fixture review',gen_random_uuid())", "public.catalog_governance('IMPORT',null,'Synthetic fixture review',gen_random_uuid(),'"+previous+"')")
         text=text.replace("'catalogVersion',1", "'catalogVersion',(value#>>'{catalog,release,version}')::integer")
         text=text.replace("'productVersion',1", "'productVersion',(select version from public.catalog_products where id=chosen.product_id)")
         text=text.replace("'developerVersion',1", "'developerVersion',(select version from public.catalog_products where id=chosen.developer_id)")
