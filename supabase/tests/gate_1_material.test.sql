@@ -16,12 +16,18 @@ set local role authenticated;
 select is(pg_temp.reconcile(null,0,null)->>'status','ABORTED','late factual accounting cannot restart execution');
 select is((select prepared_grams from public.live_material_reconciliations),null::numeric,'UNKNOWN remains null');
 select is((select used_grams from public.live_material_reconciliations),0::numeric,'measured zero is different from UNKNOWN');
+-- The technical actor has no audit.read permission; verify persistence as the test observer.
+reset role;
 select is((select count(*) from public.audit_events where action='live_session.material_reconcile'),1::bigint,'successful reconciliation creates one audit event');
+set local role authenticated;
 select is((select count(*) from public.live_usage),0::bigint,'original usage remains unchanged');
 select is(pg_temp.reconcile(60,20,40)->>'code','LIVE_SESSION_CONFLICT','correction must name current event');
 select is(pg_temp.reconcile(60,20,40,(select id from public.live_material_reconciliations))->>'status','ABORTED','correction appends under expected prior-event control');
 select is((select count(*) from public.live_material_reconciliations),2::bigint,'correction retains both events');
+-- The technical actor has no audit.read permission; verify persistence as the test observer.
+reset role;
 select is((select count(*) from public.audit_events where action='live_session.material_reconcile'),2::bigint,'only successful accounting appends create audit events');
+set local role authenticated;
 select is((select count(*) from public.live_material_reconciliations where prepared_grams is null),1::bigint,'older UNKNOWN event was not overwritten');
 select is(pg_temp.reconcile(60,20,40,(select id from public.live_material_reconciliations where supersedes_id is not null),gen_random_uuid(),'{"status":"IN_PROGRESS"}')->>'code','LIVE_RESULT_INVALID','signed reconciliation cannot mutate technical execution');
 select is(pg_temp.command('STEP_START','{"step_id":"b4000000-0000-4000-8000-000000000902"}')->>'code','LIVE_SESSION_IMMUTABLE','no application after STOP');
