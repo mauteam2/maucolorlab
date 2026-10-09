@@ -1,0 +1,47 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+set local search_path=public,extensions;
+select no_plan();
+\ir fixtures/stock.inc
+set local role authenticated;
+select is(pg_temp.item('c4000000-0000-4000-8000-000000000111',(select product_id from public.controlled_brand_recipes limit 1),'GRAM',true)#>>'{data,status}','SAVED','catalog-linked item can require actual lot');
+select is(pg_temp.stock('{"type":"LOT_SAVE","mutation_id":"c4000000-0000-4000-8000-000000000401","id":"c4000000-0000-4000-8000-000000000501","expected_version":0,"stock_item_id":"c4000000-0000-4000-8000-000000000111","lot_number":"SYN-LOT-1","batch_number":"SYN-BATCH","expiry_date":"2026-10-20","opened_at":null,"received_at":"2026-10-09T12:00:00Z","reason":"Read actual label"}')#>>'{data,status}','SAVED','factual lot label persists');
+select is(pg_temp.move('OPENING','c4000000-0000-4000-8000-000000000111',100)->>'code','STOCK_LOT_REQUIRED','required lot cannot be guessed for opening');
+select is(pg_temp.move('OPENING','c4000000-0000-4000-8000-000000000111',100,'c4000000-0000-4000-8000-000000000501')#>>'{data,status}','SAVED','lot opening persists');
+select is(pg_temp.move('RECEIPT','c4000000-0000-4000-8000-000000000101',1,'c4000000-0000-4000-8000-000000000501')->>'code','STOCK_LOT_CONFLICT','another product cannot borrow lot');
+reset role;
+insert into public.live_usage(organization_id,session_id,id,bowl_id,recipe_id,product_id,product_version,prepared_grams,used_grams,waste_grams,recorded_by,recorded_at)
+select s.organization_id,s.id,gen_random_uuid(),'b4000000-0000-4000-8000-000000000901',r.id,p.id,p.version,30,0,30,s.controller_user_id,statement_timestamp() from public.live_sessions s join public.controlled_brand_recipes r on r.id=s.current_recipe_id join public.catalog_products p on p.id=r.product_id;
+set local role authenticated;
+select is(pg_temp.stock(jsonb_build_object('type','PROCESS','mutation_id',gen_random_uuid(),'event_id',(select id from public.stock_source_events),'lot_id',null))#>>'{data,error_code}','STOCK_LOT_REQUIRED','Live delivery requires explicit lot selection');
+select is((select count(*) from public.stock_movements where movement_type='USAGE'),0::bigint,'failed lot selection never consumes');
+select is(pg_temp.stock(jsonb_build_object('type','PROCESS','mutation_id',gen_random_uuid(),'event_id',(select id from public.stock_source_events),'lot_id','c4000000-0000-4000-8000-000000000501'))#>>'{data,status}','PROCESSED','operator-selected factual lot consumes');
+select is((select sum(quantity_delta) from public.stock_movements where stock_lot_id='c4000000-0000-4000-8000-000000000501'),70::numeric,'lot ledger matches product consumption');
+select is(public.stock_snapshot('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{"lot_id":"c4000000-0000-4000-8000-000000000501"}')#>>'{data,trace,0,session_id}','b4000000-0000-4000-8000-000000000803','lot traces actual consumed session');
+select is(public.stock_snapshot('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{"lot_id":"c4000000-0000-4000-8000-000000000501"}')#>>'{data,trace,0,appointment_id}',null::text,'legacy or absent appointment is never promoted to trusted relation');
+reset role;
+update public.live_sessions set payload=jsonb_set(payload,'{appointmentLink}','"c4000000-0000-4000-8000-000000009999"');
+set local role authenticated;
+select is(public.stock_snapshot('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{"lot_id":"c4000000-0000-4000-8000-000000000501"}')#>>'{data,trace,0,appointment_id}',null::text,'legacy UUID cannot enter lot recall association');
+reset role;
+insert into public.live_usage(organization_id,session_id,id,bowl_id,recipe_id,product_id,product_version,prepared_grams,used_grams,waste_grams,recorded_by,recorded_at)
+select s.organization_id,s.id,gen_random_uuid(),'b4000000-0000-4000-8000-000000000902',r.id,p.id,p.version,200,0,200,s.controller_user_id,statement_timestamp() from public.live_sessions s join public.controlled_brand_recipes r on r.id=s.current_recipe_id join public.catalog_products p on p.id=r.product_id;
+set local role authenticated;
+select is(pg_temp.stock(jsonb_build_object('type','PROCESS','mutation_id',gen_random_uuid(),'event_id',(select id from public.stock_source_events where status='PENDING'),'lot_id','c4000000-0000-4000-8000-000000000501'))#>>'{data,error_code}','STOCK_INSUFFICIENT','insufficient actual usage stays auditable discrepancy');
+select is((select count(*) from public.live_usage),2::bigint,'stock shortage never deletes technical facts');
+select is((select sum(quantity_delta) from public.stock_movements where stock_lot_id='c4000000-0000-4000-8000-000000000501'),70::numeric,'blocked usage never secretly goes negative');
+select ok(exists(select 1 from jsonb_array_elements(public.stock_snapshot('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{}')->'data'->'actions') a where a->>'kind'='STOCK_SYNC_FAILED'),'source-driven action center exposes delivery failure');
+reset role;
+select ok(exists(select 1 from public.audit_events where action='stock.lot_selected'),'lot selection is audited');
+select throws_ok($$update public.stock_openings set quantity=0$$,'23514','IMMUTABLE_LIVE_HISTORY','opening facts are immutable');
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000022',true);set local role authenticated;
+select is((select count(*) from public.stock_lots),0::bigint,'cross tenant lots denied');
+select is((select count(*) from public.stock_source_events),0::bigint,'cross tenant source events denied');
+reset role;
+insert into public.locations(id,organization_id,name,timezone) values('b4000000-0000-4000-8000-000000000019','b4000000-0000-4000-8000-000000000001','Other location','Europe/Istanbul');
+update public.salon_memberships set location_id='b4000000-0000-4000-8000-000000000019' where id='b4000000-0000-4000-8000-000000000114';
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);set local role authenticated;
+select is((select count(*) from public.stock_lots),0::bigint,'same organization other location cannot read lots');
+select is((select count(*) from public.stock_movements),0::bigint,'same organization other location cannot read movements');
+reset role;
+select * from finish();rollback;
