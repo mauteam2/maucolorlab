@@ -26827,10 +26827,47 @@ components:
                 - GRAM
                 - MILLILITER
                 - UNIT
+              lot_required:
+                default: false
+                type: boolean
             required:
             - id
             - display_name
             - inventory_unit
+            additionalProperties: false
+        stock_lots:
+          default: []
+          maxItems: 200
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              stock_item_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              lot_number:
+                type: string
+              batch_number:
+                type:
+                - string
+                - 'null'
+              expiry_date:
+                anyOf:
+                - type: string
+                  format: date
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+                - type: 'null'
+            required:
+            - id
+            - stock_item_id
+            - lot_number
+            - batch_number
+            - expiry_date
             additionalProperties: false
         offset:
           type: integer

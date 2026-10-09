@@ -69,6 +69,7 @@
     ],
     "appointments": [],
     "stock_items": [],
+    "stock_lots": [],
     "offset": 0
   },
   "command": {

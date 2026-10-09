@@ -14,8 +14,8 @@ export async function readFinance(raw:unknown,correlationId:string) {
  if(!parsed.success)throw new AccessError("NETWORK_ERROR",503);const data=parsed.data;
  const rows=[...data.documents,...data.allocations,...data.ledger_entries,...data.cash_sessions];
  if(rows.some(r=>r.organization_id!==context.organization_id||r.location_id!==context.location_id)||data.organization_id!==context.organization_id||data.location_id!==context.location_id||q.data.document_id&&data.documents.some(d=>d.id!==q.data.document_id))throw new AccessError("NETWORK_ERROR",503);
- const fresh=await verifiedClientContext("finance.view");if(workspaceReference(fresh)!==workspaceReference(context))throw new AccessError("TENANT_CONTEXT_INVALID",403);
- return {data,context,correlationId};
+ const fresh=await verifiedClientContext("finance.view");if(workspaceReference(fresh)!==workspaceReference(context)||fresh.organization_id!==context.organization_id||JSON.stringify([...fresh.permissions].sort())!==JSON.stringify([...context.permissions].sort()))throw new AccessError("TENANT_CONTEXT_INVALID",403);
+ return {data,context:fresh,correlationId};
 }
 export async function mutateFinance(raw:unknown,correlationId:string,reference:string|null){
  const p=financeCommand.safeParse(raw);if(!p.success)throw new AccessError("VALIDATION_FAILED",400);const command=p.data,permission=financePermission(command.type),context=await verifiedClientContext(permission);
@@ -23,6 +23,6 @@ export async function mutateFinance(raw:unknown,correlationId:string,reference:s
  const client=await createClient(),parsed=financeResult.safeParse(unwrap(await client.rpc("finance_operation",{p_membership_id:context.membership_id,p_location_id:context.location_id,p_command:command,p_correlation_id:correlationId})));
  if(!parsed.success)throw new AccessError("NETWORK_ERROR",503);
  if("id" in command&&parsed.data.id!==command.id)throw new AccessError("NETWORK_ERROR",503);
- const fresh=await verifiedClientContext(permission);if(workspaceReference(fresh)!==reference)throw new AccessError("TENANT_CONTEXT_INVALID",403);
- return {data:parsed.data,context,correlationId};
+ const fresh=await verifiedClientContext(permission);if(workspaceReference(fresh)!==reference||fresh.organization_id!==context.organization_id)throw new AccessError("TENANT_CONTEXT_INVALID",403);
+ return {data:parsed.data,context:fresh,correlationId};
 }
