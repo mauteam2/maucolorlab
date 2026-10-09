@@ -9,7 +9,7 @@ export const salonSections = [
  { id: "clients", label: "Müşteriler", icon: "clients", href: "/workspace/clients" },
  { id: "appointments", label: "Randevular", icon: "calendar", href: "/workspace/appointments" },
  { id: "stock", label: "Stok", icon: "reports", href: "/workspace/stock" },
- { id: "finance", label: "Finans", icon: "finance", href: null },
+ { id: "finance", label: "Finans", icon: "finance", href: "/workspace/finance" },
  { id: "reports", label: "Raporlar", icon: "reports", href: null },
  { id: "team", label: "Ekip", icon: "team", href: "/workspace/team" },
  { id: "settings", label: "Ayarlar", icon: "settings", href: "/workspace/settings" },

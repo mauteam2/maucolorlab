@@ -1,0 +1,10 @@
+import {it,expect} from "vitest";
+import {parseMoney,formatMoney,financeCommand,minor,money} from "./model";
+import {financeFixture} from "@/test/finance-fixtures";
+it.each([["125,50",2,"12550"],["125",0,"125"],["1.005",3,"1005"],["90000000000000",2,"9000000000000000"]])("parses exact currency minor units %s",(v,e,result)=>expect(parseMoney(v as string,e as number)).toBe(result));
+it.each([["0.001",2],["1.5",0],["NaN",2],["-1",2],["1e3",2],["1.0000",3]])("rejects unrepresentable money %s",(v,e)=>expect(()=>parseMoney(v as string,e as number)).toThrow());
+it("formats negative credit without converting to float",()=>expect(formatMoney("-9000000000000000","TRY",2)).toBe("−90.000.000.000.000,00 TRY"));
+it("money records carry explicit different exponents",()=>expect(money.parse({currency:"KWD",minor_units:"1005",exponent:3}).minor_units).toBe("1005"));
+it("rejects number minor units",()=>expect(minor.safeParse(1000).success).toBe(false));
+it.each(["actor","organization_id","location_id","current_balance","tax_amount_minor","source_session_id","outstanding_minor","cash_expected_minor","allocation_state"])("rejects forged %s",field=>expect(financeCommand.safeParse({...financeFixture().command,[field]:true}).success).toBe(false));
+it("requires explicit overpayment confirmation field",()=>expect(financeCommand.safeParse({...financeFixture().command,type:"PAYMENT",method:"CARD",allocations:[],appointment_id:null,external_reference:null}).success).toBe(false));

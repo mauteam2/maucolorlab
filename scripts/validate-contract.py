@@ -343,3 +343,21 @@ stock_android=(root/'apps/android/app/src/main/java/com/elifora/app/data/stock/S
 for field in ('p_membership_id','p_location_id','p_request','inventory_unit','on_hand','stock_status','stock_sync_status','quantity_delta','BigDecimal'):
     assert field in stock_android,field
 print('PASS: Phase 4C shared inventory schemas, Android decimal reads and eight forgery rejections')
+
+# Phase 5A exact integer money, permanent commands and private projections.
+finance_schemas=json.loads((root/'contracts/finance.schemas.json').read_text())
+assert {'Money','FinanceCharge','FinancePayment','PaymentAllocation','Deposit','Refund','Expense','ClientBalance','CashSession','FinanceSummary'} <= finance_schemas.keys()
+for name,schema in finance_schemas.items():
+    assert contract['components']['schemas'][name]==schema,name
+finance=json.loads((root/'contracts/fixtures/finance-contract.json').read_text())
+observation_validator('FinanceSnapshot').validate(finance['snapshot'])
+observation_validator('FinanceCommand').validate(finance['command'])
+for field in ('organization_id','location_id','actor','current_balance','tax_amount_minor','source_session_id','outstanding_minor','cash_expected_minor','allocation_state'):
+    assert list(observation_validator('FinanceCommand').iter_errors(finance['command']|{field:True})),field
+assert list(observation_validator('FinanceCommand').iter_errors(finance['command']|{'amount_minor':1000}))
+for rpc in ('finance_snapshot','finance_operation'):
+    assert contract['paths']['/rest/v1/rpc/'+rpc]['post']['security']==[{'bearerAuth':[], 'publishableKey':[]}]
+native=(root/'apps/android/app/src/main/java/com/elifora/app/data/finance/SupabaseFinanceRepository.kt').read_text()
+for field in ('p_membership_id','p_location_id','p_request','BigInteger','outstanding_minor','available_credit_minor','current_expected_minor','finance.expense.view','finance.cash.close'):
+    assert field in native,field
+print('PASS: Phase 5A shared integer-money schemas, native private projections and ten forgery rejections')

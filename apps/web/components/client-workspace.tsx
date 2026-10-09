@@ -1,4 +1,5 @@
 "use client";
+import {FinanceContextPanel} from "./finance-context-panel";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -132,6 +133,7 @@ export function ClientWorkspace({ route }: { route: string }) {
         <div className="client-actions"><button className="button button-secondary" disabled={checking || !filter.offset} onClick={() => setFilter({ ...filter, offset: Math.max(0, filter.offset - 25) })}>Önceki</button><span>Sayfa {filter.offset / 25 + 1}</span><button className="button button-secondary" disabled={checking || !directory?.has_more || filter.offset >= 10000} onClick={() => setFilter({ ...filter, offset: filter.offset + 25 })}>Sonraki</button></div></>}
       </> : <>
         <h1>{route === "new" ? "Yeni müşteri" : draft ? "Müşteriyi düzenle" : "Müşteri profili"}</h1>
+        {client && !draft && context?.permissions.includes("finance.view") && <FinanceContextPanel clientId={client.id} context={context}/>}
         {client && !draft && <div className="salon-card salon-profile-banner"><span className="salon-avatar" aria-hidden="true">{client.full_name.split(" ").map(part => part[0]).slice(0,2).join("")}</span><div><h2>{client.full_name}</h2><span className="salon-muted">Son güncelleme: {date(client.updated_at)}</span></div></div>}
         {draft ? <form className="auth-form client-form" onSubmit={event => { event.preventDefault(); save(); }}>
           <fieldset disabled={saving || !!review}><legend>Temel bilgiler</legend>

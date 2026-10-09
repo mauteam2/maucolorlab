@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.17.0
+  version: 0.18.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -3817,6 +3817,157 @@ paths:
         '200':
           description: Data or controlled rejection code; permanent idempotent receipt
             for mutations
+  /rest/v1/rpc/finance_snapshot:
+    post:
+      summary: Authenticated operational finance; fresh database memberships and immutable
+        ledger
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - p_membership_id
+              - p_location_id
+              - p_request
+              properties:
+                p_membership_id:
+                  type: string
+                  format: uuid
+                p_location_id:
+                  type: string
+                  format: uuid
+                p_request:
+                  $ref: '#/components/schemas/FinanceReadRequest'
+      responses:
+        '200':
+          description: Domain result or controlled error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FinanceSnapshot'
+                  code:
+                    type: string
+  /rest/v1/rpc/finance_operation:
+    post:
+      summary: Authenticated operational finance; fresh database memberships and immutable
+        ledger
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - p_membership_id
+              - p_location_id
+              - p_command
+              - p_correlation_id
+              properties:
+                p_membership_id:
+                  type: string
+                  format: uuid
+                p_location_id:
+                  type: string
+                  format: uuid
+                p_command:
+                  $ref: '#/components/schemas/FinanceCommand'
+                p_correlation_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Domain result or controlled error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FinanceResult'
+                  code:
+                    type: string
+  /api/finance:
+    get:
+      summary: Bounded location/day, client or appointment financial projection
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: day
+        in: query
+        schema:
+          type: string
+      - name: client_id
+        in: query
+        schema:
+          type: string
+      - name: appointment_id
+        in: query
+        schema:
+          type: string
+      - name: document_id
+        in: query
+        schema:
+          type: string
+      - name: offset
+        in: query
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Fresh authenticated finance projection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FinanceSnapshot'
+    post:
+      summary: Permanent idempotent finance command with workspace reference and same-origin
+        check
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: x-workspace-reference
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceCommand'
+      responses:
+        '200':
+          description: Accepted immutable fact
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FinanceResult'
+        '409':
+          description: Allocation, refund, currency, stock or cash conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceError'
 components:
   securitySchemes:
     bearerAuth:
@@ -22146,6 +22297,12 @@ components:
           type: string
           format: uuid
           pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        finance_document_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
         stock_item_id:
           type: string
           format: uuid
@@ -22873,6 +23030,12 @@ components:
                 type: string
                 format: uuid
                 pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              finance_document_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
               stock_item_id:
                 type: string
                 format: uuid
@@ -23676,4 +23839,3080 @@ components:
       - PENDING
       - PROCESSED
       - FAILED
-
+    Money:
+      type: object
+      properties:
+        currency:
+          type: string
+          enum:
+          - TRY
+          - EUR
+          - USD
+          - GBP
+          - JPY
+          - KWD
+        minor_units:
+          type: string
+          pattern: ^-?(0|[1-9]\d{0,18})$
+        exponent:
+          type: integer
+          minimum: 0
+          maximum: 4
+      required:
+      - currency
+      - minor_units
+      - exponent
+      additionalProperties: false
+    FinanceCommand:
+      oneOf:
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          type:
+            type: string
+            const: CURRENCY_SET
+          currency:
+            type: string
+            enum:
+            - TRY
+            - EUR
+            - USD
+            - GBP
+            - JPY
+            - KWD
+          expected_version:
+            type: integer
+            minimum: 0
+            maximum: 9007199254740991
+        required:
+        - mutation_id
+        - reason
+        - type
+        - currency
+        - expected_version
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          type:
+            type: string
+            const: CASH_OPEN
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          currency:
+            type: string
+            enum:
+            - TRY
+            - EUR
+            - USD
+            - GBP
+            - JPY
+            - KWD
+          opening_cash_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+        required:
+        - mutation_id
+        - reason
+        - type
+        - id
+        - currency
+        - opening_cash_minor
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          type:
+            type: string
+            const: CASH_CLOSE_SUBMIT
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            exclusiveMinimum: 0
+            maximum: 9007199254740991
+          counted_cash_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+        required:
+        - mutation_id
+        - reason
+        - type
+        - id
+        - expected_version
+        - counted_cash_minor
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          type:
+            type: string
+            const: CASH_CLOSE_CONFIRM
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          expected_version:
+            type: integer
+            exclusiveMinimum: 0
+            maximum: 9007199254740991
+          acknowledge_difference:
+            type: boolean
+        required:
+        - mutation_id
+        - reason
+        - type
+        - id
+        - expected_version
+        - acknowledge_difference
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          type:
+            type: string
+            const: SERVICE_CHARGE
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          appointment_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        required:
+        - mutation_id
+        - reason
+        - type
+        - id
+        - appointment_id
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          currency:
+            type: string
+            enum:
+            - TRY
+            - EUR
+            - USD
+            - GBP
+            - JPY
+            - KWD
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          type:
+            type: string
+            const: MANUAL_CHARGE
+          client_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          amount_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          tax_rate_bps:
+            type: integer
+            minimum: 0
+            maximum: 10000
+          tax_inclusive:
+            type: boolean
+          description:
+            type: string
+            minLength: 1
+            maxLength: 500
+        required:
+        - mutation_id
+        - reason
+        - id
+        - currency
+        - occurred_at
+        - type
+        - client_id
+        - amount_minor
+        - tax_rate_bps
+        - tax_inclusive
+        - description
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          currency:
+            type: string
+            enum:
+            - TRY
+            - EUR
+            - USD
+            - GBP
+            - JPY
+            - KWD
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          type:
+            type: string
+            const: RETAIL_SALE
+          client_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          stock_item_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          lot_id:
+            anyOf:
+            - type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            - type: 'null'
+          quantity:
+            type: string
+            pattern: ^[0-9]{1,10}(\.\d{1,2})?$
+          unit_price_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          tax_rate_bps:
+            type: integer
+            minimum: 0
+            maximum: 10000
+          tax_inclusive:
+            type: boolean
+          description:
+            type: string
+            minLength: 1
+            maxLength: 500
+        required:
+        - mutation_id
+        - reason
+        - id
+        - currency
+        - occurred_at
+        - type
+        - client_id
+        - stock_item_id
+        - lot_id
+        - quantity
+        - unit_price_minor
+        - tax_rate_bps
+        - tax_inclusive
+        - description
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          currency:
+            type: string
+            enum:
+            - TRY
+            - EUR
+            - USD
+            - GBP
+            - JPY
+            - KWD
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          client_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          amount_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          method:
+            type: string
+            enum:
+            - CASH
+            - CARD
+            - BANK_TRANSFER
+            - OTHER
+          appointment_id:
+            anyOf:
+            - type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            - type: 'null'
+          external_reference:
+            anyOf:
+            - type: string
+              maxLength: 160
+            - type: 'null'
+          type:
+            type: string
+            const: PAYMENT
+          allocations:
+            maxItems: 20
+            type: array
+            items:
+              type: object
+              properties:
+                charge_id:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                amount_minor:
+                  type: string
+                  pattern: ^(0|[1-9]\d{0,15})$
+              required:
+              - charge_id
+              - amount_minor
+              additionalProperties: false
+          confirm_credit:
+            type: boolean
+        required:
+        - mutation_id
+        - reason
+        - id
+        - currency
+        - occurred_at
+        - client_id
+        - amount_minor
+        - method
+        - appointment_id
+        - external_reference
+        - type
+        - allocations
+        - confirm_credit
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          currency:
+            type: string
+            enum:
+            - TRY
+            - EUR
+            - USD
+            - GBP
+            - JPY
+            - KWD
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          client_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          amount_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          method:
+            type: string
+            enum:
+            - CASH
+            - CARD
+            - BANK_TRANSFER
+            - OTHER
+          appointment_id:
+            anyOf:
+            - type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            - type: 'null'
+          external_reference:
+            anyOf:
+            - type: string
+              maxLength: 160
+            - type: 'null'
+          type:
+            type: string
+            const: DEPOSIT
+        required:
+        - mutation_id
+        - reason
+        - id
+        - currency
+        - occurred_at
+        - client_id
+        - amount_minor
+        - method
+        - appointment_id
+        - external_reference
+        - type
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          type:
+            type: string
+            const: ALLOCATE
+          client_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          payment_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          allocations:
+            maxItems: 20
+            type: array
+            items:
+              type: object
+              properties:
+                charge_id:
+                  type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                amount_minor:
+                  type: string
+                  pattern: ^(0|[1-9]\d{0,15})$
+              required:
+              - charge_id
+              - amount_minor
+              additionalProperties: false
+        required:
+        - mutation_id
+        - reason
+        - type
+        - client_id
+        - payment_id
+        - allocations
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          type:
+            type: string
+            const: REFUND
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          original_payment_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          amount_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        required:
+        - mutation_id
+        - reason
+        - type
+        - id
+        - original_payment_id
+        - amount_minor
+        - occurred_at
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          currency:
+            type: string
+            enum:
+            - TRY
+            - EUR
+            - USD
+            - GBP
+            - JPY
+            - KWD
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          type:
+            type: string
+            const: EXPENSE
+          amount_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          method:
+            type: string
+            enum:
+            - CASH
+            - CARD
+            - BANK_TRANSFER
+            - OTHER
+          category:
+            type: string
+            enum:
+            - RENT
+            - UTILITIES
+            - SUPPLIES
+            - MAINTENANCE
+            - MARKETING
+            - OTHER
+          description:
+            type: string
+            minLength: 1
+            maxLength: 500
+          stock_receipt_id:
+            anyOf:
+            - type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            - type: 'null'
+          external_reference:
+            anyOf:
+            - type: string
+              maxLength: 160
+            - type: 'null'
+        required:
+        - mutation_id
+        - reason
+        - id
+        - currency
+        - occurred_at
+        - type
+        - amount_minor
+        - method
+        - category
+        - description
+        - stock_receipt_id
+        - external_reference
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          type:
+            type: string
+            const: REVERSAL
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          document_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        required:
+        - mutation_id
+        - reason
+        - type
+        - id
+        - document_id
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          currency:
+            type: string
+            enum:
+            - TRY
+            - EUR
+            - USD
+            - GBP
+            - JPY
+            - KWD
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          type:
+            type: string
+            const: CLIENT_CREDIT
+          client_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          amount_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          description:
+            type: string
+            minLength: 1
+            maxLength: 500
+        required:
+        - mutation_id
+        - reason
+        - id
+        - currency
+        - occurred_at
+        - type
+        - client_id
+        - amount_minor
+        - description
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          currency:
+            type: string
+            enum:
+            - TRY
+            - EUR
+            - USD
+            - GBP
+            - JPY
+            - KWD
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          type:
+            type: string
+            const: CLIENT_DEBIT
+          client_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          amount_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          description:
+            type: string
+            minLength: 1
+            maxLength: 500
+        required:
+        - mutation_id
+        - reason
+        - id
+        - currency
+        - occurred_at
+        - type
+        - client_id
+        - amount_minor
+        - description
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          currency:
+            type: string
+            enum:
+            - TRY
+            - EUR
+            - USD
+            - GBP
+            - JPY
+            - KWD
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          type:
+            type: string
+            const: ADJUSTMENT
+          amount_minor:
+            type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          direction:
+            type: string
+            enum:
+            - IN
+            - OUT
+          description:
+            type: string
+            minLength: 1
+            maxLength: 500
+        required:
+        - mutation_id
+        - reason
+        - id
+        - currency
+        - occurred_at
+        - type
+        - amount_minor
+        - direction
+        - description
+        additionalProperties: false
+    FinanceReadRequest:
+      type: object
+      properties:
+        day:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        client_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        appointment_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        document_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        offset:
+          type: integer
+          minimum: 0
+          maximum: 10000
+      additionalProperties: false
+    FinanceCharge:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        appointment_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        live_session_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        type:
+          type: string
+          enum:
+          - SERVICE_CHARGE
+          - RETAIL_SALE
+        currency:
+          type: string
+          enum:
+          - TRY
+          - EUR
+          - USD
+          - GBP
+          - JPY
+          - KWD
+        amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        net_amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        tax_amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        tax_rate_bps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        tax_inclusive:
+          type: boolean
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        external_reference:
+          type:
+          - string
+          - 'null'
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        service_name_snapshot:
+          type:
+          - string
+          - 'null'
+        service_version:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+            maximum: 9007199254740991
+          - type: 'null'
+        performed_by:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        reversal_of:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        original_payment_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        recorded_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        occurred_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        correlation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        mutation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: number
+          const: 1
+        method:
+          anyOf:
+          - type: string
+            enum:
+            - CASH
+            - CARD
+            - BANK_TRANSFER
+            - OTHER
+          - type: 'null'
+        category:
+          type:
+          - string
+          - 'null'
+        stock_receipt_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        stock_item_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        stock_lot_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        quantity:
+          type:
+          - string
+          - 'null'
+        unit_price_minor:
+          anyOf:
+          - type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          - type: 'null'
+        stock_movement_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        outstanding_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        available_credit_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        refunded_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        reversed:
+          type: boolean
+      required:
+      - id
+      - organization_id
+      - location_id
+      - client_id
+      - appointment_id
+      - live_session_id
+      - type
+      - currency
+      - amount_minor
+      - net_amount_minor
+      - tax_amount_minor
+      - tax_rate_bps
+      - tax_inclusive
+      - description
+      - reason
+      - external_reference
+      - service_id
+      - service_name_snapshot
+      - service_version
+      - performed_by
+      - reversal_of
+      - original_payment_id
+      - recorded_by
+      - occurred_at
+      - created_at
+      - correlation_id
+      - mutation_id
+      - version
+      - method
+      - category
+      - stock_receipt_id
+      - stock_item_id
+      - stock_lot_id
+      - quantity
+      - unit_price_minor
+      - stock_movement_id
+      - outstanding_minor
+      - available_credit_minor
+      - refunded_minor
+      - reversed
+      additionalProperties: false
+    FinancePayment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        appointment_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        live_session_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        type:
+          type: string
+          const: PAYMENT
+        currency:
+          type: string
+          enum:
+          - TRY
+          - EUR
+          - USD
+          - GBP
+          - JPY
+          - KWD
+        amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        net_amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        tax_amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        tax_rate_bps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        tax_inclusive:
+          type: boolean
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        external_reference:
+          type:
+          - string
+          - 'null'
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        service_name_snapshot:
+          type:
+          - string
+          - 'null'
+        service_version:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+            maximum: 9007199254740991
+          - type: 'null'
+        performed_by:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        reversal_of:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        original_payment_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        recorded_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        occurred_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        correlation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        mutation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: number
+          const: 1
+        method:
+          anyOf:
+          - type: string
+            enum:
+            - CASH
+            - CARD
+            - BANK_TRANSFER
+            - OTHER
+          - type: 'null'
+        category:
+          type:
+          - string
+          - 'null'
+        stock_receipt_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        stock_item_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        stock_lot_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        quantity:
+          type:
+          - string
+          - 'null'
+        unit_price_minor:
+          anyOf:
+          - type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          - type: 'null'
+        stock_movement_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        outstanding_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        available_credit_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        refunded_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        reversed:
+          type: boolean
+      required:
+      - id
+      - organization_id
+      - location_id
+      - client_id
+      - appointment_id
+      - live_session_id
+      - type
+      - currency
+      - amount_minor
+      - net_amount_minor
+      - tax_amount_minor
+      - tax_rate_bps
+      - tax_inclusive
+      - description
+      - reason
+      - external_reference
+      - service_id
+      - service_name_snapshot
+      - service_version
+      - performed_by
+      - reversal_of
+      - original_payment_id
+      - recorded_by
+      - occurred_at
+      - created_at
+      - correlation_id
+      - mutation_id
+      - version
+      - method
+      - category
+      - stock_receipt_id
+      - stock_item_id
+      - stock_lot_id
+      - quantity
+      - unit_price_minor
+      - stock_movement_id
+      - outstanding_minor
+      - available_credit_minor
+      - refunded_minor
+      - reversed
+      additionalProperties: false
+    PaymentAllocation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        payment_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        charge_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        currency:
+          type: string
+          enum:
+          - TRY
+          - EUR
+          - USD
+          - GBP
+          - JPY
+          - KWD
+        amount_minor:
+          type: string
+          pattern: ^-?(0|[1-9]\d{0,18})$
+        release_of:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        source_document_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        recorded_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        correlation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        mutation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - id
+      - organization_id
+      - location_id
+      - payment_id
+      - charge_id
+      - currency
+      - amount_minor
+      - release_of
+      - source_document_id
+      - recorded_by
+      - created_at
+      - correlation_id
+      - mutation_id
+      additionalProperties: false
+    Deposit:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        appointment_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        live_session_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        type:
+          type: string
+          const: DEPOSIT
+        currency:
+          type: string
+          enum:
+          - TRY
+          - EUR
+          - USD
+          - GBP
+          - JPY
+          - KWD
+        amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        net_amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        tax_amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        tax_rate_bps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        tax_inclusive:
+          type: boolean
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        external_reference:
+          type:
+          - string
+          - 'null'
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        service_name_snapshot:
+          type:
+          - string
+          - 'null'
+        service_version:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+            maximum: 9007199254740991
+          - type: 'null'
+        performed_by:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        reversal_of:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        original_payment_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        recorded_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        occurred_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        correlation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        mutation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: number
+          const: 1
+        method:
+          anyOf:
+          - type: string
+            enum:
+            - CASH
+            - CARD
+            - BANK_TRANSFER
+            - OTHER
+          - type: 'null'
+        category:
+          type:
+          - string
+          - 'null'
+        stock_receipt_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        stock_item_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        stock_lot_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        quantity:
+          type:
+          - string
+          - 'null'
+        unit_price_minor:
+          anyOf:
+          - type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          - type: 'null'
+        stock_movement_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        outstanding_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        available_credit_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        refunded_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        reversed:
+          type: boolean
+      required:
+      - id
+      - organization_id
+      - location_id
+      - client_id
+      - appointment_id
+      - live_session_id
+      - type
+      - currency
+      - amount_minor
+      - net_amount_minor
+      - tax_amount_minor
+      - tax_rate_bps
+      - tax_inclusive
+      - description
+      - reason
+      - external_reference
+      - service_id
+      - service_name_snapshot
+      - service_version
+      - performed_by
+      - reversal_of
+      - original_payment_id
+      - recorded_by
+      - occurred_at
+      - created_at
+      - correlation_id
+      - mutation_id
+      - version
+      - method
+      - category
+      - stock_receipt_id
+      - stock_item_id
+      - stock_lot_id
+      - quantity
+      - unit_price_minor
+      - stock_movement_id
+      - outstanding_minor
+      - available_credit_minor
+      - refunded_minor
+      - reversed
+      additionalProperties: false
+    Refund:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        appointment_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        live_session_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        type:
+          type: string
+          const: REFUND
+        currency:
+          type: string
+          enum:
+          - TRY
+          - EUR
+          - USD
+          - GBP
+          - JPY
+          - KWD
+        amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        net_amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        tax_amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        tax_rate_bps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        tax_inclusive:
+          type: boolean
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        external_reference:
+          type:
+          - string
+          - 'null'
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        service_name_snapshot:
+          type:
+          - string
+          - 'null'
+        service_version:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+            maximum: 9007199254740991
+          - type: 'null'
+        performed_by:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        reversal_of:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        original_payment_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        recorded_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        occurred_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        correlation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        mutation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: number
+          const: 1
+        method:
+          anyOf:
+          - type: string
+            enum:
+            - CASH
+            - CARD
+            - BANK_TRANSFER
+            - OTHER
+          - type: 'null'
+        category:
+          type:
+          - string
+          - 'null'
+        stock_receipt_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        stock_item_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        stock_lot_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        quantity:
+          type:
+          - string
+          - 'null'
+        unit_price_minor:
+          anyOf:
+          - type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          - type: 'null'
+        stock_movement_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        outstanding_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        available_credit_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        refunded_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        reversed:
+          type: boolean
+      required:
+      - id
+      - organization_id
+      - location_id
+      - client_id
+      - appointment_id
+      - live_session_id
+      - type
+      - currency
+      - amount_minor
+      - net_amount_minor
+      - tax_amount_minor
+      - tax_rate_bps
+      - tax_inclusive
+      - description
+      - reason
+      - external_reference
+      - service_id
+      - service_name_snapshot
+      - service_version
+      - performed_by
+      - reversal_of
+      - original_payment_id
+      - recorded_by
+      - occurred_at
+      - created_at
+      - correlation_id
+      - mutation_id
+      - version
+      - method
+      - category
+      - stock_receipt_id
+      - stock_item_id
+      - stock_lot_id
+      - quantity
+      - unit_price_minor
+      - stock_movement_id
+      - outstanding_minor
+      - available_credit_minor
+      - refunded_minor
+      - reversed
+      additionalProperties: false
+    Expense:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        client_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        appointment_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        live_session_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        type:
+          type: string
+          const: EXPENSE
+        currency:
+          type: string
+          enum:
+          - TRY
+          - EUR
+          - USD
+          - GBP
+          - JPY
+          - KWD
+        amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        net_amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        tax_amount_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        tax_rate_bps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        tax_inclusive:
+          type: boolean
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        external_reference:
+          type:
+          - string
+          - 'null'
+        service_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        service_name_snapshot:
+          type:
+          - string
+          - 'null'
+        service_version:
+          anyOf:
+          - type: integer
+            exclusiveMinimum: 0
+            maximum: 9007199254740991
+          - type: 'null'
+        performed_by:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        reversal_of:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        original_payment_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        recorded_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        occurred_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        created_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        correlation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        mutation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        version:
+          type: number
+          const: 1
+        method:
+          anyOf:
+          - type: string
+            enum:
+            - CASH
+            - CARD
+            - BANK_TRANSFER
+            - OTHER
+          - type: 'null'
+        category:
+          type:
+          - string
+          - 'null'
+        stock_receipt_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        stock_item_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        stock_lot_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        quantity:
+          type:
+          - string
+          - 'null'
+        unit_price_minor:
+          anyOf:
+          - type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          - type: 'null'
+        stock_movement_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        outstanding_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        available_credit_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        refunded_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        reversed:
+          type: boolean
+      required:
+      - id
+      - organization_id
+      - location_id
+      - client_id
+      - appointment_id
+      - live_session_id
+      - type
+      - currency
+      - amount_minor
+      - net_amount_minor
+      - tax_amount_minor
+      - tax_rate_bps
+      - tax_inclusive
+      - description
+      - reason
+      - external_reference
+      - service_id
+      - service_name_snapshot
+      - service_version
+      - performed_by
+      - reversal_of
+      - original_payment_id
+      - recorded_by
+      - occurred_at
+      - created_at
+      - correlation_id
+      - mutation_id
+      - version
+      - method
+      - category
+      - stock_receipt_id
+      - stock_item_id
+      - stock_lot_id
+      - quantity
+      - unit_price_minor
+      - stock_movement_id
+      - outstanding_minor
+      - available_credit_minor
+      - refunded_minor
+      - reversed
+      additionalProperties: false
+    ClientBalance:
+      type: object
+      properties:
+        client_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        display_name:
+          type: string
+        balance_minor:
+          type: string
+          pattern: ^-?(0|[1-9]\d{0,18})$
+        available_credit_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        outstanding_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+      required:
+      - client_id
+      - display_name
+      - balance_minor
+      - available_credit_minor
+      - outstanding_minor
+      additionalProperties: false
+    CashSession:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        currency:
+          type: string
+          enum:
+          - TRY
+          - EUR
+          - USD
+          - GBP
+          - JPY
+          - KWD
+        status:
+          type: string
+          enum:
+          - OPEN
+          - CLOSING_REVIEW
+          - CLOSED
+        version:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        register_code:
+          type: string
+          const: MAIN
+        opening_cash_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        opened_by:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        opened_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        expected_cash_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        counted_cash_minor:
+          anyOf:
+          - type: string
+            pattern: ^(0|[1-9]\d{0,15})$
+          - type: 'null'
+        difference_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        close_basis_count:
+          anyOf:
+          - type: integer
+            minimum: -9007199254740991
+            maximum: 9007199254740991
+          - type: 'null'
+        closed_by:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        closed_at:
+          anyOf:
+          - type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          - type: 'null'
+        close_reason:
+          type:
+          - string
+          - 'null'
+        current_expected_minor:
+          type: string
+          pattern: ^-?(0|[1-9]\d{0,18})$
+        cash_in_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        cash_out_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+      required:
+      - id
+      - organization_id
+      - location_id
+      - currency
+      - status
+      - version
+      additionalProperties: false
+    FinanceSummary:
+      type: object
+      properties:
+        service_charges_minor:
+          type: string
+          pattern: ^-?(0|[1-9]\d{0,18})$
+        retail_sales_minor:
+          type: string
+          pattern: ^-?(0|[1-9]\d{0,18})$
+        payments_minor:
+          type: string
+          pattern: ^-?(0|[1-9]\d{0,18})$
+        deposits_minor:
+          type: string
+          pattern: ^-?(0|[1-9]\d{0,18})$
+        refunds_minor:
+          type: string
+          pattern: ^(0|[1-9]\d{0,15})$
+        expenses_minor:
+          anyOf:
+          - type: string
+            pattern: ^-?(0|[1-9]\d{0,18})$
+          - type: 'null'
+        open_client_balance_minor:
+          type: string
+          pattern: ^-?(0|[1-9]\d{0,18})$
+        payments_by_method:
+          maxItems: 4
+          type: array
+          items:
+            type: object
+            properties:
+              method:
+                type: string
+                enum:
+                - CASH
+                - CARD
+                - BANK_TRANSFER
+                - OTHER
+              amount_minor:
+                type: string
+                pattern: ^(0|[1-9]\d{0,15})$
+            required:
+            - method
+            - amount_minor
+            additionalProperties: false
+      required:
+      - service_charges_minor
+      - retail_sales_minor
+      - payments_minor
+      - deposits_minor
+      - refunds_minor
+      - expenses_minor
+      - open_client_balance_minor
+      - payments_by_method
+      additionalProperties: false
+    FinanceSnapshot:
+      type: object
+      properties:
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        day:
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        timezone:
+          type: string
+        settings:
+          anyOf:
+          - type: object
+            properties:
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              currency:
+                type: string
+                enum:
+                - TRY
+                - EUR
+                - USD
+                - GBP
+                - JPY
+                - KWD
+              exponent:
+                type: integer
+                minimum: 0
+                maximum: 4
+              version:
+                type: integer
+                exclusiveMinimum: 0
+                maximum: 9007199254740991
+              updated_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              updated_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            required:
+            - organization_id
+            - currency
+            - exponent
+            - version
+            - updated_by
+            - updated_at
+            additionalProperties: false
+          - type: 'null'
+        documents:
+          maxItems: 100
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              location_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              client_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              appointment_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              live_session_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              type:
+                type: string
+                enum:
+                - SERVICE_CHARGE
+                - RETAIL_SALE
+                - DEPOSIT
+                - PAYMENT
+                - REFUND
+                - EXPENSE
+                - CLIENT_CREDIT
+                - CLIENT_DEBIT
+                - ADJUSTMENT
+                - REVERSAL
+              currency:
+                type: string
+                enum:
+                - TRY
+                - EUR
+                - USD
+                - GBP
+                - JPY
+                - KWD
+              amount_minor:
+                type: string
+                pattern: ^(0|[1-9]\d{0,15})$
+              net_amount_minor:
+                type: string
+                pattern: ^(0|[1-9]\d{0,15})$
+              tax_amount_minor:
+                type: string
+                pattern: ^(0|[1-9]\d{0,15})$
+              tax_rate_bps:
+                type: integer
+                minimum: 0
+                maximum: 10000
+              tax_inclusive:
+                type: boolean
+              description:
+                type: string
+                minLength: 1
+                maxLength: 500
+              reason:
+                type: string
+                minLength: 1
+                maxLength: 2000
+              external_reference:
+                type:
+                - string
+                - 'null'
+              service_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              service_name_snapshot:
+                type:
+                - string
+                - 'null'
+              service_version:
+                anyOf:
+                - type: integer
+                  exclusiveMinimum: 0
+                  maximum: 9007199254740991
+                - type: 'null'
+              performed_by:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              reversal_of:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              original_payment_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              recorded_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              occurred_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              correlation_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              mutation_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              version:
+                type: number
+                const: 1
+              method:
+                anyOf:
+                - type: string
+                  enum:
+                  - CASH
+                  - CARD
+                  - BANK_TRANSFER
+                  - OTHER
+                - type: 'null'
+              category:
+                type:
+                - string
+                - 'null'
+              stock_receipt_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              stock_item_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              stock_lot_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              quantity:
+                type:
+                - string
+                - 'null'
+              unit_price_minor:
+                anyOf:
+                - type: string
+                  pattern: ^(0|[1-9]\d{0,15})$
+                - type: 'null'
+              stock_movement_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              outstanding_minor:
+                anyOf:
+                - type: string
+                  pattern: ^-?(0|[1-9]\d{0,18})$
+                - type: 'null'
+              available_credit_minor:
+                anyOf:
+                - type: string
+                  pattern: ^-?(0|[1-9]\d{0,18})$
+                - type: 'null'
+              refunded_minor:
+                type: string
+                pattern: ^(0|[1-9]\d{0,15})$
+              reversed:
+                type: boolean
+            required:
+            - id
+            - organization_id
+            - location_id
+            - client_id
+            - appointment_id
+            - live_session_id
+            - type
+            - currency
+            - amount_minor
+            - net_amount_minor
+            - tax_amount_minor
+            - tax_rate_bps
+            - tax_inclusive
+            - description
+            - reason
+            - external_reference
+            - service_id
+            - service_name_snapshot
+            - service_version
+            - performed_by
+            - reversal_of
+            - original_payment_id
+            - recorded_by
+            - occurred_at
+            - created_at
+            - correlation_id
+            - mutation_id
+            - version
+            - method
+            - category
+            - stock_receipt_id
+            - stock_item_id
+            - stock_lot_id
+            - quantity
+            - unit_price_minor
+            - stock_movement_id
+            - outstanding_minor
+            - available_credit_minor
+            - refunded_minor
+            - reversed
+            additionalProperties: false
+        allocations:
+          maxItems: 200
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              location_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              payment_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              charge_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              currency:
+                type: string
+                enum:
+                - TRY
+                - EUR
+                - USD
+                - GBP
+                - JPY
+                - KWD
+              amount_minor:
+                type: string
+                pattern: ^-?(0|[1-9]\d{0,18})$
+              release_of:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              source_document_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              recorded_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              correlation_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              mutation_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            required:
+            - id
+            - organization_id
+            - location_id
+            - payment_id
+            - charge_id
+            - currency
+            - amount_minor
+            - release_of
+            - source_document_id
+            - recorded_by
+            - created_at
+            - correlation_id
+            - mutation_id
+            additionalProperties: false
+        ledger_entries:
+          maxItems: 200
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              document_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              location_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              client_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              currency:
+                type: string
+                enum:
+                - TRY
+                - EUR
+                - USD
+                - GBP
+                - JPY
+                - KWD
+              account:
+                type: string
+                enum:
+                - CLIENT
+                - CASH
+                - CARD
+                - BANK_TRANSFER
+                - OTHER
+              amount_minor:
+                type: string
+                pattern: ^-?(0|[1-9]\d{0,18})$
+              cash_session_id:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              recorded_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              created_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+            required:
+            - id
+            - document_id
+            - organization_id
+            - location_id
+            - client_id
+            - currency
+            - account
+            - amount_minor
+            - cash_session_id
+            - recorded_by
+            - created_at
+            additionalProperties: false
+        client_balances:
+          maxItems: 50
+          type: array
+          items:
+            type: object
+            properties:
+              client_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              display_name:
+                type: string
+              balance_minor:
+                type: string
+                pattern: ^-?(0|[1-9]\d{0,18})$
+              available_credit_minor:
+                type: string
+                pattern: ^(0|[1-9]\d{0,15})$
+              outstanding_minor:
+                type: string
+                pattern: ^(0|[1-9]\d{0,15})$
+            required:
+            - client_id
+            - display_name
+            - balance_minor
+            - available_credit_minor
+            - outstanding_minor
+            additionalProperties: false
+        cash_sessions:
+          maxItems: 20
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              organization_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              location_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              currency:
+                type: string
+                enum:
+                - TRY
+                - EUR
+                - USD
+                - GBP
+                - JPY
+                - KWD
+              status:
+                type: string
+                enum:
+                - OPEN
+                - CLOSING_REVIEW
+                - CLOSED
+              version:
+                type: integer
+                exclusiveMinimum: 0
+                maximum: 9007199254740991
+              register_code:
+                type: string
+                const: MAIN
+              opening_cash_minor:
+                type: string
+                pattern: ^(0|[1-9]\d{0,15})$
+              opened_by:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              opened_at:
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+              expected_cash_minor:
+                anyOf:
+                - type: string
+                  pattern: ^-?(0|[1-9]\d{0,18})$
+                - type: 'null'
+              counted_cash_minor:
+                anyOf:
+                - type: string
+                  pattern: ^(0|[1-9]\d{0,15})$
+                - type: 'null'
+              difference_minor:
+                anyOf:
+                - type: string
+                  pattern: ^-?(0|[1-9]\d{0,18})$
+                - type: 'null'
+              close_basis_count:
+                anyOf:
+                - type: integer
+                  minimum: -9007199254740991
+                  maximum: 9007199254740991
+                - type: 'null'
+              closed_by:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              closed_at:
+                anyOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                - type: 'null'
+              close_reason:
+                type:
+                - string
+                - 'null'
+              current_expected_minor:
+                type: string
+                pattern: ^-?(0|[1-9]\d{0,18})$
+              cash_in_minor:
+                type: string
+                pattern: ^(0|[1-9]\d{0,15})$
+              cash_out_minor:
+                type: string
+                pattern: ^(0|[1-9]\d{0,15})$
+            required:
+            - id
+            - organization_id
+            - location_id
+            - currency
+            - status
+            - version
+            additionalProperties: false
+        summary:
+          type: object
+          properties:
+            service_charges_minor:
+              type: string
+              pattern: ^-?(0|[1-9]\d{0,18})$
+            retail_sales_minor:
+              type: string
+              pattern: ^-?(0|[1-9]\d{0,18})$
+            payments_minor:
+              type: string
+              pattern: ^-?(0|[1-9]\d{0,18})$
+            deposits_minor:
+              type: string
+              pattern: ^-?(0|[1-9]\d{0,18})$
+            refunds_minor:
+              type: string
+              pattern: ^(0|[1-9]\d{0,15})$
+            expenses_minor:
+              anyOf:
+              - type: string
+                pattern: ^-?(0|[1-9]\d{0,18})$
+              - type: 'null'
+            open_client_balance_minor:
+              type: string
+              pattern: ^-?(0|[1-9]\d{0,18})$
+            payments_by_method:
+              maxItems: 4
+              type: array
+              items:
+                type: object
+                properties:
+                  method:
+                    type: string
+                    enum:
+                    - CASH
+                    - CARD
+                    - BANK_TRANSFER
+                    - OTHER
+                  amount_minor:
+                    type: string
+                    pattern: ^(0|[1-9]\d{0,15})$
+                required:
+                - method
+                - amount_minor
+                additionalProperties: false
+          required:
+          - service_charges_minor
+          - retail_sales_minor
+          - payments_minor
+          - deposits_minor
+          - refunds_minor
+          - expenses_minor
+          - open_client_balance_minor
+          - payments_by_method
+          additionalProperties: false
+        clients:
+          maxItems: 200
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              display_name:
+                type: string
+            required:
+            - id
+            - display_name
+            additionalProperties: false
+        appointments:
+          maxItems: 100
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              client_id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              service_name:
+                type: string
+              status:
+                type: string
+                const: COMPLETED
+              currency:
+                type: string
+              quoted_total:
+                type: string
+              version:
+                type: integer
+                exclusiveMinimum: 0
+                maximum: 9007199254740991
+            required:
+            - id
+            - client_id
+            - service_name
+            - status
+            - currency
+            - quoted_total
+            - version
+            additionalProperties: false
+        stock_items:
+          maxItems: 200
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              display_name:
+                type: string
+              inventory_unit:
+                type: string
+                enum:
+                - GRAM
+                - MILLILITER
+                - UNIT
+            required:
+            - id
+            - display_name
+            - inventory_unit
+            additionalProperties: false
+        offset:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+      - organization_id
+      - location_id
+      - day
+      - timezone
+      - settings
+      - documents
+      - allocations
+      - ledger_entries
+      - client_balances
+      - cash_sessions
+      - summary
+      - clients
+      - appointments
+      - stock_items
+      - offset
+      additionalProperties: false
+    FinanceResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        status:
+          type: string
+          const: SAVED
+      required:
+      - id
+      - status
+      additionalProperties: false
+    FinanceError:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - UNAUTHENTICATED
+          - SESSION_EXPIRED
+          - FORBIDDEN
+          - MEMBERSHIP_REQUIRED
+          - MEMBERSHIP_REVOKED
+          - TENANT_CONTEXT_INVALID
+          - VALIDATION_FAILED
+          - NETWORK_ERROR
+          - FINANCE_NOT_ENABLED
+          - FINANCE_NOT_FOUND
+          - FINANCE_CONFLICT
+          - CURRENCY_UNSUPPORTED
+          - CURRENCY_LOCKED
+          - CURRENCY_MISMATCH
+          - CURRENCY_PRECISION_REQUIRED
+          - FINANCE_ALLOCATION_CONFLICT
+          - FINANCE_REFUND_LIMIT
+          - FINANCE_CHARGE_HAS_PAYMENTS
+          - OVERPAYMENT_CONFIRM_REQUIRED
+          - CASH_ALREADY_OPEN
+          - CASH_NOT_OPEN
+          - CASH_CLOSE_STALE
+          - CASH_DIFFERENCE_ACK_REQUIRED
+          - CASH_DATE_OUTSIDE_SESSION
+          - CASH_HISTORY_CLOSED
+          - SERVICE_NOT_COMPLETED
+          - CLIENT_NOT_CURRENT
+          - STOCK_NOT_ENABLED
+          - STOCK_OPENING_REQUIRED
+          - STOCK_LOT_REQUIRED
+          - STOCK_LOT_CONFLICT
+          - STOCK_INSUFFICIENT
+        message:
+          type: string
+        correlationId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - code
+      - message
+      - correlationId
+      additionalProperties: false

@@ -1,0 +1,87 @@
+{
+  "snapshot": {
+    "organization_id": "a4000000-0000-4000-8000-000000000001",
+    "location_id": "a4000000-0000-4000-8000-000000000011",
+    "day": "2026-10-09",
+    "timezone": "Europe/Istanbul",
+    "settings": {
+      "organization_id": "a4000000-0000-4000-8000-000000000001",
+      "currency": "TRY",
+      "exponent": 2,
+      "version": 1,
+      "updated_by": "a4000000-0000-4000-8000-000000000021",
+      "updated_at": "2026-10-09T12:00:00Z"
+    },
+    "documents": [],
+    "allocations": [],
+    "ledger_entries": [],
+    "client_balances": [
+      {
+        "client_id": "a4000000-0000-4000-8000-000000000031",
+        "display_name": "Synthetic client",
+        "balance_minor": "40000",
+        "available_credit_minor": "10000",
+        "outstanding_minor": "50000"
+      }
+    ],
+    "cash_sessions": [
+      {
+        "id": "a4000000-0000-4000-8000-000000000601",
+        "organization_id": "a4000000-0000-4000-8000-000000000001",
+        "location_id": "a4000000-0000-4000-8000-000000000011",
+        "currency": "TRY",
+        "status": "OPEN",
+        "version": 1,
+        "register_code": "MAIN",
+        "opening_cash_minor": "10000",
+        "opened_by": "a4000000-0000-4000-8000-000000000021",
+        "opened_at": "2026-10-09T12:00:00Z",
+        "expected_cash_minor": null,
+        "counted_cash_minor": null,
+        "difference_minor": null,
+        "close_basis_count": null,
+        "closed_by": null,
+        "closed_at": null,
+        "close_reason": null,
+        "current_expected_minor": "10000"
+      }
+    ],
+    "summary": {
+      "service_charges_minor": "100000",
+      "retail_sales_minor": "0",
+      "payments_minor": "60000",
+      "deposits_minor": "0",
+      "refunds_minor": "0",
+      "expenses_minor": "0",
+      "open_client_balance_minor": "40000",
+      "payments_by_method": [
+        {
+          "method": "CARD",
+          "amount_minor": "60000"
+        }
+      ]
+    },
+    "clients": [
+      {
+        "id": "a4000000-0000-4000-8000-000000000031",
+        "display_name": "Synthetic client"
+      }
+    ],
+    "appointments": [],
+    "stock_items": [],
+    "offset": 0
+  },
+  "command": {
+    "mutation_id": "a4000000-0000-4000-8000-000000000900",
+    "reason": "Authorized service charge",
+    "id": "a4000000-0000-4000-8000-000000000501",
+    "currency": "TRY",
+    "occurred_at": "2026-10-09T12:00:00Z",
+    "type": "MANUAL_CHARGE",
+    "client_id": "a4000000-0000-4000-8000-000000000031",
+    "amount_minor": "100000",
+    "tax_rate_bps": 2000,
+    "tax_inclusive": true,
+    "description": "Synthetic service"
+  }
+}
