@@ -28,4 +28,20 @@
     <string name="role_colorist">Colorist</string>
     <string name="role_assistant">Assistant</string>
     <string name="role_reception">Reception</string>
+    <string name="stock_open">Load / refresh inventory</string>
+    <string name="stock_title">Inventory and products</string>
+    <string name="stock_error">Inventory could not be verified. Refresh the workspace and retry.</string>
+    <string name="stock_not_enabled">Inventory has not started for this location. Record factual opening counts on Web.</string>
+    <string name="stock_search">Product, SKU, barcode or manufacturer code</string>
+    <string name="stock_queue">Pending: %1$d · Failed: %2$d</string>
+    <string name="stock_unknown">Unknown</string>
+    <string name="stock_piece">pieces</string>
+    <string name="stock_ok">Available</string>
+    <string name="stock_low">Low stock</string>
+    <string name="stock_out">Out of stock</string>
+    <string name="stock_sync">Usage synchronization required</string>
+    <string name="stock_history">Product and movement summary</string>
+    <string name="stock_empty">No inventory items found.</string>
+    <string name="stock_previous">Previous</string>
+    <string name="stock_next">Next</string>
 </resources>

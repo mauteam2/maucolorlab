@@ -24,7 +24,7 @@ select is(pg_temp.stock(jsonb_build_object('type','PROCESS','mutation_id',gen_ra
 select is((select count(*) from public.stock_movements where movement_type='USAGE'),2::bigint,'no second consumption and no separate waste deduction');
 reset role;
 -- STOP produces discrepancies without requiring a browser callback.
-update public.live_sessions set status='ABORTED',payload=jsonb_set(payload,'{status}','"ABORTED"') where id='b4000000-0000-4000-8000-000000000803';
+update public.live_sessions set record_version=record_version+1,status='ABORTED',payload=jsonb_set(jsonb_set(payload,'{status}','"ABORTED"'),'{recordVersion}',to_jsonb(record_version+1)) where id='b4000000-0000-4000-8000-000000000803';
 select is((select count(*) from public.stock_source_events where source_domain='LIVE_TERMINAL'),2::bigint,'terminal outbox lists all real bowl components');
 create function pg_temp.material(n numeric,previous uuid default null) returns void language sql volatile as $$
  insert into public.live_material_reconciliations(id,organization_id,location_id,session_id,client_id,bowl_id,recipe_id,mutation_id,supersedes_id,prepared_grams,used_grams,waste_grams,reason,recorded_by,recorded_at,correlation_id)

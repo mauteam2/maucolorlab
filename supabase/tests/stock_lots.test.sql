@@ -20,7 +20,7 @@ select is((select sum(quantity_delta) from public.stock_movements where stock_lo
 select is(public.stock_snapshot('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{"lot_id":"c4000000-0000-4000-8000-000000000501"}')#>>'{data,trace,0,session_id}','b4000000-0000-4000-8000-000000000803','lot traces actual consumed session');
 select is(public.stock_snapshot('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{"lot_id":"c4000000-0000-4000-8000-000000000501"}')#>>'{data,trace,0,appointment_id}',null::text,'legacy or absent appointment is never promoted to trusted relation');
 reset role;
-update public.live_sessions set payload=jsonb_set(payload,'{appointmentLink}','"c4000000-0000-4000-8000-000000009999"');
+update public.live_sessions set record_version=record_version+1,payload=jsonb_set(jsonb_set(payload,'{appointmentLink}','"c4000000-0000-4000-8000-000000009999"'),'{recordVersion}',to_jsonb(record_version+1));
 set local role authenticated;
 select is(public.stock_snapshot('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{"lot_id":"c4000000-0000-4000-8000-000000000501"}')#>>'{data,trace,0,appointment_id}',null::text,'legacy UUID cannot enter lot recall association');
 reset role;
