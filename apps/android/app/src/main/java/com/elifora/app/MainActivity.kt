@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val controller get() = (application as EliforaApplication).container.workspaceController
     private val clients get() = (application as EliforaApplication).container.clientController
+    private val stock get() = (application as EliforaApplication).container.stockController
     private val crm get() = (application as EliforaApplication).container.clientCrmController
     private val passports get() = (application as EliforaApplication).container.hairPassportController
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,9 +28,9 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             controller.state.collectLatest { state ->
                 when (state) {
-                    is WorkspaceState.Ready -> { passports.conceal(); passports.bind(state.context); crm.bind(state.context); clients.bind(state.context) }
-                    WorkspaceState.LoadingSession, WorkspaceState.LoadingMemberships -> { clients.conceal(); passports.conceal(); crm.conceal() }
-                    else -> { clients.invalidate(); passports.invalidate(); crm.invalidate() }
+                    is WorkspaceState.Ready -> { passports.conceal(); passports.bind(state.context); crm.bind(state.context); stock.conceal(); stock.bind(state.context); clients.bind(state.context) }
+                    WorkspaceState.LoadingSession, WorkspaceState.LoadingMemberships -> { clients.conceal(); passports.conceal(); crm.conceal(); stock.conceal() }
+                    else -> { clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate() }
                 }
             }
         }
@@ -53,15 +54,16 @@ class MainActivity : ComponentActivity() {
                 signIn = { email, password -> lifecycleScope.launch { controller.signIn(email, password) } },
                 select = { lifecycleScope.launch { controller.select(it) } },
                 retry = { lifecycleScope.launch { controller.restore() } },
-                change = { clients.invalidate(); passports.invalidate(); crm.invalidate(); lifecycleScope.launch { controller.changeWorkspace() } },
-                logout = { clients.invalidate(); passports.invalidate(); crm.invalidate(); lifecycleScope.launch { controller.logout() } },
-                clients = { permissions -> ClientScreens(clients, passports, permissions, crm) })
+                change = { clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate(); lifecycleScope.launch { controller.changeWorkspace() } },
+                logout = { clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate(); lifecycleScope.launch { controller.logout() } },
+                clients = { permissions -> ClientScreens(clients, passports, permissions, crm) },
+                stock = { com.elifora.app.ui.StockScreen(stock) })
         }
     }
     override fun onStop() {
         clients.conceal()
         passports.conceal()
-        crm.conceal()
+        crm.conceal(); stock.conceal()
         controller.conceal()
         super.onStop()
     }

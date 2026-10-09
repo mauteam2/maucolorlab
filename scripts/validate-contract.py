@@ -326,3 +326,19 @@ android_crm = (root / 'apps/android/app/src/main/java/com/elifora/app/data/crm/S
 for field in ('p_membership_id','p_location_id','p_request','p_command','p_correlation_id','expected_version','mutation_id','source_client_ids','preferred_staff','effective_status'):
     assert field in android_crm, field
 print('PASS: Phase 4B shared CRM schemas, Android RPC vocabulary and eleven forgery rejections')
+
+# Phase 4C: real immutable-ledger vocabulary shared by Web, DB and Android.
+stock_schemas=json.loads((root/'contracts/stock.schemas.json').read_text())
+for name,schema in stock_schemas.items():
+    assert contract['components']['schemas'][name]==schema,name
+stock=json.loads((root/'contracts/fixtures/stock-contract.json').read_text())
+observation_validator('StockSnapshot').validate(stock['snapshot'])
+observation_validator('StockCommand').validate(stock['command'])
+for field in ('organization_id','location_id','actor','source_event_id','source_session_id','derived_consumption','current_balance','stock_sync_status'):
+    assert list(observation_validator('StockCommand').iter_errors(stock['command']|{field:True})),field
+for rpc in ('stock_snapshot','stock_operation'):
+    assert contract['paths']['/rest/v1/rpc/'+rpc]['post']['security']==[{'bearerAuth':[], 'publishableKey':[]}]
+stock_android=(root/'apps/android/app/src/main/java/com/elifora/app/data/stock/SupabaseStockRepository.kt').read_text()
+for field in ('p_membership_id','p_location_id','p_request','inventory_unit','on_hand','stock_status','stock_sync_status','quantity_delta','BigDecimal'):
+    assert field in stock_android,field
+print('PASS: Phase 4C shared inventory schemas, Android decimal reads and eight forgery rejections')

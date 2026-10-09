@@ -42,6 +42,7 @@ export function SalonPreview({ screen }: { screen: SalonSection | "profile" }) {
  const income = transactions.filter(row => row.type === "Gelir").reduce((sum, row) => sum + row.amount, 0);
  const expenses = transactions.filter(row => row.type === "Gider").reduce((sum, row) => sum + row.amount, 0);
  const heading: Record<typeof screen, [string, string]> = {
+  stock: ["Stok ve ürünler", "Gerçek stok işlemleri çalışma alanındaki Stok bölümünde kullanılabilir."],
   dashboard: ["Salonunuza genel bakış", "Bugünkü planı ve renk çalışmalarını takip edin."], clients: ["Müşteriler", "Müşteri bilgilerini ve renk geçmişini düzenleyin."], profile: ["Müşteri profili", ""], appointments: ["Randevular", "Salonunuzun günlük planını düzenleyin."], finance: ["Finans", "Tahsilatları ve salon giderlerini takip edin."], reports: ["Salon raporları", "İşlem dağılımını ve salonun çalışma özetini inceleyin."], team: ["Salon ekibi", "Ekip üyelerini, görevlerini ve çalışma planını yönetin."], settings: ["Salon ayarları", "Çalışma alanınızı ve tercihlerinizi yönetin."], colorlab: ["Yeni renk reçetesi", "Danışmanlığı, hedef tonu ve reçeteyi tek yerde düzenleyin."],
  };
  const appointments = [{ day:0, hour:9, time:"09:30", person:0, service:0 }, { day:1, hour:11, time:"11:00", person:1, service:1 }, { day:0, hour:13, time:"13:30", person:2, service:2 }, { day:2, hour:10, time:"10:00", person:3, service:3 }, { day:3, hour:16, time:"16:00", person:4, service:4 }];

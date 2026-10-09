@@ -1,0 +1,63 @@
+{
+  "snapshot": {
+    "actions": [],
+    "settings": {
+      "organization_id": "a4000000-0000-4000-8000-000000000001",
+      "location_id": "a4000000-0000-4000-8000-000000000011",
+      "enabled_at": "2026-10-09T12:00:00Z",
+      "negative_policy": "BLOCK_NEGATIVE",
+      "version": 1,
+      "updated_by": "a4000000-0000-4000-8000-000000000021"
+    },
+    "items": [
+      {
+        "source": "SALON_CUSTOM_OPERATIONAL_PRODUCT",
+        "catalog_product_id": null,
+        "product_type": "SHAMPOO",
+        "display_name": "Synthetic salon product",
+        "sku": "SYN-01",
+        "barcode": null,
+        "inventory_unit": "GRAM",
+        "active": true,
+        "track_quantity": true,
+        "lot_required": false,
+        "low_threshold": 10,
+        "id": "a4000000-0000-4000-8000-000000000101",
+        "organization_id": "a4000000-0000-4000-8000-000000000001",
+        "location_id": "a4000000-0000-4000-8000-000000000011",
+        "catalog_series_id": null,
+        "version": 1,
+        "created_by": "a4000000-0000-4000-8000-000000000021",
+        "updated_by": "a4000000-0000-4000-8000-000000000021",
+        "created_at": "2026-10-09T12:00:00Z",
+        "updated_at": "2026-10-09T12:00:00Z",
+        "on_hand": 100,
+        "stock_status": "OK",
+        "stock_sync_status": "CURRENT"
+      }
+    ],
+    "offset": 0,
+    "total_items": 1,
+    "lots": [],
+    "movements": [],
+    "events": [],
+    "counts": [],
+    "monitoring": {
+      "pending": 0,
+      "failed": 0,
+      "unreconciled": 0
+    },
+    "catalog_options": []
+  },
+  "command": {
+    "mutation_id": "a4000000-0000-4000-8000-000000000900",
+    "stock_item_id": "a4000000-0000-4000-8000-000000000101",
+    "lot_id": null,
+    "quantity": 10.25,
+    "unit": "GRAM",
+    "occurred_at": "2026-10-09T12:00:00Z",
+    "reference": "Synthetic receipt",
+    "reason": "Measured incoming product",
+    "type": "RECEIPT"
+  }
+}

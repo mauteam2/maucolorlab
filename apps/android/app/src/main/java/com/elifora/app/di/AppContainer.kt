@@ -17,12 +17,14 @@ interface AppContainer {
     val clientController: ClientController
     val hairPassportController: HairPassportController
     val clientCrmController: com.elifora.app.domain.crm.ClientCrmController
+    val stockController: com.elifora.app.domain.stock.StockController
 }
 class DefaultAppContainer(context: Context) : AppContainer {
     override val appConfig: AppConfig by lazy { BuildConfigAppConfig() }
     private val repository by lazy { SupabaseAuthRepository(SupabaseTransport(appConfig), EncryptedSessionStore(context)) }
     override val workspaceController by lazy { WorkspaceController(repository, repository, PreferenceWorkspaceStore(context)) }
     override val clientController by lazy { ClientController(SupabaseClientRepository(repository::clientOperation)) }
+    override val stockController by lazy { com.elifora.app.domain.stock.StockController(com.elifora.app.data.stock.SupabaseStockRepository(repository::stockSnapshot, repository::list)) }
     override val clientCrmController by lazy { com.elifora.app.domain.crm.ClientCrmController(com.elifora.app.data.crm.SupabaseClientCrmRepository(repository::crmRead, repository::crmOperation, repository::list)) }
     override val hairPassportController by lazy { HairPassportController(SupabaseHairPassportRepository(repository::hairPassportSnapshot, repository::list),
         SupabaseHairMutationRepository(repository::hairMutation, repository::list, repository::userId)) }

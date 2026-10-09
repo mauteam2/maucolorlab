@@ -28,4 +28,20 @@
     <string name="role_colorist">Renk Uzmanı / Kuaför</string>
     <string name="role_assistant">Asistan</string>
     <string name="role_reception">Resepsiyon</string>
+    <string name="stock_open">Stok listesini yükle / yenile</string>
+    <string name="stock_title">Stok ve ürünler</string>
+    <string name="stock_error">Stok doğrulanamadı. Çalışma alanını yenileyip tekrar deneyin.</string>
+    <string name="stock_not_enabled">Bu şubede stok takibi başlamadı. Web üzerinden fiziksel açılış miktarlarını kaydedin.</string>
+    <string name="stock_search">Ürün, SKU, barkod veya üretici kodu</string>
+    <string name="stock_queue">Bekleyen: %1$d · İşlenemeyen: %2$d</string>
+    <string name="stock_unknown">Bilinmiyor</string>
+    <string name="stock_piece">adet</string>
+    <string name="stock_ok">Yeterli</string>
+    <string name="stock_low">Azaldı</string>
+    <string name="stock_out">Tükendi</string>
+    <string name="stock_sync">Kullanım senkronu gerekli</string>
+    <string name="stock_history">Ürün ve hareket özeti</string>
+    <string name="stock_empty">Stok kartı bulunamadı.</string>
+    <string name="stock_previous">Önceki</string>
+    <string name="stock_next">Sonraki</string>
 </resources>

@@ -23,6 +23,7 @@ fun EliforaApp(
     signIn: (String, String) -> Unit, select: (String) -> Unit,
     retry: () -> Unit, change: () -> Unit, logout: () -> Unit,
     clients: @Composable (Set<String>) -> Unit = {},
+    stock: @Composable () -> Unit = {},
 ) {
     val state by states.collectAsStateWithLifecycle()
     EliforaTheme {
@@ -45,6 +46,7 @@ fun EliforaApp(
                         Text(roleLabel(current.context.role))
                         Text(stringResource(R.string.workspace_ready))
                         if ("clients.read" in current.context.permissions) clients(current.context.permissions)
+                        if ("stock.view" in current.context.permissions) stock()
                         OutlinedButton(onClick = change) { Text(stringResource(R.string.workspace_change)) }
                     }
                     is WorkspaceState.SelectingWorkspace -> {
