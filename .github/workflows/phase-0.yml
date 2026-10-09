@@ -152,7 +152,11 @@ jobs:
       - name: Gate 1 real PostgreSQL concurrency barriers
         run: python scripts/test-gate-1-concurrency.py
       - name: Stock real PostgreSQL concurrency and 10k movement performance
-        run: python scripts/test-stock-concurrency.py
+        run: |
+          # Each real-connection harness commits synthetic catalog fixtures.
+          # Start stock races from a fresh disposable local schema after Gate 1.
+          supabase db reset --local
+          python scripts/test-stock-concurrency.py
       - name: Stock database verification evidence
         if: always()
         uses: actions/upload-artifact@v4

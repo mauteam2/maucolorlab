@@ -128,6 +128,9 @@ try:
     new_bowl=str(uuid.uuid4());sql=usage(new_bowl,1)
     observer.execute(f"create function stock_test.enqueue() returns jsonb language plpgsql security definer set search_path='' as $$begin {sql} return '{{\"data\":{{\"status\":\"QUEUED\"}}}}'::jsonb;end $$;")
     race('count confirmation and technical enqueue have an observed cutover barrier',rpc(command('COUNT_CONFIRM',id=count_id,reason='Confirm measured count')),'select stock_test.enqueue();');assert balance(item)==25
+    first_bowl=str(uuid.uuid4());second_bowl=str(uuid.uuid4())
+    observer.execute(usage(first_bowl,2)+usage(second_bowl,3))
+    race('two distinct usage events serialize without lost consumption',process(event(first_bowl)),process(event(second_bowl)));assert balance(color)==15
     observer.execute(f"insert into public.stock_movements(organization_id,location_id,stock_item_id,movement_type,quantity_delta,unit,reason,recorded_by,occurred_at,correlation_id,mutation_id) select 'd4000000-0000-4000-8000-000000000001','{loc}','{item}','RECEIPT',1,'GRAM','Synthetic performance ledger','{user}',statement_timestamp()-n*interval '1 second',gen_random_uuid(),gen_random_uuid() from generate_series(1,10000)n;analyze public.stock_movements;")
     auth(observer,user);metrics={}
     def measure(label,sql):
