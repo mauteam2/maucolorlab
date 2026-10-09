@@ -2,7 +2,7 @@
 
 An authorized stock.count member records a draft containing item, optional real lot and measured quantity. The server records the ledger basis; the client cannot submit it. Lines are bounded to 50, duplicate item/lot scopes are rejected, units are enforced and UNKNOWN cannot silently become zero. Initial measurements use the explicit opening workflow; later physical counts reconcile established opening facts.
 
-Confirmation locks the count header, location cutover row and sorted item rows. It re-reads balances and pending/failed technical deliveries. A changed basis or unresolved delivery returns STOCK_COUNT_STALE without posting an adjustment. Record a new factual count after resolving the discrepancy; do not force the old one through.
+Confirmation locks the location cutover row, count header and sorted item rows. A draft cannot contain both an item aggregate and that same item’s lot scopes. It re-reads balances and pending/failed technical deliveries. A changed basis or unresolved delivery returns STOCK_COUNT_STALE without posting an adjustment. Record a new factual count after resolving the discrepancy; do not force the old one through.
 
 Technical enqueue holds KEY SHARE on the cutover row until its transaction commits. Confirmation's FOR UPDATE either sees a previously committed source delivery and rejects the stale count, or commits before later technical enqueue; that later usage then posts after the physical count. Ordinary balance posting remains item-scoped.
 

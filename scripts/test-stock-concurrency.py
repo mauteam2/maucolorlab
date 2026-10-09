@@ -99,6 +99,9 @@ try:
     observer.execute('reset role;')
     race('two receipts serialize without lost quantity',move('RECEIPT',item,10),move('RECEIPT',item,20));assert balance(item)==130
     race('two adjustments cannot overspend',move('ADJUSTMENT_OUT',item,100),move('ADJUSTMENT_OUT',item,40),'STOCK_INSUFFICIENT');assert balance(item)==30
+    # Preserve a real bowl in the authoritative session snapshot so STOP and
+    # reconciliation triggers enumerate the same component as the usage row.
+    observer.execute(f"update public.live_sessions set record_version=record_version+1,payload=jsonb_set(jsonb_set(payload,'{{recordVersion}}',to_jsonb(record_version+1)),'{{bowls}}',jsonb_build_array(jsonb_build_object('id','{bowl}','recipeId',current_recipe_id,'regionIds',jsonb_build_array('d4000000-0000-4000-8000-000000000051'),'plannedGrams',60,'preparedGrams',60,'usedGrams',40,'wasteGrams',20,'closed',true))) where id='{session}';")
     observer.execute(usage(bowl));ev=event(bowl)
     race('same source with two mutation IDs consumes once',process(ev),process(ev));assert balance(color)==70
     assert observer.execute(f"select count(*) from public.stock_movements where source_event_id='{ev}';")[-1]=='1'
@@ -108,6 +111,7 @@ try:
     assert not result(observer.execute(rpc(command('COUNT_CREATE',id=count_id,reason='Concurrent count',lines=[{'stock_item_id':color,'lot_id':None,'counted_quantity':60}])))).get('code')
     observer.execute('reset role;');third_bowl=str(uuid.uuid4());observer.execute(usage(third_bowl,5))
     race('count confirmation rechecks intervening consumption',process(event(third_bowl)),rpc(command('COUNT_CONFIRM',id=count_id,reason='Validate current basis')),'STOCK_COUNT_STALE');assert balance(color)==60
+    observer.execute(f"update public.live_sessions set record_version=record_version+1,status='ABORTED',payload=jsonb_set(jsonb_set(payload,'{{status}}','\"ABORTED\"'),'{{recordVersion}}',to_jsonb(record_version+1)) where id='{session}';")
     observer.execute(f"create function stock_test.material(n numeric,previous uuid default null) returns uuid language plpgsql security definer set search_path='' as $$declare new_id uuid:=gen_random_uuid();begin insert into public.live_material_reconciliations(id,organization_id,location_id,session_id,client_id,bowl_id,recipe_id,mutation_id,supersedes_id,prepared_grams,used_grams,waste_grams,reason,recorded_by,recorded_at,correlation_id) select new_id,s.organization_id,s.location_id,s.id,s.client_id,'{bowl}',s.current_recipe_id,gen_random_uuid(),previous,n,0,n,'Concurrency measurement',s.controller_user_id,statement_timestamp(),gen_random_uuid() from public.live_sessions s where s.id='{session}';return new_id;end $$;")
     first=observer.execute('select stock_test.material(80);')[-1];latest=observer.execute(f"select stock_test.material(100,'{first}');")[-1]
     product=observer.execute(f"select product_id from public.controlled_brand_recipes where id=(select current_recipe_id from public.live_sessions where id='{session}');")[-1]
