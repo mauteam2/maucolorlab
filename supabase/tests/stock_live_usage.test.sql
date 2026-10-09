@@ -60,12 +60,12 @@ select is((select count(*) from public.live_material_reconciliations),4::bigint,
 select is((select status from public.live_sessions),'ABORTED','stock corrections never restart stopped technical session');
 select is(pg_temp.stock(jsonb_build_object('type','REVERSAL','mutation_id',gen_random_uuid(),'movement_id',(select id from public.stock_movements where movement_type='USAGE' limit 1),'reason','Invalid manual rewrite'))->>'code','STOCK_SOURCE_IMMUTABLE','automatic usage only corrects through trusted material chain');
 reset role;
-select pg_temp.material(20.01,(select id from public.live_material_reconciliations where not exists(select 1 from public.live_material_reconciliations y where y.supersedes_id=live_material_reconciliations.id)));
+select throws_ok($$select pg_temp.material(20.01,(select id from public.live_material_reconciliations where not exists(select 1 from public.live_material_reconciliations y where y.supersedes_id=live_material_reconciliations.id)))$$,'23514',null,'existing Gate 1 rejects unrepresentable mixture without weakening its precision rule');
 set local role authenticated;
 select pg_temp.stock(jsonb_build_object('type','PROCESS_BATCH','mutation_id',gen_random_uuid(),'limit',20));
-select is((select count(*) from public.stock_source_events where error_code='UNIT_CONVERSION_REQUIRED'),2::bigint,'half-cent raw component fails explicitly instead of rounding');
+select is((select count(*) from public.stock_source_events where error_code='UNIT_CONVERSION_REQUIRED'),0::bigint,'rejected technical fact cannot leave a partial stock event');
 select is((select sum(quantity_delta) from public.stock_movements where stock_item_id='c4000000-0000-4000-8000-000000000111'),100::numeric,'unrepresentable component never posts a rounded movement');
-select is((select prepared_grams from public.live_material_reconciliations x where not exists(select 1 from public.live_material_reconciliations y where y.supersedes_id=x.id)),20.01::numeric,'technical measured precision is preserved');
+select is((select prepared_grams from public.live_material_reconciliations x where not exists(select 1 from public.live_material_reconciliations y where y.supersedes_id=x.id)),0::numeric,'rejected technical update preserves the last accepted immutable measurement');
 reset role;
 select pg_temp.material(20.02,(select id from public.live_material_reconciliations where not exists(select 1 from public.live_material_reconciliations y where y.supersedes_id=live_material_reconciliations.id)));
 set local role authenticated;

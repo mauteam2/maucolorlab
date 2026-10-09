@@ -38,6 +38,13 @@ select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000022'
 select is((select count(*) from public.stock_lots),0::bigint,'cross tenant lots denied');
 select is((select count(*) from public.stock_source_events),0::bigint,'cross tenant source events denied');
 reset role;
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);set local role authenticated;
+select is((select count(*) from public.catalog_products),0::bigint,'stock view never grants technical catalog read');
+select is(public.stock_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"item_id":"c4000000-0000-4000-8000-000000000111"}')#>>'{data,items,0,stock_status}','UNKNOWN','inventory-only member sees unresolved consumption as UNKNOWN');
+select is(public.stock_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"item_id":"c4000000-0000-4000-8000-000000000111"}')#>>'{data,items,0,stock_sync_status}','RETRY_REQUIRED','catalog RLS cannot hide an inventory discrepancy');
+select is(public.stock_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"query":"8-01"}')#>>'{data,total_items}','1','owned manufacturer code search works without technical catalog access');
+select throws_ok($$select app_private.stock_product_metadata(null,null,null)$$,'42501',null,'normal role cannot invoke private metadata bypass');
+reset role;
 insert into public.locations(id,organization_id,name,timezone) values('b4000000-0000-4000-8000-000000000019','b4000000-0000-4000-8000-000000000001','Other location','Europe/Istanbul');
 update public.salon_memberships set location_id='b4000000-0000-4000-8000-000000000019' where id='b4000000-0000-4000-8000-000000000114';
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);set local role authenticated;
