@@ -129,7 +129,7 @@ declare a record;part bigint;remaining bigint:=n;begin
  end loop;
  if remaining<>0 then raise exception using errcode='22023',message='FINANCE_ALLOCATION_CONFLICT';end if;
 end $$;
-revoke all on function app_private.finance_allocate(uuid,uuid,uuid,uuid,bigint,uuid,uuid,uuid,uuid[]),app_private.finance_release(uuid,uuid,uuid,uuid,bigint,uuid,uuid) from public,anon,authenticated,service_role;
+revoke all on function app_private.finance_allocate(uuid,uuid,uuid,uuid,bigint,uuid,uuid,uuid,uuid[]),app_private.finance_release(uuid,uuid,uuid,uuid,bigint,uuid,uuid,uuid) from public,anon,authenticated,service_role;
 grant execute on function app_private.finance_allocate(uuid,uuid,uuid,uuid,bigint,uuid,uuid,uuid,uuid[]),app_private.finance_release(uuid,uuid,uuid,uuid,bigint,uuid,uuid,uuid) to elifora_finance_writer;
 
 -- Stock has one ledger. Finance contributes a separate permanently unique source, no balance field.
