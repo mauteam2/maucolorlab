@@ -3,10 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { controlledCatalogs, controlledOptions, storedControlledRecipe, colorGrams } from "@/lib/brand/controlled-model";
 import { SalonCard } from "./salon-frame";
 import Link from "next/link";
+import {RecipeStockAvailability} from "./recipe-stock-availability";
 type Saved=ReturnType<typeof storedControlledRecipe.parse>;
-type Props={clientId:string;planId:string;reference:string;enabled:boolean;canCreate:boolean};
+type Props={clientId:string;planId:string;reference:string;enabled:boolean;canCreate:boolean;stockEnabled?:boolean};
 const errors:Record<string,string>={COLOR_PLAN_SOURCE_CONFLICT:"Saç kaydı değişti. Yeni renk planı oluşturun.",CONTROLLED_RECIPE_CONTEXT_INVALID:"Güncel değerlendirme veya üretici koşulları bu seçime izin vermiyor.",CONTROLLED_RECIPE_VERSION_CONFLICT:"Bu sürüm değişmiş. Geçmişi yeniden yükleyin.",TENANT_CONTEXT_INVALID:"Çalışma alanını yeniden doğrulayın.",VALIDATION_FAILED:"Ton ve boya miktarını kontrol edin.",FORBIDDEN:"Bu işlem için yetkiniz yok."};
-export function ControlledRecipe({clientId,planId,reference,enabled,canCreate}:Props){
+export function ControlledRecipe({clientId,planId,reference,enabled,canCreate,stockEnabled=false}:Props){
  const [catalogs,setCatalogs]=useState<ReturnType<typeof controlledCatalogs.parse>>([]),[catalogId,setCatalogId]=useState("");
  const [options,setOptions]=useState<ReturnType<typeof controlledOptions.parse>|null>(null),[pair,setPair]=useState(""),[grams,setGrams]=useState("");
  const [history,setHistory]=useState<Saved[]>([]),[saved,setSaved]=useState<Saved|null>(null),[parent,setParent]=useState<Saved|null>(null);
@@ -47,6 +48,7 @@ export function ControlledRecipe({clientId,planId,reference,enabled,canCreate}:P
  {!catalogs.length&&<p className="salon-muted">Yayımlanmış doğrulanmış pilot katalog bulunamadı.</p>}
  {options&&<><p role="status" className="salon-notice">{options.explanation}{options.whiteRatio!==null&&` Dip beyaz oranı: %${Math.round(options.whiteRatio*10000)/100}.`}</p>{options.status==="OPTIONS_FOR_REVIEW"&&<><div className="salon-form-grid"><label>Uzman ton ve geliştirici seçimi<select disabled={busy} value={pair} onChange={e=>{setPair(e.target.value);edit();}}><option value="">Seçin</option>{options.candidates.map(c=><option key={`${c.productId}:${c.developerId}`} value={`${c.productId}:${c.developerId}`}>{c.manufacturerCode} · {c.developerName}</option>)}</select></label><label>Boya miktarı (g)<input disabled={busy} type="number" min="0.01" max="1000" step="0.01" inputMode="decimal" value={grams} onChange={e=>{setGrams(e.target.value);edit();}}/></label></div>
  {candidate&&<><p><strong>{candidate.displayName} · {candidate.developerName}</strong></p><p className="salon-muted">Resmi karışım oranı {candidate.mixingRatio} · Belgelendirilmiş süre aralığı {candidate.processingMinutes.min}–{candidate.processingMinutes.max} dakika. Tek bir süre veya doz önerisi üretilmez.</p></>}
+ {candidate&&stockEnabled&&<RecipeStockAvailability key={`${candidate.productId}:${candidate.developerId}:${reference}`} productId={candidate.productId} developerId={candidate.developerId} reference={reference}/>}
  {parent&&<p>Yeni sürümün önceki kaydı: Sürüm {parent.version}. Önceki kayıt korunur.<button className="button button-secondary" disabled={busy} onClick={()=>{setParent(null);edit();}}>Yeni reçete serisi</button></p>}
  <button className="button button-primary" disabled={busy||!canCreate||!candidate||!colorGrams.safeParse(Number(grams)).success} onClick={()=>void request(true)}>{busy?"Kontrol ediliyor…":parent?"Yeni reçete sürümünü kaydet":"Kontrollü taslağı kaydet"}</button></>}</>}
  {saved&&<RecipeSummary record={saved}/>}

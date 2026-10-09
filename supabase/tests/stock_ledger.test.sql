@@ -31,6 +31,12 @@ select is(pg_temp.stock('{"type":"COUNT_CONFIRM","mutation_id":"c4000000-0000-40
 select is(pg_temp.stock('{"type":"COUNT_CREATE","mutation_id":"c4000000-0000-4000-8000-000000000214","id":"c4000000-0000-4000-8000-000000000302","reason":"Count basis","lines":[{"stock_item_id":"c4000000-0000-4000-8000-000000000101","lot_id":null,"counted_quantity":85}]}')#>>'{data,status}','SAVED','second draft records current basis');
 select pg_temp.move('RECEIPT','c4000000-0000-4000-8000-000000000101',1);
 select is(pg_temp.stock('{"type":"COUNT_CONFIRM","mutation_id":"c4000000-0000-4000-8000-000000000215","id":"c4000000-0000-4000-8000-000000000302","reason":"Stale count"}')->>'code','STOCK_COUNT_STALE','intervening movement prevents stale confirmation');
+select is(pg_temp.move('ADJUSTMENT_OUT','c4000000-0000-4000-8000-000000000101',1000,null,'GRAM','c4000000-0000-4000-8000-000000000299')->>'code','STOCK_INSUFFICIENT','failed authorized mutation is permanently receipted');
+select pg_temp.move('RECEIPT','c4000000-0000-4000-8000-000000000101',1000);
+select is(pg_temp.move('ADJUSTMENT_OUT','c4000000-0000-4000-8000-000000000101',1000,null,'GRAM','c4000000-0000-4000-8000-000000000299')->>'code','STOCK_INSUFFICIENT','retry preserves original failure after replenishment');
+select is(pg_temp.move('ADJUSTMENT_OUT','c4000000-0000-4000-8000-000000000101',999,null,'GRAM','c4000000-0000-4000-8000-000000000299')->>'code','STOCK_CONFLICT','changed failed retry conflicts');
+select is((select sum(quantity_delta) from public.stock_movements where stock_item_id='c4000000-0000-4000-8000-000000000101'),1091::numeric,'failed retry never silently becomes a posting');
+select pg_temp.move('ADJUSTMENT_OUT','c4000000-0000-4000-8000-000000000101',1000);
 select is(pg_temp.stock('{"type":"POLICY","mutation_id":"c4000000-0000-4000-8000-000000000216","negative_policy":"WARN_NEGATIVE","expected_version":1,"reason":"Explicit operational exception"}')#>>'{data,status}','SAVED','policy change is controlled');
 select is(pg_temp.move('ADJUSTMENT_OUT','c4000000-0000-4000-8000-000000000101',100)#>>'{data,status}','SAVED','WARN permits explicit negative adjustment');
 select is(pg_temp.stock('{"type":"ENABLE","mutation_id":"c4000000-0000-4000-8000-000000000217","reason":"Forged","organization_id":"b4000000-0000-4000-8000-000000000002"}')->>'code','VALIDATION_FAILED','forged authority rejected');

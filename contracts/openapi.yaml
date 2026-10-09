@@ -3616,6 +3616,12 @@ paths:
         schema:
           type: string
           format: uuid
+      - name: catalog_product_id
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
       responses:
         '200':
           description: Authoritative location inventory, fresh membership and RLS enforced
@@ -3636,37 +3642,37 @@ paths:
                 - context
                 - correlationId
                 additionalProperties: false
-        '400': &stock_id001
+        '400':
           description: Rejected request; no protected data
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/StockError'
-        '401': &stock_id002
+        '401':
           description: Rejected request; no protected data
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/StockError'
-        '403': &stock_id003
+        '403':
           description: Rejected request; no protected data
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/StockError'
-        '404': &stock_id004
+        '404':
           description: Rejected request; no protected data
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/StockError'
-        '409': &stock_id005
+        '409':
           description: Rejected request; no protected data
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/StockError'
-        '503': &stock_id006
+        '503':
           description: Rejected request; no protected data
           content:
             application/json:
@@ -3709,12 +3715,42 @@ paths:
                 - context
                 - correlationId
                 additionalProperties: false
-        '400': *stock_id001
-        '401': *stock_id002
-        '403': *stock_id003
-        '404': *stock_id004
-        '409': *stock_id005
-        '503': *stock_id006
+        '400':
+          description: Rejected request; no protected data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockError'
+        '401':
+          description: Rejected request; no protected data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockError'
+        '403':
+          description: Rejected request; no protected data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockError'
+        '404':
+          description: Rejected request; no protected data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockError'
+        '409':
+          description: Rejected request; no protected data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockError'
+        '503':
+          description: Rejected request; no protected data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockError'
   /rest/v1/rpc/stock_snapshot:
     post:
       operationId: rpcStockSnapshot
@@ -21868,6 +21904,10 @@ components:
           type: string
           format: uuid
           pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        catalog_product_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
       additionalProperties: false
     StockItem:
       type: object
@@ -22190,6 +22230,11 @@ components:
           type: string
           format: uuid
           pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        recorded_by_name:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
         occurred_at:
           type: string
           format: date-time
@@ -22225,6 +22270,7 @@ components:
       - reason
       - reference
       - recorded_by
+      - recorded_by_name
       - occurred_at
       - created_at
       - correlation_id
@@ -22911,6 +22957,11 @@ components:
                 type: string
                 format: uuid
                 pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              recorded_by_name:
+                anyOf:
+                - type: string
+                  maxLength: 120
+                - type: 'null'
               occurred_at:
                 type: string
                 format: date-time
@@ -22946,6 +22997,7 @@ components:
             - reason
             - reference
             - recorded_by
+            - recorded_by_name
             - occurred_at
             - created_at
             - correlation_id
@@ -23155,6 +23207,22 @@ components:
         monitoring:
           type: object
           properties:
+            active_items:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            low_items:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            out_items:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            expiring_lots:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
             pending:
               type: integer
               minimum: 0
@@ -23168,6 +23236,10 @@ components:
               minimum: 0
               maximum: 9007199254740991
           required:
+          - active_items
+          - low_items
+          - out_items
+          - expiring_lots
           - pending
           - failed
           - unreconciled
@@ -23298,3 +23370,4 @@ components:
       - message
       - correlationId
       additionalProperties: false
+

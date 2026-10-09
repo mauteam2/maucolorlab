@@ -8,7 +8,7 @@ export async function stockResponse(request:Request) {
  try {
   const url=new URL(request.url);let result;
   if(request.method==="GET"){
-   if([...url.searchParams.keys()].some(k=>!["query","offset","item_id","lot_id"].includes(k)||url.searchParams.getAll(k).length!==1))throw new AccessError("VALIDATION_FAILED",400);
+   if([...url.searchParams.keys()].some(k=>!["query","offset","item_id","lot_id","catalog_product_id"].includes(k)||url.searchParams.getAll(k).length!==1))throw new AccessError("VALIDATION_FAILED",400);
    const q:Record<string,unknown>=Object.fromEntries(url.searchParams);if(q.offset!==undefined)q.offset=Number(q.offset);result=await readStock(q,correlationId);
   }else{
    assertOrigin(request);if(request.method!=="POST"||url.search||request.headers.get("content-type")?.split(";",1)[0]?.trim()!=="application/json")throw new AccessError("VALIDATION_FAILED",400);

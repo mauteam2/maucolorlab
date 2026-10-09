@@ -944,6 +944,11 @@
         "type": "string",
         "format": "uuid",
         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+      },
+      "catalog_product_id": {
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
       }
     },
     "additionalProperties": false
@@ -1421,6 +1426,17 @@
         "format": "uuid",
         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
       },
+      "recorded_by_name": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 120
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
       "occurred_at": {
         "type": "string",
         "format": "date-time",
@@ -1461,6 +1477,7 @@
       "reason",
       "reference",
       "recorded_by",
+      "recorded_by_name",
       "occurred_at",
       "created_at",
       "correlation_id",
@@ -2425,6 +2442,17 @@
               "format": "uuid",
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             },
+            "recorded_by_name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "occurred_at": {
               "type": "string",
               "format": "date-time",
@@ -2465,6 +2493,7 @@
             "reason",
             "reference",
             "recorded_by",
+            "recorded_by_name",
             "occurred_at",
             "created_at",
             "correlation_id",
@@ -2755,6 +2784,26 @@
       "monitoring": {
         "type": "object",
         "properties": {
+          "active_items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "low_items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "out_items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "expiring_lots": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
           "pending": {
             "type": "integer",
             "minimum": 0,
@@ -2772,6 +2821,10 @@
           }
         },
         "required": [
+          "active_items",
+          "low_items",
+          "out_items",
+          "expiring_lots",
           "pending",
           "failed",
           "unreconciled"

@@ -61,7 +61,7 @@ def auth(session, user):
 
 def fixture():
     text=(ROOT/'supabase/tests/fixtures/stock.inc').read_text(encoding='utf-8').replace('\\ir gate-1-live.inc',(ROOT/'supabase/tests/fixtures/gate-1-live.inc').read_text(encoding='utf-8'))
-    text=text.replace('b4000000','d4000000').replace('pg_temp.','stock_test.').replace('set local search_path=public,extensions','set local search_path=stock_test,public,extensions')
+    text=text.replace('@elifora.test','@stock-concurrency.elifora.test').replace("'controlled-a'","'stock-controlled-a'").replace("'controlled-b'","'stock-controlled-b'").replace('b4000000','d4000000').replace('pg_temp.','stock_test.').replace('set local search_path=public,extensions','set local search_path=stock_test,public,extensions')
     for table in ('result','chosen'):text=text.replace('create temporary table '+table,'create table stock_test.'+table)
     return 'begin;set local search_path=stock_test,public,extensions;'+text+'\nreset role;commit;'
 
@@ -133,7 +133,8 @@ try:
     def measure(label,sql):
         samples=[]
         for _ in range(3):
-            start=time.monotonic();observer.execute(sql() if callable(sql) else sql);samples.append((time.monotonic()-start)*1000)
+            query=sql() if callable(sql) else sql
+            start=time.monotonic();observer.execute(query);samples.append((time.monotonic()-start)*1000)
         metrics[label]=round(statistics.median(samples),2);assert max(samples)<10000,(label,samples)
     snap=lambda q:f"select public.stock_snapshot('{member}','{loc}',{literal(q)});"
     measure('directory_balance_and_low_stock_actions',snap({}))
@@ -141,6 +142,17 @@ try:
     measure('movement_history',f"select id,quantity_delta from public.stock_movements where organization_id='d4000000-0000-4000-8000-000000000001' and location_id='{loc}' and stock_item_id='{item}' order by occurred_at desc,id limit 100;")
     measure('receipt_posting',lambda:move('RECEIPT',item,1))
     measure('physical_count_basis',lambda:rpc(command('COUNT_CREATE',id=str(uuid.uuid4()),reason='Performance count',lines=[{'stock_item_id':item,'lot_id':None,'counted_quantity':10025}])))
+    def confirm_query():
+        identifier=str(uuid.uuid4())
+        current=float(observer.execute(f"select sum(quantity_delta) from public.stock_movements where stock_item_id='{item}';")[-1])
+        created=result(observer.execute(rpc(command('COUNT_CREATE',id=identifier,reason='Performance confirmation basis',lines=[{'stock_item_id':item,'lot_id':None,'counted_quantity':current-1}]))))
+        assert created['data']['status']=='SAVED',created
+        return rpc(command('COUNT_CONFIRM',id=identifier,reason='Performance measured count'))
+    measure('physical_count_confirmation',confirm_query)
+    plan_sql=f"select id,quantity_delta from public.stock_movements where organization_id='d4000000-0000-4000-8000-000000000001' and location_id='{loc}' and stock_item_id='{item}' order by occurred_at desc,id limit 100"
+    plan=json.loads('\n'.join(observer.execute('explain(analyze,buffers,format json) '+plan_sql+';')))
+    report={'synthetic_movements':10000,'connections':3,'concurrency_cases':count,'median_ms':metrics,'history_plan':plan}
+    if os.environ.get('RUNNER_TEMP'):(Path(os.environ['RUNNER_TEMP'])/'stock-performance.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     print('Stock real multi-connection cases executed:',count)
     print('Stock 10,000-movement performance median milliseconds:',json.dumps(metrics,sort_keys=True))
 finally:

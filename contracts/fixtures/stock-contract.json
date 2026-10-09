@@ -43,6 +43,10 @@
     "events": [],
     "counts": [],
     "monitoring": {
+      "active_items": 1,
+      "low_items": 0,
+      "out_items": 0,
+      "expiring_lots": 0,
       "pending": 0,
       "failed": 0,
       "unreconciled": 0

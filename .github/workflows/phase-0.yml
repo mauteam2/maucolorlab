@@ -153,6 +153,14 @@ jobs:
         run: python scripts/test-gate-1-concurrency.py
       - name: Stock real PostgreSQL concurrency and 10k movement performance
         run: python scripts/test-stock-concurrency.py
+      - name: Stock database verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stock-database-verification
+          path: ${{ runner.temp }}/stock-performance.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
