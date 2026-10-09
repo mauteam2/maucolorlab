@@ -137,13 +137,24 @@ try:
         samples=[]
         for _ in range(3):
             query=sql() if callable(sql) else sql
-            start=time.monotonic();observer.execute(query);samples.append((time.monotonic()-start)*1000)
+            start=time.monotonic();lines=observer.execute(query);samples.append((time.monotonic()-start)*1000)
+            if lines and lines[-1].startswith('{'):
+                payload=json.loads(lines[-1]);assert not payload.get('code') and payload.get('data',{}).get('status')!='FAILED',(label,payload)
         metrics[label]=round(statistics.median(samples),2);assert max(samples)<10000,(label,samples)
     snap=lambda q:f"select public.stock_snapshot('{member}','{loc}',{literal(q)});"
     measure('directory_balance_and_low_stock_actions',snap({}))
     measure('item_balance_lot_history',snap({'item_id':item}))
     measure('movement_history',f"select id,quantity_delta from public.stock_movements where organization_id='d4000000-0000-4000-8000-000000000001' and location_id='{loc}' and stock_item_id='{item}' order by occurred_at desc,id limit 100;")
     measure('receipt_posting',lambda:move('RECEIPT',item,1))
+    # Measure the actual usage processor, not a replayed receipt or mock.
+    perf_bowl=str(uuid.uuid4());statement=usage(perf_bowl,1).replace("'"+perf_bowl+"'","new_bowl")
+    observer.execute('reset role;'+f"create function stock_test.performance_event(new_bowl uuid) returns uuid language plpgsql security definer set search_path='' as $$declare event_id uuid;begin {statement} select id into event_id from public.stock_source_events where bowl_id=new_bowl and product_id='{product}';return event_id;end $$;")
+    auth(observer,user)
+    def usage_query():
+        identifier=observer.execute(f"select stock_test.performance_event('{uuid.uuid4()}');")[-1]
+        return process(identifier)
+    measure('live_usage_posting',usage_query)
+
     measure('physical_count_basis',lambda:rpc(command('COUNT_CREATE',id=str(uuid.uuid4()),reason='Performance count',lines=[{'stock_item_id':item,'lot_id':None,'counted_quantity':10025}])))
     def confirm_query():
         identifier=str(uuid.uuid4())
