@@ -18,6 +18,7 @@ select is(pg_temp.finance_read()#>>'{data,client_balances,0,available_credit_min
 select is(pg_temp.finance_read()#>>'{data,client_balances,0,outstanding_minor}','40000','deposit not silently allocated');
 select is(pg_temp.finance('{"type":"ALLOCATE","mutation_id":"e5000000-0000-4000-8000-000000000401","client_id":"b4000000-0000-4000-8000-000000000031","payment_id":"e5000000-0000-4000-8000-000000000303","allocations":[{"charge_id":"e5000000-0000-4000-8000-000000000301","amount_minor":"10000"}],"reason":"Explicit credit application"}')#>>'{data,status}','SAVED','deposit explicitly applies');
 select is(pg_temp.finance_read()#>>'{data,client_balances,0,outstanding_minor}','30000','allocation reduces charge remaining');
+select is(pg_temp.finance_read('{"document_id":"e5000000-0000-4000-8000-000000000301"}')#>>'{data,documents,0,deposit_applied_minor}','10000','appointment charge projection includes exact explicit deposit application');
 select is(pg_temp.finance_read()#>>'{data,client_balances,0,balance_minor}','30000','allocation never double counts account credit');
 select is(pg_temp.finance_payment('PAYMENT','30000','e5000000-0000-4000-8000-000000000304','[{"charge_id":"e5000000-0000-4000-8000-000000000301","amount_minor":"30000"}]','CASH')#>>'{data,status}','SAVED','split cash payment completes charge');
 select is(pg_temp.finance_read()#>>'{data,client_balances,0,balance_minor}','0','all payments settle exact account');
@@ -33,6 +34,9 @@ select is(pg_temp.finance('{"type":"CLIENT_CREDIT","mutation_id":"e5000000-0000-
 select is(pg_temp.finance('{"type":"CLIENT_CREDIT","mutation_id":"e5000000-0000-4000-8000-000000000404","id":"e5000000-0000-4000-8000-000000000308","client_id":"b4000000-0000-4000-8000-000000000031","currency":"TRY","amount_minor":"1001","description":"Administrative credit","occurred_at":"2026-10-09T12:00:00Z","reason":"Approved correction"}')->>'code','FINANCE_CONFLICT','changed permanent retry conflicts');
 select is(pg_temp.finance('{"type":"CURRENCY_SET","mutation_id":"e5000000-0000-4000-8000-000000000405","currency":"USD","expected_version":1,"reason":"Cannot convert history"}')->>'code','CURRENCY_LOCKED','currency sealed after financial activity');
 select is(pg_temp.finance_post('CLIENT_DEBIT','1.5')->>'code','VALIDATION_FAILED','fractional minor units rejected');
+select is(pg_temp.finance_post('CLIENT_DEBIT','1',gen_random_uuid(),'{"description":true}')->>'code','VALIDATION_FAILED','direct RPC cannot replace text with boolean');
+select is(pg_temp.finance_post('CLIENT_DEBIT','1',gen_random_uuid(),'{"occurred_at":null}')->>'code','VALIDATION_FAILED','direct RPC cannot omit factual time through null');
+select is(pg_temp.finance_post('CLIENT_DEBIT','1',gen_random_uuid(),'{"id":null}')->>'code','VALIDATION_FAILED','direct RPC null identifier cannot become a fallback identity');
 select is(pg_temp.finance_post('CLIENT_DEBIT','10',gen_random_uuid(),'{"currency":"USD"}')->>'code','CURRENCY_MISMATCH','currency mismatch rejected');
 select is(pg_temp.finance_post('CLIENT_DEBIT','10',gen_random_uuid(),'{"organization_id":"b4000000-0000-4000-8000-000000000002"}')->>'code','VALIDATION_FAILED','forged ownership rejected');
 select is(pg_temp.finance_post('CLIENT_DEBIT','10',gen_random_uuid(),'{"actor":"b4000000-0000-4000-8000-000000000022"}')->>'code','VALIDATION_FAILED','forged actor rejected');
@@ -50,7 +54,7 @@ select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000023'
 select is(public.finance_snapshot('b4000000-0000-4000-8000-000000000113','b4000000-0000-4000-8000-000000000011','{}')->>'code','FORBIDDEN','technical staff denied full finance');
 select is((select count(*) from public.finance_documents),0::bigint,'technical staff direct finance denied');
 reset role;
-update public.salon_memberships set status='revoked' where id='b4000000-0000-4000-8000-000000000111';
+update public.salon_memberships set status='revoked',revoked_at=statement_timestamp() where id='b4000000-0000-4000-8000-000000000111';
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000021',true);
 select is(pg_temp.finance_read()->>'code','MEMBERSHIP_REVOKED','revoked membership rejects snapshot');

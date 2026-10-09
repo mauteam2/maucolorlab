@@ -17,10 +17,13 @@ select is((select tax_amount_minor from public.finance_documents where id='e5000
 select is(pg_temp.finance_post('CLIENT_DEBIT','1000','e5000000-0000-4000-8000-000000000704','{"client_id":"b4000000-0000-4000-8000-000000000032"}')#>>'{data,status}','SAVED','historical alias account fact posts');
 insert into identity_money values('review',public.crm_read('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{"operation":"merge_review","source_client_id":"b4000000-0000-4000-8000-000000000032","target_client_id":"b4000000-0000-4000-8000-000000000033"}'));
 select ok((select v ? 'data' from identity_money where k='review'),'finance history does not block eligible CRM merge');
+select diag('Finance merge review code: '||coalesce((select v->>'code' from identity_money where k='review'),'OK'));
 insert into identity_money values('merge',public.crm_operation('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011',jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',(select v#>>'{data,review_token}' from identity_money where k='review'),'decisions',jsonb_build_object('full_name','TARGET')),gen_random_uuid()));
 select ok((select v ? 'data' from identity_money where k='merge'),'reviewed merge succeeds with explicit identity decision');
+select diag('Finance merge result code: '||coalesce((select v->>'code' from identity_money where k='merge'),'OK'));
 select is((select client_id::text from public.finance_documents where id='e5000000-0000-4000-8000-000000000704'),'b4000000-0000-4000-8000-000000000032','merge never rewrites posted financial identity');
 select is(pg_temp.finance_read('{"client_id":"b4000000-0000-4000-8000-000000000033"}')#>>'{data,client_balances,0,balance_minor}','1000','canonical profile consolidates original financial family');
+select diag('Finance canonical read code: '||coalesce(pg_temp.finance_read('{"client_id":"b4000000-0000-4000-8000-000000000033"}')->>'code','OK'));
 select is(pg_temp.finance_post('CLIENT_DEBIT','1',gen_random_uuid(),'{"client_id":"b4000000-0000-4000-8000-000000000032"}')->>'code','CLIENT_NOT_CURRENT','merged alias cannot start new financial activity');
 insert into identity_money values('archive',public.client_operation('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','archive',jsonb_build_object('client_id','b4000000-0000-4000-8000-000000000033','expected_version',(select version from public.clients where id='b4000000-0000-4000-8000-000000000033'),'request_id',gen_random_uuid()),gen_random_uuid()));
 select ok((select v ? 'data' from identity_money where k='archive'),'canonical client can archive with terminal financial history');

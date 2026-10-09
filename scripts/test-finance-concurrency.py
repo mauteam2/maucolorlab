@@ -63,7 +63,7 @@ try:
         text=(ROOT/'supabase/tests/fixtures'/name).read_text()
         import re
         return re.sub(r'^\\ir (.+)$',lambda m:include(m.group(1)),text,flags=re.M)
-    text=include('finance.inc').replace('b4000000','f4000000').replace('e5000000','f5000000').replace('@elifora.test','@finance-concurrency.elifora.test').replace("'controlled-a'","'finance-controlled-a'").replace("'controlled-b'","'finance-controlled-b'").replace('pg_temp.','finance_test.')
+    text=include('finance.inc').replace('b4000000','f4000000').replace('e5000000','f5000000').replace('@elifora.test','@finance-concurrency.elifora.test').replace("'controlled-a'","'finance-controlled-a'").replace("'controlled-b'","'finance-controlled-b'").replace('pg_temp.','finance_test.').replace('set local search_path=public,extensions','set local search_path=finance_test,public,extensions')
     for table in ('result','chosen'):text=text.replace('create temporary table '+table,'create table finance_test.'+table)
     observer.execute('create schema finance_test;grant usage on schema finance_test to authenticated;begin;set local search_path=finance_test,public,extensions;'+text+'\nreset role;commit;')
     q=payment(100);race('same payment mutation twice',rpc(q),rpc(q))

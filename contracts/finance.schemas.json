@@ -1424,6 +1424,11 @@
           }
         ]
       },
+      "deposit_applied_minor": {
+        "default": "0",
+        "type": "string",
+        "pattern": "^(0|[1-9]\\d{0,15})$"
+      },
       "available_credit_minor": {
         "anyOf": [
           {
@@ -1784,6 +1789,11 @@
             "type": "null"
           }
         ]
+      },
+      "deposit_applied_minor": {
+        "default": "0",
+        "type": "string",
+        "pattern": "^(0|[1-9]\\d{0,15})$"
       },
       "available_credit_minor": {
         "anyOf": [
@@ -2244,6 +2254,11 @@
           }
         ]
       },
+      "deposit_applied_minor": {
+        "default": "0",
+        "type": "string",
+        "pattern": "^(0|[1-9]\\d{0,15})$"
+      },
       "available_credit_minor": {
         "anyOf": [
           {
@@ -2605,6 +2620,11 @@
           }
         ]
       },
+      "deposit_applied_minor": {
+        "default": "0",
+        "type": "string",
+        "pattern": "^(0|[1-9]\\d{0,15})$"
+      },
       "available_credit_minor": {
         "anyOf": [
           {
@@ -2965,6 +2985,11 @@
             "type": "null"
           }
         ]
+      },
+      "deposit_applied_minor": {
+        "default": "0",
+        "type": "string",
+        "pattern": "^(0|[1-9]\\d{0,15})$"
       },
       "available_credit_minor": {
         "anyOf": [
@@ -3687,6 +3712,11 @@
                   "type": "null"
                 }
               ]
+            },
+            "deposit_applied_minor": {
+              "default": "0",
+              "type": "string",
+              "pattern": "^(0|[1-9]\\d{0,15})$"
             },
             "available_credit_minor": {
               "anyOf": [
