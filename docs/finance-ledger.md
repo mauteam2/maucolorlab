@@ -61,7 +61,7 @@ Financial writes use a private NOLOGIN/NOBYPASSRLS role through controlled RPCs.
 
 Lock order: mutation receipt advisory lock → shared Gate 1 organization identity
 lock (exclusive for currency changes) → location MAIN finance register advisory
-lock → cash row → financial document rows → stock item/lot when applicable.
+lock → cash row → stock item/lot when applicable.
 The location lock deliberately serializes V1 money commands for that register;
 different locations/organizations are independent. Scale evidence describes this
 tradeoff and does not claim enterprise accounting throughput.
