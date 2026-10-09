@@ -7,8 +7,8 @@ it("marks exactly one current section and never links unfinished modules into th
  const navigation=screen.getByRole("navigation",{name:"Ana gezinti"});
  expect(navigation.querySelectorAll('[aria-current="page"]')).toHaveLength(1);
  expect(screen.getByRole("link",{name:"Müşteriler bölümü"})).toHaveAttribute("href","/workspace/clients");
- expect(screen.queryByRole("link",{name:"Finans bölümü"})).toBeNull();
- expect(screen.getAllByText("Yakında")).toHaveLength(2);
+ expect(screen.getByRole("link",{name:"Finans bölümü"})).toHaveAttribute("href","/workspace/finance");
+ expect(screen.getAllByText("Yakında")).toHaveLength(1);
  expect(screen.getByRole("link",{name:"Randevular bölümü"})).toHaveAttribute("href","/workspace/appointments");
  expect(screen.getByRole("link",{name:"Ekip bölümü"})).toHaveAttribute("href","/workspace/team");
  expect(screen.getByRole("link",{name:"Ayarlar bölümü"})).toHaveAttribute("href","/workspace/settings");
