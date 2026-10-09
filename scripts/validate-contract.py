@@ -329,6 +329,7 @@ print('PASS: Phase 4B shared CRM schemas, Android RPC vocabulary and eleven forg
 
 # Phase 4C: real immutable-ledger vocabulary shared by Web, DB and Android.
 stock_schemas=json.loads((root/'contracts/stock.schemas.json').read_text())
+assert {'StockItem','StockLot','StockMovement','StockBalance','StockReceipt','StockAdjustment','StockCount','StockCountLine','StockSignal','StockSourceStatus'} <= stock_schemas.keys()
 for name,schema in stock_schemas.items():
     assert contract['components']['schemas'][name]==schema,name
 stock=json.loads((root/'contracts/fixtures/stock-contract.json').read_text())

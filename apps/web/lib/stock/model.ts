@@ -35,3 +35,11 @@ export type StockSnapshot=z.infer<typeof stockSnapshot>;
 export const stockResult=z.strictObject({id,status:z.enum(["SAVED","PROCESSED","FAILED"]),error_code:z.string().optional()});
 export const stockError=z.strictObject({code:z.enum(["UNAUTHENTICATED","SESSION_EXPIRED","FORBIDDEN","MEMBERSHIP_REQUIRED","MEMBERSHIP_REVOKED","TENANT_CONTEXT_INVALID","VALIDATION_FAILED","NETWORK_ERROR","STOCK_NOT_FOUND","STOCK_CONFLICT","STOCK_NOT_ENABLED","STOCK_MAPPING_IMMUTABLE","STOCK_PRODUCT_MAPPING_REQUIRED","UNIT_CONVERSION_REQUIRED","STOCK_OPENING_REQUIRED","STOCK_USAGE_RECONCILIATION_REQUIRED","STOCK_LOT_REQUIRED","STOCK_LOT_CONFLICT","STOCK_INSUFFICIENT","STOCK_COUNT_STALE","STOCK_SOURCE_IMMUTABLE"]),message:z.string(),correlationId:id});
 export function stockPermission(type:StockCommand["type"]) {return ["ENABLE","POLICY","ITEM_SAVE"].includes(type)?"stock.manage_items":type==="LOT_SAVE"?"stock.manage_lots":["OPENING","RECEIPT"].includes(type)?"stock.receive":["COUNT_CREATE","COUNT_CONFIRM"].includes(type)?"stock.count":"stock.adjust";}
+
+// Named shared views use the same runtime fields and command validators.
+export const stockBalance=z.strictObject({id:stockItem.shape.id,...scope,inventory_unit:stockUnit,on_hand:stockItem.shape.on_hand,stock_status:stockItem.shape.stock_status,stock_sync_status:stockItem.shape.stock_sync_status});
+export const stockReceipt=moveCommand("RECEIPT");
+export const stockAdjustment=z.discriminatedUnion("type",[moveCommand("ADJUSTMENT_IN"),moveCommand("ADJUSTMENT_OUT")]);
+export const stockCountLine=stockCount.shape.lines.element;
+export const stockSignal=stockAction;
+export const stockSourceStatus=stockEvent.shape.status;

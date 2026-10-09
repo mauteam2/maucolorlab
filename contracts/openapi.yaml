@@ -23370,4 +23370,310 @@ components:
       - message
       - correlationId
       additionalProperties: false
+    StockBalance:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        inventory_unit:
+          type: string
+          enum:
+          - GRAM
+          - MILLILITER
+          - UNIT
+        on_hand:
+          type:
+          - number
+          - 'null'
+        stock_status:
+          type: string
+          enum:
+          - OK
+          - LOW
+          - OUT
+          - UNKNOWN
+        stock_sync_status:
+          type: string
+          enum:
+          - CURRENT
+          - RETRY_REQUIRED
+      required:
+      - id
+      - organization_id
+      - location_id
+      - inventory_unit
+      - on_hand
+      - stock_status
+      - stock_sync_status
+      additionalProperties: false
+    StockReceipt:
+      type: object
+      properties:
+        mutation_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        stock_item_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        lot_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        quantity:
+          type: number
+          minimum: 0
+          maximum: 9999999999.99
+        unit:
+          type: string
+          enum:
+          - GRAM
+          - MILLILITER
+          - UNIT
+        occurred_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        reference:
+          anyOf:
+          - type: string
+            maxLength: 160
+          - type: 'null'
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        type:
+          type: string
+          const: RECEIPT
+      required:
+      - mutation_id
+      - stock_item_id
+      - lot_id
+      - quantity
+      - unit
+      - occurred_at
+      - reference
+      - reason
+      - type
+      additionalProperties: false
+    StockAdjustment:
+      oneOf:
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          stock_item_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          lot_id:
+            anyOf:
+            - type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            - type: 'null'
+          quantity:
+            type: number
+            minimum: 0
+            maximum: 9999999999.99
+          unit:
+            type: string
+            enum:
+            - GRAM
+            - MILLILITER
+            - UNIT
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          reference:
+            anyOf:
+            - type: string
+              maxLength: 160
+            - type: 'null'
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          type:
+            type: string
+            const: ADJUSTMENT_IN
+        required:
+        - mutation_id
+        - stock_item_id
+        - lot_id
+        - quantity
+        - unit
+        - occurred_at
+        - reference
+        - reason
+        - type
+        additionalProperties: false
+      - type: object
+        properties:
+          mutation_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          stock_item_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          lot_id:
+            anyOf:
+            - type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            - type: 'null'
+          quantity:
+            type: number
+            minimum: 0
+            maximum: 9999999999.99
+          unit:
+            type: string
+            enum:
+            - GRAM
+            - MILLILITER
+            - UNIT
+          occurred_at:
+            type: string
+            format: date-time
+            pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+          reference:
+            anyOf:
+            - type: string
+              maxLength: 160
+            - type: 'null'
+          reason:
+            type: string
+            minLength: 1
+            maxLength: 2000
+          type:
+            type: string
+            const: ADJUSTMENT_OUT
+        required:
+        - mutation_id
+        - stock_item_id
+        - lot_id
+        - quantity
+        - unit
+        - occurred_at
+        - reference
+        - reason
+        - type
+        additionalProperties: false
+    StockCountLine:
+      type: object
+      properties:
+        count_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        stock_item_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        stock_lot_id:
+          anyOf:
+          - type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          - type: 'null'
+        ledger_quantity:
+          type: number
+        counted_quantity:
+          type: number
+          minimum: 0
+          maximum: 9999999999.99
+      required:
+      - count_id
+      - organization_id
+      - location_id
+      - stock_item_id
+      - stock_lot_id
+      - ledger_quantity
+      - counted_quantity
+      additionalProperties: false
+    StockSignal:
+      type: object
+      properties:
+        key:
+          type: string
+          maxLength: 100
+        kind:
+          type: string
+          enum:
+          - LOW_STOCK
+          - OUT_OF_STOCK
+          - USAGE_RECONCILIATION_REQUIRED
+          - UNIT_MAPPING_REQUIRED
+          - PRODUCT_MAPPING_REQUIRED
+          - EXPIRING_SOON
+          - EXPIRED
+          - STOCK_SYNC_FAILED
+        source_domain:
+          type: string
+          enum:
+          - stock_item
+          - stock_source_event
+          - stock_lot
+        source_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        organization_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        location_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        state:
+          type: string
+          const: OPEN
+        error_code:
+          type:
+          - string
+          - 'null'
+      required:
+      - key
+      - kind
+      - source_domain
+      - source_id
+      - organization_id
+      - location_id
+      - state
+      - error_code
+      additionalProperties: false
+    StockSourceStatus:
+      type: string
+      enum:
+      - PENDING
+      - PROCESSED
+      - FAILED
 
