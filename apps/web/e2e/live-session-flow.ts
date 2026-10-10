@@ -2,10 +2,12 @@ import { expect,type Page,type TestInfo,type Browser } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { login,seedAccount,expectReady } from "./local-auth";
+import {prepareLiveCosting} from "./costing-live-flow";
 export async function verifyLiveSession(page:Page,browser:Browser,info:TestInfo,clientId:string,recipeId:string,headers:Record<string,string>){
+ const costing=await prepareLiveCosting(page,clientId,recipeId,headers);
  const timings:Record<string,number>={};let at=Date.now();
  await page.goto(`/workspace/live-sessions?client_id=${clientId}&recipe_id=${recipeId}`);await page.getByLabel("Profesyonel inceleme notu").fill("Disposable professional personally reviewed verified recipe and client");await page.getByLabel("Reçeteyi ve resmi koşulları bu uygulama için değerlendirdim.").check();
- const created=page.waitForResponse(r=>r.url().endsWith("/api/live-sessions")&&r.request().method()==="POST");await page.getByRole("button",{name:"Onayla ve seans hazırla"}).click();const response=await created;expect(response.status(),await response.text()).toBe(200);let s=(await response.json()).data;const id=s.id;expect(s.status).toBe("PREPARING");expect(s.recipes[0].result.executable).toBe(false);
+ const created=page.waitForResponse(r=>r.url().endsWith("/api/live-sessions")&&r.request().method()==="POST");await page.getByRole("button",{name:"Onayla ve seans hazırla"}).click();const response=await created;expect(response.status(),await response.text()).toBe(200);let s=(await response.json()).data;const id=s.id;await costing.link(id);expect(s.status).toBe("PREPARING");expect(s.recipes[0].result.executable).toBe(false);
  await expect(page.getByRole("button",{name:"Hazırlığı onayla"})).toBeVisible();await expect(page.getByRole("link",{name:"Müşteri profilini aç"})).toHaveAttribute("href",`/workspace/clients/${clientId}`);timings.sessionLoadMs=Date.now()-at;
  const mutate=async(patch:Record<string,unknown>,status=200)=>{const body={mutation_id:randomUUID(),device_id:s.controllerDeviceId,expected_version:s.recordVersion,control_epoch:s.controlEpoch,...patch};const r=await page.request.post(`/api/live-sessions/${id}?client_id=${clientId}`,{headers,data:body});expect(r.status(),await r.text()).toBe(status);if(status===200)s=(await r.json()).data;return {r,body};};
  await mutate({type:"READY"});await mutate({type:"START"});expect(s.status).toBe("IN_PROGRESS");
@@ -55,5 +57,5 @@ export async function verifyLiveSession(page:Page,browser:Browser,info:TestInfo,
  const metrics=JSON.stringify({...timings,realtimePropagation:"NOT_IMPLEMENTED_MANUAL_REFRESH",timerDisplayRefreshIntervalMs:250},null,2);
  await writeFile(info.outputPath("client-live-performance.json"),metrics);
  await info.attach("live-performance",{body:metrics,contentType:"application/json"});
- return id;
+ await costing.finish(info);return id;
 }

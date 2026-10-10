@@ -15,14 +15,15 @@ export function CostingWorkspace({initialKind,initialCharge=""}:{initialKind:Kin
  const data=snapshot?.kind===kind?snapshot:null;
  const generation=useRef(0),[retry,setRetry]=useState<CostingCommand|null>(null);
  const can=(p:string)=>ctx?.permissions.includes(p)??false;
- const load=useCallback(async()=>{const n=++generation.current;setError("");try{
+ const invalidate=useCallback(()=>{generation.current++;},[]);
+ const load=useCallback(async()=>{const n=++generation.current;try{
   const q={kind,charge,offset,from,until,item},params=new URLSearchParams({kind:q.kind,offset:String(q.offset),from:new Date(q.from).toISOString(),until:new Date(q.until).toISOString()});if(q.charge)params.set("charge_id",q.charge);if(q.kind==="COST_BASIS"&&q.item)params.set("stock_item_id",q.item);
   const response=await fetch("/api/costing?"+params,{cache:"no-store"}),reply=await response.json();if(n!==generation.current||document.hidden)return;
   if(!response.ok){setData(null);setCtx(null);setStock(null);throw new Error(reply.code??"NETWORK_ERROR");}
-  const context=tenantContextSchema.parse(reply.context),snapshot=costingSnapshot.parse(reply.data);setCtx(context);setData(snapshot);
+  const context=tenantContextSchema.parse(reply.context),snapshot=costingSnapshot.parse(reply.data);setError("");setCtx(context);setData(snapshot);
   if(q.kind==="COST_BASIS"&&context.permissions.includes("stock.view")){const s=await fetch("/api/stock",{cache:"no-store"});const body=await s.json();if(n===generation.current&&!document.hidden&&s.ok)setStock(stockSnapshot.parse(body.data));}
  }catch(e){if(n===generation.current){setData(null);setError(errors[e instanceof Error?e.message:""]??"Bilgiler yüklenemedi.");}}},[kind,charge,offset,from,until,item]);
- useEffect(()=>{void load();const conceal=()=>{generation.current++;setData(null);setStock(null);setCtx(null);},focus=()=>{if(!document.hidden)void load();},visibility=()=>{if(document.hidden)conceal();else focus();};window.addEventListener("blur",conceal);window.addEventListener("focus",focus);document.addEventListener("visibilitychange",visibility);const timer=setInterval(focus,15000);return()=>{generation.current++;clearInterval(timer);window.removeEventListener("blur",conceal);window.removeEventListener("focus",focus);document.removeEventListener("visibilitychange",visibility);};},[load,kind,charge,offset,from,until,item]);
+ useEffect(()=>{void load();const conceal=()=>{invalidate();setData(null);setStock(null);setCtx(null);},focus=()=>{if(!document.hidden)void load();},visibility=()=>{if(document.hidden)conceal();else focus();};window.addEventListener("blur",conceal);window.addEventListener("focus",focus);document.addEventListener("visibilitychange",visibility);const timer=setInterval(focus,15000);return()=>{invalidate();clearInterval(timer);window.removeEventListener("blur",conceal);window.removeEventListener("focus",focus);document.removeEventListener("visibilitychange",visibility);};},[load,invalidate]);
  async function save(raw:unknown){const p=costingCommand.safeParse(raw);if(!p.success||!ctx){setError(errors.VALIDATION_FAILED!);return;}setRetry(p.data);setBusy(true);setError("");try{
   const response=await fetch("/api/costing",{method:"POST",headers:{"content-type":"application/json","x-workspace-reference":workspaceReference(ctx)},body:JSON.stringify(p.data)}),body=await response.json();if(!response.ok)throw new Error(body.code??"NETWORK_ERROR");costingResult.parse(body.data);setRetry(null);setNotice("Değişmez kayıt oluşturuldu.");await load();
  }catch(e){setError(errors[e instanceof Error?e.message:""]??"İşlem kaydedilemedi.");}finally{setBusy(false);}}
