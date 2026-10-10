@@ -2,6 +2,7 @@
 No production connection or mocked database. Every race observes pg_blocking_pids.
 """
 from pathlib import Path
+from datetime import datetime, timezone
 import json,os,queue,subprocess,threading,time,uuid,statistics
 ROOT=Path(__file__).resolve().parents[1]
 assert os.environ.get('CI')=='true','Disposable CI PostgreSQL required'
@@ -34,7 +35,8 @@ org='f4000000-0000-4000-8000-000000000001';loc='f4000000-0000-4000-8000-00000000
 def auth(s):s.execute(f"set role authenticated;set request.jwt.claim.sub='{user}';")
 def rpc(q):return f"select public.finance_operation('{member}','{loc}',{literal(q)},gen_random_uuid());"
 def command(t,**fields):return {'type':t,'mutation_id':identifier(),'reason':'Synthetic factual verification',**fields}
-def posted(t,n,**fields):return command(t,id=identifier(),client_id=client,currency='TRY',amount_minor=str(n),description='Synthetic finance fact',occurred_at=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),**fields)
+def now():return datetime.now(timezone.utc).isoformat()
+def posted(t,n,**fields):return command(t,id=identifier(),client_id=client,currency='TRY',amount_minor=str(n),description='Synthetic finance fact',occurred_at=now(),**fields)
 def charge(n):return posted('MANUAL_CHARGE',n,tax_rate_bps=0,tax_inclusive=True)
 def payment(n,allocations=None,method='CARD',deposit=False):
     q=posted('DEPOSIT' if deposit else 'PAYMENT',n,method=method,appointment_id=None,external_reference=None)
@@ -42,7 +44,7 @@ def payment(n,allocations=None,method='CARD',deposit=False):
     if not deposit:q.update(allocations=allocations or [],confirm_credit=True)
     return q
 def allocate(pid,cid,n):return command('ALLOCATE',client_id=client,payment_id=pid,allocations=[{'charge_id':cid,'amount_minor':str(n)}])
-def refund(pid,n):return command('REFUND',id=identifier(),original_payment_id=pid,amount_minor=str(n),occurred_at=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()))
+def refund(pid,n):return command('REFUND',id=identifier(),original_payment_id=pid,amount_minor=str(n),occurred_at=now())
 observer=Session();a=Session();b=Session();count=0;performance={}
 def write(q):auth(observer);r=result(observer.execute(rpc(q)));assert 'data' in r,r;observer.execute('reset role;');return q['id']
 def race(label,first,second,expected=None):
@@ -60,7 +62,7 @@ def race(label,first,second,expected=None):
 try:
     assert len({a.pid,b.pid,observer.pid})==3
     def include(name):
-        text=(ROOT/'supabase/tests/fixtures'/name).read_text()
+        text=(ROOT/'supabase/tests/fixtures'/name).read_text(encoding='utf-8')
         import re
         return re.sub(r'^\\ir (.+)$',lambda m:include(m.group(1)),text,flags=re.M)
     text=include('finance.inc').replace('b4000000','f4000000').replace('e5000000','f5000000').replace('@elifora.test','@finance-concurrency.elifora.test').replace("'controlled-a'","'finance-controlled-a'").replace("'controlled-b'","'finance-controlled-b'").replace('pg_temp.','finance_test.').replace('set local search_path=public,extensions','set local search_path=finance_test,public,extensions')
@@ -77,7 +79,7 @@ try:
     pid=write(payment(1000));race('two refunds cannot exceed original payment',rpc(refund(pid,600)),rpc(refund(pid,600)),'FINANCE_REFUND_LIMIT')
     counted=command('CASH_CLOSE_SUBMIT',id=cash,expected_version=1,counted_cash_minor='10000');write(counted)
     race('late cash payment invalidates reviewed close',rpc(payment(100,method='CASH')),rpc(command('CASH_CLOSE_CONFIRM',id=cash,expected_version=2,acknowledge_difference=True)),'CASH_CLOSE_STALE')
-    sale=command('RETAIL_SALE',id=identifier(),client_id=client,currency='TRY',stock_item_id=item,lot_id=None,quantity='60',unit_price_minor='100',tax_rate_bps=0,tax_inclusive=True,description='Synthetic retail',occurred_at=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()))
+    sale=command('RETAIL_SALE',id=identifier(),client_id=client,currency='TRY',stock_item_id=item,lot_id=None,quantity='60',unit_price_minor='100',tax_rate_bps=0,tax_inclusive=True,description='Synthetic retail',occurred_at=now())
     stock={'type':'ADJUSTMENT_OUT','mutation_id':identifier(),'stock_item_id':item,'lot_id':None,'quantity':50,'unit':'GRAM','occurred_at':'2026-10-09T12:00:00Z','reference':None,'reason':'Measured concurrent adjustment'}
     stock_rpc=f"select public.stock_operation('{member}','{loc}',{literal(stock)},gen_random_uuid());"
     race('retail and stock adjustment share item lock',rpc(sale),stock_rpc,'STOCK_INSUFFICIENT')
