@@ -48,7 +48,7 @@ select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-0000000003
 select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000302"}')#>>'{data,items,0,commission_minor}','0','reversal compensates accrual');
 select is((select count(*) from public.commission_accruals),4::bigint,'original accruals remain immutable');
 reset role;
-update public.salon_staff set active=false where membership_id='b4000000-0000-4000-8000-000000000111';
+update public.salon_staff set version=version+1,active=false where membership_id='b4000000-0000-4000-8000-000000000111';
 set local role authenticated;
 select is((select count(*) from public.commission_accruals),4::bigint,'staff deactivation retains all commission history');
 select * from finish();rollback;

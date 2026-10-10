@@ -1,0 +1,10 @@
+import {it,expect,vi,beforeEach} from "vitest";
+const mock=vi.hoisted(()=>({execute:vi.fn()}));vi.mock("server-only",()=>({}));vi.mock("./service",()=>({executeCosting:mock.execute}));
+import {costingResponse} from "./http";
+beforeEach(()=>{vi.clearAllMocks();mock.execute.mockResolvedValue({data:{status:"SAVED"}});});
+const post=(body:string,origin="https://elifora.test",query="")=>new Request("https://elifora.test/api/costing"+query,{method:"POST",headers:{origin,"content-type":"application/json","x-workspace-reference":"member:location"},body});
+it("rejects cross-origin mutation before financial service",async()=>{expect((await costingResponse(post("{}","https://other.test"))).status).toBe(403);expect(mock.execute).not.toHaveBeenCalled();});
+it("rejects oversized streamed bodies",async()=>{expect((await costingResponse(post(JSON.stringify({reason:"x".repeat(32769)})))).status).toBe(400);expect(mock.execute).not.toHaveBeenCalled();});
+it("rejects invalid JSON and query writes",async()=>{expect((await costingResponse(post("{"))).status).toBe(400);expect((await costingResponse(post("{}",undefined,"?offset=1"))).status).toBe(400);expect(mock.execute).not.toHaveBeenCalled();});
+it("rejects duplicate and unknown financial read fields",async()=>{for(const query of ["?offset=0&offset=1","?organization_id=other"]){expect((await costingResponse(new Request("https://elifora.test/api/costing"+query))).status).toBe(400);}expect(mock.execute).not.toHaveBeenCalled();});
+it("returns private no-store and a correlation ID",async()=>{const r=await costingResponse(post("{}"));expect(r.status).toBe(200);expect(r.headers.get("cache-control")).toBe("private, no-store");expect(r.headers.get("x-correlation-id")).toMatch(/^[a-f0-9-]{36}$/);expect(mock.execute).toHaveBeenCalledWith({},expect.any(String),"member:location");});

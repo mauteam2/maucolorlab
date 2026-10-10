@@ -15,7 +15,13 @@ export async function executeCosting(raw:unknown,correlationId:string,reference?
  const parsed=write?costingResult.safeParse(envelope?.data):costingSnapshot.safeParse(envelope?.data);if(!parsed.success)throw new AccessError("NETWORK_ERROR",503);
  const fresh=await verifiedClientContext(permission);if(workspaceReference(fresh)!==workspaceReference(context)||fresh.organization_id!==context.organization_id||JSON.stringify([...fresh.permissions].sort())!==JSON.stringify([...context.permissions].sort()))throw new AccessError("TENANT_CONTEXT_INVALID",403);
  if(!write){const data=costingSnapshot.parse(parsed.data),rows=[...data.items,...data.policies,...data.assignments,...data.cost_basis,...data.assignment_endings];if(data.organization_id!==context.organization_id||data.location_id!==context.location_id||rows.some(r=>r.organization_id!==context.organization_id||r.location_id!==context.location_id))throw new AccessError("NETWORK_ERROR",503);
-  const request=costingReadRequest.parse(q);if(request.kind==="COMMISSION_SELF"){
+  const request=costingReadRequest.parse(q);if(data.kind!==(request.kind??"PROFITABILITY"))throw new AccessError("NETWORK_ERROR",503);
+  for(const row of data.items){if("cost_facts" in row){
+   const nested=[...row.cost_facts,...row.commission_adjustments,...row.revenue_adjustments,...(row.commission_accrual?[row.commission_accrual]:[])];
+   if(data.kind!=="PROFITABILITY"||nested.some(r=>r.organization_id!==context.organization_id||r.location_id!==context.location_id)||(!context.permissions.includes("commission.view_all")&&(row.commission_disclosed||row.commission_minor!==null||row.commission_accrual!==null||row.commission_adjustments.length>0||row.contribution_after_commission_minor!==null)))throw new AccessError("NETWORK_ERROR",503);
+   if(row.cost_status!=="KNOWN"&&(row.direct_product_cost_minor!==null||row.gross_contribution_minor!==null||row.contribution_after_commission_minor!==null||row.margin_bps!==null))throw new AccessError("NETWORK_ERROR",503);
+  }else if(!data.kind.startsWith("COMMISSION"))throw new AccessError("NETWORK_ERROR",503);}
+  if(request.kind==="COMMISSION_SELF"){
    const {data:auth,error}=await client.auth.getUser();if(error||!auth.user||data.items.some(r=>!("staff_user_id" in r)||r.staff_user_id!==auth.user.id))throw new AccessError("NETWORK_ERROR",503);
   }
   if(request.charge_id&&data.items.some(r=>!("charge_id" in r)||r.charge_id!==request.charge_id))throw new AccessError("NETWORK_ERROR",503);
