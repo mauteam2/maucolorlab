@@ -95,7 +95,7 @@ jobs:
             apps/web/test-results/**/client-live-performance.json
             apps/web/test-results/**/stock-*.png
             apps/web/test-results/**/finance-*.png
-          apps/web/test-results/**/costing-*.png
+            apps/web/test-results/**/costing-*.png
           if-no-files-found: ignore
           retention-days: 7
       - name: Stop local Supabase

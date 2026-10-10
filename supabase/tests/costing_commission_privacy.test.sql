@@ -32,6 +32,12 @@ reset role;
 insert into public.commission_assignments values('c5000000-0000-4000-8000-000000000501','b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','b4000000-0000-4000-8000-000000000023','c5000000-0000-4000-8000-000000000201','DEFAULT_SERVICE',null,null,statement_timestamp(),null,'Synthetic explicit historical assignment','b4000000-0000-4000-8000-000000000021',statement_timestamp(),gen_random_uuid());
 insert into public.commission_accruals(id,organization_id,location_id,charge_id,staff_user_id,policy_id,policy_version,assignment_id,method,rate_bps,basis_minor,amount_minor,currency,eligible_at)
  values('c5000000-0000-4000-8000-000000000601','b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','c5000000-0000-4000-8000-000000000301','b4000000-0000-4000-8000-000000000023','c5000000-0000-4000-8000-000000000201',1,'c5000000-0000-4000-8000-000000000501','PERCENT_NET_OF_TAX',1000,100000,10000,'TRY',statement_timestamp());
+-- A different staff member has real nonempty earnings, not an empty denial fixture.
+select pg_temp.finance_post('MANUAL_CHARGE','120000','c5000000-0000-4000-8000-000000000305','{"tax_rate_bps":2000,"tax_inclusive":true}');
+insert into public.commission_assignments select 'c5000000-0000-4000-8000-000000000502'::uuid,organization_id,location_id,'b4000000-0000-4000-8000-000000000021'::uuid,policy_id,scope,service_id,category,effective_from,effective_until,reason,recorded_by,created_at,gen_random_uuid() from public.commission_assignments where id='c5000000-0000-4000-8000-000000000501';
+insert into public.commission_accruals(id,organization_id,location_id,charge_id,staff_user_id,policy_id,policy_version,assignment_id,method,rate_bps,basis_minor,amount_minor,currency,eligible_at)
+ select 'c5000000-0000-4000-8000-000000000602'::uuid,organization_id,location_id,'c5000000-0000-4000-8000-000000000305'::uuid,'b4000000-0000-4000-8000-000000000021'::uuid,policy_id,policy_version,'c5000000-0000-4000-8000-000000000502'::uuid,method,rate_bps,basis_minor,amount_minor,currency,eligible_at from public.commission_accruals where id='c5000000-0000-4000-8000-000000000601';
+select is((select count(*) from public.commission_accruals),2::bigint,'both staff earnings physically present before RLS');
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);
 select is((select count(*) from public.stock_cost_basis_events),0::bigint,'reception cannot read acquisition cost');
