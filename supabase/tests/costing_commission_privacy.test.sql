@@ -38,6 +38,13 @@ insert into public.commission_assignments select 'c5000000-0000-4000-8000-000000
 insert into public.commission_accruals(id,organization_id,location_id,charge_id,staff_user_id,policy_id,policy_version,assignment_id,method,rate_bps,basis_minor,amount_minor,currency,eligible_at)
  select 'c5000000-0000-4000-8000-000000000602'::uuid,organization_id,location_id,'c5000000-0000-4000-8000-000000000305'::uuid,'b4000000-0000-4000-8000-000000000021'::uuid,policy_id,policy_version,'c5000000-0000-4000-8000-000000000502'::uuid,method,rate_bps,basis_minor,amount_minor,currency,eligible_at from public.commission_accruals where id='c5000000-0000-4000-8000-000000000601';
 select is((select count(*) from public.commission_accruals),2::bigint,'both staff earnings physically present before RLS');
+insert into public.locations(id,organization_id,name,timezone) values('b4000000-0000-4000-8000-000000000013','b4000000-0000-4000-8000-000000000001','Other location','Europe/Istanbul');
+insert into public.salon_memberships(id,organization_id,location_id,user_id,role_code,status,joined_at) values('b4000000-0000-4000-8000-000000000115','b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000013','b4000000-0000-4000-8000-000000000022','owner','active',statement_timestamp());
+set local role authenticated;
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000022',true);
+select is((select count(*) from public.stock_cost_basis_events),0::bigint,'same-organization other-location cost denied against nonempty stock history');
+select is((select count(*) from public.commission_accruals),0::bigint,'same-organization other-location earnings denied against two real earnings');
+select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000115','b4000000-0000-4000-8000-000000000011','{}')->>'code','FORBIDDEN','location membership cannot request other location cost');
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);
 select is((select count(*) from public.stock_cost_basis_events),0::bigint,'reception cannot read acquisition cost');

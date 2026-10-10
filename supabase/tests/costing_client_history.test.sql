@@ -1,0 +1,32 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+set local search_path=public,extensions;
+select no_plan();
+\ir fixtures/costing.inc
+-- CRM merge requires an organization-wide owner/manager membership.
+update public.salon_memberships set location_id=null where id='b4000000-0000-4000-8000-000000000111';
+insert into public.clients(id,organization_id,full_name,phone,phone_normalized,created_by,updated_by,creation_location_id) values
+ ('b4000000-0000-4000-8000-000000000032','b4000000-0000-4000-8000-000000000001','Synthetic Finance Alias','+905322222222','+905322222222','b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000011'),
+ ('b4000000-0000-4000-8000-000000000033','b4000000-0000-4000-8000-000000000001','Synthetic Finance Canonical','+905322222222','+905322222222','b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000011');
+create temporary table identity_money(k text primary key,v jsonb);grant all on identity_money to authenticated;
+set local role authenticated;
+select is(pg_temp.finance_post('MANUAL_CHARGE','1','e5000000-0000-4000-8000-000000000701','{"tax_rate_bps":10000,"tax_inclusive":true}')#>>'{data,status}','SAVED','inclusive half-minor boundary accepted');
+select is((select tax_amount_minor from public.finance_documents where id='e5000000-0000-4000-8000-000000000701'),1::bigint,'inclusive tax deterministic half up');
+select is(pg_temp.finance_post('MANUAL_CHARGE','1','e5000000-0000-4000-8000-000000000702','{"tax_rate_bps":5000,"tax_inclusive":false}')#>>'{data,status}','SAVED','exclusive half-minor boundary accepted');
+select is((select amount_minor from public.finance_documents where id='e5000000-0000-4000-8000-000000000702'),2::bigint,'exclusive half-minor rounds up');
+select is(pg_temp.finance_post('MANUAL_CHARGE','1','e5000000-0000-4000-8000-000000000703','{"tax_rate_bps":4999,"tax_inclusive":false}')#>>'{data,status}','SAVED','below half-minor accepted');
+select is((select tax_amount_minor from public.finance_documents where id='e5000000-0000-4000-8000-000000000703'),0::bigint,'below half rounds down exactly');
+select is(pg_temp.finance_post('MANUAL_CHARGE','1000','e5000000-0000-4000-8000-000000000704','{"client_id":"b4000000-0000-4000-8000-000000000032"}')#>>'{data,status}','SAVED','historical alias account fact posts');
+insert into identity_money values('review',public.crm_read('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{"operation":"merge_review","source_client_id":"b4000000-0000-4000-8000-000000000032","target_client_id":"b4000000-0000-4000-8000-000000000033"}'));
+select ok((select v ? 'data' from identity_money where k='review'),'finance history does not block eligible CRM merge');
+select diag('Finance merge review code: '||coalesce((select v->>'code' from identity_money where k='review'),'OK'));
+insert into identity_money values('merge',public.crm_operation('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011',jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',(select v#>>'{data,review_token}' from identity_money where k='review'),'decisions',(select jsonb_object_agg(f,'TARGET') from unnest(array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) f)),gen_random_uuid()));
+select ok((select v ? 'data' from identity_money where k='merge'),'reviewed merge succeeds with explicit identity decision');
+select diag('Finance merge result code: '||coalesce((select v->>'code' from identity_money where k='merge'),'OK'));
+select is((select client_id::text from public.finance_documents where id='e5000000-0000-4000-8000-000000000704'),'b4000000-0000-4000-8000-000000000032','merge never rewrites posted financial identity');
+select is(pg_temp.finance_read('{"client_id":"b4000000-0000-4000-8000-000000000033"}')#>>'{data,client_balances,0,balance_minor}','1000','canonical profile consolidates original financial family');
+select diag('Finance canonical read code: '||coalesce(pg_temp.finance_read('{"client_id":"b4000000-0000-4000-8000-000000000033"}')->>'code','OK'));
+select is(pg_temp.finance_post('CLIENT_DEBIT','1',gen_random_uuid(),'{"client_id":"b4000000-0000-4000-8000-000000000032"}')->>'code','CLIENT_NOT_CURRENT','merged alias cannot start new financial activity');
+select is((select client_id::text from public.profitability_revenue_facts where charge_id='e5000000-0000-4000-8000-000000000704'),'b4000000-0000-4000-8000-000000000032','real merge preserves original profitability source identity');
+select is(pg_temp.costing_read('{"charge_id":"e5000000-0000-4000-8000-000000000704"}')#>>'{data,items,0,client_id}','b4000000-0000-4000-8000-000000000032','authorized original-source read remains readable after merge');
+select * from finish();rollback;
