@@ -19,6 +19,8 @@ select is(pg_temp.charge_appointment(gen_random_uuid(),'e5000000-0000-4000-8000-
 select is(pg_temp.transition_finance('e5000000-0000-4000-8000-000000000811',1,'ARRIVED')#>>'{data,status}','ARRIVED','first appointment arrived');
 select is(pg_temp.transition_finance('e5000000-0000-4000-8000-000000000811',2,'IN_SERVICE')#>>'{data,status}','IN_SERVICE','first appointment in service');
 select is(pg_temp.transition_finance('e5000000-0000-4000-8000-000000000811',3,'COMPLETED')#>>'{data,status}','COMPLETED','first appointment completed');
+select is(pg_temp.transition_finance('e5000000-0000-4000-8000-000000000812',1,'ARRIVED')#>>'{data,status}','ARRIVED','second appointment arrived');
+select is(pg_temp.transition_finance('e5000000-0000-4000-8000-000000000812',2,'IN_SERVICE')#>>'{data,status}','IN_SERVICE','second appointment in service');
 select ok(pg_temp.salon(jsonb_set(jsonb_set((select v from appointment_money where k='service'),'{mutation_id}',to_jsonb(gen_random_uuid())),'{expected_version}','1')||jsonb_build_object('definition',(select v->'definition' from appointment_money where k='service')||'{"base_price":2000}'::jsonb)) ? 'data','catalog price changes after booking');
 reset role;
 update public.live_sessions set record_version=record_version+1,appointment_link='e5000000-0000-4000-8000-000000000811',payload=jsonb_set(jsonb_set(payload,'{recordVersion}',to_jsonb(record_version+1)),'{appointmentLink}','"e5000000-0000-4000-8000-000000000811"') where id='b4000000-0000-4000-8000-000000000803';
@@ -28,8 +30,6 @@ select is((select amount_minor from public.finance_documents where id='e5000000-
 select is((select tax_amount_minor from public.finance_documents where id='e5000000-0000-4000-8000-000000000821'),20000::bigint,'stored tax snapshot exact');
 select is((select performed_by::text from public.finance_documents where id='e5000000-0000-4000-8000-000000000821'),'b4000000-0000-4000-8000-000000000021','performer snapshot retained separately');
 select is((select live_session_id from public.finance_documents where id='e5000000-0000-4000-8000-000000000821'),null::uuid,'legacy UUID never becomes finance relation');
-select is(pg_temp.transition_finance('e5000000-0000-4000-8000-000000000812',1,'ARRIVED')#>>'{data,status}','ARRIVED','second appointment arrived');
-select is(pg_temp.transition_finance('e5000000-0000-4000-8000-000000000812',2,'IN_SERVICE')#>>'{data,status}','IN_SERVICE','second appointment in service');
 select ok(pg_temp.salon('{"type":"LINK_LIVE_SESSION","mutation_id":"e5000000-0000-4000-8000-000000000831","id":"e5000000-0000-4000-8000-000000000812","expected_version":3,"live_session_id":"b4000000-0000-4000-8000-000000000803"}') ? 'data','verified link can contradict untrusted legacy UUID');
 select is(pg_temp.transition_finance('e5000000-0000-4000-8000-000000000812',4,'COMPLETED')#>>'{data,status}','COMPLETED','linked appointment completed');
 select is(pg_temp.charge_appointment('e5000000-0000-4000-8000-000000000822','e5000000-0000-4000-8000-000000000812')#>>'{data,status}','SAVED','verified relation charge accepted');
