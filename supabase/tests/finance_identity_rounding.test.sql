@@ -3,6 +3,8 @@ create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
 select no_plan();
 \ir fixtures/finance.inc
+-- CRM merge requires an organization-wide owner/manager membership.
+update public.salon_memberships set location_id=null where id='b4000000-0000-4000-8000-000000000111';
 insert into public.clients(id,organization_id,full_name,phone,phone_normalized,created_by,updated_by,creation_location_id) values
  ('b4000000-0000-4000-8000-000000000032','b4000000-0000-4000-8000-000000000001','Synthetic Finance Alias','+905322222222','+905322222222','b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000011'),
  ('b4000000-0000-4000-8000-000000000033','b4000000-0000-4000-8000-000000000001','Synthetic Finance Canonical','+905322222222','+905322222222','b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000011');
@@ -18,7 +20,7 @@ select is(pg_temp.finance_post('CLIENT_DEBIT','1000','e5000000-0000-4000-8000-00
 insert into identity_money values('review',public.crm_read('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{"operation":"merge_review","source_client_id":"b4000000-0000-4000-8000-000000000032","target_client_id":"b4000000-0000-4000-8000-000000000033"}'));
 select ok((select v ? 'data' from identity_money where k='review'),'finance history does not block eligible CRM merge');
 select diag('Finance merge review code: '||coalesce((select v->>'code' from identity_money where k='review'),'OK'));
-insert into identity_money values('merge',public.crm_operation('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011',jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',(select v#>>'{data,review_token}' from identity_money where k='review'),'decisions',jsonb_build_object('full_name','TARGET')),gen_random_uuid()));
+insert into identity_money values('merge',public.crm_operation('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011',jsonb_build_object('type','MERGE','mutation_id',gen_random_uuid(),'review_token',(select v#>>'{data,review_token}' from identity_money where k='review'),'decisions',(select jsonb_object_agg(f,'TARGET') from unnest(array['full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact']) f)),gen_random_uuid()));
 select ok((select v ? 'data' from identity_money where k='merge'),'reviewed merge succeeds with explicit identity decision');
 select diag('Finance merge result code: '||coalesce((select v->>'code' from identity_money where k='merge'),'OK'));
 select is((select client_id::text from public.finance_documents where id='e5000000-0000-4000-8000-000000000704'),'b4000000-0000-4000-8000-000000000032','merge never rewrites posted financial identity');
