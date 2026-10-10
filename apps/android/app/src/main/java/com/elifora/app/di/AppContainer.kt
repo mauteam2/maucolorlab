@@ -18,6 +18,7 @@ interface AppContainer {
     val hairPassportController: HairPassportController
     val clientCrmController: com.elifora.app.domain.crm.ClientCrmController
     val financeController: com.elifora.app.domain.finance.FinanceController
+    val costingController: com.elifora.app.domain.costing.CostingController
     val stockController: com.elifora.app.domain.stock.StockController
 }
 class DefaultAppContainer(context: Context) : AppContainer {
@@ -26,6 +27,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
     override val workspaceController by lazy { WorkspaceController(repository, repository, PreferenceWorkspaceStore(context)) }
     override val clientController by lazy { ClientController(SupabaseClientRepository(repository::clientOperation)) }
     override val financeController by lazy { com.elifora.app.domain.finance.FinanceController(com.elifora.app.data.finance.SupabaseFinanceRepository(repository::financeSnapshot, repository::list)) }
+    override val costingController by lazy { com.elifora.app.domain.costing.CostingController(com.elifora.app.data.costing.SupabaseCostingRepository(repository::costingSnapshot, repository::list, repository::userId)) }
     override val stockController by lazy { com.elifora.app.domain.stock.StockController(com.elifora.app.data.stock.SupabaseStockRepository(repository::stockSnapshot, repository::list)) }
     override val clientCrmController by lazy { com.elifora.app.domain.crm.ClientCrmController(com.elifora.app.data.crm.SupabaseClientCrmRepository(repository::crmRead, repository::crmOperation, repository::list)) }
     override val hairPassportController by lazy { HairPassportController(SupabaseHairPassportRepository(repository::hairPassportSnapshot, repository::list),

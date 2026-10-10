@@ -89,6 +89,7 @@ class SupabaseAuthRepository(
     }
     suspend fun crmRead(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/crm_read", body) }
     suspend fun financeSnapshot(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/finance_snapshot", body) }
+    suspend fun costingSnapshot(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/costing_snapshot", body) }
     suspend fun stockSnapshot(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/stock_snapshot", body) }
     suspend fun crmOperation(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/crm_operation", body) }
     suspend fun hairMutation(rpc: String, body: String): HttpReply = mutex.withLock {

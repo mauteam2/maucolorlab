@@ -6,6 +6,7 @@ import "./crm.css";
 import "./salon-operations.css";
 import "./stock.css";
 import "./finance.css";
+import "./costing.css";
 
 export const metadata: Metadata = {
   title: {

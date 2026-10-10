@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.18.0'
+assert contract['info']['version'] == '0.19.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -361,3 +361,16 @@ native=(root/'apps/android/app/src/main/java/com/elifora/app/data/finance/Supaba
 for field in ('p_membership_id','p_location_id','p_request','BigInteger','outstanding_minor','available_credit_minor','current_expected_minor','finance.expense.view','finance.cash.close'):
     assert field in native,field
 print('PASS: Phase 5A shared integer-money schemas, native private projections and ten forgery rejections')
+
+costing_schemas=json.loads((root/'contracts/costing.schemas.json').read_text(encoding='utf-8'))
+assert {'CostStatus','StockCostBasis','DirectCostFact','CommissionPolicy','CommissionAssignment','CommissionAccrual','CommissionAdjustment','ProfitabilityStatus','ProfitabilityBreakdown'} <= costing_schemas.keys()
+for name,schema in costing_schemas.items():assert contract['components']['schemas'][name]==schema,name
+costing=json.loads((root/'contracts/fixtures/costing-contract.json').read_text(encoding='utf-8'))
+observation_validator('CostingSnapshot').validate(costing['snapshot'])
+observation_validator('CostingCommand').validate(costing['command'])
+for field in ('organization_id','location_id','direct_cost','weighted_average','cost_basis_version','commission_amount','profitability','margin','stock_movement_id','performed_by'):
+    assert list(observation_validator('CostingCommand').iter_errors(costing['command']|{field:True})),field
+for rpc in ('costing_snapshot','costing_operation'):assert contract['paths']['/rest/v1/rpc/'+rpc]['post']['security']==[{'bearerAuth':[],'publishableKey':[]}]
+native=(root/'apps/android/app/src/main/java/com/elifora/app/data/costing/SupabaseCostingRepository.kt').read_text(encoding='utf-8')
+for field in ('p_membership_id','p_location_id','p_request','BigInteger','COMMISSION_SELF','staff_user_id','cost.view','commission.view_all','NET_OF_TAX'):assert field in native,field
+print('PASS: Phase 5B shared costing/commission/profitability contracts, native self privacy and ten forgery rejections')

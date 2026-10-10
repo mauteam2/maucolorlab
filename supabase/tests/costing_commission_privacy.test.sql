@@ -27,9 +27,11 @@ select throws_ok($$insert into public.commission_accruals(id) values(gen_random_
 select throws_ok($$update public.commission_accruals set amount_minor=0$$,'42501',null,'normal commission update denied');
 select throws_ok($$delete from public.commission_accruals$$,'42501',null,'normal commission delete denied');
 reset role;
--- Synthetic immutable earnings test isolates self privacy from staff setup.
+-- Two explicit synthetic historical earners isolate RLS privacy. Calculation
+-- through real appointment/finance RPC is exercised in costing_service_commission.
+insert into public.commission_assignments values('c5000000-0000-4000-8000-000000000501','b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','b4000000-0000-4000-8000-000000000023','c5000000-0000-4000-8000-000000000201','DEFAULT_SERVICE',null,null,statement_timestamp(),null,'Synthetic explicit historical assignment','b4000000-0000-4000-8000-000000000021',statement_timestamp(),gen_random_uuid());
 insert into public.commission_accruals(id,organization_id,location_id,charge_id,staff_user_id,policy_id,policy_version,assignment_id,method,rate_bps,basis_minor,amount_minor,currency,eligible_at)
- select 'c5000000-0000-4000-8000-000000000601','b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','c5000000-0000-4000-8000-000000000301','b4000000-0000-4000-8000-000000000023','c5000000-0000-4000-8000-000000000201',1,id,'PERCENT_NET_OF_TAX',1000,100000,10000,'TRY',statement_timestamp() from public.commission_assignments where false;
+ values('c5000000-0000-4000-8000-000000000601','b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','c5000000-0000-4000-8000-000000000301','b4000000-0000-4000-8000-000000000023','c5000000-0000-4000-8000-000000000201',1,'c5000000-0000-4000-8000-000000000501','PERCENT_NET_OF_TAX',1000,100000,10000,'TRY',statement_timestamp());
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);
 select is((select count(*) from public.stock_cost_basis_events),0::bigint,'reception cannot read acquisition cost');
@@ -39,6 +41,8 @@ select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000114','b40000
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000022',true);
 select is((select count(*) from public.profitability_revenue_facts),0::bigint,'cross organization profitability denied');
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000023',true);
+select is((select count(*) from public.commission_accruals),1::bigint,'staff can read own real nonempty earnings fixture');
+select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000113','b4000000-0000-4000-8000-000000000011','{"kind":"COMMISSION_SELF"}')#>>'{data,total}','1','own commission RPC permitted');
 select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000113','b4000000-0000-4000-8000-000000000011','{"kind":"COMMISSION_SELF","staff_user_id":"b4000000-0000-4000-8000-000000000021"}')->>'code','FORBIDDEN','self query cannot request another staff');
 select is((select count(*) from public.stock_cost_basis_events),0::bigint,'technical access does not grant cost');
 reset role;

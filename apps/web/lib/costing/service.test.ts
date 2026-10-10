@@ -1,0 +1,12 @@
+import {it,expect,vi,beforeEach} from "vitest";
+import {costingFixture} from "@/test/costing-fixtures";
+import {workspaceReference} from "@/lib/tenant/context";
+const mock=vi.hoisted(()=>({context:vi.fn(),rpc:vi.fn(),user:vi.fn()}));vi.mock("server-only",()=>({}));vi.mock("@/lib/clients/service",()=>({verifiedClientContext:mock.context}));vi.mock("@/lib/supabase/server",()=>({createClient:async()=>({rpc:mock.rpc,auth:{getUser:mock.user}})}));
+import {executeCosting} from "./service";
+beforeEach(()=>{vi.clearAllMocks();mock.context.mockResolvedValue(costingFixture().context);mock.rpc.mockResolvedValue({data:{data:costingFixture().snapshot},error:null});});
+it("rechecks membership and permissions after financial read",async()=>{expect((await executeCosting({},crypto.randomUUID())).data).toEqual(costingFixture().snapshot);expect(mock.context).toHaveBeenCalledTimes(2);});
+it("rejects a returned foreign tenant",async()=>{const s=costingFixture().snapshot;s.location_id=crypto.randomUUID();mock.rpc.mockResolvedValue({data:{data:s}});await expect(executeCosting({},crypto.randomUUID())).rejects.toMatchObject({code:"NETWORK_ERROR"});});
+it("conceals earnings on permission change during response",async()=>{mock.context.mockResolvedValueOnce(costingFixture().context).mockResolvedValueOnce({...costingFixture().context,permissions:["cost.view"]});await expect(executeCosting({},crypto.randomUUID())).rejects.toMatchObject({code:"TENANT_CONTEXT_INVALID"});});
+it("rejects a forged commission before calling the database",async()=>{await expect(executeCosting({...costingFixture().command,commission_amount:"999"},crypto.randomUUID(),workspaceReference(costingFixture().context))).rejects.toMatchObject({code:"VALIDATION_FAILED"});expect(mock.rpc).not.toHaveBeenCalled();});
+it("preserves policy overlap as an actionable conflict",async()=>{mock.rpc.mockResolvedValue({data:{code:"COMMISSION_ASSIGNMENT_OVERLAP"}});await expect(executeCosting(costingFixture().command,crypto.randomUUID(),workspaceReference(costingFixture().context))).rejects.toMatchObject({code:"COMMISSION_ASSIGNMENT_OVERLAP",status:409});});
+it("rejects a stale workspace reference",async()=>{await expect(executeCosting(costingFixture().command,crypto.randomUUID(),"old")).rejects.toMatchObject({code:"TENANT_CONTEXT_INVALID"});expect(mock.rpc).not.toHaveBeenCalled();});

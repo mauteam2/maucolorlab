@@ -178,6 +178,18 @@ jobs:
           path: ${{ runner.temp }}/finance-performance.json
           if-no-files-found: ignore
           retention-days: 7
+      - name: Costing real PostgreSQL concurrency and 10k contribution facts
+        run: |
+          supabase db reset --local
+          python scripts/test-costing-concurrency.py
+      - name: Costing database verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: costing-database-verification
+          path: ${{ runner.temp }}/costing-performance.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
