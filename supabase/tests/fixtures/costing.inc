@@ -1,0 +1,11 @@
+\ir finance.inc
+reset role;
+create function pg_temp.costing(q jsonb) returns jsonb language sql volatile as $$select public.costing_operation('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011',q,gen_random_uuid());$$;
+create function pg_temp.costing_read(q jsonb default '{}'::jsonb) returns jsonb language sql volatile as $$select public.costing_snapshot('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011',q);$$;
+create function pg_temp.cost_basis(item uuid,n text,version bigint default 0) returns jsonb language sql volatile as $$select pg_temp.costing(jsonb_build_object('type','SET_BASIS','mutation_id',gen_random_uuid(),'stock_item_id',item,'lot_id',null,'expected_version',version,'currency','TRY','unit_cost_numerator',n,'unit_cost_denominator','1','cost_basis_at',statement_timestamp(),'reason','Explicit reviewed future-only acquisition basis'));$$;
+create function pg_temp.cost_intake(item uuid,qty numeric,n text,t text default 'RECEIPT',mid uuid default gen_random_uuid()) returns jsonb language sql volatile as $$select pg_temp.costing(jsonb_build_object('type','INTAKE','mutation_id',mid,'currency','TRY','total_cost_minor',n,'unit_cost_numerator',null,'unit_cost_denominator',null,'cost_basis_at',statement_timestamp(),'external_reference',null,'reason','Synthetic acquisition record','stock_command',jsonb_build_object('type',t,'mutation_id',mid,'stock_item_id',item,'lot_id',null,'quantity',qty,'unit','GRAM','occurred_at',statement_timestamp(),'reference',null,'reason','Synthetic measured intake')));$$;
+create function pg_temp.cost_policy(eid uuid,m text,rate integer,fixed text default null,v bigint default 0,ef timestamptz default statement_timestamp()) returns jsonb language sql volatile as $$select pg_temp.costing(jsonb_build_object('type','POLICY_VERSION','mutation_id',gen_random_uuid(),'id',eid,'expected_version',v,'name','Synthetic commission','domain','SERVICE','method',m,'rate_bps',rate,'fixed_minor',fixed,'currency','TRY','effective_from',ef,'reason','Explicit future policy'));$$;
+set local role authenticated;
+select pg_temp.item('c5000000-0000-4000-8000-000000000101');
+select pg_temp.item('c5000000-0000-4000-8000-000000000102');
+reset role;
