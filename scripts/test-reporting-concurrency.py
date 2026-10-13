@@ -92,7 +92,10 @@ try:
     assert observer.execute(f"select revenue_minor from app_private.report_facts where source_id='{late['id']}' and domain='REVENUE';")[-1]=='333'
     # A sequence number is allocated before commit. A later event commits first.
     low=charge('222');auth(a);a.execute('begin;'+rpc(low))
-    higher=charge('111');write(higher)
+    # Finance source writes correctly serialize on their own lifecycle lock.
+    # Allocate the later committed reporting event through an independent Stock
+    # write, so this tests commit ordering without violating that domain protocol.
+    write(cmd('ADJUSTMENT_OUT',stock_item_id=item,lot_id=None,quantity=1,unit='GRAM',occurred_at=now(),reference=None),'stock')
     b.execute('reset role;'+rebuild_sql());a.execute('commit;reset role;');report()
     assert observer.execute(f"select revenue_minor from app_private.report_facts where source_id='{low['id']}' and domain='REVENUE';")[-1]=='222'
     cases.append('late commit below captured sequence watermark survives rebuild');print('PASS',cases[-1],'(distinct PostgreSQL source/rebuild connections)')

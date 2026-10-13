@@ -65,14 +65,15 @@ export function permittedReportDomains(permissions: string[], selfOnly: boolean)
   if (permissions.includes("live_session.view") && permissions.includes("crm.notes.technical")) result.push("LIVE");
   return result;
 }
-export function reportSourceLink(row: Pick<z.infer<typeof reportItem>, "domain" | "source_id" | "client_id" | "details">) {
+export function reportSourceLink(row: Pick<z.infer<typeof reportItem>, "domain" | "source_id" | "client_id" | "details" | "cost_status">) {
   switch (row.domain) {
     case "APPOINTMENT": return `/workspace/appointments?appointment_id=${row.source_id}`;
-    case "REVENUE": return `/workspace/finance/profitability?charge_id=${row.source_id}`;
+    case "REVENUE": return row.cost_status === null ? `/workspace/finance?document_id=${row.source_id}` : `/workspace/finance/profitability?charge_id=${row.source_id}`;
     case "COMMISSION": return "/workspace/commission";
     case "CLIENT": return `/workspace/clients/${row.source_id}`;
     case "STOCK_ITEM": case "STOCK_MOVEMENT": return "/workspace/stock";
-    case "EXPENSE": case "CASH": return "/workspace/finance";
+    case "EXPENSE": return `/workspace/finance?document_id=${row.source_id}`;
+    case "CASH": return "/workspace/finance";
     case "LIVE": return row.client_id ? `/workspace/live-sessions?client_id=${row.client_id}&session_id=${row.source_id}` : "/workspace/colorlab";
     default: return "/workspace/reports";
   }

@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { reportingFixture } from "@/test/reporting-fixtures";
-import { metricValue, permittedReportDomains, reportRequest, reportSummary, reportMoney } from "./model";
+import { metricValue, permittedReportDomains, reportRequest, reportSummary, reportMoney, reportSourceLink } from "./model";
 import { csvCell, reportCsv } from "./csv";
 it("validates the shared unknown-cost fixture without inventing contribution", () => { const d = reportingFixture().snapshot; expect(reportSummary.parse(d).metrics.find(m => m.name === "contribution_after_commission")?.value).toBeNull(); });
 it.each(["revenue", "commission", "organization_id", "role", "sql", "freshness", "insight_severity"])("rejects client-derived %s", field => { expect(reportRequest.safeParse({ [field]: "forged" }).success).toBe(false); });
@@ -14,3 +14,4 @@ it("quotes CSV separators and embedded quotes", () => { expect(csvCell('A,"B"'))
 it("exports bounded source provenance and unavailable values as empty cells", () => { const s = reportingFixture().snapshot; const csv = reportCsv(s); expect(csv).toContain(s.items[0]!.source_id); expect(csv).toContain('"UNAVAILABLE"'); expect(csv).toContain('"Europe/Istanbul"'); });
 it("reception has no private contribution or commission domains", () => { expect(permittedReportDomains(["salon.read", "crm.read", "finance.view", "stock.view"], false)).toEqual(["APPOINTMENT", "CLIENT", "REVENUE", "STOCK_ITEM", "STOCK_MOVEMENT"]); });
 it("staff self mode does not inherit broad financial domains", () => { expect(permittedReportDomains(["salon.read", "cost.view", "finance.view", "commission.view_self"], true)).toEqual(["APPOINTMENT", "COMMISSION"]); });
+it("revenue readers without cost disclosure navigate to their permitted finance record", () => { const r = reportingFixture().snapshot.items[0]!; expect(reportSourceLink({ ...r, cost_status: null })).toBe("/workspace/finance?document_id=" + r.source_id); });

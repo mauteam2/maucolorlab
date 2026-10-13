@@ -64,6 +64,11 @@ select is(pg_temp.report_op('{"type":"SETTINGS","expected_version":0,"coverage_w
 select ok(pg_temp.report_op('{"type":"EXPORT","request":{"kind":"FINANCE"}}') ? 'data','bounded authorized export');
 reset role;
 select is(extract(epoch from ((app_private.report_period('Europe/Berlin','{"period":"CUSTOM","from":"2026-03-29","until":"2026-03-29"}')->>'end')::timestamptz-(app_private.report_period('Europe/Berlin','{"period":"CUSTOM","from":"2026-03-29","until":"2026-03-29"}')->>'start')::timestamptz)),82800::numeric,'DST spring salon day is 23 hours');
+update public.organizations set base_currency='USD' where id='b4000000-0000-4000-8000-000000000001';
+set local role authenticated;
+select is(pg_temp.report()#>>'{data,currency}','TRY','registered Finance currency remains monetary authority despite display metadata drift');
+reset role;
+update public.organizations set base_currency='TRY' where id='b4000000-0000-4000-8000-000000000001';
 select is(extract(epoch from ((app_private.report_period('Europe/Berlin','{"period":"CUSTOM","from":"2026-10-25","until":"2026-10-25"}')->>'end')::timestamptz-(app_private.report_period('Europe/Berlin','{"period":"CUSTOM","from":"2026-10-25","until":"2026-10-25"}')->>'start')::timestamptz)),90000::numeric,'DST autumn salon day is 25 hours');
 select is((select count(*) from public.audit_events where action='reporting.rebuild'),1::bigint,'rebuild audited once');
 select is((select count(*) from public.audit_events where action='reporting.export'),1::bigint,'sensitive export audited');
