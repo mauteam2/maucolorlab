@@ -85,6 +85,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Phase 5B browser journeys must pass without retries
         run: npx playwright test e2e/costing.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
+      - name: Phase 6 report journeys must pass without retries
+        run: npx playwright test e2e/reporting.spec.ts --workers=1 --retries=0
       - run: npm run test:e2e
       - name: Client UI verification captures (synthetic local fixtures only)
         if: always()
@@ -98,6 +100,7 @@ jobs:
             apps/web/test-results/**/stock-*.png
             apps/web/test-results/**/finance-*.png
             apps/web/test-results/**/costing-*.png
+            apps/web/test-results/**/reporting-*.png
           if-no-files-found: ignore
           retention-days: 7
       - name: Stop local Supabase
@@ -191,6 +194,18 @@ jobs:
         with:
           name: costing-database-verification
           path: ${{ runner.temp }}/costing-performance.json
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Reporting real PostgreSQL races and 50k source-derived projections
+        run: |
+          supabase db reset --local
+          python scripts/test-reporting-concurrency.py
+      - name: Reporting database verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporting-database-verification
+          path: ${{ runner.temp }}/reporting-performance.json
           if-no-files-found: ignore
           retention-days: 7
       - name: Stop local Supabase
