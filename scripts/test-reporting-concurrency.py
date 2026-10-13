@@ -77,7 +77,7 @@ try:
     cases.append('completion/cancellation version conflict converges to one terminal state');print('PASS',cases[-1],'(distinct PostgreSQL backends, row/lifecycle blocking observed)')
     # Fresh identities with no active operational state: actual reviewed CRM merge.
     identities=[str(uuid.uuid4()),str(uuid.uuid4())]
-    for index,eid in enumerate(identities):observer.execute(f"insert into public.clients(id,organization_id,full_name,created_by,updated_by,creation_location_id) values('{eid}','{org}','Synthetic merge identity {index}','{user}','{user}','{loc}');")
+    for index,eid in enumerate(identities):observer.execute(f"insert into public.clients(id,organization_id,full_name,phone,phone_normalized,created_by,updated_by,creation_location_id) values('{eid}','{org}','Synthetic merge identity {index}','+90532000111{index}','+90532000111{index}','{user}','{user}','{loc}');")
     report();before=int(observer.execute(f"select count(*) from app_private.report_facts where domain='CLIENT' and organization_id='{org}';")[-1])
     auth(observer);review=result(observer.execute(f"select public.crm_read('{member}','{loc}',{literal({'operation':'merge_review','source_client_id':identities[0],'target_client_id':identities[1]})});"));observer.execute('reset role;');assert 'data' in review,review
     decisions={f:'SOURCE' for f in ('full_name','phone','email','birth_date','preferred_staff_id','preferred_service_ids','request_notes','preferred_channel','allow_manual_contact','do_not_contact')}

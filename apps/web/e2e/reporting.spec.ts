@@ -51,7 +51,7 @@ test("stock alerts and technical report use existing source semantics", async ({
   const f = await setup(page); await f.call("/api/stock", { type: "ENABLE", reason: "Measured inventory" }); const item = randomUUID();
   await f.call("/api/stock", { type: "ITEM_SAVE", id: item, expected_version: 0, definition: { source: "SALON_CUSTOM_OPERATIONAL_PRODUCT", catalog_product_id: null, product_type: "OTHER", display_name: "Sentetik düşük stok", sku: null, barcode: null, inventory_unit: "UNIT", active: true, track_quantity: true, lot_required: false, low_threshold: 10 }, reason: "Operational source" });
   await f.call("/api/stock", { type: "OPENING", stock_item_id: item, lot_id: null, quantity: 5, unit: "UNIT", occurred_at: now(), reference: null, reason: "Measured opening" });
-  expect(metric(await snapshot(page, "kind=STOCK"), "low_stock")).toBe("1"); await open(page); await page.getByRole("button", { name: "Stok", exact: true }).click(); await expect(page.getByText("Sentetik düşük stok", { exact: true })).toBeVisible();
+  expect(metric(await snapshot(page, "kind=STOCK"), "low_stock")).toBe("1"); await open(page); await page.getByRole("button", { name: "Stok", exact: true }).click(); await expect(page.locator('[data-source-domain="STOCK_ITEM"]').getByText("Sentetik düşük stok", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Teknik", exact: true }).click(); await expect(page.getByRole("heading", { name: "Kaydedilmiş sonuçlar", exact: true })).toBeVisible();
 });
 test("reception has no acquisition costs, commissions or restricted technical report", async ({ page, browser }) => {
