@@ -76,6 +76,9 @@ try:
     assert observer.execute(f"select status from app_private.report_facts where domain='APPOINTMENT' and source_id='{other}';")[-1]=='COMPLETED'
     cases.append('completion/cancellation version conflict converges to one terminal state');print('PASS',cases[-1],'(distinct PostgreSQL backends, row/lifecycle blocking observed)')
     # Fresh identities with no active operational state: actual reviewed CRM merge.
+    # Gate 1 intentionally requires organization-wide owner/manager membership
+    # for identity merges. Give this synthetic observer that authorized scope.
+    observer.execute(f"update public.salon_memberships set location_id=null where id='{member}';")
     identities=[str(uuid.uuid4()),str(uuid.uuid4())]
     for index,eid in enumerate(identities):observer.execute(f"insert into public.clients(id,organization_id,full_name,phone,phone_normalized,created_by,updated_by,creation_location_id) values('{eid}','{org}','Synthetic merge identity {index}','+90532000111{index}','+90532000111{index}','{user}','{user}','{loc}');")
     report();before=int(observer.execute(f"select count(*) from app_private.report_facts where domain='CLIENT' and organization_id='{org}';")[-1])

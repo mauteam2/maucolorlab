@@ -37,6 +37,7 @@ class SupabaseReportingRepository(private val snapshot: suspend (String) -> Http
             val envelope = JSONObject(reply.body)
             if (envelope.has("code")) throw ClientFailure(envelope.getString("code"))
             val data = envelope.getJSONObject("data")
+            require(data.getString("currency") in setOf("TRY", "EUR", "USD", "GBP", "JPY", "KWD"))
             require(UUID.fromString(data.getString("organization_id")).toString() == context.organizationId && UUID.fromString(data.getString("location_id")).toString() == context.locationId)
             require(data.getString("kind") == filter.kind.name)
             val selfOnly = context.role in setOf("colorist", "assistant")
