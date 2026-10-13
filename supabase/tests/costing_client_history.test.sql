@@ -16,7 +16,7 @@ select is(pg_temp.finance_post('MANUAL_CHARGE','1','e5000000-0000-4000-8000-0000
 select is((select amount_minor from public.finance_documents where id='e5000000-0000-4000-8000-000000000702'),2::bigint,'exclusive half-minor rounds up');
 select is(pg_temp.finance_post('MANUAL_CHARGE','1','e5000000-0000-4000-8000-000000000703','{"tax_rate_bps":4999,"tax_inclusive":false}')#>>'{data,status}','SAVED','below half-minor accepted');
 select is((select tax_amount_minor from public.finance_documents where id='e5000000-0000-4000-8000-000000000703'),0::bigint,'below half rounds down exactly');
-select is(pg_temp.finance_post('MANUAL_CHARGE','1000','e5000000-0000-4000-8000-000000000704','{"client_id":"b4000000-0000-4000-8000-000000000032"}')#>>'{data,status}','SAVED','historical alias account fact posts');
+select is(pg_temp.finance_post('MANUAL_CHARGE','1000','e5000000-0000-4000-8000-000000000704','{"client_id":"b4000000-0000-4000-8000-000000000032","tax_rate_bps":0,"tax_inclusive":true}')#>>'{data,status}','SAVED','historical alias account fact posts');
 insert into identity_money values('review',public.crm_read('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','{"operation":"merge_review","source_client_id":"b4000000-0000-4000-8000-000000000032","target_client_id":"b4000000-0000-4000-8000-000000000033"}'));
 select ok((select v ? 'data' from identity_money where k='review'),'finance history does not block eligible CRM merge');
 select diag('Finance merge review code: '||coalesce((select v->>'code' from identity_money where k='review'),'OK'));

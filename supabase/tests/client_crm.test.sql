@@ -2,6 +2,9 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
 select no_plan();
+-- Future reservation assertions must remain future as the real CI clock advances.
+-- Keep Monday/weekday, time-of-day, UTC conversion and all expected denials.
+create function pg_temp.future_day(offset_days integer) returns date language sql stable as $$select (date_trunc('week',statement_timestamp() at time zone 'Europe/Istanbul')::date+14+offset_days);$$;
 insert into auth.users(id,email) values('a4000000-0000-4000-8000-000000000021','salon-a@elifora.test'),('a4000000-0000-4000-8000-000000000022','salon-b@elifora.test'),('a4000000-0000-4000-8000-000000000023','salon-worker@elifora.test'),('a4000000-0000-4000-8000-000000000024','salon-assistant@elifora.test');
 insert into public.organizations(id,name,slug,base_currency) values('a4000000-0000-4000-8000-000000000001','Salon A','salon-a','TRY'),('a4000000-0000-4000-8000-000000000002','Salon B','salon-b','TRY');
 insert into public.locations(id,organization_id,name,timezone) values('a4000000-0000-4000-8000-000000000011','a4000000-0000-4000-8000-000000000001','A','Europe/Istanbul'),('a4000000-0000-4000-8000-000000000012','a4000000-0000-4000-8000-000000000002','B','America/New_York');
@@ -26,7 +29,7 @@ insert into salon_results values('service',pg_temp.op((select value from salon_r
 select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,relationship_status}','NEW','new identity has no invented relationship history');
 select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,finance}','NOT_AVAILABLE','no fabricated lifetime spend');
 select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,return_signal,status}','INSUFFICIENT_DATA','no universal return interval');
-insert into salon_results values('past',pg_temp.op(pg_temp.book('a4000000-0000-4000-8000-000000000301','2026-10-12T10:00')));
+insert into salon_results values('past',pg_temp.op(pg_temp.book('a4000000-0000-4000-8000-000000000301',(pg_temp.future_day(0)::text||'T10:00'))));
 select is((select value#>>'{data,status}' from salon_results where name='past'),'CONFIRMED','fixture books through authoritative appointment engine');
 reset role;
 update public.salon_appointments set version=version+1,status='COMPLETED',completed_at=statement_timestamp()-interval '30 days',actual_duration_seconds=3600 where id='a4000000-0000-4000-8000-000000000301';
@@ -43,7 +46,7 @@ select is(pg_temp.crm((select value||'{"kind":"WIN_BACK"}'::jsonb from salon_res
 select is(pg_temp.crm(jsonb_build_object('type','ACTION_TRANSITION','mutation_id',gen_random_uuid(),'id','a4000000-0000-4000-8000-000000000601','expected_version',1,'status','SNOOZED','snoozed_until',statement_timestamp()+interval '2 days'))#>>'{data,version}','2','action snooze has controlled version');
 select is(pg_temp.crm('{"type":"ACTION_TRANSITION","mutation_id":"a4000000-0000-4000-8000-000000000503","id":"a4000000-0000-4000-8000-000000000601","expected_version":2,"status":"DONE","snoozed_until":null}')#>>'{data,version}','3','action completion persists');
 select is(pg_temp.crm('{"type":"ACTION_TRANSITION","mutation_id":"a4000000-0000-4000-8000-000000000504","id":"a4000000-0000-4000-8000-000000000601","expected_version":3,"status":"DISMISSED","snoozed_until":null}')->>'code','CRM_INVALID_TRANSITION','terminal action cannot silently change');
-select is(pg_temp.op(pg_temp.book('a4000000-0000-4000-8000-000000000302','2026-10-13T10:00'))#>>'{data,status}','CONFIRMED','future booking is actual persistent data');
+select is(pg_temp.op(pg_temp.book('a4000000-0000-4000-8000-000000000302',(pg_temp.future_day(1)::text||'T10:00')))#>>'{data,status}','CONFIRMED','future booking is actual persistent data');
 select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,relationship_status}','UPCOMING','future booking has display priority');
 select is(pg_temp.crmread('{"operation":"summary","client_id":"a4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,return_signal,status}','ALREADY_BOOKED','same-service future booking suppresses redundant return signal');
 select is(pg_temp.crm('{"type":"ACTION_CREATE","mutation_id":"a4000000-0000-4000-8000-000000000505","id":"a4000000-0000-4000-8000-000000000602","client_id":"a4000000-0000-4000-8000-000000000031","kind":"REBOOK","source_domain":"salon_appointment","source_id":"a4000000-0000-4000-8000-000000000301"}')->>'code','CRM_SIGNAL_CHANGED','stale client-side rebooking signal is rejected');

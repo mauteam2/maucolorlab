@@ -44,7 +44,7 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000022',true);
 select is((select count(*) from public.stock_cost_basis_events),0::bigint,'same-organization other-location cost denied against nonempty stock history');
 select is((select count(*) from public.commission_accruals),0::bigint,'same-organization other-location earnings denied against two real earnings');
-select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000115','b4000000-0000-4000-8000-000000000011','{}')->>'code','FORBIDDEN','location membership cannot request other location cost');
+select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000115','b4000000-0000-4000-8000-000000000011','{}')->>'code','TENANT_CONTEXT_INVALID','location membership cannot request other location cost');
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);
 select is((select count(*) from public.stock_cost_basis_events),0::bigint,'reception cannot read acquisition cost');
