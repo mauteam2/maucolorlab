@@ -61,6 +61,8 @@ select is(pg_temp.report('{"period":"CUSTOM","from":"2026-01-01","until":"2026-0
 select is(pg_temp.report('{"sql":"select secret"}')->>'code','VALIDATION_FAILED','no arbitrary query language');
 select is(pg_temp.report_op('{"type":"SETTINGS","expected_version":0,"coverage_warning_bps":9000,"cancellation_warning_bps":1000}')#>>'{data,version}','1','explicit operational thresholds');
 select is(pg_temp.report_op('{"type":"SETTINGS","expected_version":0,"coverage_warning_bps":8000,"cancellation_warning_bps":1000}')->>'code','REPORT_CONFLICT','conditional settings version');
+select ok(pg_temp.move('OPENING','c5000000-0000-4000-8000-000000000101',10) ? 'data','measured threshold stock opening');
+select is(pg_temp.report('{"kind":"STOCK","domain":"STOCK_ITEM","source_id":"c5000000-0000-4000-8000-000000000101"}')#>>'{data,items,0,status}','LOW','report uses source LOW semantics at threshold equality');
 select ok(pg_temp.report_op('{"type":"EXPORT","request":{"kind":"FINANCE"}}') ? 'data','bounded authorized export');
 reset role;
 select is(extract(epoch from ((app_private.report_period('Europe/Berlin','{"period":"CUSTOM","from":"2026-03-29","until":"2026-03-29"}')->>'end')::timestamptz-(app_private.report_period('Europe/Berlin','{"period":"CUSTOM","from":"2026-03-29","until":"2026-03-29"}')->>'start')::timestamptz)),82800::numeric,'DST spring salon day is 23 hours');
@@ -72,6 +74,7 @@ update public.organizations set base_currency='TRY' where id='b4000000-0000-4000
 select is(extract(epoch from ((app_private.report_period('Europe/Berlin','{"period":"CUSTOM","from":"2026-10-25","until":"2026-10-25"}')->>'end')::timestamptz-(app_private.report_period('Europe/Berlin','{"period":"CUSTOM","from":"2026-10-25","until":"2026-10-25"}')->>'start')::timestamptz)),90000::numeric,'DST autumn salon day is 25 hours');
 select is((select count(*) from public.audit_events where action='reporting.rebuild'),1::bigint,'rebuild audited once');
 select is((select count(*) from public.audit_events where action='reporting.export'),1::bigint,'sensitive export audited');
+select is((select metadata#>>'{new_settings,coverage_warning_bps}' from public.audit_events where action='reporting.settings'),'9000','configuration audit preserves threshold provenance');
 select ok(not has_table_privilege('authenticated','app_private.report_facts','select'),'private report rows not directly readable');
 select ok(not has_table_privilege('authenticated','app_private.report_facts','insert'),'projection direct mutation denied');
 select ok(not has_table_privilege('authenticated','app_private.report_invalidations','update'),'queue direct mutation denied');
