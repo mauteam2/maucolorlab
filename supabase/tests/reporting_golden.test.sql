@@ -19,9 +19,11 @@ select pg_temp.transition_finance('e5000000-0000-4000-8000-000000000811',1,'ARRI
 select pg_temp.transition_finance('e5000000-0000-4000-8000-000000000811',2,'IN_SERVICE');
 select pg_temp.transition_finance('e5000000-0000-4000-8000-000000000811',3,'COMPLETED');
 select pg_temp.transition_finance('e5000000-0000-4000-8000-000000000812',1,'CANCELLED');
+select ok(pg_temp.book_finance('e5000000-0000-4000-8000-000000000813','2026-10-22T10:00') ? 'data','third source appointment');
+select ok(pg_temp.transition_finance('e5000000-0000-4000-8000-000000000813',1,'NO_SHOW') ? 'data','actual no-show source state');
 select is(pg_temp.metric('completed_visits','{"period":"CUSTOM","from":"2026-10-01","until":"2026-10-31"}'),'1','COMPLETED is one visit');
 select is(pg_temp.metric('cancelled','{"period":"CUSTOM","from":"2026-10-01","until":"2026-10-31"}'),'1','cancelled cohort exact');
-select is(pg_temp.metric('no_show','{"period":"CUSTOM","from":"2026-10-01","until":"2026-10-31"}'),'0','no-show not invented');
+select is(pg_temp.metric('no_show','{"period":"CUSTOM","from":"2026-10-01","until":"2026-10-31"}'),'1','actual no-show excluded from completed visits');
 select is(pg_temp.metric('available_staff_minutes'),null::text,'unknown eligible capacity is not invented');
 select is(pg_temp.metric('utilization_bps'),null::text,'utilization unavailable without a validated denominator');
 select ok(pg_temp.charge_appointment('c5000000-0000-4000-8000-000000000301','e5000000-0000-4000-8000-000000000811') ? 'data','real charge posted');
@@ -50,6 +52,10 @@ select is(pg_temp.metric('recognized_net_revenue'),'50000','refund reflected onc
 select is(pg_temp.metric('refunds_net'),'50000','refund numerator exact');
 select is(pg_temp.metric('net_accrued_commission'),'5000','refund commission adjustment exact');
 select is(pg_temp.metric('contribution_after_commission'),'45000','net contribution after refund');
+select ok(pg_temp.finance(jsonb_build_object('type','EXPENSE','mutation_id',gen_random_uuid(),'id',gen_random_uuid(),'currency','TRY','amount_minor','500','method','CARD','category','OTHER','description','Synthetic operating expense','stock_receipt_id',null,'external_reference',null,'occurred_at',statement_timestamp(),'reason','Separate recorded operating expense')) ? 'data','real expense source');
+select is(pg_temp.metric('operating_expenses_recorded'),'500','expense reported separately');
+select is(pg_temp.metric('recognized_net_revenue'),'50000','expense is not negative recognized revenue');
+select is(pg_temp.metric('contribution_after_commission'),'45000','expense not automatically allocated to direct service contribution');
 select ok(pg_temp.report_op('{"type":"REBUILD"}') ? 'data','scoped rebuild succeeds');
 select is(pg_temp.metric('recognized_net_revenue'),'50000','rebuild deterministic revenue');
 select is(pg_temp.metric('contribution_after_commission'),'45000','rebuild deterministic contribution');
