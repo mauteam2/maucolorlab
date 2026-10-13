@@ -66,7 +66,7 @@ try:
         return re.sub(r'^\\ir (.+)$',lambda m:include(m.group(1)),text,flags=re.M)
     text=include('costing-salon.inc').replace('b4000000','a7000000').replace('e5000000','a8000000').replace('@elifora.test','@costing-concurrency.elifora.test').replace("'controlled-a'","'costing-controlled-a'").replace("'controlled-b'","'costing-controlled-b'").replace('pg_temp.','costing_test.').replace('set local search_path=public,extensions','set local search_path=costing_test,public,extensions')
     for table in ('result','chosen','appointment_money'):text=text.replace('create temporary table '+table,'create table costing_test.'+table)
-    observer.execute('create schema costing_test;grant usage on schema costing_test to authenticated;begin;set local search_path=costing_test,public,extensions;'+text+'\nreset role;commit;')
+    observer.execute('create schema costing_test;grant usage on schema costing_test to authenticated;begin;create extension if not exists pgtap with schema extensions;set local search_path=costing_test,public,extensions;select no_plan();'+text+'\nreset role;commit;')
     # Real Live usage enqueues trusted outbox events; both stock consumers cause
     # the synchronous immutable cost trigger to contend on the same item.
     auth(observer)
@@ -111,6 +111,16 @@ try:
         performance[label]={'median_ms':round(statistics.median(samples),2),'max_ms':round(max(samples),2),'samples':3,'explain_analyze_buffers':plan}
         assert max(samples)<10000,(label,samples)
         print('PERF',label,performance[label]['median_ms'],'ms median')
+    observer.execute('reset role;')
+    # Function-wrapper plans alone hide correlated scans: also capture the
+    # actual bounded scope/index scans as the privileged CI observer.
+    internal_queries={
+      'revenue_period':f"select charge_id,eligible_at from public.profitability_revenue_facts where organization_id='{org}' and location_id='{loc}' and eligible_at>=statement_timestamp()-interval '31 days' order by eligible_at desc,charge_id desc limit 50",
+      'commission_period':f"select id,amount_minor from public.commission_accruals where organization_id='{org}' and location_id='{loc}' and staff_user_id='{user}' order by eligible_at desc,id desc limit 50",
+      'service_cost_sources':f"select stock_movement_id,total_cost_minor from public.direct_cost_facts where organization_id='{org}' and location_id='{loc}' and finance_document_id='{retail['id']}' order by created_at,id limit 200",
+      'client_balance_aggregate':f"select coalesce(sum(amount_minor),0) from public.finance_ledger_entries where organization_id='{org}' and location_id='{loc}' and account='CLIENT' and client_id='{client}'"
+    }
+    performance['internal_scoped_plans']={name:observer.execute('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) '+query) for name,query in internal_queries.items()}
     path=Path(os.environ['RUNNER_TEMP'])/'costing-performance.json';path.write_text(json.dumps({'real_concurrency_cases':count,'facts':10000,'read':performance,'phase_5a_baseline_ms':{'day_summary':6665.89,'client_balance':6250.27}},indent=2));assert count==8
     print('PASS: 8 real multi-backend costing/commission cases; 10k facts; EXPLAIN ANALYZE BUFFERS evidence')
 finally:

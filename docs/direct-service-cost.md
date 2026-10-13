@@ -1,0 +1,13 @@
+# ELIFORA direct service cost — Phase 5B
+
+A posted SERVICE_CHARGE is the immutable revenue authority. Appointment existence, a catalog price, a payment or a deposit is insufficient. The charge retains its completed appointment quote, performer and original client identity. Only `appointment_live_session_links`, validated by Salon Operations, supplies the operational Live association. The legacy `appointment_link` UUID is never cost authority.
+
+The source chain is actual Live usage → Stock outbox → one posted component movement → one direct cost fact. Prepared quantity includes product consumed and waste; waste is not deducted a second time. Planned bowl grams and current catalog price never determine actual cost. Unprocessed or failed source events make the cost incomplete. Technical completion does not wait for a browser callback to save Stock consumption.
+
+Material reconciliation after a terminal session remains append-only and idempotent. The original bowl/product fact anchors the exact rational cost basis. A new measurement creates only the quantity and cumulative cost difference; lower measured preparation creates a compensating negative cost. UNKNOWN is a factual discrepancy, not measured zero. Measured zero restores the recorded consumption/cost through compensations while preserving the original history. Later receipt prices never re-price the corrected original usage.
+
+The breakdown joins cost facts using the trusted session, original source client and explicit tenant/location. CRM merges change canonical lookup, not historical source identity. Staff deactivation and client archiving preserve the immutable record. A manual or untracked service has UNKNOWN product cost unless an authorized manager explicitly declares, with a reason, that the service consumed no Stock products. A linked Live service cannot use that declaration to bypass missing usage.
+
+All known components produce KNOWN total cost. A mixture of known and unknown components produces PARTIAL; the known subtotal remains visible but total cost, contribution and margin remain NULL. No known components yields UNKNOWN. Zero known cost is different from no cost evidence.
+
+The Web finance detail links to `/workspace/finance/profitability?charge_id=…`, showing the immutable finance/appointment/Stock sources, basis versions and policy snapshot. Read pages are limited to 50 revenue facts, with bounded provenance arrays; the truncation flag does not truncate authoritative sums. Native Kotlin exposes permission-checked direct-cost and own-commission reads without redesigning the application UI.

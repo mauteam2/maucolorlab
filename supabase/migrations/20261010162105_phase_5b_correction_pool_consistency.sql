@@ -6,6 +6,7 @@ do $migration$ declare body text;anchor text;begin
  if position(anchor in body)=0 then raise exception 'Correction pool anchor changed';end if;
  body:=replace(body,anchor,'elsif dq<0 and known and before_q>=-dq and anchor_found and a.status=''KNOWN'' then vn:=vn*a.unit_cost_denominator+dq*a.unit_cost_numerator*vd;vd:=vd*a.unit_cost_denominator;
   elsif dq<0 and anchor_found and a.status<>''KNOWN'' then known:=false;
+  elsif dq<0 and known and before_q>=-dq and lot is null and m.stock_lot_id is not null and b.stock_lot_id=m.stock_lot_id and b.status=''KNOWN'' then vn:=vn*rd+dq*rn*vd;vd:=vd*rd;
   '||anchor);
  body:=replace(body,'if after_q=0 then','if vn<0 then vn:=0;vd:=1;known:=false;end if;
   if after_q=0 then');execute body;

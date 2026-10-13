@@ -47,4 +47,17 @@ select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-0000000003
 select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000302"}')#>>'{data,items,0,direct_product_cost_minor}',null::text,'partial total is NULL');
 select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000302"}')#>>'{data,items,0,gross_contribution_minor}',null::text,'partial cost suppresses contribution');
 select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000302"}')#>>'{data,items,0,margin_bps}',null::text,'partial cost suppresses margin');
+select is(pg_temp.cost_intake('c4000000-0000-4000-8000-000000000111',100,'3000')#>>'{data,status}','SAVED','later receipt changes only future pool');
+reset role;
+create function pg_temp.material(n numeric,previous uuid default null) returns void language sql volatile as $$
+ insert into public.live_material_reconciliations(id,organization_id,location_id,session_id,client_id,bowl_id,recipe_id,mutation_id,supersedes_id,prepared_grams,used_grams,waste_grams,reason,recorded_by,recorded_at,correlation_id)
+ select gen_random_uuid(),s.organization_id,s.location_id,s.id,s.client_id,'b4000000-0000-4000-8000-000000000901',s.current_recipe_id,gen_random_uuid(),previous,n,case when n is not null then 0 end,n,'Synthetic factual correction',s.controller_user_id,statement_timestamp(),gen_random_uuid() from public.live_sessions s;
+$$;
+select pg_temp.material(80);
+set local role authenticated;
+select pg_temp.stock(jsonb_build_object('type','PROCESS_BATCH','mutation_id',gen_random_uuid(),'limit',20));
+select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000302"}')#>>'{data,items,0,known_product_cost_minor}','400','reconciliation uses original rate despite new receipt');
+select is((select value_numerator/value_denominator from public.stock_cost_basis_events where stock_item_id='c4000000-0000-4000-8000-000000000111' and stock_lot_id is null order by version desc limit 1),3600::numeric,'pool subtracts the same original rational correction value');
+select is((select total_cost_minor from public.direct_cost_facts where stock_item_id='c4000000-0000-4000-8000-000000000111' and correction_of is null),300::bigint,'original usage remains unchanged');
+select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000302"}')#>>'{data,items,0,cost_status}','PARTIAL','historical unknown developer cannot heal');
 select * from finish();rollback;
