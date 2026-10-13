@@ -45,14 +45,16 @@ export async function executeReport(raw: unknown, correlationId: string, referen
     }
     for (const m of [...s.metrics, ...s.previous_metrics]) {
       if (!permitted.includes(m.source_domain) || ((m.name.includes("cost") || m.name.includes("contribution") || m.name.includes("coverage")) && !permitted.includes("COST"))) throw new AccessError("NETWORK_ERROR", 503);
+      if (m.name.includes("commission") && !m.name.includes("contribution") && !permitted.includes("COMMISSION")) throw new AccessError("NETWORK_ERROR", 503);
     }
+    if (s.coverage && !permitted.includes("COST")) throw new AccessError("NETWORK_ERROR", 503);
     for (const row of s.items) {
       if (!permitted.includes(row.domain) || (q.domain && row.domain !== q.domain) || (q.source_id && row.source_id !== q.source_id) || Object.keys(row.details).some(k => !detailKeys[row.domain]?.includes(k))) throw new AccessError("NETWORK_ERROR", 503);
       if (!permitted.includes("COST") && (row.cost_minor !== null || row.cost_status !== null || row.contribution_minor !== null)) throw new AccessError("NETWORK_ERROR", 503);
       if (!permitted.includes("COMMISSION") && (row.commission_minor !== null || row.contribution_minor !== null)) throw new AccessError("NETWORK_ERROR", 503);
       if (!permitted.includes("LIVE") && row.domain === "CLIENT" && "followups" in row.details) throw new AccessError("NETWORK_ERROR", 503);
     }
-    if (s.groups.some(g => (!permitted.includes("REVENUE") && g.recognized_net_revenue !== null) || (!permitted.includes("COST") && (g.known_transactions !== null || g.incomplete_transactions !== null || g.contribution !== null)) || (selfOnly && g.id !== s.staff_user_id))) throw new AccessError("NETWORK_ERROR", 503);
+    if (s.groups.some(g => (!permitted.includes("REVENUE") && g.recognized_net_revenue !== null) || (!permitted.includes("COST") && (g.known_transactions !== null || g.incomplete_transactions !== null || g.contribution !== null)) || (selfOnly && s.kind === "TEAM" && g.id !== s.staff_user_id))) throw new AccessError("NETWORK_ERROR", 503);
   }
   return { data: data.data, context: fresh, correlationId };
 }

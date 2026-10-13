@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.19.0'
+assert contract['info']['version'] == '0.20.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -374,3 +374,17 @@ for rpc in ('costing_snapshot','costing_operation'):assert contract['paths']['/r
 native=(root/'apps/android/app/src/main/java/com/elifora/app/data/costing/SupabaseCostingRepository.kt').read_text(encoding='utf-8')
 for field in ('p_membership_id','p_location_id','p_request','BigInteger','COMMISSION_SELF','staff_user_id','cost.view','commission.view_all','NET_OF_TAX'):assert field in native,field
 print('PASS: Phase 5B shared costing/commission/profitability contracts, native self privacy and ten forgery rejections')
+
+reporting_schemas=json.loads((root/'contracts/reporting.schemas.json').read_text(encoding='utf-8'))
+assert {'ReportPeriod','ReportComparison','MetricValue','MetricCoverage','ReportSummary','AppointmentReport','ClientReport','ServiceReport','StaffReport','FinanceReport','StockReport','TechnicalReport','SalonInsight','ReportFreshness'} <= reporting_schemas.keys()
+for name,schema in reporting_schemas.items():assert contract['components']['schemas'][name]==schema,name
+reporting=json.loads((root/'contracts/fixtures/reporting-contract.json').read_text(encoding='utf-8'))
+observation_validator('ReportSummary').validate(reporting['snapshot'])
+observation_validator('ReportRequest').validate(reporting['request'])
+observation_validator('ReportCommand').validate(reporting['command'])
+for field in ('organization_id','role','revenue_total','cost_total','commission_total','occupancy','trend','insight_severity','freshness','sql'):
+    assert list(observation_validator('ReportRequest').iter_errors(reporting['request']|{field:True})),field
+for rpc in ('reporting_snapshot','reporting_operation'):assert contract['paths']['/rest/v1/rpc/'+rpc]['post']['security']==[{'bearerAuth':[],'publishableKey':[]}]
+native=(root/'apps/android/app/src/main/java/com/elifora/app/data/reporting/SupabaseReportingRepository.kt').read_text(encoding='utf-8')
+for field in ('p_membership_id','p_location_id','p_request','BigInteger','BigDecimal','self_only','staff_user_id','reports.read','commission.view_all'):assert field in native,field
+print('PASS: Phase 6 shared report schemas, native exact decimals/self privacy and ten authority forgery rejections')

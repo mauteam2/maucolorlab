@@ -1,0 +1,158 @@
+{
+  "snapshot": {
+    "organization_id": "b4000000-0000-4000-8000-000000000001",
+    "location_id": "b4000000-0000-4000-8000-000000000011",
+    "kind": "OVERVIEW",
+    "self_only": false,
+    "staff_user_id": null,
+    "currency": "TRY",
+    "period": {
+      "kind": "THIS_MONTH",
+      "timezone": "Europe/Istanbul",
+      "start": "2026-09-30T21:00:00Z",
+      "end": "2026-10-31T21:00:00Z",
+      "first_date": "2026-10-01",
+      "end_date_exclusive": "2026-11-01",
+      "previous_start": "2026-08-31T21:00:00Z",
+      "previous_end": "2026-09-30T21:00:00Z",
+      "previous_first_date": "2026-09-01",
+      "previous_end_date_exclusive": "2026-10-01"
+    },
+    "freshness": {
+      "status": "CURRENT",
+      "updated_at": "2026-10-13T12:00:00Z",
+      "last_rebuilt_at": null,
+      "watermark": "10",
+      "pending_events": "0",
+      "metric_version": 1
+    },
+    "allowed_domains": [
+      "APPOINTMENT",
+      "CLIENT",
+      "REVENUE",
+      "COST",
+      "COMMISSION",
+      "EXPENSE",
+      "CASH",
+      "STOCK_ITEM",
+      "STOCK_MOVEMENT",
+      "LIVE"
+    ],
+    "metrics": [
+      {
+        "name": "completed_visits",
+        "value": "1",
+        "unit": "COUNT",
+        "denominator": "2",
+        "status": "KNOWN",
+        "source_domain": "APPOINTMENT"
+      },
+      {
+        "name": "recognized_net_revenue",
+        "value": "100000",
+        "unit": "MONEY",
+        "denominator": null,
+        "status": "KNOWN",
+        "source_domain": "REVENUE"
+      },
+      {
+        "name": "known_revenue_coverage_bps",
+        "value": "0",
+        "unit": "BPS",
+        "denominator": "100000",
+        "status": "KNOWN",
+        "source_domain": "REVENUE"
+      },
+      {
+        "name": "unknown_transactions",
+        "value": "1",
+        "unit": "COUNT",
+        "denominator": "1",
+        "status": "KNOWN",
+        "source_domain": "REVENUE"
+      },
+      {
+        "name": "contribution_after_commission",
+        "value": null,
+        "unit": "MONEY",
+        "denominator": null,
+        "status": "UNAVAILABLE",
+        "source_domain": "REVENUE"
+      }
+    ],
+    "previous_metrics": [
+      {
+        "name": "recognized_net_revenue",
+        "value": "0",
+        "unit": "MONEY",
+        "denominator": null,
+        "status": "KNOWN",
+        "source_domain": "REVENUE"
+      }
+    ],
+    "comparison": [
+      {
+        "name": "recognized_net_revenue",
+        "current": "100000",
+        "previous": "0",
+        "absolute_delta": "100000",
+        "percentage_delta_bps": null
+      }
+    ],
+    "items": [
+      {
+        "domain": "REVENUE",
+        "source_id": "c5000000-0000-4000-8000-000000000301",
+        "at": "2026-10-13T10:00:00Z",
+        "label": "Stored historical service",
+        "status": "SERVICE",
+        "client_id": "b4000000-0000-4000-8000-000000000031",
+        "staff_user_id": "b4000000-0000-4000-8000-000000000021",
+        "service_id": null,
+        "category": "CARE",
+        "quantity": null,
+        "unit": null,
+        "duration_seconds": null,
+        "revenue_minor": "100000",
+        "cost_minor": "0",
+        "cost_status": "UNKNOWN",
+        "commission_minor": "0",
+        "contribution_minor": null,
+        "details": {
+          "original_net_minor": "100000",
+          "appointment_id": null,
+          "live_session_id": null,
+          "retail_quantity": null,
+          "service_version": null
+        }
+      }
+    ],
+    "groups": [],
+    "insights": [
+      {
+        "code": "unknown_transactions",
+        "value": "1",
+        "metric": "unknown_transactions",
+        "source_domain": "REVENUE",
+        "calculation": "Recorded source count; no prediction",
+        "threshold": null
+      }
+    ],
+    "next_cursor": null,
+    "coverage": {
+      "known": "0",
+      "partial": "0",
+      "unknown": "1",
+      "eligible": "1",
+      "count_bps": "0",
+      "revenue_bps": "0"
+    }
+  },
+  "request": {
+    "kind": "OVERVIEW",
+    "period": "THIS_MONTH"
+  },
+  "command": {
+    "type": "REBUILD"
+  }
+}

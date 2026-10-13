@@ -40,6 +40,7 @@ export const salonInsight = z.strictObject({ code: z.string(), value: quantity, 
 export const reportSummary = z.strictObject({
   organization_id: id, location_id: id, kind: reportKind, self_only: z.boolean(), staff_user_id: id.nullable(),
   currency: z.enum(["TRY", "EUR", "USD", "GBP", "JPY", "KWD"]), period: reportPeriod, freshness: reportFreshness,
+  coverage: metricCoverage.nullable(),
   allowed_domains: z.array(reportDomain).max(10), metrics: z.array(metricValue).max(100), previous_metrics: z.array(metricValue).max(100),
   comparison: z.array(reportComparison).max(100), items: z.array(reportItem).max(50), groups: z.array(reportGroup).max(50),
   insights: z.array(salonInsight).max(20), next_cursor: reportCursor.nullable(),

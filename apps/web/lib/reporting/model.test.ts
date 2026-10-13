@@ -1,0 +1,16 @@
+import { expect, it } from "vitest";
+import { reportingFixture } from "@/test/reporting-fixtures";
+import { metricValue, permittedReportDomains, reportRequest, reportSummary, reportMoney } from "./model";
+import { csvCell, reportCsv } from "./csv";
+it("validates the shared unknown-cost fixture without inventing contribution", () => { const d = reportingFixture().snapshot; expect(reportSummary.parse(d).metrics.find(m => m.name === "contribution_after_commission")?.value).toBeNull(); });
+it.each(["revenue", "commission", "organization_id", "role", "sql", "freshness", "insight_severity"])("rejects client-derived %s", field => { expect(reportRequest.safeParse({ [field]: "forged" }).success).toBe(false); });
+it.each([{}, { from: "2026-01-01" }, { from: "2026-01-02", until: "2026-01-01" }, { from: "2026-01-01", until: "2026-04-01" }])("rejects missing, inverted or overlong custom dates", fields => { expect(reportRequest.safeParse({ period: "CUSTOM", ...fields }).success).toBe(false); });
+it("accepts a 90-day inclusive custom range", () => { expect(reportRequest.safeParse({ period: "CUSTOM", from: "2026-01-01", until: "2026-03-31" }).success).toBe(true); });
+it("preserves exact money above JavaScript safe integer range", () => { expect(reportMoney("900719925474099312345", "TRY")).toBe("9.007.199.254.740.993.123,45 TRY"); expect(reportMoney("-1", "KWD")).toBe("−0,001 KWD"); });
+it("rejects numeric monetary values", () => { const m = reportingFixture().snapshot.metrics[1]!; expect(metricValue.safeParse({ ...m, value: 1000 }).success).toBe(false); expect(metricValue.safeParse({ ...m, value: "1.1" }).success).toBe(false); });
+it("rejects a numeric contribution on an unknown-cost row", () => { const s = reportingFixture().snapshot; s.items[0]!.contribution_minor = "100000"; expect(reportSummary.safeParse(s).success).toBe(false); });
+it.each(["=SUM(A1:A3)", "+calc", "-formula", "@lookup", "  =1", "\t=1", "\r=1"])("escapes a spreadsheet formula prefix", input => { expect(csvCell(input)).toBe('"\'' + input + '"'); });
+it("quotes CSV separators and embedded quotes", () => { expect(csvCell('A,"B"')).toBe('"A,""B"""'); });
+it("exports bounded source provenance and unavailable values as empty cells", () => { const s = reportingFixture().snapshot; const csv = reportCsv(s); expect(csv).toContain(s.items[0]!.source_id); expect(csv).toContain('"UNAVAILABLE"'); expect(csv).toContain('"Europe/Istanbul"'); });
+it("reception has no private contribution or commission domains", () => { expect(permittedReportDomains(["salon.read", "crm.read", "finance.view", "stock.view"], false)).toEqual(["APPOINTMENT", "CLIENT", "REVENUE", "STOCK_ITEM", "STOCK_MOVEMENT"]); });
+it("staff self mode does not inherit broad financial domains", () => { expect(permittedReportDomains(["salon.read", "cost.view", "finance.view", "commission.view_self"], true)).toEqual(["APPOINTMENT", "COMMISSION"]); });
