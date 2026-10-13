@@ -62,6 +62,19 @@ try:
     pay=cmd('PAYMENT',id=str(uuid.uuid4()),client_id=client,currency='TRY',amount_minor='120000',method='CARD',appointment_id=None,external_reference=None,occurred_at=now(),allocations=[{'charge_id':source['id'],'amount_minor':'120000'}],confirm_credit=False);write(pay)
     barrier('commission accrual plus refund adjustment',refresh_sql(),refresh_sql(),lambda:write(cmd('REFUND',id=str(uuid.uuid4()),original_payment_id=pay['id'],amount_minor='60000',occurred_at=now())))
     assert observer.execute(f"select commission_minor from app_private.report_facts where domain='COMMISSION' and details->>'charge_id'='{source['id']}';")[-1]=='5000'
+    other='aa000000-0000-4000-8000-000000000812'
+    auth(observer)
+    for version,state in [(1,'ARRIVED'),(2,'IN_SERVICE')]:observer.execute(f"select reporting_test.transition_finance('{other}',{version},'{state}');")
+    observer.execute('reset role;');auth(a);auth(b)
+    completed=cmd('APPOINTMENT_TRANSITION',id=other,expected_version=3,status='COMPLETED')
+    cancelled=cmd('APPOINTMENT_TRANSITION',id=other,expected_version=3,status='CANCELLED')
+    assert 'data' in result(a.execute('begin;'+rpc(completed,'salon')))
+    b.send('begin;'+rpc(cancelled,'salon')+'commit;');deadline=time.monotonic()+10
+    while observer.execute(f'select {a.pid}=any(pg_blocking_pids({b.pid}));')[-1]!='t':
+        assert time.monotonic()<deadline,'appointment lifecycle race did not block';time.sleep(.03)
+    a.execute('commit;reset role;');out=result(b.receive());assert 'code' in out,out;b.execute('reset role;');report()
+    assert observer.execute(f"select status from app_private.report_facts where domain='APPOINTMENT' and source_id='{other}';")[-1]=='COMPLETED'
+    cases.append('completion/cancellation version conflict converges to one terminal state');print('PASS',cases[-1],'(distinct PostgreSQL backends, row/lifecycle blocking observed)')
     # Fresh identities with no active operational state: actual reviewed CRM merge.
     identities=[str(uuid.uuid4()),str(uuid.uuid4())]
     for index,eid in enumerate(identities):observer.execute(f"insert into public.clients(id,organization_id,full_name,created_by,updated_by,creation_location_id) values('{eid}','{org}','Synthetic merge identity {index}','{user}','{user}','{loc}');")
@@ -114,7 +127,7 @@ try:
     assert 'report_period' in json.dumps(performance['plans']['keyset_page'])
     assert 'report_facts_pkey' in json.dumps(performance['plans']['source_detail'])
     (Path(os.environ['RUNNER_TEMP'])/'reporting-performance.json').write_text(json.dumps({'real_concurrency_cases':len(cases),'cases':cases,'source_revenue_facts':10000,'source_appointments':40000,'derived_facts':facts,'read':performance},indent=2))
-    assert len(cases)==10
-    print('PASS: 10 real reporting concurrency cases; 10k revenue / 40k appointments; 50k+ rebuildable projections; executed EXPLAIN ANALYZE BUFFERS')
+    assert len(cases)==11
+    print('PASS: 11 real reporting concurrency cases; 10k revenue / 40k appointments; 50k+ rebuildable projections; executed EXPLAIN ANALYZE BUFFERS')
 finally:
     for s in (a,b,observer):s.close()
