@@ -1,0 +1,80 @@
+"use client";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { SalonCard, SalonFrame, SalonHeading } from "./salon-frame";
+import { reportMoney, reportRequest, reportSourceLink, reportSummary, type ReportRequest, type ReportSummary } from "@/lib/reporting/model";
+import { tenantContextSchema, workspaceReference, type ActiveTenantContext } from "@/lib/tenant/context";
+const kinds = { OVERVIEW: "Genel bakış", APPOINTMENTS: "Randevular", CLIENTS: "Müşteriler", SERVICES: "Hizmetler", TEAM: "Ekip", FINANCE: "Finans ve katkı", STOCK: "Stok", TECHNICAL: "Teknik" } as const;
+const periods = { TODAY: "Bugün", YESTERDAY: "Dün", THIS_WEEK: "Bu hafta", LAST_WEEK: "Geçen hafta", THIS_MONTH: "Bu ay", LAST_MONTH: "Geçen ay", CUSTOM: "Özel tarih aralığı" } as const;
+export const reportLabels: Record<string, string> = {
+  appointments_scheduled: "Planlanan randevular", completed_visits: "Tamamlanan ziyaretler", cancelled: "İptal edilen", no_show: "Gelmedi", cancellation_rate_bps: "İptal oranı", booked_minutes: "Rezerve edilen dakika", available_staff_minutes: "Uygun personel dakikası", utilization_bps: "Kapasite kullanımı",
+  recognized_net_revenue: "Tanınan net gelir", refunds_net: "Gelir düzeltmeleri / iadeler", eligible_transactions: "Gelir kayıtları", known_direct_product_cost: "Bilinen doğrudan ürün maliyeti", known_transactions: "Maliyeti bilinen kayıtlar", partial_transactions: "Kısmi maliyetli kayıtlar", unknown_transactions: "Maliyeti bilinmeyen kayıtlar",
+  known_count_coverage_bps: "Kayıt bazında bilinen maliyet kapsamı", known_revenue_coverage_bps: "Gelir bazında bilinen maliyet kapsamı", contribution_before_commission: "Komisyon öncesi operasyonel katkı", known_subset_contribution_before_commission: "Maliyeti bilinen alt kümenin katkısı", contribution_after_commission: "Komisyon sonrası operasyonel katkı",
+  net_accrued_commission: "Net tahakkuk eden komisyon", commission_accrual: "Komisyon tahakkukları", commission_adjustments: "Komisyon düzeltmeleri", operating_expenses_recorded: "Kaydedilmiş işletme giderleri", stock_items: "Aktif stok kalemleri", low_stock: "Düşük stok", out_of_stock: "Stok tükendi", unknown_stock: "Miktarı bilinmeyen stok", expiring_lots_30_days: "30 gün içinde süresi dolan lotlar", pending_reconciliation: "Mutabakat bekleyen stok olayları", failed_source_events: "İşlenemeyen stok olayları", stock_movement_count: "Stok hareketleri",
+  actual_consumption_gram: "Gerçek tüketim · gram", actual_consumption_milliliter: "Gerçek tüketim · mililitre", actual_consumption_unit: "Gerçek tüketim · adet", new_clients: "Yeni müşteriler", returning_clients_snapshot: "Geri dönen müşteriler", inactive_clients_snapshot: "İnaktif müşteriler", rebooking_due_snapshot: "Dönüş aralığında randevusu olmayanlar", overdue_clients_snapshot: "Dönüş süresi geçenler", future_appointments_clients_snapshot: "Gelecek randevusu olan müşteriler",
+  technical_sessions: "Teknik oturumlar", completed_color_sessions: "Tamamlanan renk oturumları", recorded_outcomes: "Kaydedilmiş sonuçlar", recipe_revised_sessions: "Reçetesi revize edilmiş oturumlar", recorded_risk_events: "Kaydedilmiş risk olayları",
+};
+const priority = ["completed_visits", "recognized_net_revenue", "contribution_after_commission", "known_revenue_coverage_bps", "low_stock", "rebooking_due_snapshot", "net_accrued_commission"];
+function percentage(value: string) { const n = BigInt(value), abs = n < 0n ? -n : n; return `${n < 0n ? "−" : ""}${abs / 100n},${(abs % 100n).toString().padStart(2, "0")}%`; }
+function metricText(m: ReportSummary["metrics"][number], currency: ReportSummary["currency"]) { return m.value === null ? "Hesaplanamıyor" : m.unit === "MONEY" ? reportMoney(m.value, currency) : m.unit === "BPS" ? percentage(m.value) : m.value; }
+export function ReportingWorkspace({ embedded = false, initialRequest = {} }: { embedded?: boolean; initialRequest?: ReportRequest }) {
+  const [query, setQuery] = useState<ReportRequest>({ period: embedded ? "TODAY" : "THIS_MONTH", kind: "OVERVIEW", ...initialRequest });
+  const [data, setData] = useState<ReportSummary | null>(null), [context, setContext] = useState<ActiveTenantContext | null>(null), [error, setError] = useState("");
+  const [busy, setBusy] = useState(false), [message, setMessage] = useState(""); const generation = useRef(0);
+  const conceal = useCallback(() => { generation.current++; setData(null); setContext(null); }, []);
+  const load = useCallback(async () => {
+    if (document.hidden || !navigator.onLine) return;
+    const token = ++generation.current; setData(null); setContext(null); setError("");
+    if (!reportRequest.safeParse(query).success) { setError("Tarih aralığı en fazla 90 gün olmalıdır. Alanları kontrol edin."); return; }
+    try {
+      const params = new URLSearchParams(); for (const [k, v] of Object.entries(query)) if (v !== undefined) params.set(k, typeof v === "object" ? JSON.stringify(v) : v);
+      const response = await fetch("/api/reporting?" + params, { cache: "no-store", signal: AbortSignal.timeout(25000) });
+      if (!response.ok) throw new Error(response.status === 403 ? "Bu raporu görüntüleme yetkiniz yok." : "Rapor yüklenemedi. Yeniden deneyin.");
+      const body = await response.json(), report = reportSummary.parse(body.data), ctx = tenantContextSchema.parse(body.context);
+      if (token !== generation.current || document.hidden || !navigator.onLine) return;
+      if (report.organization_id !== ctx.organization_id || report.location_id !== ctx.location_id) throw new Error("Çalışma alanı değişti. Yeniden açın.");
+      setData(report); setContext(ctx);
+    } catch (e) { if (token === generation.current) setError(e instanceof Error ? e.message : "Rapor yüklenemedi."); }
+  }, [query]);
+  useEffect(() => {
+    const start = setTimeout(() => void load(), 0), refresh = () => void load(), hide = () => { conceal(); if (!document.hidden) void load(); };
+    window.addEventListener("blur", conceal); window.addEventListener("focus", refresh); window.addEventListener("online", refresh); window.addEventListener("offline", conceal);
+    document.addEventListener("visibilitychange", hide); const timer = setInterval(refresh, 15000);
+    return () => { clearTimeout(start); clearInterval(timer); generation.current++; window.removeEventListener("blur", conceal); window.removeEventListener("focus", refresh); window.removeEventListener("online", refresh); window.removeEventListener("offline", conceal); document.removeEventListener("visibilitychange", hide); };
+  }, [load, conceal]);
+  async function operation(type: "REBUILD" | "EXPORT") {
+    if (!context) return; setBusy(true); setMessage("");
+    try {
+      const r = await fetch("/api/reporting", { method: "POST", headers: { "content-type": "application/json", "x-workspace-reference": workspaceReference(context) }, body: JSON.stringify(type === "EXPORT" ? { type, request: query } : { type }), cache: "no-store" });
+      if (!r.ok) throw new Error("İşlem gerçekleştirilemedi. Yetkinizi ve bağlantınızı kontrol edin.");
+      if (type === "EXPORT") { const url = URL.createObjectURL(await r.blob()), a = document.createElement("a"); a.href = url; a.download = "elifora-report.csv"; a.click(); URL.revokeObjectURL(url); setMessage("Bu görünümün metrikleri ve en fazla 50 kaynak kaydı dışa aktarıldı."); }
+      else { setMessage("Rapor okuma modeli kaynak kayıtlarından yeniden oluşturuldu."); await load(); }
+    } catch (e) { setMessage(e instanceof Error ? e.message : "İşlem tamamlanamadı."); } finally { setBusy(false); }
+  }
+  const visibleKinds = Object.entries(kinds).filter(([kind]) => !data || kind === "OVERVIEW" || ({ APPOINTMENTS: ["APPOINTMENT"], CLIENTS: ["CLIENT"], SERVICES: ["APPOINTMENT", "REVENUE"], TEAM: ["APPOINTMENT", "COMMISSION"], FINANCE: ["REVENUE", "COMMISSION"], STOCK: ["STOCK_ITEM"], TECHNICAL: ["LIVE"] } as Record<string, string[]>)[kind]?.some(d => data.allowed_domains.includes(d as ReportSummary["allowed_domains"][number])));
+  const metrics = data ? embedded || data.kind === "OVERVIEW" ? data.metrics.filter(m => priority.includes(m.name)).slice(0, 6) : data.metrics : [];
+  function drill(domain: ReportSummary["allowed_domains"][number], segment?: ReportRequest["segment"]) { setQuery(q => ({ ...q, domain, segment, cursor: undefined, source_id: undefined })); }
+  const content = <>
+    {!embedded && <SalonHeading title="Salon raporları" description="Kaynak kayıtlarından türetilen, açıklanabilir salon görünümü." actions={<>{context?.permissions.includes("reports.export") && <button disabled={busy} className="button button-primary" onClick={() => void operation("EXPORT")}>CSV dışa aktar</button>}{context?.permissions.includes("reports.manage") && <button disabled={busy} className="button button-secondary" onClick={() => void operation("REBUILD")}>Raporu yeniden oluştur</button>}</>} />}
+    {!embedded && <><nav className="report-tabs" aria-label="Rapor bölümleri">{visibleKinds.map(([kind, label]) => <button key={kind} aria-current={query.kind === kind ? "page" : undefined} onClick={() => setQuery(q => ({ ...q, kind: kind as ReportRequest["kind"], domain: undefined, segment: undefined, cursor: undefined, service_id: undefined, staff_user_id: undefined }))}>{label}</button>)}</nav>
+      <div className="report-filters"><label>Dönem<select value={query.period} onChange={e => setQuery(q => ({ ...q, period: e.target.value as ReportRequest["period"], from: undefined, until: undefined, cursor: undefined }))}>{Object.entries(periods).map(([p, label]) => <option value={p} key={p}>{label}</option>)}</select></label>
+      {query.period === "CUSTOM" && <><label>Başlangıç<input type="date" value={query.from ?? ""} onChange={e => setQuery(q => ({ ...q, from: e.target.value, cursor: undefined }))} /></label><label>Son gün (dahil)<input type="date" value={query.until ?? ""} onChange={e => setQuery(q => ({ ...q, until: e.target.value, cursor: undefined }))} /></label></>}
+      <button className="button button-secondary" onClick={() => void load()}>Yenile</button></div></>}
+    {error && <p role="alert">{error}</p>}{message && <p role="status">{message}</p>}{!data && !error && <p role="status">Rapor yükleniyor…</p>}
+    {data && <><p className="salon-muted">{data.period.first_date} – {data.period.end_date_exclusive} (son tarih hariç) · {data.period.timezone}{data.self_only ? " · Yalnızca kendi kayıtlarınız" : ""}</p>
+      <p className="report-freshness" role="status">{data.freshness.status === "CURRENT" ? "Okuma modeli güncel" : data.freshness.status === "PENDING" ? `${data.freshness.pending_events} kaynak olayı yenilenmeyi bekliyor` : "Gün değişti; müşteri ve stok anlık görünümü yeniden oluşturulmalı"} · Son yenileme: {new Date(data.freshness.updated_at).toLocaleString("tr-TR", { timeZone: data.period.timezone })}</p>
+      {data.freshness.status !== "CURRENT" && <p>Bekleyen güncellemeler tamamlanana kadar metrikler son yenilenmiş kaynak görünümünü gösterir.</p>}
+      <div className="report-metrics">{metrics.map(m => <SalonCard key={m.name}><h2>{reportLabels[m.name] ?? m.name}</h2><strong className="report-value">{metricText(m, data.currency)}</strong>{m.denominator !== null && <small>Payda: {m.denominator}</small>}<button className="text-link" onClick={() => drill(m.source_domain)}>Kaynak kayıtlarını göster</button></SalonCard>)}</div>
+      {embedded ? <Link className="text-link" prefetch={false} href="/workspace/reports">Salon raporlarını aç →</Link> : <>
+        <SalonCard title="Önceki dönemle karşılaştırma"><p>{data.period.previous_first_date} – {data.period.previous_end_date_exclusive} (son tarih hariç)</p><div className="report-comparisons">{data.comparison.filter(c => metrics.some(m => m.name === c.name)).map(c => <div key={c.name}><strong>{reportLabels[c.name] ?? c.name}</strong><span>Önceki: {c.previous ?? "Hesaplanamıyor"} · Güncel: {c.current ?? "Hesaplanamıyor"}</span><small>Mutlak değişim: {c.absolute_delta ?? "Hesaplanamıyor"}{c.percentage_delta_bps !== null ? ` · ${percentage(c.percentage_delta_bps)}` : " · Yüzde değişim hesaplanamıyor"}</small></div>)}</div>{!data.comparison.length && <p>Bu görünüm anlık durum içerir; dönem karşılaştırması uygulanmaz.</p>}</SalonCard>
+        {data.groups.length > 0 && <SalonCard title="Hizmet / personel dağılımı"><div className="report-source-list">{data.groups.map(g => <article key={g.id}><strong>{g.label ?? "Kayıt"}</strong><span>{g.count} tamamlanan ziyaret</span>{g.recognized_net_revenue !== null && <span>{reportMoney(g.recognized_net_revenue, data.currency)} tanınan net gelir</span>}{g.incomplete_transactions !== null && <small>{g.incomplete_transactions} eksik maliyetli kayıt</small>}{g.contribution !== null && <span>{reportMoney(g.contribution, data.currency)} operasyonel katkı</span>}<button className="text-link" onClick={() => setQuery(q => ({ ...q, ...(data.kind === "SERVICES" ? { service_id: g.id } : { staff_user_id: g.id }), cursor: undefined }))}>Bu kayıtları göster</button></article>)}</div></SalonCard>}
+        {data.insights.length > 0 && <SalonCard title="Dikkat gerektiren kayıtlar"><div className="report-source-list">{data.insights.map(s => <article key={s.code}><strong>{reportLabels[s.metric] ?? s.metric}: {s.value}</strong><small>{s.calculation}{s.threshold !== null ? ` · Ayarlanmış eşik: ${s.threshold} baz puan` : ""}</small><button className="text-link" onClick={() => drill(s.source_domain, s.code === "unknown_transactions" ? "UNKNOWN" : s.code === "low_stock" ? "LOW" : s.code === "rebooking_due_snapshot" ? "RETURN_WINDOW_OPEN" : undefined)}>İlgili kaynakları göster</button></article>)}</div></SalonCard>}
+        <SalonCard title="Kaynak kayıtları"><p className="salon-muted">En fazla 50 kayıt. Metrikler dönem toplamıdır; kaynak filtresi yalnızca bu listeyi sınırlar.</p>{(query.domain || query.segment || query.service_id || query.staff_user_id) && <button className="text-link" onClick={() => setQuery(q => ({ ...q, domain: undefined, segment: undefined, service_id: undefined, staff_user_id: undefined, cursor: undefined }))}>Kaynak filtrelerini temizle</button>}
+        {!data.items.length ? <p>Bu görünümde kayıt yok.</p> : <div className="report-source-list">{data.items.map(r => <article key={`${r.domain}:${r.source_id}`}><strong>{r.label ?? r.domain}</strong><span>{new Date(r.at).toLocaleString("tr-TR", { timeZone: data.period.timezone })} · {r.status ?? r.domain}</span>{r.revenue_minor !== null && <span>Net gelir: {reportMoney(r.revenue_minor, data.currency)}</span>}{r.cost_status && <span>Maliyet: {r.cost_status === "KNOWN" ? "Biliniyor" : r.cost_status === "PARTIAL" ? "Kısmen biliniyor" : "Bilinmiyor"}{r.cost_minor !== null ? ` · Bilinen ürün maliyeti ${reportMoney(r.cost_minor, data.currency)}` : ""}</span>}{r.commission_minor !== null && <span>Tahakkuk eden komisyon: {reportMoney(r.commission_minor, data.currency)}</span>}{r.contribution_minor !== null && <span>Operasyonel katkı: {reportMoney(r.contribution_minor, data.currency)}</span>}{r.quantity !== null && <span>{r.quantity} {r.unit}</span>}<Link prefetch={false} className="text-link" href={reportSourceLink(r)}>Kaydı aç →</Link></article>)}</div>}
+        {data.next_cursor && <button className="button button-secondary" onClick={() => setQuery(q => ({ ...q, cursor: data.next_cursor! }))}>Sonraki kaynak kayıtları</button>}</SalonCard>
+        <p className="salon-muted">Operasyonel katkı muhasebe net kârı değildir. Kaydedilmiş giderler ayrıca gösterilir. Komisyon tahakkuku maaş ödemesi değildir. Bilinmeyen maliyetler sıfır kabul edilmez.</p>
+      </>}
+    </>}
+  </>;
+  return embedded ? <section aria-label="Bugünün salon özeti" className="report-embedded">{content}</section> : <SalonFrame active="reports" workspace={context?.organization_name}><main id="main-content" className="salon-main report-workspace">{content}</main></SalonFrame>;
+}

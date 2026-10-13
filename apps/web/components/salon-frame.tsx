@@ -10,7 +10,7 @@ export const salonSections = [
  { id: "appointments", label: "Randevular", icon: "calendar", href: "/workspace/appointments" },
  { id: "stock", label: "Stok", icon: "reports", href: "/workspace/stock" },
  { id: "finance", label: "Finans", icon: "finance", href: "/workspace/finance" },
- { id: "reports", label: "Raporlar", icon: "reports", href: null },
+ { id: "reports", label: "Raporlar", icon: "reports", href: "/workspace/reports" },
  { id: "team", label: "Ekip", icon: "team", href: "/workspace/team" },
  { id: "settings", label: "Ayarlar", icon: "settings", href: "/workspace/settings" },
 ] as const;

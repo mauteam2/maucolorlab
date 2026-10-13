@@ -155,7 +155,7 @@ begin
   'revenue_minor',case when 'REVENUE'=any(domains) or f.domain='EXPENSE' then f.revenue_minor::text end,
   'cost_minor',case when 'COST'=any(domains) then f.cost_minor::text end,'cost_status',case when 'COST'=any(domains) then f.cost_status end,
   'commission_minor',case when 'COMMISSION'=any(domains) then f.commission_minor::text end,'contribution_minor',case when 'COST'=any(domains) and 'COMMISSION'=any(domains) then f.contribution_minor::text end,
-  'details',case when f.domain='REVENUE' then f.details-'refund_net_minor' when f.domain='CLIENT' and not ('LIVE'=any(all_domains)) then f.details-'followups' else f.details end)) order by f.at desc,f.source_id desc,f.domain desc),'[]')
+  'details',case when f.domain='REVENUE' then f.details-'refund_net_minor' when f.domain='CLIENT' and not ('LIVE'=any(all_domains)) then f.details-'followups' else f.details end) order by f.at desc,f.source_id desc,f.domain desc),'[]')
  into rows from (select * from app_private.report_facts f where f.organization_id=org and f.location_id=p_location_id and f.domain=any(domains)
   and (f.domain in ('CLIENT','STOCK_ITEM') or f.at>=lo and f.at<hi) and (staff is null or f.staff_user_id=staff) and (service is null or f.service_id=service)
   and (q->>'category' is null or f.category=q->>'category') and (q->>'domain' is null or f.domain=q->>'domain')
