@@ -112,9 +112,11 @@ try:
         assert max(samples)<10000,(label,samples)
         print('PERF',label,performance[label]['median_ms'],'ms median')
     observer.execute('reset role;')
+    observer.execute(f"insert into public.stock_movements(organization_id,location_id,stock_item_id,movement_type,quantity_delta,unit,reason,recorded_by,occurred_at,correlation_id,mutation_id) select '{org}','{loc}','{item}','RECEIPT',1,'GRAM','Synthetic basis-index scale','{user}',statement_timestamp(),gen_random_uuid(),gen_random_uuid() from generate_series(1,10000);analyze public.stock_cost_basis_events;")
     # Function-wrapper plans alone hide correlated scans: also capture the
     # actual bounded scope/index scans as the privileged CI observer.
     internal_queries={
+      'latest_cost_basis_10k':f"select id,version from public.stock_cost_basis_events where stock_item_id='{item}' and coalesce(stock_lot_id,'00000000-0000-0000-0000-000000000000'::uuid)=coalesce(null::uuid,'00000000-0000-0000-0000-000000000000'::uuid) order by version desc limit 1",
       'revenue_period':f"select charge_id,eligible_at from public.profitability_revenue_facts where organization_id='{org}' and location_id='{loc}' and eligible_at>=statement_timestamp()-interval '31 days' order by eligible_at desc,charge_id desc limit 50",
       'commission_period':f"select id,amount_minor from public.commission_accruals where organization_id='{org}' and location_id='{loc}' and staff_user_id='{user}' order by eligible_at desc,id desc limit 50",
       'service_cost_sources':f"select stock_movement_id,total_cost_minor from public.direct_cost_facts where organization_id='{org}' and location_id='{loc}' and finance_document_id='{retail['id']}' order by created_at,id limit 200",

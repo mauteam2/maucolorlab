@@ -27,7 +27,7 @@ Revenue and commission reads use explicit periods (maximum 366 days), 50 rows pe
 
 ## Performance and verification
 
-Phase 5A's real 10k Finance baseline was approximately 6,666 ms day summary / 6,250 ms client balance. Phase 5B removes repeated full Stock ledger sums on each priced receipt using immutable running basis state under the item lock. Narrow private Finance CLIENT-only aggregates authorize once instead of repeating row-level membership predicates and nested available/outstanding scans. Direct-table RLS remains unchanged; helpers require fresh permission and tenant/client-family validation.
+Phase 5A's real 10k Finance baseline was approximately 6,666 ms day summary / 6,250 ms client balance. Phase 5B removes repeated full Stock ledger sums on each priced receipt using immutable running basis state under the item lock. Narrow private Finance CLIENT-only aggregates authorize once instead of repeating row-level membership predicates and nested available/outstanding scans. Last-basis reads use the existing coalesced-lot/version index rather than a non-indexable generic NULL-equality filter. Direct-table RLS remains unchanged; helpers require fresh permission and tenant/client-family validation.
 
 CI captures five read families, raw samples and EXPLAIN ANALYZE BUFFERS in `costing-database-verification/costing-performance.json`; existing Finance performance evidence remains separately uploaded. Delivery reports must cite executed measurements rather than infer performance from the implementation. Run the existing Gate, Stock and Finance concurrency suites as well as eight new real backend races. The new 10k costing population and existing mixed Finance population are different fixtures and must be identified when comparing results.
 
