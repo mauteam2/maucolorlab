@@ -24,6 +24,11 @@ It never deletes source facts. New source writers remain free to commit while
 rebuild runs. Invalidation IDs are captured as a concrete visible set. Sequence
 allocation is not commit order: a lower-ID event committing late is not accidentally
 deleted by a `<= watermark` range. Remaining events drive subsequent refresh.
+Captured IDs are joined as a relation for queue deletion, so a large rebuild does
+not repeatedly scan a large parameter array. The administrator rebuild budget is
+120 seconds; the scale harness waits for that real server result and records the
+elapsed time, rather than treating its shorter normal-read transport limit as an
+application result.
 
 Sources include appointment lifecycle, revenue recognition/adjustments, commission
 accrual/adjustment, zero-cost declarations, retail attribution, direct cost facts,

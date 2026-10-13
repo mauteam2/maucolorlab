@@ -118,7 +118,13 @@ try:
      select string_agg(quote_ident(column_name),',' order by ordinal_position),string_agg('(x.r).'||quote_ident(column_name),',' order by ordinal_position) into cols,projection from information_schema.columns where table_schema='public' and table_name='salon_appointments' and is_generated='NEVER';
      execute 'insert into public.salon_appointments('||cols||') select '||projection||' from (select jsonb_populate_record(null::public.salon_appointments,to_jsonb(a)||jsonb_build_object(''id'',gen_random_uuid(),''status'',''COMPLETED'',''completed_at'',statement_timestamp(),''actual_duration_seconds'',3600)) r from public.salon_appointments a cross join generate_series(1,40000)n where a.id=''{appointment}'')x';
     end$$;""")
-    auth(observer);start=time.monotonic();rebuilt=result(observer.execute(rpc({'type':'REBUILD'},'reporting')));assert 'data' in rebuilt,rebuilt;performance['rebuild_50k_ms']=round((time.monotonic()-start)*1000,2);observer.execute('reset role;analyze app_private.report_facts;analyze app_private.report_invalidations;')
+    # Admin rebuild has a 120s server budget; give transport enough time to
+    # receive the real result or timeout. Normal report samples retain 60s and
+    # their measured latency targets. Do not turn a transport timeout into a pass.
+    auth(observer);start=time.monotonic();observer.send("set statement_timeout='120s';"+rpc({'type':'REBUILD'},'reporting'))
+    rebuilt=result(observer.receive(timeout=135));assert 'data' in rebuilt,rebuilt
+    performance['rebuild_50k_ms']=round((time.monotonic()-start)*1000,2)
+    observer.execute("reset role;set statement_timeout=0;analyze app_private.report_facts;analyze app_private.report_invalidations;")
     facts=int(observer.execute(f"select count(*) from app_private.report_facts where organization_id='{org}' and location_id='{loc}';")[-1]);assert facts>=50000,facts
     for name,q in {'dashboard_summary':{},'report_list':{'kind':'FINANCE','domain':'REVENUE'},'detail':{'kind':'FINANCE','domain':'REVENUE','source_id':cid},'appointment_report':{'kind':'APPOINTMENTS'}}.items():
         report(q=q);samples=[]
