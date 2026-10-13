@@ -32,4 +32,12 @@ select throws_ok($$update public.stock_cost_basis_events set value_numerator=0$$
 select is(app_private.cost_round(1,2),1::bigint,'half-up allocation positive');
 select is(app_private.cost_round(-1,2),(-1)::bigint,'symmetric compensating rounding');
 select is(app_private.cost_round(9999999999999999::numeric*3333,10000),3333000000000000::bigint,'large exact arithmetic avoids binary float');
+create temporary table costing_retry(q jsonb);grant all on costing_retry to authenticated;
+insert into costing_retry select jsonb_build_object('type','INTAKE','mutation_id','c5000000-0000-4000-8000-000000000777','currency','TRY','total_cost_minor','20','unit_cost_numerator',null,'unit_cost_denominator',null,'cost_basis_at',statement_timestamp(),'external_reference',null,'reason','Permanent intake retry','stock_command',jsonb_build_object('type','RECEIPT','mutation_id','c5000000-0000-4000-8000-000000000777','stock_item_id','c5000000-0000-4000-8000-000000000101','lot_id',null,'quantity',1,'unit','GRAM','occurred_at',statement_timestamp(),'reference',null,'reason','Measured receipt'));
+set local role authenticated;
+select is(pg_temp.costing((select q from costing_retry))#>>'{data,status}','SAVED','cost acquisition first request posts');
+select is(pg_temp.costing((select q from costing_retry))#>>'{data,status}','SAVED','cost acquisition exact permanent replay');
+select is(pg_temp.costing((select q||'{"total_cost_minor":"21"}'::jsonb from costing_retry))->>'code','COST_CONFLICT','changed cost cannot reuse successful mutation');
+select is((select count(*) from public.stock_movements where mutation_id='c5000000-0000-4000-8000-000000000777'),1::bigint,'intake retry never posts twice');
+select is((select count(*) from public.stock_cost_basis_events where mutation_id='c5000000-0000-4000-8000-000000000777'),1::bigint,'intake retry never creates second cost basis');
 select * from finish();rollback;

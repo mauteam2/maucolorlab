@@ -83,6 +83,8 @@ jobs:
       - run: node scripts/verify-browser-bundle.mjs
         working-directory: .
       - run: npx playwright install --with-deps chromium
+      - name: Phase 5B browser journeys must pass without retries
+        run: npx playwright test e2e/costing.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
       - run: npm run test:e2e
       - name: Client UI verification captures (synthetic local fixtures only)
         if: always()
