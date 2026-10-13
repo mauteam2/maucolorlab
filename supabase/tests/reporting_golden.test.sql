@@ -43,6 +43,9 @@ select is(pg_temp.metric('contribution_after_commission'),'90000','after commiss
 select ok(pg_temp.finance_payment('PAYMENT','120000','c5000000-0000-4000-8000-000000000303','[{"charge_id":"c5000000-0000-4000-8000-000000000301","amount_minor":"120000"}]') ? 'data','payment allocated');
 select is(pg_temp.metric('recognized_net_revenue'),'100000','collection is not a second revenue event');
 select ok(pg_temp.finance(jsonb_build_object('type','REFUND','mutation_id',gen_random_uuid(),'id','c5000000-0000-4000-8000-000000000304','original_payment_id','c5000000-0000-4000-8000-000000000303','amount_minor','60000','occurred_at',statement_timestamp(),'reason','Half actual refund')) ? 'data','actual refund');
+-- These fixture commands share one transaction; execute the real deferred source
+-- trigger before simulating the next committed HTTP report request.
+set constraints profitability_refund_posted immediate;
 select is(pg_temp.metric('recognized_net_revenue'),'50000','refund reflected once');
 select is(pg_temp.metric('refunds_net'),'50000','refund numerator exact');
 select is(pg_temp.metric('net_accrued_commission'),'5000','refund commission adjustment exact');
@@ -67,10 +70,8 @@ select ok(not has_table_privilege('authenticated','app_private.report_facts','in
 select ok(not has_table_privilege('authenticated','app_private.report_invalidations','update'),'queue direct mutation denied');
 select ok((select relrowsecurity from pg_class where oid='app_private.report_facts'::regclass),'projection RLS enabled');
 select ok(not has_function_privilege('anon','public.reporting_snapshot(uuid,uuid,jsonb)','execute'),'anonymous report RPC denied');
-insert into auth.users(id,email) values('b4000000-0000-4000-8000-000000000023','report-colorist@elifora.test'),('b4000000-0000-4000-8000-000000000024','report-reception@elifora.test');
-insert into public.salon_memberships(id,organization_id,location_id,user_id,role_code,status,joined_at) values
- ('b4000000-0000-4000-8000-000000000113','b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','b4000000-0000-4000-8000-000000000023','colorist','active',now()),
- ('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','b4000000-0000-4000-8000-000000000024','reception','active',now());
+-- Reuse existing synthetic fixture identities; do not collide with auth PKs.
+update public.salon_memberships set role_code='colorist' where id='b4000000-0000-4000-8000-000000000113';
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);
 select ok(not (public.reporting_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{}')->'data'->'allowed_domains' ? 'COMMISSION'),'reception has no colleague commission');

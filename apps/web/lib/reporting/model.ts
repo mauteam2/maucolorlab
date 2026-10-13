@@ -73,7 +73,7 @@ export function reportSourceLink(row: Pick<z.infer<typeof reportItem>, "domain" 
     case "CLIENT": return `/workspace/clients/${row.source_id}`;
     case "STOCK_ITEM": case "STOCK_MOVEMENT": return "/workspace/stock";
     case "EXPENSE": case "CASH": return "/workspace/finance";
-    case "LIVE": return row.client_id ? `/workspace/clients/${row.client_id}/live/${row.source_id}` : "/workspace/colorlab";
+    case "LIVE": return row.client_id ? `/workspace/live-sessions?client_id=${row.client_id}&session_id=${row.source_id}` : "/workspace/colorlab";
     default: return "/workspace/reports";
   }
 }
