@@ -43,6 +43,11 @@ insert into public.salon_memberships(id,organization_id,location_id,user_id,role
 set local role authenticated;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000022',true);
 select is((select count(*) from public.stock_cost_basis_events),0::bigint,'same-organization other-location cost denied against nonempty stock history');
+reset role;
+select throws_ok($$select app_private.finance_period_summary('b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011',statement_timestamp()-interval '1 day',statement_timestamp())$$,'42501','FORBIDDEN','private Finance aggregate rechecks location authorization even for privileged SQL caller');
+set local role authenticated;
+select throws_ok($$select app_private.finance_period_summary('b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011',statement_timestamp()-interval '1 day',statement_timestamp())$$,'42501',null,'normal role cannot invoke private Finance aggregate directly');
+
 select is((select count(*) from public.commission_accruals),0::bigint,'same-organization other-location earnings denied against two real earnings');
 select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000115','b4000000-0000-4000-8000-000000000011','{}')->>'code','TENANT_CONTEXT_INVALID','location membership cannot request other location cost');
 set local role authenticated;

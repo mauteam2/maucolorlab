@@ -2,8 +2,10 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
 select no_plan();
-\ir fixtures/costing.inc
+\ir fixtures/costing-salon.inc
 set local role authenticated;
+select is(pg_temp.costing(jsonb_build_object('type','POLICY_VERSION','mutation_id',gen_random_uuid(),'id','c5000000-0000-4000-8000-000000000201','expected_version',0,'name','Explicit retail policy','domain','RETAIL','method','PERCENT_NET_OF_TAX','rate_bps',1000,'fixed_minor',null,'currency','TRY','effective_from',statement_timestamp(),'reason','Future actual retail commission'))#>>'{data,status}','SAVED','retail policy has its own domain');
+select is(pg_temp.costing(jsonb_build_object('type','ASSIGN','mutation_id',gen_random_uuid(),'id','c5000000-0000-4000-8000-000000000501','staff_user_id','b4000000-0000-4000-8000-000000000021','policy_id','c5000000-0000-4000-8000-000000000201','scope','DEFAULT_RETAIL','service_id',null,'category',null,'effective_from',statement_timestamp(),'effective_until',null,'reason','Explicit sales performer'))#>>'{data,status}','SAVED','retail assignment explicit');
 select is(pg_temp.cost_intake('c5000000-0000-4000-8000-000000000101',100,'2000','OPENING')#>>'{data,status}','SAVED','retail cost-bearing opening');
 select is(pg_temp.finance(jsonb_build_object('type','RETAIL_SALE','mutation_id',gen_random_uuid(),'id','c5000000-0000-4000-8000-000000000301','client_id','b4000000-0000-4000-8000-000000000031','currency','TRY','stock_item_id','c5000000-0000-4000-8000-000000000101','lot_id',null,'quantity','3','unit_price_minor','100','tax_rate_bps',0,'tax_inclusive',true,'description','Measured retail sale','occurred_at',statement_timestamp(),'reason','Actual sale'))#>>'{data,status}','SAVED','actual retail charge consumes inventory once');
 select is((select total_cost_minor from public.direct_cost_facts where finance_document_id='c5000000-0000-4000-8000-000000000301'),60::bigint,'three units at cost20 exact');
@@ -11,6 +13,11 @@ select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-0000000003
 select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000301"}')#>>'{data,items,0,direct_product_cost_minor}','60','retail cost from actual movement');
 select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000301"}')#>>'{data,items,0,gross_contribution_minor}','240','retail contribution revenue-cost');
 select is((select sum(quantity_delta) from public.stock_movements where stock_item_id='c5000000-0000-4000-8000-000000000101'),97::numeric,'cost processing never consumes twice');
+select is((select count(*) from public.commission_accruals),0::bigint,'retail recorder is not inferred as salesperson');
+select is(pg_temp.costing('{"type":"ATTRIBUTE_RETAIL","mutation_id":"c5000000-0000-4000-8000-000000000601","charge_id":"c5000000-0000-4000-8000-000000000301","staff_user_id":"b4000000-0000-4000-8000-000000000021","reason":"Verified actual salesperson"}')#>>'{data,status}','SAVED','explicit actual retail performer');
+select is((select amount_minor from public.commission_accruals),30::bigint,'retail commission exact independent of service rules');
+select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000301"}')#>>'{data,items,0,contribution_after_commission_minor}','210','retail net minus actual cost minus explicit commission');
+
 select is(pg_temp.finance(jsonb_build_object('type','REVERSAL','mutation_id','c5000000-0000-4000-8000-000000000401','id','c5000000-0000-4000-8000-000000000302','document_id','c5000000-0000-4000-8000-000000000301','reason','Mistaken sale'))#>>'{data,status}','SAVED','finance reversal generates stock inverse');
 select is((select sum(total_cost_minor) from public.direct_cost_facts where finance_document_id='c5000000-0000-4000-8000-000000000301'),0::numeric,'stock inverse creates exact cost compensation');
 select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000301"}')#>>'{data,items,0,net_revenue_minor}','0','finance reversal compensates revenue');
@@ -18,4 +25,7 @@ select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-0000000003
 select is(pg_temp.finance(jsonb_build_object('type','REVERSAL','mutation_id','c5000000-0000-4000-8000-000000000401','id','c5000000-0000-4000-8000-000000000302','document_id','c5000000-0000-4000-8000-000000000301','reason','Mistaken sale'))#>>'{data,status}','SAVED','reversal retry same source receipt');
 select is((select count(*) from public.direct_cost_facts where finance_document_id='c5000000-0000-4000-8000-000000000301'),2::bigint,'no duplicate reversal cost');
 select is((select sum(quantity_delta) from public.stock_movements where stock_item_id='c5000000-0000-4000-8000-000000000101'),100::numeric,'physical balance restored exactly');
+select is(pg_temp.costing_read('{"charge_id":"c5000000-0000-4000-8000-000000000301"}')#>>'{data,items,0,commission_minor}','0','retail revenue reversal compensates original commission');
+select is((select amount_minor from public.commission_accruals),30::bigint,'original retail accrual remains immutable after reversal');
+select is((select amount_minor from public.commission_adjustments),(-30)::bigint,'retail commission inverse is append-only');
 select * from finish();rollback;

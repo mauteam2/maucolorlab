@@ -35,7 +35,7 @@ org='a7000000-0000-4000-8000-000000000001';loc='a7000000-0000-4000-8000-00000000
 observer=Session();a=Session();b=Session();count=0;performance={}
 def now():return datetime.now(timezone.utc).isoformat()
 def auth(s):s.execute(f"set role authenticated;set request.jwt.claim.sub='{user}';")
-def command(t,**fields):return {'type':t,'mutation_id':identifier(),'reason':'Synthetic cost/commission verification',**fields}
+def command(t,**fields):return {'type':t,'mutation_id':identifier(),**({} if t in ('PROCESS','PROCESS_BATCH') else {'reason':'Synthetic cost/commission verification'}),**fields}
 def rpc(q,domain='costing'):return f"select public.{domain}_operation('{member}','{loc}',{literal(q)},gen_random_uuid());"
 def write(q,domain='costing'):
     auth(observer);reply=result(observer.execute(rpc(q,domain)));observer.execute('reset role;');assert 'data' in reply,reply;return reply['data']
@@ -93,9 +93,11 @@ try:
     race('two concurrent refund adjustments',rpc(refund(p['id'],50000),'finance'),rpc(refund(p['id'],50000),'finance'))
     assert observer.execute(f"select a.amount_minor+coalesce(sum(x.amount_minor),0) from public.commission_accruals a left join public.commission_adjustments x on x.accrual_id=a.id where a.charge_id='{cid}' group by a.amount_minor;")[-1]=='0'
     v=int(observer.execute(f"select max(version) from public.stock_cost_basis_events where stock_item_id='{item}' and stock_lot_id is null;")[-1])
-    race('future cost correction plus new usage',rpc(basis(30,v)),rpc(out(10),'stock'))
+    corrected=race('future cost correction plus new usage',rpc(basis(30,v)),rpc(out(10),'stock'))
+    assert observer.execute(f"select total_cost_minor from public.direct_cost_facts where stock_movement_id='{corrected['data']['id']}';")[-1]=='300', 'new consumption uses the committed future basis'
     retail=command('RETAIL_SALE',id=identifier(),client_id=client,currency='TRY',stock_item_id=item,lot_id=None,quantity='2',unit_price_minor='100',tax_rate_bps=0,tax_inclusive=True,description='Synthetic retail contribution',occurred_at=now());write(retail,'finance')
-    race('retail reversal plus immutable cost/profitability consumer',rpc(command('REVERSAL',id=identifier(),document_id=retail['id']),'finance'),rpc(command('PROCESS_CHARGE',charge_id=retail['id'])))
+    consumed=race('retail reversal plus immutable cost/profitability consumer',rpc(command('REVERSAL',id=identifier(),document_id=retail['id']),'finance'),rpc(command('PROCESS_CHARGE',charge_id=retail['id']))+f"select public.costing_snapshot('{member}','{loc}',{literal({'charge_id':retail['id']})});")
+    assert consumed['data']['items'][0]['direct_product_cost_minor']=='0' and consumed['data']['items'][0]['net_revenue_minor']=='0', 'cost reader observes atomic stock/revenue compensation after the lifecycle lock'
     assert observer.execute(f"select sum(total_cost_minor) from public.direct_cost_facts where finance_document_id='{retail['id']}';")[-1]=='0'
     assert observer.execute(f"select count(*) from public.direct_cost_facts where finance_document_id='{retail['id']}';")[-1]=='2'
     # Mixed operational charge population, not finance payments masquerading as revenue.
