@@ -7,7 +7,7 @@ import { permittedReportDomains, reportCommand, reportOperationResult, reportReq
 import { costingStatus } from "@/lib/costing/service";
 
 const detailKeys: Record<string, string[]> = {
-  APPOINTMENT: ["completed_at", "scheduled_minutes", "occupied_minutes", "service_version"],
+  APPOINTMENT: ["completed_at", "scheduled_minutes", "occupied_minutes", "service_version", "staff_display_name"],
   REVENUE: ["original_net_minor", "service_version", "appointment_id", "live_session_id", "retail_quantity"],
   COMMISSION: ["charge_id", "policy_id", "policy_version", "accrual_minor", "adjustment_minor"],
   CLIENT: ["return_signal", "last_visit_at", "first_visit_at", "future_appointment", "followups", "computed_at", "record_status"],

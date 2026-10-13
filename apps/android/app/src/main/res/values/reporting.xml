@@ -1,0 +1,15 @@
+<resources>
+    <string name="reports_open">Salon özetini aç</string>
+    <string name="reports_title">Bugünün salon özeti</string>
+    <string name="reports_error">Rapor yüklenemedi. Yetkiyi ve bağlantıyı kontrol edin.</string>
+    <string name="reports_self">Yalnızca kendi kayıtlarınız</string>
+    <string name="reports_stale">Okuma modeli yenilenmeli. Bekleyen olay: %1$s</string>
+    <string name="reports_completed">Tamamlanan ziyaretler</string>
+    <string name="reports_revenue">Tanınan net gelir</string>
+    <string name="reports_contribution">Komisyon sonrası operasyonel katkı</string>
+    <string name="reports_coverage">Bilinen maliyet gelir kapsamı</string>
+    <string name="reports_commission">Net tahakkuk eden komisyon</string>
+    <string name="reports_stock">Düşük stok</string>
+    <string name="reports_unknown">Hesaplanamıyor</string>
+    <string name="reports_disclaimer">Katkı muhasebe net kârı, komisyon tahakkuku maaş ödemesi değildir. Bilinmeyen maliyet sıfır sayılmaz.</string>
+</resources>

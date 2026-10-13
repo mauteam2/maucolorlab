@@ -1,0 +1,15 @@
+<resources>
+    <string name="reports_open">Open salon summary</string>
+    <string name="reports_title">Today’s salon summary</string>
+    <string name="reports_error">Report unavailable. Check permission and connection.</string>
+    <string name="reports_self">Your records only</string>
+    <string name="reports_stale">Read model needs refreshing. Pending events: %1$s</string>
+    <string name="reports_completed">Completed visits</string>
+    <string name="reports_revenue">Recognized net revenue</string>
+    <string name="reports_contribution">Operational contribution after commission</string>
+    <string name="reports_coverage">Known-cost revenue coverage</string>
+    <string name="reports_commission">Net accrued commission</string>
+    <string name="reports_stock">Low stock</string>
+    <string name="reports_unknown">Unavailable</string>
+    <string name="reports_disclaimer">Contribution is not accounting net profit; accrued commission is not salary paid. Unknown cost is never zero.</string>
+</resources>

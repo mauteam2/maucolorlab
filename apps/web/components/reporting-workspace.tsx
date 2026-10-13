@@ -7,6 +7,7 @@ import { tenantContextSchema, workspaceReference, type ActiveTenantContext } fro
 const kinds = { OVERVIEW: "Genel bakış", APPOINTMENTS: "Randevular", CLIENTS: "Müşteriler", SERVICES: "Hizmetler", TEAM: "Ekip", FINANCE: "Finans ve katkı", STOCK: "Stok", TECHNICAL: "Teknik" } as const;
 const periods = { TODAY: "Bugün", YESTERDAY: "Dün", THIS_WEEK: "Bu hafta", LAST_WEEK: "Geçen hafta", THIS_MONTH: "Bu ay", LAST_MONTH: "Geçen ay", CUSTOM: "Özel tarih aralığı" } as const;
 export const reportLabels: Record<string, string> = {
+  retail_recognized_revenue: "Tanınan perakende gelir", retail_quantity_original: "Satılan miktar · ilk kayıt", cash_sessions_opened: "Açılan kasa oturumları", cash_sessions_closed: "Kapanan kasa oturumları", cash_expected_closed_or_review: "Kapanış / inceleme beklenen nakit", cash_counted_closed_or_review: "Kapanış / inceleme sayılan nakit", cash_difference_closed_or_review: "Kapanış / inceleme farkı", technical_followups_snapshot: "Teknik takip gerektiren kayıtlar",
   appointments_scheduled: "Planlanan randevular", completed_visits: "Tamamlanan ziyaretler", cancelled: "İptal edilen", no_show: "Gelmedi", cancellation_rate_bps: "İptal oranı", booked_minutes: "Rezerve edilen dakika", available_staff_minutes: "Uygun personel dakikası", utilization_bps: "Kapasite kullanımı",
   recognized_net_revenue: "Tanınan net gelir", refunds_net: "Gelir düzeltmeleri / iadeler", eligible_transactions: "Gelir kayıtları", known_direct_product_cost: "Bilinen doğrudan ürün maliyeti", known_transactions: "Maliyeti bilinen kayıtlar", partial_transactions: "Kısmi maliyetli kayıtlar", unknown_transactions: "Maliyeti bilinmeyen kayıtlar",
   known_count_coverage_bps: "Kayıt bazında bilinen maliyet kapsamı", known_revenue_coverage_bps: "Gelir bazında bilinen maliyet kapsamı", contribution_before_commission: "Komisyon öncesi operasyonel katkı", known_subset_contribution_before_commission: "Maliyeti bilinen alt kümenin katkısı", contribution_after_commission: "Komisyon sonrası operasyonel katkı",
@@ -40,7 +41,7 @@ export function ReportingWorkspace({ embedded = false, initialRequest = {} }: { 
     const start = setTimeout(() => void load(), 0), refresh = () => void load(), hide = () => { conceal(); if (!document.hidden) void load(); };
     window.addEventListener("blur", conceal); window.addEventListener("focus", refresh); window.addEventListener("online", refresh); window.addEventListener("offline", conceal);
     document.addEventListener("visibilitychange", hide); const timer = setInterval(refresh, 15000);
-    return () => { clearTimeout(start); clearInterval(timer); generation.current++; window.removeEventListener("blur", conceal); window.removeEventListener("focus", refresh); window.removeEventListener("online", refresh); window.removeEventListener("offline", conceal); document.removeEventListener("visibilitychange", hide); };
+    return () => { clearTimeout(start); clearInterval(timer); conceal(); window.removeEventListener("blur", conceal); window.removeEventListener("focus", refresh); window.removeEventListener("online", refresh); window.removeEventListener("offline", conceal); document.removeEventListener("visibilitychange", hide); };
   }, [load, conceal]);
   async function operation(type: "REBUILD" | "EXPORT") {
     if (!context) return; setBusy(true); setMessage("");
