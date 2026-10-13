@@ -62,11 +62,16 @@ select is(pg_temp.report('{"sql":"select secret"}')->>'code','VALIDATION_FAILED'
 select is(pg_temp.report_op('{"type":"SETTINGS","expected_version":0,"coverage_warning_bps":9000,"cancellation_warning_bps":1000}')#>>'{data,version}','1','explicit operational thresholds');
 select is(pg_temp.report_op('{"type":"SETTINGS","expected_version":0,"coverage_warning_bps":8000,"cancellation_warning_bps":1000}')->>'code','REPORT_CONFLICT','conditional settings version');
 reset role;
-update public.organizations set base_currency='USD' where id='b4000000-0000-4000-8000-000000000001';
+-- Use the separate empty organization for setup-metadata drift; the completed
+-- source organization is already protected by the existing Finance/cost guard.
+update public.organizations set base_currency='USD' where id='b4000000-0000-4000-8000-000000000002';
+insert into public.finance_settings(organization_id,currency,exponent,version,updated_by,updated_at)
+ values('b4000000-0000-4000-8000-000000000002','TRY',2,1,'b4000000-0000-4000-8000-000000000022',statement_timestamp());
 set local role authenticated;
-select is(pg_temp.report()#>>'{data,currency}','TRY','registered Finance currency remains monetary authority before stock basis locks metadata');
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000022',true);
+select is(public.reporting_snapshot('b4000000-0000-4000-8000-000000000112','b4000000-0000-4000-8000-000000000012','{}')#>>'{data,currency}','TRY','registered Finance currency remains monetary authority for a separately initialized organization');
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000021',true);
 reset role;
-update public.organizations set base_currency='TRY' where id='b4000000-0000-4000-8000-000000000001';
 set local role authenticated;
 select ok(pg_temp.move('OPENING','c5000000-0000-4000-8000-000000000101',10) ? 'data','measured threshold stock opening');
 select is(pg_temp.report('{"kind":"STOCK","domain":"STOCK_ITEM","source_id":"c5000000-0000-4000-8000-000000000101"}')#>>'{data,items,0,status}','LOW','report uses source LOW semantics at threshold equality');
