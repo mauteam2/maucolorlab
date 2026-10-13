@@ -124,7 +124,14 @@ try:
       'service_cost_sources':f"select stock_movement_id,total_cost_minor from public.direct_cost_facts where organization_id='{org}' and location_id='{loc}' and finance_document_id='{retail['id']}' order by created_at,id limit 200",
       'client_balance_aggregate':f"select coalesce(sum(amount_minor),0) from public.finance_ledger_entries where organization_id='{org}' and location_id='{loc}' and account='CLIENT' and client_id='{client}'"
     }
-    performance['internal_scoped_plans']={name:observer.execute('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) '+query) for name,query in internal_queries.items()}
+    internal_plans={}
+    for name,query in internal_queries.items():
+        plan=observer.execute('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) '+query+';')
+        decoded=json.loads('\n'.join(plan))
+        assert decoded and 'Plan' in decoded[0] and 'Execution Time' in decoded[0], (name,'EXPLAIN must actually execute, not leave a psql query buffer')
+        internal_plans[name]=decoded
+    assert 'stock_cost_version' in json.dumps(internal_plans['latest_cost_basis_10k']), '10k latest-basis read uses the coalesced-lot version index'
+    performance['internal_scoped_plans']=internal_plans
     path=Path(os.environ['RUNNER_TEMP'])/'costing-performance.json';path.write_text(json.dumps({'real_concurrency_cases':count,'facts':10000,'read':performance,'phase_5a_baseline_ms':{'day_summary':6665.89,'client_balance':6250.27}},indent=2));assert count==8
     print('PASS: 8 real multi-backend costing/commission cases; 10k facts; EXPLAIN ANALYZE BUFFERS evidence')
 finally:
