@@ -397,7 +397,12 @@ observation_validator('EntitlementSnapshot').validate(saas['snapshot'])
 observation_validator('SaaSCommand').validate(saas['command'])
 for field in ('organization_id','plan','status','entitlements','quota_limit','usage_count','trial_end','provider_event','provider_customer_ref','ownership'):
     assert list(observation_validator('SaaSCommand').iter_errors(saas['command']|{field:True})),field
-for rpc in ('saas_snapshot','saas_operation'):assert contract['paths']['/rest/v1/rpc/'+rpc]['post']['security']==[{'bearerAuth':[],'publishableKey':[]}]
+for rpc in ('saas_snapshot','saas_operation','saas_structure_operation','saas_storage_access'):assert contract['paths']['/rest/v1/rpc/'+rpc]['post']['security']==[{'bearerAuth':[],'publishableKey':[]}]
+structure={'type':'CREATE_LOCATION','id':saas['snapshot']['location_id'],'request_id':saas['command']['request_id'],'name':'Synthetic location','timezone':'UTC'}
+observation_validator('SaaSStructureCommand').validate(structure)
+for field in ('organization_id','quota_limit','status','used'):
+    assert list(observation_validator('SaaSStructureCommand').iter_errors(structure|{field:True})),field
+observation_validator('SaaSError').validate({'code':'FEATURE_UNAVAILABLE','correlationId':saas['command']['request_id']})
 native=(root/'apps/android/app/src/main/java/com/elifora/app/data/saas/SupabaseSaasRepository.kt').read_text(encoding='utf-8')
 for field in ('p_membership_id','p_location_id','BigInteger','management_allowed','creation_allowed','saas.entitlements.read','SAAS_VERSION_CONFLICT','UNKNOWN'):
     assert field in native,field

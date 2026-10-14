@@ -7,8 +7,8 @@ Server source gates re-read the authoritative current subscription under a share
 organization SaaS lock. Plan/state changes use its exclusive counterpart.
 
 Creation gates protect Color Plans, controlled recipes, Live Session creation,
-new clients, manual inventory movements, new Finance charges/retail/expenses/deposits,
-new commission policies, future cost acquisition/basis and reporting configuration.
+new clients/CRM actions, manual inventory movements, new Finance charges/retail/expenses/deposits,
+new commission policies/assignments, future cost acquisition/basis and reporting configuration.
 Existing safety/historical workflows are preserved as documented in lifecycle.
 Direct RPC/data writes cannot gain access by forging browser entitlement state.
 

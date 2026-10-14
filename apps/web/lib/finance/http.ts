@@ -1,3 +1,4 @@
+import { saasErrorCodes } from "@/lib/saas/model";
 import "server-only";
 import { assertOrigin } from "@/lib/live/http";
 import { AccessError } from "@/lib/tenant/bootstrap";
@@ -18,5 +19,5 @@ export async function financeResponse(request:Request) {
    result=await mutateFinance(raw,correlationId,request.headers.get("x-workspace-reference"));
   }
   return Response.json(result,{headers});
- }catch(e){const err=e instanceof AccessError&&financeError.shape.code.options.some(c=>c===e.code)?e:new AccessError("NETWORK_ERROR",503);return Response.json({code:err.code,message:err.code,correlationId},{status:err.status,headers});}
+ }catch(e){const err=e instanceof AccessError&&(financeError.shape.code.options.some(c=>c===e.code)||saasErrorCodes.some(c=>c===e.code))?e:new AccessError("NETWORK_ERROR",503);return Response.json({code:err.code,message:err.code,correlationId},{status:err.status,headers});}
 }

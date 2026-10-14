@@ -20,3 +20,9 @@ administrators. No live billing provider or commercial checkout is configured.
 
 Source facts, domain authorization, RLS, audit and immutable technical/financial
 history retain authority. SaaS usage is not included in salon Finance or Reports.
+
+Disposable browser fixture teardown archives configured tenant locations and
+revokes memberships; it does not cascade-delete immutable subscription history.
+All existing Auth/RLS assertions remain unchanged, and synthetic history is
+removed when the CI database itself is destroyed. Empty unconfigured fixtures
+can retain the original physical teardown.

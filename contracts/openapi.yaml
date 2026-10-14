@@ -37107,3 +37107,41 @@ components:
         - name
         - timezone
         additionalProperties: false
+    SaaSError:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+          - SAAS_UNCONFIGURED
+          - SUBSCRIPTION_RESTRICTED
+          - FEATURE_UNAVAILABLE
+          - QUOTA_UNKNOWN
+          - QUOTA_EXCEEDED
+          - USAGE_PERIOD_UNKNOWN
+          - STORAGE_METER_UNAVAILABLE
+          - SAAS_VERSION_CONFLICT
+          - USAGE_REPLAY_CONFLICT
+          - PROVIDER_REPLAY_CONFLICT
+        message:
+          type: string
+          enum:
+          - SAAS_UNCONFIGURED
+          - SUBSCRIPTION_RESTRICTED
+          - FEATURE_UNAVAILABLE
+          - QUOTA_UNKNOWN
+          - QUOTA_EXCEEDED
+          - USAGE_PERIOD_UNKNOWN
+          - STORAGE_METER_UNAVAILABLE
+          - SAAS_VERSION_CONFLICT
+          - USAGE_REPLAY_CONFLICT
+          - PROVIDER_REPLAY_CONFLICT
+        correlationId:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+      required:
+      - code
+      - correlationId
+      additionalProperties: false

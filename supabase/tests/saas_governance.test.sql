@@ -62,10 +62,14 @@ select lives_ok($$insert into storage.objects(bucket_id,name) values('live-techn
 select is((select count(*) from storage.objects where bucket_id='live-technical'),2::bigint,'suspension does not hide authorized historical evidence');
 reset role;
 -- Missing definitions are unknown, not unlimited. Downgrade retains excess.
+select pg_temp.change_saas('ACTIVE');
+select ok(pg_temp.cost_policy('f7000000-0000-4000-8000-000000000601','PERCENT_NET_OF_TAX',1000) ? 'data','configured plan permits an actual future commission policy');
 create temporary table saas_new_plan(id uuid);grant select on saas_new_plan to authenticated;
 insert into saas_new_plan select (app_private.saas_control('b4000000-0000-4000-8000-000000000001','{"type":"PLAN_VERSION","code":"PLAN_B","label":"PLAN_B","development_only":true,"expected_version":0,"entitlements":{},"quotas":{"LOCATIONS":0}}','TEST_OPERATOR','Synthetic explicit downgrade',gen_random_uuid())#>>'{data,id}')::uuid;
 select pg_temp.change_saas('ACTIVE',(select id from saas_new_plan));
 select throws_ok($$select app_private.saas_require('b4000000-0000-4000-8000-000000000001','STOCK')$$,'P0001','FEATURE_UNAVAILABLE','missing entitlement cannot enable new stock work');
+select throws_ok($$insert into public.client_crm_actions values(gen_random_uuid(),'b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','b4000000-0000-4000-8000-000000000031','REBOOK','salon_appointment','e5000000-0000-4000-8000-000000000811','{}','OPEN',statement_timestamp(),null,1,statement_timestamp(),statement_timestamp(),'b4000000-0000-4000-8000-000000000021','b4000000-0000-4000-8000-000000000021')$$,'P0001','FEATURE_UNAVAILABLE','new CRM source cannot bypass missing entitlement');
+select throws_ok($$select public.costing_operation('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011',jsonb_build_object('type','ASSIGN','mutation_id',gen_random_uuid(),'id',gen_random_uuid(),'staff_user_id','b4000000-0000-4000-8000-000000000021','policy_id','f7000000-0000-4000-8000-000000000601','scope','DEFAULT_SERVICE','service_id',null,'category',null,'effective_from',statement_timestamp(),'effective_until',null,'reason','Synthetic future assignment'),gen_random_uuid())$$,'P0001','FEATURE_UNAVAILABLE','future commission assignment requires configured entitlement');
 select throws_ok($$select app_private.saas_quota('b4000000-0000-4000-8000-000000000001','ACTIVE_MEMBERS',1)$$,'P0001','QUOTA_UNKNOWN','missing member quota fails closed');
 select throws_ok($$select app_private.saas_quota('b4000000-0000-4000-8000-000000000001','LOCATIONS',1)$$,'P0001','QUOTA_EXCEEDED','explicit zero limit blocks growth');
 select is((select count(*) from public.locations where organization_id='b4000000-0000-4000-8000-000000000001'),1::bigint,'downgrade preserves existing over-limit location');
@@ -100,5 +104,11 @@ select is(pg_temp.saas()#>>'{data,status}','TRIAL_EXPIRED','repeated expiry read
 reset role;
 select is((select count(*) from app_private.saas_expiry_observations where organization_id='b4000000-0000-4000-8000-000000000001' and kind='TRIAL_ENDED'),1::bigint,'expiry observation is append-only and idempotent');
 select is((select count(*) from public.audit_events where organization_id='b4000000-0000-4000-8000-000000000001' and action='saas.trial_ended'),1::bigint,'server deadline is audited once');
+select app_private.saas_control('b4000000-0000-4000-8000-000000000001',jsonb_build_object('type','SUBSCRIPTION','expected_version',(select version from app_private.saas_accounts where organization_id='b4000000-0000-4000-8000-000000000001'),'plan_version_id','f7000000-0000-4000-8000-000000000002','status','TRIAL','trial_end',statement_timestamp()+interval '0.2 second','effective_until',statement_timestamp()+interval '0.1 second'),'TEST_OPERATOR','Explicit competing end deadlines',gen_random_uuid());
+select pg_sleep(0.25);
+set local role authenticated;
+select is(pg_temp.saas()#>>'{data,status}','EXPIRED','subscription end takes precedence over trial end');
+reset role;
+select is((select count(*) from app_private.saas_expiry_observations where organization_id='b4000000-0000-4000-8000-000000000001' and kind='SUBSCRIPTION_ENDED'),1::bigint,'expiry audit follows authoritative end precedence');
 select * from finish();
 rollback;

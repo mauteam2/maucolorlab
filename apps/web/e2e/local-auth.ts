@@ -47,6 +47,15 @@ export async function seedAccount(locationCount = 1) {
       check(await admin.from("salon_memberships").update({ status: "revoked", revoked_at: new Date().toISOString() }).eq("id", membershipId));
     },
     async cleanup() {
+      if (locationCount) {
+        // SaaS subscription history is intentionally immutable. Teardown of a
+        // disposable configured tenant follows archive-first lifecycle instead
+        // of trying to cascade-delete its commercial history. Authorization
+        // assertions above still run against real Auth/RLS without alteration.
+        check(await admin.from("salon_memberships").update({ status: "revoked", revoked_at: new Date().toISOString() }).eq("organization_id", organizationId));
+        check(await admin.from("locations").update({ archived_at: new Date().toISOString() }).eq("organization_id", organizationId));
+        return; // Synthetic identities/history disappear with the disposable DB.
+      }
       check(await admin.from("salon_memberships").delete().eq("organization_id", organizationId));
       check(await admin.from("locations").delete().eq("organization_id", organizationId));
       check(await admin.from("organizations").delete().eq("id", organizationId));
