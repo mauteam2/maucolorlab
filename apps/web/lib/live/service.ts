@@ -53,7 +53,7 @@ export async function mutateLiveSession(raw:unknown,id:string|null,clientId:stri
 export async function livePhoto(id:string,photoId:string,clientId:string,file:Blob|null,correlationId:string,reference?:string|null){
  const ctx=await access(file?"live_session.contribute":"live_session.view",file?reference:undefined),s=liveSession.parse((await readLiveSessions(clientId,id,correlationId)).data),p=s.photos.find(p=>p.id===photoId);
  if(!p)throw new AccessError("LIVE_PHOTO_NOT_FOUND",404);const client=await createClient();
- if(file){if(file.size>10*1024*1024||file.type!==p.contentType)throw new AccessError("VALIDATION_FAILED",400);const r=await client.storage.from("live-technical").upload(p.path,file,{contentType:p.contentType,upsert:false});if(r.error)throw new AccessError("LIVE_PHOTO_UPLOAD_FAILED",409);}
+ if(file){if(file.size>10*1024*1024||file.type!==p.contentType)throw new AccessError("VALIDATION_FAILED",400);const r=await client.storage.from("live-technical").upload(p.path,file,{contentType:p.contentType,upsert:false});if(r.error){const quota=await client.rpc("saas_storage_access",{p_membership_id:ctx.membership_id,p_location_id:ctx.location_id,p_object_path:p.path});if(quota.data?.code==="QUOTA_UNKNOWN")throw new AccessError("QUOTA_UNKNOWN",409);throw new AccessError("LIVE_PHOTO_UPLOAD_FAILED",409);}}
  else{const r=await client.storage.from("live-technical").download(p.path);if(r.error)throw new AccessError("LIVE_PHOTO_NOT_FOUND",404);await finish(ctx,"live_session.view");return r.data;}
  await finish(ctx,"live_session.contribute");return null;
 }

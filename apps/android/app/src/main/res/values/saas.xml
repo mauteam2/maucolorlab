@@ -9,4 +9,27 @@
     <string name="saas_no_limit">Sayısal sınır belirtilmemiş</string>
     <string name="saas_limit_reached">Kullanım sınırına ulaşıldı. Mevcut kayıtlar korunur.</string>
     <string name="saas_disclaimer">Abonelik, kullanıcı izinlerini değiştirmez. Geçmiş okumalar ve güvenli oturum durdurma işlemleri korunur. Yeni işlemler sunucuda yeniden doğrulanır.</string>
+    <string name="saas_label_active">Aktif</string>
+    <string name="saas_label_trial">Deneme</string>
+    <string name="saas_label_grace">Yapılandırılmış ek süre</string>
+    <string name="saas_label_past_due">Ödeme durumu inceleme gerektiriyor</string>
+    <string name="saas_label_suspended">Askıya alınmış</string>
+    <string name="saas_label_cancelled">İptal edilmiş</string>
+    <string name="saas_label_unconfigured">Yapılandırılmamış</string>
+    <string name="saas_label_expired">Süresi dolmuş</string>
+    <string name="saas_label_trial_expired">Deneme süresi dolmuş</string>
+    <string name="saas_label_color_engine">Color Engine</string>
+    <string name="saas_label_brand_adapter">Marka uyarlaması</string>
+    <string name="saas_label_live_session">Canlı renk oturumu</string>
+    <string name="saas_label_crm">Müşteri ilişkileri</string>
+    <string name="saas_label_stock">Stok</string>
+    <string name="saas_label_finance">Finans</string>
+    <string name="saas_label_costing">Doğrudan maliyet</string>
+    <string name="saas_label_commission">Komisyon</string>
+    <string name="saas_label_reporting">Raporlama</string>
+    <string name="saas_label_ai_gateway">AI Gateway sınırı</string>
+    <string name="saas_label_locations">Aktif şubeler</string>
+    <string name="saas_label_active_members">Aktif / davetli kişiler</string>
+    <string name="saas_label_storage_bytes">Depolama · bayt</string>
+    <string name="saas_label_engine_executions">Başarılı Color Engine işlemleri</string>
 </resources>

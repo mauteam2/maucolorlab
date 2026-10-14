@@ -23,7 +23,7 @@ class SupabaseSaasRepository(private val snapshot: suspend (String) -> HttpReply
         val envelope = JSONObject(body)
         if (envelope.has("code")) throw ClientFailure(envelope.getString("code"))
         val data = envelope.getJSONObject("data")
-        require(data.keySet() == setOf("organization_id", "location_id", "version", "status", "entitlements", "management_allowed", "plan", "subscription", "period", "quotas", "observed_at", "diagnostics"))
+        require(data.keys().asSequence().toSet() == setOf("organization_id", "location_id", "version", "status", "entitlements", "management_allowed", "plan", "subscription", "period", "quotas", "observed_at", "diagnostics"))
         require(id(data.getString("organization_id")) == context.organizationId && id(data.getString("location_id")) == context.locationId)
         require(data.get("version") is Number && data.getLong("version") >= 0)
         val status = SubscriptionState.valueOf(data.getString("status")); val manage = data.getBoolean("management_allowed")
@@ -32,7 +32,7 @@ class SupabaseSaasRepository(private val snapshot: suspend (String) -> HttpReply
         val features = data.getJSONArray("entitlements"); require(features.length() == 10)
         val entitlements = (0 until features.length()).map { index ->
             val row = features.getJSONObject(index)
-            require(row.keySet() == setOf("capability", "configured", "enabled", "creation_allowed", "reason"))
+            require(row.keys().asSequence().toSet() == setOf("capability", "configured", "enabled", "creation_allowed", "reason"))
             val configured = row.getBoolean("configured"); val enabled = row.getBoolean("enabled"); val creation = row.getBoolean("creation_allowed")
             require(!creation || configured && enabled && status in setOf(SubscriptionState.ACTIVE, SubscriptionState.TRIAL, SubscriptionState.GRACE))
             Entitlement(Capability.valueOf(row.getString("capability")), configured, enabled, creation, if (row.isNull("reason")) null else row.getString("reason"))
@@ -40,7 +40,7 @@ class SupabaseSaasRepository(private val snapshot: suspend (String) -> HttpReply
         require(entitlements.map { it.capability }.toSet().size == 10)
         val rows = data.getJSONArray("quotas"); require(rows.length() <= 4 && (manage || rows.length() == 0))
         val quotas = (0 until rows.length()).map { index ->
-            val row = rows.getJSONObject(index); require(row.keySet() == setOf("code", "configured", "limit", "used", "status"))
+            val row = rows.getJSONObject(index); require(row.keys().asSequence().toSet() == setOf("code", "configured", "limit", "used", "status"))
             val code = row.getString("code"); require(code in setOf("LOCATIONS", "ACTIVE_MEMBERS", "STORAGE_BYTES", "ENGINE_EXECUTIONS"))
             val limit = exact(row, "limit"); val used = exact(row, "used"); val configured = row.getBoolean("configured")
             val expected = when { !configured || used == null -> "UNKNOWN"; limit == null -> "UNCAPPED"; used > limit -> "EXCEEDED"; used == limit -> "AT_LIMIT"; else -> "AVAILABLE" }
@@ -49,19 +49,24 @@ class SupabaseSaasRepository(private val snapshot: suspend (String) -> HttpReply
         }
         require(quotas.map { it.code }.toSet().size == quotas.size)
         val period = if (data.isNull("period")) null else data.getJSONObject("period").let {
-            require(it.keySet() == setOf("id", "start", "end"))
+            require(it.keys().asSequence().toSet() == setOf("id", "start", "end"))
             require(OffsetDateTime.parse(it.getString("end")).isAfter(OffsetDateTime.parse(it.getString("start"))))
             UsagePeriod(id(it.getString("id")), it.getString("start"), it.getString("end"))
         }
         val label = if (data.isNull("plan")) null else data.getJSONObject("plan").let {
-            require(it.keySet() == setOf("id", "code", "label", "development_only", "version_id", "version"))
+            require(it.keys().asSequence().toSet() == setOf("id", "code", "label", "development_only", "version_id", "version"))
             id(it.getString("id")); id(it.getString("version_id")); require(it.getString("code").matches(Regex("[A-Z][A-Z0-9_]{0,63}")))
             it.getString("label").also { label -> require(label.length in 1..120) }
         }
         if (!data.isNull("subscription")) data.getJSONObject("subscription").let {
-            require(it.keySet() == setOf("status", "version", "subscription_id", "plan_version_id", "creation_allowed", "effective_from", "effective_until", "trial_end", "grace_end"))
+            require(it.keys().asSequence().toSet() == setOf("status", "version", "subscription_id", "plan_version_id", "creation_allowed", "effective_from", "effective_until", "trial_end", "grace_end"))
             require(it.getLong("version") == data.getLong("version") && it.getString("status") == status.name)
             for (key in listOf("effective_from", "effective_until", "trial_end", "grace_end")) if (!it.isNull(key)) OffsetDateTime.parse(it.getString(key))
+        }
+        if (!data.isNull("diagnostics")) data.getJSONObject("diagnostics").let {
+            require(it.keys().asSequence().toSet() == setOf("provider_rejected", "quota_rejections", "subscription_rejections", "usage_projection_mismatch"))
+            for (key in listOf("provider_rejected", "quota_rejections", "subscription_rejections")) require(it.get(key) is Number && it.getLong(key) >= 0)
+            require(it.get("usage_projection_mismatch") is Boolean)
         }
         OffsetDateTime.parse(data.getString("observed_at"))
         return SaaSAccount(context.organizationId, context.locationId, data.getLong("version"), status, manage, label, period, entitlements, quotas, data.getString("observed_at"))

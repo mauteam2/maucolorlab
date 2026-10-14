@@ -9,4 +9,27 @@
     <string name="saas_no_limit">No numeric limit specified</string>
     <string name="saas_limit_reached">Usage limit reached. Existing records are preserved.</string>
     <string name="saas_disclaimer">Subscription does not grant user permissions. Historical reads and safe session stop remain available. New writes recheck server authority.</string>
+    <string name="saas_label_active">Active</string>
+    <string name="saas_label_trial">Trial</string>
+    <string name="saas_label_grace">Configured grace</string>
+    <string name="saas_label_past_due">Payment state requires review</string>
+    <string name="saas_label_suspended">Suspended</string>
+    <string name="saas_label_cancelled">Cancelled</string>
+    <string name="saas_label_unconfigured">Unconfigured</string>
+    <string name="saas_label_expired">Expired</string>
+    <string name="saas_label_trial_expired">Trial expired</string>
+    <string name="saas_label_color_engine">Color Engine</string>
+    <string name="saas_label_brand_adapter">Brand adaptation</string>
+    <string name="saas_label_live_session">Live color session</string>
+    <string name="saas_label_crm">Client relationships</string>
+    <string name="saas_label_stock">Stock</string>
+    <string name="saas_label_finance">Finance</string>
+    <string name="saas_label_costing">Direct cost</string>
+    <string name="saas_label_commission">Commission</string>
+    <string name="saas_label_reporting">Reports</string>
+    <string name="saas_label_ai_gateway">AI Gateway boundary</string>
+    <string name="saas_label_locations">Active locations</string>
+    <string name="saas_label_active_members">Active / invited people</string>
+    <string name="saas_label_storage_bytes">Storage · bytes</string>
+    <string name="saas_label_engine_executions">Successful Color Engine operations</string>
 </resources>

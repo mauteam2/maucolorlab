@@ -18,3 +18,8 @@ work closed. CI uses an explicit synthetic UTC month fixture only. Storage meter
 has a reserved typed category but current storage usage is UNKNOWN until an
 authoritative adapter is implemented; finite storage limits are rejected rather
 than enforced against an invented zero. AI Gateway remains an unconfigured interface.
+
+Live photo uploads retain original RLS and additionally require an explicitly
+configured uncapped STORAGE_BYTES quota. Missing/finite unmeasured quotas reject
+uploads, including direct Storage API calls. Historical downloads are unchanged.
+This permits configured evidence storage without pretending its byte usage is known.
