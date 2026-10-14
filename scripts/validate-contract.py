@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.20.0'
+assert contract['info']['version'] == '0.21.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -388,3 +388,17 @@ for rpc in ('reporting_snapshot','reporting_operation'):assert contract['paths']
 native=(root/'apps/android/app/src/main/java/com/elifora/app/data/reporting/SupabaseReportingRepository.kt').read_text(encoding='utf-8')
 for field in ('p_membership_id','p_location_id','p_request','BigInteger','BigDecimal','self_only','staff_user_id','reports.read','commission.view_all'):assert field in native,field
 print('PASS: Phase 6 shared report schemas, native exact decimals/self privacy and ten authority forgery rejections')
+
+saas_schemas=json.loads((root/'contracts/saas.schemas.json').read_text(encoding='utf-8'))
+assert {'SaaSAccount','Plan','PlanVersion','Entitlement','Quota','Subscription','SubscriptionState','UsageEvent','UsagePeriod','UsageSummary','EntitlementSnapshot','ProviderEventStatus'} <= saas_schemas.keys()
+for name,schema in saas_schemas.items():assert contract['components']['schemas'][name]==schema,name
+saas=json.loads((root/'contracts/fixtures/saas-contract.json').read_text(encoding='utf-8'))
+observation_validator('EntitlementSnapshot').validate(saas['snapshot'])
+observation_validator('SaaSCommand').validate(saas['command'])
+for field in ('organization_id','plan','status','entitlements','quota_limit','usage_count','trial_end','provider_event','provider_customer_ref','ownership'):
+    assert list(observation_validator('SaaSCommand').iter_errors(saas['command']|{field:True})),field
+for rpc in ('saas_snapshot','saas_operation'):assert contract['paths']['/rest/v1/rpc/'+rpc]['post']['security']==[{'bearerAuth':[],'publishableKey':[]}]
+native=(root/'apps/android/app/src/main/java/com/elifora/app/data/saas/SupabaseSaasRepository.kt').read_text(encoding='utf-8')
+for field in ('p_membership_id','p_location_id','BigInteger','management_allowed','creation_allowed','saas.entitlements.read','SAAS_VERSION_CONFLICT','UNKNOWN'):
+    assert field in native,field
+print('PASS: Phase 7 shared SaaS schemas, native quota/owner scope and ten commercial authority forgery rejections')

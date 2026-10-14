@@ -28,7 +28,7 @@ export function SaasWorkspace() {
   useEffect(() => {
     const start = setTimeout(() => void load(), 0), timer = setInterval(() => void load(), 15000), refresh = () => void load(), visibility = () => { conceal(); if (!document.hidden) void load(); };
     window.addEventListener("blur", conceal); window.addEventListener("focus", refresh); window.addEventListener("offline", conceal); window.addEventListener("online", refresh); document.addEventListener("visibilitychange", visibility);
-    return () => { clearTimeout(start); clearInterval(timer); epoch.current++; window.removeEventListener("blur", conceal); window.removeEventListener("focus", refresh); window.removeEventListener("offline", conceal); window.removeEventListener("online", refresh); document.removeEventListener("visibilitychange", visibility); };
+    return () => { clearTimeout(start); clearInterval(timer); conceal(); window.removeEventListener("blur", conceal); window.removeEventListener("focus", refresh); window.removeEventListener("offline", conceal); window.removeEventListener("online", refresh); document.removeEventListener("visibilitychange", visibility); };
   }, [load, conceal]);
   async function operate(type: "REQUEST_CHANGE" | "REBUILD_USAGE") {
     if (!ctx || busy || !navigator.onLine) return; setBusy(true); setNotice("");

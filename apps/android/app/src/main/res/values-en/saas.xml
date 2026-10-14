@@ -1,0 +1,12 @@
+<resources>
+    <string name="saas_open">Open / refresh plan and usage</string>
+    <string name="saas_title">Organization account</string>
+    <string name="saas_state">Subscription state: %1$s</string>
+    <string name="saas_error">Account state could not be verified. Try again.</string>
+    <string name="saas_available">Subscription permits new work</string>
+    <string name="saas_unavailable">New work is unavailable in this subscription</string>
+    <string name="saas_unknown">Unknown</string>
+    <string name="saas_no_limit">No numeric limit specified</string>
+    <string name="saas_limit_reached">Usage limit reached. Existing records are preserved.</string>
+    <string name="saas_disclaimer">Subscription does not grant user permissions. Historical reads and safe session stop remain available. New writes recheck server authority.</string>
+</resources>

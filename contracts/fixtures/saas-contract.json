@@ -1,0 +1,133 @@
+{
+  "snapshot": {
+    "organization_id": "f7000000-0000-4000-8000-000000000001",
+    "location_id": "f7000000-0000-4000-8000-000000000011",
+    "version": 1,
+    "status": "ACTIVE",
+    "management_allowed": true,
+    "plan": {
+      "id": "f7000000-0000-4000-8000-000000000201",
+      "code": "PLAN_A",
+      "label": "PLAN_A",
+      "development_only": true,
+      "version_id": "f7000000-0000-4000-8000-000000000202",
+      "version": 1
+    },
+    "subscription": {
+      "status": "ACTIVE",
+      "version": 1,
+      "subscription_id": "f7000000-0000-4000-8000-000000000301",
+      "plan_version_id": "f7000000-0000-4000-8000-000000000202",
+      "creation_allowed": true,
+      "effective_from": "2026-10-01T00:00:00Z",
+      "effective_until": null,
+      "trial_end": null,
+      "grace_end": null
+    },
+    "entitlements": [
+      {
+        "capability": "COLOR_ENGINE",
+        "configured": true,
+        "enabled": true,
+        "creation_allowed": true,
+        "reason": null
+      },
+      {
+        "capability": "BRAND_ADAPTER",
+        "configured": true,
+        "enabled": true,
+        "creation_allowed": true,
+        "reason": null
+      },
+      {
+        "capability": "LIVE_SESSION",
+        "configured": true,
+        "enabled": true,
+        "creation_allowed": true,
+        "reason": null
+      },
+      {
+        "capability": "CRM",
+        "configured": true,
+        "enabled": true,
+        "creation_allowed": true,
+        "reason": null
+      },
+      {
+        "capability": "STOCK",
+        "configured": true,
+        "enabled": true,
+        "creation_allowed": true,
+        "reason": null
+      },
+      {
+        "capability": "FINANCE",
+        "configured": true,
+        "enabled": true,
+        "creation_allowed": true,
+        "reason": null
+      },
+      {
+        "capability": "COSTING",
+        "configured": true,
+        "enabled": true,
+        "creation_allowed": true,
+        "reason": null
+      },
+      {
+        "capability": "COMMISSION",
+        "configured": true,
+        "enabled": true,
+        "creation_allowed": true,
+        "reason": null
+      },
+      {
+        "capability": "REPORTING",
+        "configured": true,
+        "enabled": true,
+        "creation_allowed": true,
+        "reason": null
+      },
+      {
+        "capability": "AI_GATEWAY",
+        "configured": true,
+        "enabled": true,
+        "creation_allowed": true,
+        "reason": null
+      }
+    ],
+    "period": {
+      "id": "f7000000-0000-4000-8000-000000000401",
+      "start": "2026-10-03T03:00:00Z",
+      "end": "2026-11-03T03:00:00Z"
+    },
+    "quotas": [
+      {
+        "code": "ACTIVE_MEMBERS",
+        "configured": true,
+        "used": "4",
+        "limit": "5",
+        "status": "AVAILABLE"
+      },
+      {
+        "code": "STORAGE_BYTES",
+        "configured": true,
+        "used": null,
+        "limit": null,
+        "status": "UNKNOWN"
+      }
+    ],
+    "observed_at": "2026-10-14T12:00:00Z",
+    "diagnostics": {
+      "provider_rejected": 0,
+      "quota_rejections": 0,
+      "subscription_rejections": 0,
+      "usage_projection_mismatch": false
+    }
+  },
+  "command": {
+    "type": "REQUEST_CHANGE",
+    "request_id": "f7000000-0000-4000-8000-000000000501",
+    "reason": "Review configured capability access"
+  }
+}

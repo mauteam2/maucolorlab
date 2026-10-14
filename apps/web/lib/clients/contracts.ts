@@ -1,3 +1,4 @@
+import { saasErrorMessages } from "@/lib/saas/model";
 import { z } from "zod";
 
 export const clientStatus = z.enum(["ACTIVE", "ARCHIVED"]);
@@ -23,6 +24,7 @@ export type Command = z.infer<typeof clientCommand>;
 export const permissionFor = (operation: Command["operation"]) => `clients.${operation === "list" || operation === "detail" ? "read" : operation === "restore" ? "archive" : operation}`;
 export const errorStatus = (code: string) => ({ UNAUTHENTICATED: 401, SESSION_EXPIRED: 401, FORBIDDEN: 403, MEMBERSHIP_REQUIRED: 403, MEMBERSHIP_REVOKED: 403, TENANT_CONTEXT_INVALID: 403, CLIENT_NOT_FOUND: 404, CLIENT_ARCHIVED: 409, CRM_MERGE_ACTIVE_OPERATION: 409, CONFLICT: 409, DUPLICATE_CLIENT_CANDIDATES: 409, DUPLICATE_CONFIRMATION_INVALID: 409, VALIDATION_FAILED: 400 }[code] ?? 503);
 export const clientErrorText: Record<string, string> = {
+  ...saasErrorMessages,
   CRM_MERGE_ACTIVE_OPERATION: "Aktif randevu veya renk oturumu tamamlanmadan müşteri arşivlenemez.",
   VALIDATION_FAILED: "Ad soyad, telefon ve isteğe bağlı bilgileri kontrol edin.", CLIENT_NOT_FOUND: "Müşteri bulunamadı veya erişim izniniz yok.", CLIENT_ARCHIVED: "Düzenlemek için müşteriyi önce arşivden çıkarın.", CONFLICT: "Kayıt değişti. Güncel bilgileri açıp yeniden deneyin.", DUPLICATE_CONFIRMATION_INVALID: "Benzer kayıtlar değişti veya inceleme süresi doldu. Bilgileri yeniden kontrol edin.", FORBIDDEN: "Bu işlem için yetkiniz yok.", NETWORK_ERROR: "Bağlantı kurulamadı. Yeniden deneyin.",
 };

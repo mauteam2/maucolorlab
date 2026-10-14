@@ -19,6 +19,7 @@ class MainActivity : ComponentActivity() {
     private val controller get() = (application as EliforaApplication).container.workspaceController
     private val clients get() = (application as EliforaApplication).container.clientController
     private val stock get() = (application as EliforaApplication).container.stockController
+    private val saas get() = (application as EliforaApplication).container.saasController
     private val reports get() = (application as EliforaApplication).container.reportingController
     private val crm get() = (application as EliforaApplication).container.clientCrmController
     private val passports get() = (application as EliforaApplication).container.hairPassportController
@@ -29,9 +30,9 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             controller.state.collectLatest { state ->
                 when (state) {
-                    is WorkspaceState.Ready -> { reports.conceal(); reports.bind(state.context); passports.conceal(); passports.bind(state.context); crm.bind(state.context); stock.conceal(); stock.bind(state.context); clients.bind(state.context) }
-                    WorkspaceState.LoadingSession, WorkspaceState.LoadingMemberships -> { reports.conceal(); clients.conceal(); passports.conceal(); crm.conceal(); stock.conceal() }
-                    else -> { reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate() }
+                    is WorkspaceState.Ready -> { saas.conceal(); saas.bind(state.context); reports.conceal(); reports.bind(state.context); passports.conceal(); passports.bind(state.context); crm.bind(state.context); stock.conceal(); stock.bind(state.context); clients.bind(state.context) }
+                    WorkspaceState.LoadingSession, WorkspaceState.LoadingMemberships -> { saas.conceal(); reports.conceal(); clients.conceal(); passports.conceal(); crm.conceal(); stock.conceal() }
+                    else -> { saas.invalidate(); reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate() }
                 }
             }
         }
@@ -55,13 +56,14 @@ class MainActivity : ComponentActivity() {
                 signIn = { email, password -> lifecycleScope.launch { controller.signIn(email, password) } },
                 select = { lifecycleScope.launch { controller.select(it) } },
                 retry = { lifecycleScope.launch { controller.restore() } },
-                change = { reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate(); lifecycleScope.launch { controller.changeWorkspace() } },
-                logout = { reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate(); lifecycleScope.launch { controller.logout() } },
+                change = { saas.invalidate(); reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate(); lifecycleScope.launch { controller.changeWorkspace() } },
+                logout = { saas.invalidate(); reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate(); lifecycleScope.launch { controller.logout() } },
                 clients = { permissions -> ClientScreens(clients, passports, permissions, crm) },
-                stock = { com.elifora.app.ui.StockScreen(stock) }, reports = { com.elifora.app.ui.ReportingScreen(reports) })
+                stock = { com.elifora.app.ui.StockScreen(stock) }, reports = { com.elifora.app.ui.ReportingScreen(reports) }, saas = { com.elifora.app.ui.SaasScreen(saas) })
         }
     }
     override fun onStop() {
+        saas.conceal()
         reports.conceal()
         clients.conceal()
         passports.conceal()

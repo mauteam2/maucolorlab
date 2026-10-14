@@ -25,6 +25,7 @@ fun EliforaApp(
     clients: @Composable (Set<String>) -> Unit = {},
     stock: @Composable () -> Unit = {},
     reports: @Composable () -> Unit = {},
+    saas: @Composable () -> Unit = {},
 ) {
     val state by states.collectAsStateWithLifecycle()
     EliforaTheme {
@@ -49,6 +50,7 @@ fun EliforaApp(
                         if ("clients.read" in current.context.permissions) clients(current.context.permissions)
                         if ("stock.view" in current.context.permissions) stock()
                         if ("reports.read" in current.context.permissions) reports()
+                        if ("saas.entitlements.read" in current.context.permissions) saas()
                         OutlinedButton(onClick = change) { Text(stringResource(R.string.workspace_change)) }
                     }
                     is WorkspaceState.SelectingWorkspace -> {

@@ -1,0 +1,12 @@
+<resources>
+    <string name="saas_open">Plan ve kullanım görünümünü aç / yenile</string>
+    <string name="saas_title">Kuruluş hesabı</string>
+    <string name="saas_state">Abonelik durumu: %1$s</string>
+    <string name="saas_error">Hesap durumu doğrulanamadı. Yeniden deneyin.</string>
+    <string name="saas_available">Yeni işler için abonelik erişimi açık</string>
+    <string name="saas_unavailable">Yeni işler mevcut abonelikte kullanılamıyor</string>
+    <string name="saas_unknown">Bilinmiyor</string>
+    <string name="saas_no_limit">Sayısal sınır belirtilmemiş</string>
+    <string name="saas_limit_reached">Kullanım sınırına ulaşıldı. Mevcut kayıtlar korunur.</string>
+    <string name="saas_disclaimer">Abonelik, kullanıcı izinlerini değiştirmez. Geçmiş okumalar ve güvenli oturum durdurma işlemleri korunur. Yeni işlemler sunucuda yeniden doğrulanır.</string>
+</resources>
