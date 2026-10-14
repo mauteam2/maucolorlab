@@ -15,7 +15,10 @@ async function openAccount(page: Page) {
   await expect(page.getByRole("heading", { name: "Yapılandırılmış yetenekler", exact: true })).toBeVisible();
 }
 test("owner subscription, current plan transition, mobile and historical read survive suspension", async ({ page }, info) => {
-  const { ctx, headers } = await setup(page); await openAccount(page);
+  const { ctx, headers } = await setup(page);
+  const created = await page.request.post("/api/clients", { headers, data: { operation: "create", payload: { full_name: "Sentetik abonelik müşterisi", phone: "05329990007", phone_region: "TR", request_id: randomUUID() } } });
+  expect(created.status(), await created.text()).toBe(200); const client = (await created.json()).data;
+  await openAccount(page);
   await expect(page.getByRole("heading", { name: "Kullanım ve sınırlar" })).toBeVisible();
   const initial = (await (await page.request.get("/api/saas")).json()).data;
   expect(initial.management_allowed).toBe(true); expect(initial.entitlements.every((e: { creation_allowed: boolean }) => e.creation_allowed)).toBe(true);
@@ -35,7 +38,9 @@ test("owner subscription, current plan transition, mobile and historical read su
   configure(ctx.organization_id, "SUSPENDED"); await page.getByRole("button", { name: "Yenile", exact: true }).click();
   await expect(page.getByText("Askıya alınmış", { exact: true })).toBeVisible();
   const suspended = (await (await page.request.get("/api/saas")).json()).data; expect(suspended.entitlements.every((e: { creation_allowed: boolean }) => !e.creation_allowed)).toBe(true);
-  expect((await page.request.get("/api/clients")).status()).toBe(200); expect((await page.request.get("/api/reporting")).status()).toBe(200);
+  const historical = await page.request.post("/api/clients", { headers, data: { operation: "detail", payload: { client_id: client.id } } });
+  expect(historical.status(), await historical.text()).toBe(200); expect((await historical.json()).data.id).toBe(client.id);
+  expect((await page.request.get("/api/reporting")).status()).toBe(200);
   await page.screenshot({ path: info.outputPath("saas-suspended-mobile-320.png"), fullPage: true });
 });
 test("manager gets capability view without billing authority", async ({ page, browser }) => {
