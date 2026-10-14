@@ -1,8 +1,31 @@
-import { liveCommand,type LiveCommand } from "./model";
-export type Draft={key:string;scope:string;command:LiveCommand;createdAt:string;photo?:Blob};
-export const draftable=(type:string)=>["NOTE","USAGE","MATERIAL_RECONCILE","CHECKPOINT_RECORD","PHOTO"].includes(type);
-function database(){return new Promise<IDBDatabase>((resolve,reject)=>{const r=indexedDB.open("elifora-live-drafts",1);r.onupgradeneeded=()=>r.result.createObjectStore("drafts",{keyPath:"key"});r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
-export async function storeDraft(d:Draft){if(!draftable(d.command.type))throw new Error("OFFLINE_CRITICAL_OPERATION");liveCommand.parse(d.command);const db=await database();try{await new Promise<void>((resolve,reject)=>{const t=db.transaction("drafts","readwrite");t.objectStore("drafts").put(d);t.oncomplete=()=>resolve();t.onerror=()=>reject(t.error);});}finally{db.close();}}
-export async function readDrafts(scope:string){const db=await database();try{return await new Promise<Draft[]>((resolve,reject)=>{const r=db.transaction("drafts").objectStore("drafts").getAll();r.onsuccess=()=>resolve((r.result as Draft[]).filter(d=>d.scope===scope).sort((a,b)=>a.createdAt.localeCompare(b.createdAt)));r.onerror=()=>reject(r.error);});}finally{db.close();}}
-export async function removeDraft(key:string){const db=await database();try{await new Promise<void>((resolve,reject)=>{const t=db.transaction("drafts","readwrite");t.objectStore("drafts").delete(key);t.oncomplete=()=>resolve();t.onerror=()=>reject(t.error);});}finally{db.close();}}
-export function reconcileDraft(d:Draft,version:number,epoch:number){if(d.command.expected_version!==version||d.command.control_epoch!==epoch)return "CONFLICT_REVIEW" as const;return "READY_FOR_EXPLICIT_SYNC" as const;}
+import { liveCommand, type LiveCommand } from "./model";
+import { makeDraft } from "@/lib/offline/model";
+import { currentVault, unlockDraftVault, readOfflineDrafts, storeOfflineDraft, removeOfflineDraft, readOfflineAttachment } from "@/lib/offline/vault";
+export type Draft = { key: string; scope: string; command: LiveCommand; createdAt: string; photo?: Blob };
+export const draftable = (type: string) => ["NOTE", "USAGE", "MATERIAL_RECONCILE", "CHECKPOINT_RECORD", "PHOTO"].includes(type);
+function sessionId(scope: string) { return scope.split(":").at(-1)!; }
+async function selected() { return currentVault() ?? await unlockDraftVault(); }
+export async function storeDraft(d: Draft, clientId?: string) {
+ if (!draftable(d.command.type)) throw new Error("OFFLINE_CRITICAL_OPERATION");
+ const command = liveCommand.parse(d.command), vault = await selected();
+ if (d.scope.split(":")[0] !== vault.identity.membership_id || d.scope.split(":")[1] !== vault.identity.location_id) throw new Error("TENANT_CONTEXT_INVALID");
+ const payload = { command, scope: d.scope };
+ const draft = await makeDraft(vault.identity, "LIVE", payload, command.mutation_id, { session_id: sessionId(d.scope), entity_id: clientId ?? null, base_version: command.expected_version, control_epoch: command.control_epoch });
+ const old = (await readOfflineDrafts(vault)).find(x => x.draft_id === draft.draft_id);
+ await storeOfflineDraft(vault, { ...(old ?? draft), status: "PENDING_SYNC" }, d.photo);
+}
+export async function readDrafts(scope: string) {
+ const vault = await selected();
+ const all = await readOfflineDrafts(vault), result: Draft[] = [];
+ for (const d of all) {
+  if (d.domain !== "LIVE" || d.status === "SYNCED") continue;
+  const payload = d.payload as { command: unknown; scope: string };
+  if (payload.scope !== scope) continue;
+  result.push({ key: d.draft_id, scope, command: liveCommand.parse(payload.command), createdAt: d.created_at, photo: await readOfflineAttachment(vault, d.draft_id) });
+ }
+ return result;
+}
+export async function removeDraft(key: string) { await removeOfflineDraft(await selected(), key); }
+export function reconcileDraft(d: Draft, version: number, epoch: number) {
+ return d.command.expected_version !== version || d.command.control_epoch !== epoch ? "CONFLICT_REVIEW" as const : "READY_FOR_EXPLICIT_SYNC" as const;
+}

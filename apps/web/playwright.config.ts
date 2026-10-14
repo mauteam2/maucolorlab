@@ -6,7 +6,7 @@ export default defineConfig({
   workers: 2,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  reporter: "html",
+  reporter: [["html"], ["./e2e/reliability-reporter.ts"]],
   use: {
     baseURL: "http://127.0.0.1:4173",
     // Auth traces can contain session cookies. Do not capture them.
@@ -17,7 +17,7 @@ export default defineConfig({
     { name: "mobile-chromium", use: { ...devices["Pixel 7"] } },
   ],
   webServer: {
-    command: "npm run dev -- --hostname 127.0.0.1 --port 4173",
+    command: process.env.CI || process.env.ELIFORA_E2E_PRODUCTION === "true" ? "npm run start -- --hostname 127.0.0.1 --port 4173" : "npm run dev -- --hostname 127.0.0.1 --port 4173",
     url: "http://127.0.0.1:4173",
     reuseExistingServer: false,
     env: {

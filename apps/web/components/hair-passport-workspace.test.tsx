@@ -1,5 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
+vi.mock("@/lib/offline/mutation", () => ({ performDraftedMutation: async (_domain: unknown, _command: unknown, _reference: unknown, _signal: unknown, send: () => Promise<unknown>) => ({ committed: true, result: await send() }) }));
+vi.mock("./offline-draft-panel", () => ({ OfflineDraftPanel: () => null }));
 vi.mock("@/lib/hair-passport/load", () => ({ loadPassport: vi.fn(), PassportLoadError: class extends Error { constructor(public code: string) { super(code); } } }));
 vi.mock("@/lib/hair-passport/mutate", () => ({ sendHairMutation: vi.fn(), PassportMutationError: class extends Error { constructor(public code: string) { super(code); } } }));
 vi.mock("@/lib/hair-passport/observation-mutate", () => ({ sendObservation: vi.fn() }));
@@ -222,4 +224,23 @@ it("conceals prior identity during focus revalidation and ignores superseded res
  fireEvent(window, new Event("offline"));
  await act(async () => resolve(loaded));
  expect(screen.queryByText(loaded.client.full_name)).toBeNull(); expect(screen.getByRole("alert")).toBeVisible();
+});
+
+it("periodic refresh cannot supersede an in-flight save and its committed readback", async () => {
+ vi.useFakeTimers();
+ try {
+  const active = { ...loaded, client: { ...loaded.client, status: "ACTIVE" as const } };
+  vi.mocked(loadPassport).mockResolvedValueOnce(active).mockResolvedValue({ ...active, snapshot: readFixtures.populated.data as typeof active.snapshot });
+  let accepted!: (value: Awaited<ReturnType<typeof sendHairMutation>>) => void;
+  vi.mocked(sendHairMutation).mockImplementation(() => new Promise(resolve => { accepted = resolve; }));
+  render(<HairPassportWorkspace clientId="test" />);
+  await act(async () => { await Promise.resolve(); });
+  fireEvent.click(screen.getByRole("button", { name: e.create }));
+  fireEvent.click(screen.getByRole("button", { name: e.save }));
+  await act(async () => { await Promise.resolve(); await vi.advanceTimersByTimeAsync(15000); });
+  expect(loadPassport).toHaveBeenCalledTimes(1);
+  await act(async () => { accepted({} as Awaited<ReturnType<typeof sendHairMutation>>); });
+  expect(loadPassport).toHaveBeenCalledTimes(2);
+  expect(screen.getByText(e.saved)).toBeVisible();
+ } finally { vi.useRealTimers(); }
 });

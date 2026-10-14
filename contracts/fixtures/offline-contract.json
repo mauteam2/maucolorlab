@@ -1,0 +1,41 @@
+{
+  "metadata": {
+    "schema_version": 1,
+    "draft_id": "f8000000-0000-4000-8000-000000000010",
+    "mutation_id": "f8000000-0000-4000-8000-000000000010",
+    "domain": "HAIR_HISTORY",
+    "organization_id": "f8000000-0000-4000-8000-000000000001",
+    "location_id": "f8000000-0000-4000-8000-000000000002",
+    "user_id": "f8000000-0000-4000-8000-000000000003",
+    "device_id": "f8000000-0000-4000-8000-000000000004",
+    "membership_id": "f8000000-0000-4000-8000-000000000005",
+    "workspace_reference": "f8000000-0000-4000-8000-000000000005:f8000000-0000-4000-8000-000000000002",
+    "session_id": null,
+    "entity_id": null,
+    "base_version": null,
+    "control_epoch": null,
+    "created_at": "2026-10-14T16:17:47.970Z",
+    "updated_at": "2026-10-14T16:17:47.970Z",
+    "payload_hash": "1c197daef20de3f47eec5e2f735ec6669869d3180cc29f35be4788511e0af0f8",
+    "status": "LOCAL",
+    "dependencies": [],
+    "attempt_count": 0,
+    "next_attempt_at": null,
+    "conflict": null,
+    "correlation_id": null
+  },
+  "recovery": {
+    "type": "RECOVER_CONTROL",
+    "mutation_id": "f8000000-0000-4000-8000-000000000010",
+    "device_id": "f8000000-0000-4000-8000-000000000004",
+    "expected_version": 3,
+    "control_epoch": 1,
+    "reason": "Synthetic controller device lost"
+  },
+  "result": {
+    "draft_id": "f8000000-0000-4000-8000-000000000010",
+    "status": "CONFLICT",
+    "conflict": "VERSION_CHANGED",
+    "correlation_id": null
+  }
+}

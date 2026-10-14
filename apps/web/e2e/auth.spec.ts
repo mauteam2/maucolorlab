@@ -1,4 +1,5 @@
-import { expect, test } from "@playwright/test";
+import { test } from "./reliability-test";
+import { expect } from "@playwright/test";
 import { login, seedAccount, expectReady } from "./local-auth";
 
 test("real login auto-selects, persists through browser restart, and logout clears access", async ({ page, browser }) => {

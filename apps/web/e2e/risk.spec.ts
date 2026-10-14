@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import { test } from "./reliability-test";
+import { expect, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { seedAccount, login, expectReady } from "./local-auth";
 async function createClient(page: Page) {

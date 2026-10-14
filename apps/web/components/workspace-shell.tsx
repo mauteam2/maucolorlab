@@ -5,6 +5,7 @@ import { SalonFrame, SalonHeading, SalonCard } from "./salon-frame";
 import { SalonIcon } from "./salon-icon";
 import { type ActiveTenantContext, tenantContextSchema } from "@/lib/tenant/context";
 import { tr } from "@/lib/i18n/tr";
+import { OfflineDraftPanel } from "./offline-draft-panel";
 import { logout } from "@/app/sign-in/actions";
 import { changeWorkspace } from "@/app/workspaces/actions";
 import { SalonOperations } from "./salon-operations";
@@ -51,6 +52,7 @@ export function WorkspaceShell() {
       : <p role="status">{failed ? tr.network : tr.loading}</p>}
     {context?.permissions.includes("reports.read") && <ReportingWorkspace embedded />}
     {failed && <a href="/workspace" className="text-link">{tr.retry}</a>}
-    <form action={logout}><button className="button button-primary">{tr.logout}</button></form>
+    <OfflineDraftPanel />
+    <form action={logout} onSubmit={() => window.dispatchEvent(new Event("elifora-offline-lock"))}><button className="button button-primary">{tr.logout}</button></form>
   </main></SalonFrame>;
 }

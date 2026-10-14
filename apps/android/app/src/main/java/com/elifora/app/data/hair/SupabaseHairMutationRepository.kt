@@ -11,8 +11,24 @@ class SupabaseHairMutationRepository(
     private val rpc: suspend (String, String) -> HttpReply,
     private val memberships: suspend () -> List<ActiveTenantContext>,
     private val actor: suspend () -> String,
+    private val offline: com.elifora.app.domain.offline.OfflineController? = null,
 ) : HairMutationRepository {
     override suspend fun mutate(context: ActiveTenantContext, command: HairCommand) {
+        val local = offline?.let { controller ->
+            val selected = (controller.state.value as? com.elifora.app.domain.offline.OfflineState.Ready)?.identity
+                ?: throw HairFailure("NETWORK_ERROR")
+            if (selected.reference != context.reference || selected.organizationId != context.organizationId) throw HairFailure("TENANT_CONTEXT_INVALID")
+            val (rpc, body) = payload(command)
+            val domain = when (command.write.action) {
+                HairAction.OBSERVATION -> com.elifora.app.domain.offline.DraftDomain.HAIR_OBSERVATION
+                HairAction.TEST -> com.elifora.app.domain.offline.DraftDomain.HAIR_PHYSICAL_TEST
+                HairAction.HISTORY -> com.elifora.app.domain.offline.DraftDomain.HAIR_HISTORY
+                else -> com.elifora.app.domain.offline.DraftDomain.HAIR_CORE
+            }
+            val version = when (val write = command.write) { is HairWrite.Core -> write.version; is HairWrite.Observation -> write.version; else -> null }
+            controller.capture(domain, canonicalHairIntent(JSONObject().put("rpc", rpc).put("client_id", command.clientId)
+                .put("action", command.write.action.name).put("payload", body)), command.requestId, command.clientId, version)
+        }
         verify(context, command.write.action)
         val actorId = if (command.write !is HairWrite.Core) actor() else null
         val correlation = UUID.randomUUID().toString()
@@ -31,6 +47,7 @@ class SupabaseHairMutationRepository(
         } catch (failure: HairFailure) { throw failure }
         catch (_: Exception) { throw HairFailure("NETWORK_ERROR", correlation) }
         verify(context, command.write.action)
+        if (local != null) offline?.accepted(local, correlation)
     }
     private suspend fun verify(context: ActiveTenantContext, action: HairAction) {
         val current = memberships().find { it.reference == context.reference && it.organizationId == context.organizationId && it.membershipStatus == "active" }
@@ -104,6 +121,13 @@ class SupabaseHairMutationRepository(
             else require(region.type == write.regionType && region.version == 1L)
         }
     }
+}
+internal fun canonicalHairIntent(value: Any?): String = when (value) {
+    is JSONObject -> value.keys().asSequence().toList().sorted().joinToString(",", "{", "}") { JSONObject.quote(it) + ":" + canonicalHairIntent(value.get(it)) }
+    is JSONArray -> (0 until value.length()).joinToString(",", "[", "]") { canonicalHairIntent(value.get(it)) }
+    null, JSONObject.NULL -> "null"
+    is String -> JSONObject.quote(value)
+    else -> value.toString()
 }
 internal fun coreOperation(action: HairAction) = when (action) {
     HairAction.CREATE -> "create_passport"

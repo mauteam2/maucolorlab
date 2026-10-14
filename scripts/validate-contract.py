@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.21.0'
+assert contract['info']['version'] == '0.22.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -407,3 +407,18 @@ native=(root/'apps/android/app/src/main/java/com/elifora/app/data/saas/SupabaseS
 for field in ('p_membership_id','p_location_id','BigInteger','management_allowed','creation_allowed','saas.entitlements.read','SAAS_VERSION_CONFLICT','UNKNOWN'):
     assert field in native,field
 print('PASS: Phase 7 shared SaaS schemas, native quota/owner scope and ten commercial authority forgery rejections')
+
+offline_schemas = json.loads((root / 'contracts/offline.schemas.json').read_text(encoding='utf-8'))
+for name, schema in offline_schemas.items():
+    Draft202012Validator.check_schema(schema)
+offline_fixture = json.loads((root / 'contracts/fixtures/offline-contract.json').read_text(encoding='utf-8'))
+observation_validator('OfflineDraftMetadata').validate(offline_fixture['metadata'])
+observation_validator('ControllerRecovery').validate(offline_fixture['recovery'])
+observation_validator('SyncResult').validate(offline_fixture['result'])
+for field in ('organization_id', 'actor_id', 'subscription_status', 'target_device_id', 'timer_state'):
+    assert list(observation_validator('ControllerRecovery').iter_errors(offline_fixture['recovery'] | {field: True})), field
+assert list(observation_validator('ControllerRecovery').iter_errors(offline_fixture['recovery'] | {'reason': ''}))
+native_offline = (root / 'apps/android/app/src/main/java/com/elifora/app/data/offline/EncryptedOfflineDraftStore.kt').read_text(encoding='utf-8')
+for field in contract['components']['schemas']['OfflineDraftMetadata']['required']:
+    assert field in native_offline, field
+print('PASS: Phase 8 offline metadata, deterministic states, explicit conflicts and controller recovery authority forgery rejections')

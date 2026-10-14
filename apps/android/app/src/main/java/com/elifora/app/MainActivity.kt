@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private val offline get() = (application as EliforaApplication).container.offlineController
     private val controller get() = (application as EliforaApplication).container.workspaceController
     private val clients get() = (application as EliforaApplication).container.clientController
     private val stock get() = (application as EliforaApplication).container.stockController
@@ -30,9 +31,9 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             controller.state.collectLatest { state ->
                 when (state) {
-                    is WorkspaceState.Ready -> { saas.conceal(); saas.bind(state.context); reports.conceal(); reports.bind(state.context); passports.conceal(); passports.bind(state.context); crm.bind(state.context); stock.conceal(); stock.bind(state.context); clients.bind(state.context) }
-                    WorkspaceState.LoadingSession, WorkspaceState.LoadingMemberships -> { saas.conceal(); reports.conceal(); clients.conceal(); passports.conceal(); crm.conceal(); stock.conceal() }
-                    else -> { saas.invalidate(); reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate() }
+                    is WorkspaceState.Ready -> { offline.bind(state.context); saas.conceal(); saas.bind(state.context); reports.conceal(); reports.bind(state.context); passports.conceal(); passports.bind(state.context); crm.bind(state.context); stock.conceal(); stock.bind(state.context); clients.bind(state.context) }
+                    WorkspaceState.LoadingSession, WorkspaceState.LoadingMemberships -> { offline.conceal(); saas.conceal(); reports.conceal(); clients.conceal(); passports.conceal(); crm.conceal(); stock.conceal() }
+                    else -> { offline.conceal(); saas.invalidate(); reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate() }
                 }
             }
         }
@@ -56,13 +57,14 @@ class MainActivity : ComponentActivity() {
                 signIn = { email, password -> lifecycleScope.launch { controller.signIn(email, password) } },
                 select = { lifecycleScope.launch { controller.select(it) } },
                 retry = { lifecycleScope.launch { controller.restore() } },
-                change = { saas.invalidate(); reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate(); lifecycleScope.launch { controller.changeWorkspace() } },
-                logout = { saas.invalidate(); reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate(); lifecycleScope.launch { controller.logout() } },
+                change = { offline.conceal(); saas.invalidate(); reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate(); lifecycleScope.launch { controller.changeWorkspace() } },
+                logout = { offline.conceal(); saas.invalidate(); reports.invalidate(); clients.invalidate(); passports.invalidate(); crm.invalidate(); stock.invalidate(); lifecycleScope.launch { controller.logout() } },
                 clients = { permissions -> ClientScreens(clients, passports, permissions, crm) },
                 stock = { com.elifora.app.ui.StockScreen(stock) }, reports = { com.elifora.app.ui.ReportingScreen(reports) }, saas = { com.elifora.app.ui.SaasScreen(saas) })
         }
     }
     override fun onStop() {
+        offline.conceal()
         saas.conceal()
         reports.conceal()
         clients.conceal()

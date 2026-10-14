@@ -15,6 +15,22 @@ it("second device cannot take control",()=>expect(()=>act({type:"READY",device_i
 it("second user cannot take control",()=>{a.actorId=fixtureId(777);expect(()=>act({type:"READY"})).toThrow("LIVE_CONTROLLER_CONFLICT");});
 it("stale state cannot overwrite same field",()=>{act({type:"READY"});expect(()=>act({type:"START",expected_version:1})).toThrow("LIVE_SESSION_CONFLICT");});
 it("control transfer increments epoch and invalidates old device",()=>{a.transferAllowed=true;act({type:"TRANSFER_CONTROL",user_id:a.actorId,target_device_id:fixtureId(777),reason:"Explicit device handoff"});expect(s.controlEpoch).toBe(2);expect(()=>act({type:"READY"})).toThrow("LIVE_CONTROLLER_CONFLICT");});
+it("lost controller recovery preserves timers and technical state, with one audited epoch change",()=>{
+ start();act({type:"TIMER_ADD",label:"Roots",step_id:null,region_id:null,duration_seconds:1800});
+ const before=structuredClone(s);a.actorId=fixtureId(777);a.now="2026-10-04T12:01:00Z";
+ act({type:"RECOVER_CONTROL",device_id:fixtureId(778),reason:"Controller device lost; manager takes over"});
+ expect(s.controlEpoch).toBe(before.controlEpoch+1);expect(s.controllerUserId).toBe(a.actorId);
+ for(const field of ["status","timers","steps","bowls","usage","checkpoints","recipes","startedBy","startedAt","outcome"] as const)expect(s[field]).toEqual(before[field]);
+ expect(s.deviations.at(-1)).toMatchObject({reason:"Controller device lost; manager takes over",before:{epoch:1},after:{epoch:2},changedBy:a.actorId});
+ expect(()=>act({type:"PAUSE",control_epoch:1,device_id:fixtureId(778)})).toThrow("LIVE_SESSION_CONFLICT");
+ expect(()=>act({type:"PAUSE"})).toThrow("LIVE_CONTROLLER_CONFLICT");
+});
+it("normal control permission cannot recover a lost device",()=>{a.permissions=["live_session.control"];expect(()=>act({type:"RECOVER_CONTROL",device_id:fixtureId(778),reason:"Lost device"})).toThrow("FORBIDDEN");});
+it("recovery is online-only, explicit and cannot reopen stopped history",()=>{
+ expect(draftable("RECOVER_CONTROL")).toBe(false);
+ expect(liveCommand.safeParse({type:"RECOVER_CONTROL",device_id:fixtureId(778),mutation_id:fixtureId(779),expected_version:1,control_epoch:1,reason:""}).success).toBe(false);
+ act({type:"ABORT",reason:"Safety stop"});expect(()=>act({type:"RECOVER_CONTROL",device_id:fixtureId(778),reason:"Lost device"})).toThrow("LIVE_SESSION_IMMUTABLE");
+});
 it("viewer cannot mutate even with correct device",()=>{a.permissions=["live_session.view"];expect(()=>act({type:"READY"})).toThrow("FORBIDDEN");});
 it("contributor cannot revise recipe",()=>{a.permissions=["live_session.contribute"];expect(()=>act({type:"RECIPE_REVISION",recipe_id:fixtureId(888),professional_review:true,review_note:"Reviewed",reason:"Change"})).toThrow("FORBIDDEN");});
 it("multiple timers survive JSON reload and use time anchors",()=>{start();act({type:"TIMER_ADD",label:"Roots",step_id:null,region_id:null,duration_seconds:1800});act({type:"TIMER_ADD",label:"Visual check",step_id:null,region_id:null,duration_seconds:300});const loaded=JSON.parse(JSON.stringify(s)) as LiveSession;expect(loaded.timers).toHaveLength(2);expect(timerElapsed(loaded.timers[0]!,Date.parse(a.now)+10000)).toBe(10);});
