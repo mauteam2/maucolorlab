@@ -214,6 +214,19 @@ jobs:
           path: ${{ runner.temp }}/reporting-performance.json
           if-no-files-found: ignore
           retention-days: 7
+      - name: SaaS real PostgreSQL quota, usage and provider races
+        run: |
+          supabase db reset --local
+          python scripts/configure-disposable-saas.py
+          python scripts/test-saas-concurrency.py
+      - name: SaaS database verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: saas-database-verification
+          path: ${{ runner.temp }}/saas-performance.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
