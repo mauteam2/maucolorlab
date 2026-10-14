@@ -1,4 +1,5 @@
 import "server-only";
+import {throwSaasError} from "@/lib/saas/errors";
 import {createClient} from "@/lib/supabase/server";
 import {verifiedClientContext} from "@/lib/clients/service";
 import {workspaceReference} from "@/lib/tenant/context";
@@ -10,7 +11,7 @@ export async function executeCosting(raw:unknown,correlationId:string,reference?
  const q=p.data,permission=write?costingPermission((q as {type:Parameters<typeof costingPermission>[0]}).type):costingReadPermission((q as {kind?:string}).kind),context=await verifiedClientContext(permission);
  if(write&&reference!==workspaceReference(context))throw new AccessError("TENANT_CONTEXT_INVALID",403);
  const client=await createClient(),reply=await client.rpc(write?"costing_operation":"costing_snapshot",{p_membership_id:context.membership_id,p_location_id:context.location_id,...(write?{p_command:q,p_correlation_id:correlationId}:{p_request:q})});
- if(reply.error)throw new AccessError("NETWORK_ERROR",503);
+ throwSaasError(reply.error);if(reply.error)throw new AccessError("NETWORK_ERROR",503);
  const envelope=reply.data as {code?:string;data?:unknown}|null;if(envelope?.code)throw new AccessError(envelope.code,costingStatus(envelope.code));
  const parsed=write?costingResult.safeParse(envelope?.data):costingSnapshot.safeParse(envelope?.data);if(!parsed.success)throw new AccessError("NETWORK_ERROR",503);
  const fresh=await verifiedClientContext(permission);if(workspaceReference(fresh)!==workspaceReference(context)||fresh.organization_id!==context.organization_id||JSON.stringify([...fresh.permissions].sort())!==JSON.stringify([...context.permissions].sort()))throw new AccessError("TENANT_CONTEXT_INVALID",403);

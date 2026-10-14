@@ -1,4 +1,5 @@
 import "server-only";
+import { throwSaasError } from "@/lib/saas/errors";
 import { cookies } from "next/headers";
 import { AccessError, bootstrap } from "@/lib/tenant/bootstrap";
 import { resolveSelection, selectionCookie, selectionError, workspaceReference } from "@/lib/tenant/context";
@@ -24,6 +25,6 @@ export async function executeClientCommand(command: Command, correlationId: stri
     p_membership_id: context.membership_id, p_location_id: context.location_id,
     p_operation: command.operation, p_payload: command.payload, p_correlation_id: correlationId,
   });
-  if (error) throw new AccessError(status === 401 ? "SESSION_EXPIRED" : status === 403 ? "FORBIDDEN" : "NETWORK_ERROR", status === 401 ? 401 : status === 403 ? 403 : 503);
+  throwSaasError(error);if (error) throw new AccessError(status === 401 ? "SESSION_EXPIRED" : status === 403 ? "FORBIDDEN" : "NETWORK_ERROR", status === 401 ? 401 : status === 403 ? 403 : 503);
   return { ...data, correlationId, ...(data.code ? {} : { context }) };
 }

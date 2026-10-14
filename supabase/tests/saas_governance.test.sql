@@ -20,7 +20,7 @@ select is(pg_temp.saas()#>>'{data,plan}',null::text,'plan governance hidden from
 select throws_ok($$select app_private.saas_control('b4000000-0000-4000-8000-000000000001','{}','client','forged',gen_random_uuid())$$,'42501',null,'normal member cannot invoke platform control');
 select throws_ok($$select * from app_private.saas_usage_events$$,'42501',null,'durable usage private to normal roles');
 select throws_ok($$update app_private.saas_accounts set status='ACTIVE'$$,'42501',null,'Data API role cannot forge subscription status');
-select is(public.saas_snapshot('b4000000-0000-4000-8000-000000000112','b4000000-0000-4000-8000-000000000012')->>'code','FORBIDDEN','cross-organization subscription denied');
+select is(public.saas_snapshot('b4000000-0000-4000-8000-000000000112','b4000000-0000-4000-8000-000000000012')->>'code','TENANT_CONTEXT_INVALID','cross-organization subscription denied with the existing context contract');
 reset role;
 update public.salon_memberships set location_id=null where id='b4000000-0000-4000-8000-000000000111';
 set local role authenticated;

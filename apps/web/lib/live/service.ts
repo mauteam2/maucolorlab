@@ -1,4 +1,5 @@
 import "server-only";
+import { throwSaasError } from "@/lib/saas/errors";
 import { createHmac,randomUUID } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { verifiedClientContext } from "@/lib/clients/service";
@@ -45,7 +46,7 @@ export async function mutateLiveSession(raw:unknown,id:string|null,clientId:stri
  previousHash:current?colorHash(current):null,resultHash:colorHash(next),expiresAt:new Date(Date.now()+120000).toISOString(),result:next});
  const signature=createHmac("sha256",Buffer.from(secret,"hex")).update(envelope).digest("hex");
  const stored=await client.rpc("live_session_store",{p_membership_id:ctx.membership_id,p_location_id:ctx.location_id,p_envelope:envelope,p_signature:signature,p_correlation_id:correlationId});
- if(stored.error)throw new AccessError("NETWORK_ERROR",503);if(stored.data?.code)throw dbError(stored.data.code);
+ throwSaasError(stored.error);if(stored.error)throw new AccessError("NETWORK_ERROR",503);if(stored.data?.code)throw dbError(stored.data.code);
  const result=liveSession.parse(stored.data);if(colorHash(result)!==colorHash(next))throw new AccessError("LIVE_RESULT_INVALID",503);
  await finish(ctx,permission);return {data:result,correlationId};
 }

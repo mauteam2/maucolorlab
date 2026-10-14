@@ -1,0 +1,13 @@
+import { expect, it } from "vitest";
+import { entitlementSnapshot, saasCommand } from "./model";
+import { saasFixture } from "@/test/saas-fixtures";
+it("accepts configured non-calendar usage periods and exact quotas", () => { expect(entitlementSnapshot.parse(saasFixture().snapshot).period?.start).toBe("2026-10-03T03:00:00Z"); });
+it("retains unknown storage rather than inventing measured zero", () => { const s = entitlementSnapshot.parse(saasFixture().snapshot); expect(s.quotas[1]?.used).toBeNull(); });
+it("rejects duplicate capabilities", () => { const s = saasFixture().snapshot; s.entitlements[1] = s.entitlements[0]!; expect(entitlementSnapshot.safeParse(s).success).toBe(false); });
+it("rejects creation after suspension even if an old plan enables it", () => { const s = saasFixture().snapshot; s.status = "SUSPENDED"; expect(entitlementSnapshot.safeParse(s).success).toBe(false); });
+it("rejects malformed quota arithmetic above the limit", () => { const s = saasFixture().snapshot; s.quotas[0]!.used = "6"; expect(entitlementSnapshot.safeParse(s).success).toBe(false); });
+it("requires explicit uncapped status for a configured null limit", () => { const s = saasFixture().snapshot; s.quotas[0]!.limit = null; expect(entitlementSnapshot.safeParse(s).success).toBe(false); });
+it("rejects private governance fields for a non-owner projection", () => { const s = saasFixture().snapshot; s.management_allowed = false; expect(entitlementSnapshot.safeParse(s).success).toBe(false); });
+it.each(["status", "plan", "entitlements", "usage_count", "trial_end", "provider_customer_ref", "organization_id"])("rejects caller-owned %s", key => { expect(saasCommand.safeParse({ type: "REQUEST_CHANGE", request_id: crypto.randomUUID(), reason: "Review capability", [key]: "forged" }).success).toBe(false); });
+it("does not accept invented checkout commands", () => { expect(saasCommand.safeParse({ type: "CHECKOUT", price: 99 }).success).toBe(false); });
+it("preserves quota integers above JavaScript safe integer range", () => { const s = saasFixture().snapshot; s.quotas[0] = { code: "ENGINE_EXECUTIONS", configured: true, used: "9007199254740993", limit: "9007199254740994", status: "AVAILABLE" }; expect(entitlementSnapshot.parse(s).quotas[0]!.used).toBe("9007199254740993"); });

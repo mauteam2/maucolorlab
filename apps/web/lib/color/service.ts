@@ -1,4 +1,5 @@
 import "server-only";
+import { throwSaasError } from "@/lib/saas/errors";
 import { createHmac } from "node:crypto";
 import { z } from "zod";
 import { verifiedClientContext } from "@/lib/clients/service";
@@ -18,7 +19,7 @@ export async function executeColorCommand(input:unknown,correlationId:string,exp
  const client=await createClient();
  const call=async<T extends z.ZodType>(rpc:string,operation:string,payload:unknown,schema:T):Promise<z.infer<T>>=>{
   const {data,error,status}=await client.rpc(rpc,{p_membership_id:context.membership_id,p_location_id:context.location_id,p_client_id:command.client_id,p_operation:operation,p_payload:payload,p_correlation_id:correlationId});
-  if(error)throw new AccessError(status===401?"SESSION_EXPIRED":status===403?"FORBIDDEN":"NETWORK_ERROR",status===401?401:status===403?403:503);
+  throwSaasError(error);if(error)throw new AccessError(status===401?"SESSION_EXPIRED":status===403?"FORBIDDEN":"NETWORK_ERROR",status===401?401:status===403?403:503);
   const result=schema.safeParse(data);if(!result.success||data?.correlationId!==correlationId)throw new AccessError("COLOR_INPUT_INVALID",503);
   if(data?.code)throw new AccessError(data.code,colorErrorStatus(data.code));return result.data;
  };

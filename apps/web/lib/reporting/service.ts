@@ -1,4 +1,5 @@
 import "server-only";
+import { throwSaasError } from "@/lib/saas/errors";
 import { createClient } from "@/lib/supabase/server";
 import { verifiedClientContext } from "@/lib/clients/service";
 import { workspaceReference } from "@/lib/tenant/context";
@@ -27,7 +28,7 @@ export async function executeReport(raw: unknown, correlationId: string, referen
     p_membership_id: context.membership_id, p_location_id: context.location_id,
     ...(write ? { p_command: parsed.data, p_correlation_id: correlationId } : { p_request: parsed.data }),
   });
-  if (reply.error) throw new AccessError("NETWORK_ERROR", 503);
+  throwSaasError(reply.error);if (reply.error) throw new AccessError("NETWORK_ERROR", 503);
   const envelope = reply.data as { code?: string; data?: unknown } | null;
   if (envelope?.code) throw new AccessError(envelope.code, costingStatus(envelope.code));
   const snapshot = !write || command?.type === "EXPORT";

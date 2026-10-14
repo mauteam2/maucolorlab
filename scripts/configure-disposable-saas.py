@@ -31,7 +31,9 @@ declare sid uuid;begin
  end if;return new;
 end$$;
 revoke all on function app_private.ci_saas_fixture() from public,anon,authenticated,service_role;
-create trigger ci_saas_fixture after insert on public.locations for each row execute function app_private.ci_saas_fixture();
+-- BEFORE row: multi-row location fixtures need the configured account before
+-- the second location's quota guard. This fixture trigger sorts before it.
+create trigger a_ci_saas_fixture before insert on public.locations for each row execute function app_private.ci_saas_fixture();
 """
 subprocess.run(["docker", "exec", "-i", "supabase_db_elifora", "psql", "-X", "-v", "ON_ERROR_STOP=1", "-U", "postgres"], input=sql, text=True, check=True)
 print("Configured explicit disposable PLAN_A regression fixture; application defaults unchanged.")
