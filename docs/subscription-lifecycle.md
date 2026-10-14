@@ -14,6 +14,10 @@ CANCELLED, EXPIRED and UNCONFIGURED block new premium work. No trial/grace durat
 or billing schedule is assumed. Historical state retains its configured timestamps;
 current derived expiry is computed from the database clock.
 
+The first authorized snapshot after a configured trial/grace/subscription deadline
+appends one immutable expiry observation and SERVER_CLOCK audit event. Repeated
+reads do not duplicate this observation or rewrite the subscribed history.
+
 Historical reads and bounded exports continue under existing permissions. Existing
 Live Session updates, safety stop/abort, material reconciliation, trusted historical
 Stock compensation, automatic direct-cost/commission facts and historical financial

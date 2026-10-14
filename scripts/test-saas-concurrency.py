@@ -65,6 +65,8 @@ try:
     usage=f"select app_private.saas_record_usage('{org}','{loc}','ENGINE_EXECUTIONS','COLOR_PLAN','{source}',1,'{source_hash}');select jsonb_build_object('data',true);"
     barrier('same permanent successful engine source processed twice',usage,usage)
     assert observer.execute(f"select count(*) from app_private.saas_usage_events where organization_id='{org}' and source_id='{source}';")[-1]=='1'
+    observer.execute(f"create function saas_test.changed_usage() returns jsonb language plpgsql as $$begin perform app_private.saas_record_usage('{org}','{loc}','ENGINE_EXECUTIONS','COLOR_PLAN','{source}',2,'{source_hash}');return jsonb_build_object('data',true);exception when raise_exception then return jsonb_build_object('code',sqlerrm);end$$;")
+    barrier('changed permanent usage replay conflicts after the original lock',usage,'select saas_test.changed_usage();','USAGE_REPLAY_CONFLICT')
     plan(stock=False,apply=False)
     barrier('subscription downgrade plus new manual stock work',state('ACTIVE'),stock(),'FEATURE_UNAVAILABLE',False,True)
     plan()
@@ -89,11 +91,11 @@ try:
     # A measured successful Color store uses the real prepare/store RPC and an
     # existing valid engine result, signed locally inside PostgreSQL (never logged).
     plan()
-    observer.execute(f"create function saas_test.new_color() returns jsonb language plpgsql as $$declare base public.color_plans%rowtype;packet jsonb;envelope text;sig text;begin select * into base from public.color_plans where organization_id='{org}' and status='DRAFT' limit 1;packet:=base.signed_envelope::jsonb||jsonb_build_object('requestId',gen_random_uuid(),'expiresAt',statement_timestamp()+interval '2 minutes');envelope:=packet::text;select encode(extensions.hmac(convert_to(envelope,'UTF8'),secret,'sha256'),'hex') into sig from app_private.color_engine_keys where id=1;return public.color_plan_operation('{member}','{loc}',base.client_id,'store',jsonb_build_object('envelope',envelope,'signature',sig),gen_random_uuid());end$$;")
+    observer.execute(f"create function saas_test.new_color() returns jsonb language plpgsql security definer set search_path='' as $$declare base public.color_plans%rowtype;packet jsonb;envelope text;sig text;begin select * into base from public.color_plans where organization_id='{org}' and status='DRAFT' limit 1;packet:=base.signed_envelope::jsonb||jsonb_build_object('requestId',gen_random_uuid(),'expiresAt',statement_timestamp()+interval '2 minutes');envelope:=packet::text;select encode(extensions.hmac(convert_to(envelope,'UTF8'),secret,'sha256'),'hex') into sig from app_private.color_engine_keys where id=1;return public.color_plan_operation('{member}','{loc}',base.client_id,'store',jsonb_build_object('envelope',envelope,'signature',sig),gen_random_uuid());end$$;")
     auth(observer)
     # No artificial page-view counter, no forecast and no customer/recipe export.
     perf={}
-    queries={'entitlement_snapshot':f"select public.saas_snapshot('{member}','{loc}');",'gated_color_store':'select saas_test.new_color();'}
+    queries={'entitlement_snapshot':f"select public.saas_snapshot('{member}','{loc}');",'usage_summary':f"select public.saas_snapshot('{member}','{loc}');",'gated_color_store':'select saas_test.new_color();'}
     for name,sql in queries.items():
         samples=[]
         for _ in range(5):
@@ -101,10 +103,20 @@ try:
         perf[name]={'median_ms':round(statistics.median(samples),2),'max_ms':round(max(samples),2),'samples':5}
         print('PERF',name,perf[name]['median_ms'],'ms median')
     observer.execute('reset role;')
+    for name in ('quota_gated_member','quota_gated_location'):
+        samples=[]
+        for _ in range(5):
+            if name=='quota_gated_member':
+                uid=str(uuid.uuid4());observer.execute(f"insert into auth.users(id,email) values('{uid}','{uid}@saas.elifora.test');");q=new_member(uid)
+            else:q=new_location()
+            auth(observer);start=time.monotonic();reply=result(observer.execute(rpc(q)));assert 'data' in reply,(name,reply);samples.append((time.monotonic()-start)*1000);observer.execute('reset role;')
+        perf[name]={'median_ms':round(statistics.median(samples),2),'max_ms':round(max(samples),2),'samples':5}
+        print('PERF',name,perf[name]['median_ms'],'ms median')
+    observer.execute('reset role;')
     plan_query=f"select a.version,s.status,s.plan_version_id from app_private.saas_accounts a left join app_private.saas_subscriptions s on s.id=a.subscription_id where a.organization_id='{org}'"
     perf['current_account_plan']=json.loads('\n'.join(observer.execute('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) '+plan_query+';')))
-    assert len(cases)==10
+    assert len(cases)==11
     (Path(os.environ['RUNNER_TEMP'])/'saas-performance.json').write_text(json.dumps({'real_concurrency_cases':len(cases),'cases':cases,'read':perf},indent=2))
-    print('PASS: 10 SaaS real concurrency/integrity cases; measured hot paths and executed EXPLAIN ANALYZE BUFFERS')
+    print('PASS: 11 SaaS real concurrency/integrity cases; measured hot paths and executed EXPLAIN ANALYZE BUFFERS')
 finally:
     for s in (a,b,observer):s.close()

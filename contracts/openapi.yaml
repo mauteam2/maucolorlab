@@ -4364,6 +4364,99 @@ paths:
           description: Organization owner scope/permission denied
         '409':
           description: Version/replay conflict
+  /rest/v1/rpc/saas_structure_operation:
+    post:
+      summary: Authorized organization SaaS governance; membership and domain permissions
+        remain independent
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - p_membership_id
+              - p_location_id
+              - p_command
+              - p_correlation_id
+              properties:
+                p_membership_id:
+                  type: string
+                  format: uuid
+                p_location_id:
+                  type: string
+                  format: uuid
+                p_command:
+                  $ref: '#/components/schemas/SaaSStructureCommand'
+                p_correlation_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Scoped snapshot / controlled intent result / error
+  /rest/v1/rpc/saas_storage_access:
+    post:
+      summary: Authorized organization SaaS governance; membership and domain permissions
+        remain independent
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - p_membership_id
+              - p_location_id
+              - p_object_path
+              properties:
+                p_membership_id:
+                  type: string
+                  format: uuid
+                p_location_id:
+                  type: string
+                  format: uuid
+                p_object_path:
+                  type: string
+                  maxLength: 1024
+      responses:
+        '200':
+          description: Scoped snapshot / controlled intent result / error
+  /api/saas/structure:
+    post:
+      summary: Organization owner structural creation with locked quota and permanent
+        replay receipt
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: x-workspace-reference
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaaSStructureCommand'
+      responses:
+        '200':
+          description: Authoritative member invitation or location created; no invitation
+            message sent
+        '400':
+          description: Invalid or caller-owned authoritative fields
+        '403':
+          description: Organization owner scope and source permission required
+        '409':
+          description: Quota/subscription/replay conflict
 components:
   securitySchemes:
     bearerAuth:
@@ -36944,3 +37037,73 @@ components:
       - code
       - subscription_id
       additionalProperties: false
+    SaaSStructureCommand:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      oneOf:
+      - type: object
+        properties:
+          type:
+            type: string
+            const: CREATE_MEMBER
+          request_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          user_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          role:
+            type: string
+            enum:
+            - owner
+            - manager
+            - colorist
+            - assistant
+            - reception
+          location_id:
+            anyOf:
+            - type: string
+              format: uuid
+              pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+            - type: 'null'
+        required:
+        - type
+        - request_id
+        - id
+        - user_id
+        - role
+        - location_id
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            const: CREATE_LOCATION
+          request_id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          id:
+            type: string
+            format: uuid
+            pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+          name:
+            type: string
+            minLength: 1
+            maxLength: 160
+          timezone:
+            type: string
+            minLength: 1
+            maxLength: 80
+        required:
+        - type
+        - request_id
+        - id
+        - name
+        - timezone
+        additionalProperties: false

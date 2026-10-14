@@ -1,0 +1,17 @@
+import { beforeEach, expect, it, vi } from "vitest";
+import { saasFixture } from "@/test/saas-fixtures";
+import { workspaceReference } from "@/lib/tenant/context";
+const mock = vi.hoisted(() => ({ context: vi.fn(), rpc: vi.fn() }));
+vi.mock("server-only", () => ({}));
+vi.mock("@/lib/clients/service", () => ({ verifiedClientContext: mock.context }));
+vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ rpc: mock.rpc }) }));
+import { POST } from "./route";
+const q = () => ({ type: "CREATE_LOCATION", id: crypto.randomUUID(), request_id: crypto.randomUUID(), name: "Synthetic location", timezone: "UTC" });
+const request = (body: object, reference = workspaceReference(saasFixture().context)) => new Request("http://localhost/api/saas/structure", { method: "POST", headers: { origin: "http://localhost", "content-type": "application/json", "x-workspace-reference": reference }, body: JSON.stringify(body) });
+beforeEach(() => { vi.clearAllMocks(); mock.context.mockResolvedValue(saasFixture().context); mock.rpc.mockImplementation(async (_: string, args: { p_command: { id: string }; p_correlation_id: string }) => ({ data: { data: { id: args.p_command.id }, correlationId: args.p_correlation_id } })); });
+it("creates through the authoritative quota RPC and rechecks context", async () => { const response = await POST(request(q())); expect(response.status).toBe(200); expect(mock.rpc).toHaveBeenCalledWith("saas_structure_operation", expect.any(Object)); expect(mock.context).toHaveBeenCalledTimes(2); });
+it.each(["organization_id", "quota", "subscription_status", "used"])("rejects forged structural authority %s", async field => { expect((await POST(request({ ...q(), [field]: "forged" }))).status).toBe(400); expect(mock.rpc).not.toHaveBeenCalled(); });
+it("denies manager structural writes despite existing source permission", async () => { mock.context.mockResolvedValue({ ...saasFixture().context, role: "manager" }); expect((await POST(request(q()))).status).toBe(403); expect(mock.rpc).not.toHaveBeenCalled(); });
+it("denies stale workspace before persistence", async () => { expect((await POST(request(q(), "stale"))).status).toBe(403); expect(mock.rpc).not.toHaveBeenCalled(); });
+it("preserves exact quota rejection", async () => { mock.rpc.mockResolvedValue({ data: { code: "QUOTA_EXCEEDED" } }); const response = await POST(request(q())); expect(response.status).toBe(409); expect((await response.json()).code).toBe("QUOTA_EXCEEDED"); });
+it("discards a response after membership context changes", async () => { mock.context.mockResolvedValueOnce(saasFixture().context).mockResolvedValueOnce({ ...saasFixture().context, location_id: crypto.randomUUID() }); expect((await POST(request(q()))).status).toBe(403); });

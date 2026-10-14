@@ -9,7 +9,7 @@ const schemas = {
   Entitlement: m.entitlement, Quota: m.quota, Subscription: m.subscription, SubscriptionState: m.subscriptionState,
   UsageEvent: z.strictObject({ id, organization_id: id, location_id: id.nullable(), period_id: id, category: z.enum(["ENGINE_EXECUTIONS", "STORAGE_BYTES"]), source_domain: z.string().min(1).max(80), source_id: id, quantity: z.string().regex(/^-?[1-9]\d{0,18}$/), occurred_at: time, source_hash: z.string().regex(/^[a-f0-9]{64}$/) }),
   UsagePeriod: m.usagePeriod, UsageSummary: z.strictObject({ organization_id: id, period: m.usagePeriod.nullable(), quotas: m.quota.array().max(4), observed_at: time }),
-  EntitlementSnapshot: m.entitlementSnapshot, SaaSCommand: m.saasCommand,
+  EntitlementSnapshot: m.entitlementSnapshot, SaaSCommand: m.saasCommand, SaaSStructureCommand: m.saasStructureCommand,
   ProviderEventStatus: z.strictObject({ event_id: id, status: z.enum(["APPLIED", "REJECTED"]), code: z.string().nullable(), subscription_id: id.nullable() }),
 };
 writeFileSync(new URL("../contracts/saas.schemas.json", import.meta.url), JSON.stringify(Object.fromEntries(Object.entries(schemas).map(([name, schema]) => [name, z.toJSONSchema(schema, { target: "draft-2020-12" })])), null, 2) + "\n");

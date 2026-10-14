@@ -30,6 +30,10 @@ export const saasCommand = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("REQUEST_CHANGE"), request_id: id, reason: z.string().trim().min(1).max(500) }),
   z.strictObject({ type: z.literal("REBUILD_USAGE") }),
 ]);
+export const saasStructureCommand = z.discriminatedUnion("type", [
+  z.strictObject({ type: z.literal("CREATE_MEMBER"), request_id: id, id, user_id: id, role: z.enum(["owner", "manager", "colorist", "assistant", "reception"]), location_id: id.nullable() }),
+  z.strictObject({ type: z.literal("CREATE_LOCATION"), request_id: id, id, name: z.string().trim().min(1).max(160), timezone: z.string().min(1).max(80) }),
+]);
 export const saasOperationResult = z.strictObject({ data: z.strictObject({ id }), correlationId: id });
 export const saasErrorCodes = ["SAAS_UNCONFIGURED", "SUBSCRIPTION_RESTRICTED", "FEATURE_UNAVAILABLE", "QUOTA_UNKNOWN", "QUOTA_EXCEEDED", "USAGE_PERIOD_UNKNOWN", "STORAGE_METER_UNAVAILABLE", "SAAS_VERSION_CONFLICT", "USAGE_REPLAY_CONFLICT", "PROVIDER_REPLAY_CONFLICT"] as const;
 export function saasMessage(code: string) {

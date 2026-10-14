@@ -47,5 +47,58 @@ select ok(app_private.saas_control('b4000000-0000-4000-8000-000000000001','{"typ
 select is((select coalesce(sum(quantity),0) from app_private.saas_usage_counters where organization_id='b4000000-0000-4000-8000-000000000001' and category='ENGINE_EXECUTIONS'),
  (select coalesce(sum(quantity),0) from app_private.saas_usage_events where organization_id='b4000000-0000-4000-8000-000000000001' and category='ENGINE_EXECUTIONS'),'counter equals permanent successful source events');
 select ok(not has_function_privilege('authenticated','app_private.saas_provider_event(text,text,text,text,jsonb,uuid)','execute'),'unsigned browser provider event cannot change subscription');
+-- Real Storage RLS: registered evidence remains accessible; unknown quota,
+-- foreign actors and revoked memberships cannot upload.
+create function pg_temp.photo(n integer) returns text language plpgsql as $$declare path text;begin
+ path:='b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/'||n;
+ insert into public.live_photos values('b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000803',gen_random_uuid(),'BEFORE',path,'image/png','b4000000-0000-4000-8000-000000000021',statement_timestamp());return path;end$$;
+select pg_temp.photo(1),pg_temp.photo(2),pg_temp.photo(3),pg_temp.photo(4);
+set local role authenticated;
+select lives_ok($$insert into storage.objects(bucket_id,name) values('live-technical','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/1')$$,'registered own upload with explicitly uncapped quota succeeds');
+reset role;
+select pg_temp.change_saas('SUSPENDED');
+set local role authenticated;
+select lives_ok($$insert into storage.objects(bucket_id,name) values('live-technical','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/2')$$,'suspended running session can preserve safety evidence');
+select is((select count(*) from storage.objects where bucket_id='live-technical'),2::bigint,'suspension does not hide authorized historical evidence');
+reset role;
+-- Missing definitions are unknown, not unlimited. Downgrade retains excess.
+create temporary table saas_new_plan(id uuid);grant select on saas_new_plan to authenticated;
+insert into saas_new_plan select (app_private.saas_control('b4000000-0000-4000-8000-000000000001','{"type":"PLAN_VERSION","code":"PLAN_B","label":"PLAN_B","development_only":true,"expected_version":0,"entitlements":{},"quotas":{"LOCATIONS":0}}','TEST_OPERATOR','Synthetic explicit downgrade',gen_random_uuid())#>>'{data,id}')::uuid;
+select pg_temp.change_saas('ACTIVE',(select id from saas_new_plan));
+select throws_ok($$select app_private.saas_require('b4000000-0000-4000-8000-000000000001','STOCK')$$,'P0001','FEATURE_UNAVAILABLE','missing entitlement cannot enable new stock work');
+select throws_ok($$select app_private.saas_quota('b4000000-0000-4000-8000-000000000001','ACTIVE_MEMBERS',1)$$,'P0001','QUOTA_UNKNOWN','missing member quota fails closed');
+select throws_ok($$select app_private.saas_quota('b4000000-0000-4000-8000-000000000001','LOCATIONS',1)$$,'P0001','QUOTA_EXCEEDED','explicit zero limit blocks growth');
+select is((select count(*) from public.locations where organization_id='b4000000-0000-4000-8000-000000000001'),1::bigint,'downgrade preserves existing over-limit location');
+set local role authenticated;
+select throws_ok($$insert into storage.objects(bucket_id,name) values('live-technical','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/3')$$,'42501',null,'unknown storage quota denies actual registered upload');
+select is(public.saas_storage_access('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/3')->>'code','QUOTA_UNKNOWN','upload error diagnostic retains unknown state');
+reset role;
+select pg_temp.change_saas('ACTIVE');
+set local role authenticated;
+select is((select count(*) from jsonb_array_elements(pg_temp.saas()#>'{data,entitlements}') e where e->>'creation_allowed'='true'),10::bigint,'upgrade re-enables configured features');
+reset role;
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000022',true);
+set local role authenticated;
+select throws_ok($$insert into storage.objects(bucket_id,name) values('live-technical','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/3')$$,'42501',null,'cross-tenant photo upload remains denied');
+select is((select count(*) from storage.objects where bucket_id='live-technical'),0::bigint,'cross-tenant private evidence stays hidden');
+reset role;
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);
+set local role authenticated;
+select is(public.saas_operation('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"type":"REBUILD_USAGE"}',gen_random_uuid())->>'code','FORBIDDEN','enabled plan does not grant reception governance permission');
+reset role;
+select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000021',true);
+update public.salon_memberships set status='revoked',revoked_at=statement_timestamp() where id='b4000000-0000-4000-8000-000000000111';
+set local role authenticated;
+select throws_ok($$insert into storage.objects(bucket_id,name) values('live-technical','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/4')$$,'42501',null,'revoked membership cannot upload even with enabled plan');
+reset role;
+update public.salon_memberships set status='active',revoked_at=null where id='b4000000-0000-4000-8000-000000000111';
+select app_private.saas_control('b4000000-0000-4000-8000-000000000001',jsonb_build_object('type','SUBSCRIPTION','expected_version',(select version from app_private.saas_accounts where organization_id='b4000000-0000-4000-8000-000000000001'),'plan_version_id','f7000000-0000-4000-8000-000000000002','status','TRIAL','trial_end',statement_timestamp()+interval '0.1 second'),'TEST_OPERATOR','Explicit synthetic trial deadline',gen_random_uuid());
+select pg_sleep(0.15);
+set local role authenticated;
+select is(pg_temp.saas()#>>'{data,status}','TRIAL_EXPIRED','server clock expires trial without client state authority');
+select is(pg_temp.saas()#>>'{data,status}','TRIAL_EXPIRED','repeated expiry read stays stable');
+reset role;
+select is((select count(*) from app_private.saas_expiry_observations where organization_id='b4000000-0000-4000-8000-000000000001' and kind='TRIAL_ENDED'),1::bigint,'expiry observation is append-only and idempotent');
+select is((select count(*) from public.audit_events where organization_id='b4000000-0000-4000-8000-000000000001' and action='saas.trial_ended'),1::bigint,'server deadline is audited once');
 select * from finish();
 rollback;
