@@ -6,7 +6,7 @@ export default defineConfig({
   workers: 2,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  reporter: [["html"], ["./e2e/reliability-reporter.ts"]],
+  reporter: [["line"], ["html"], ["./e2e/reliability-reporter.ts"]],
   use: {
     baseURL: "http://127.0.0.1:4173",
     // Auth traces can contain session cookies. Do not capture them.

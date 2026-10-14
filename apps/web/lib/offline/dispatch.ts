@@ -8,6 +8,7 @@ import { sendHistory } from "@/lib/hair-passport/history-mutate";
 import { historyCommand } from "@/lib/hair-passport/history";
 import { liveCommand } from "@/lib/live/model";
 import { salonCommand } from "@/lib/salon/model";
+import { crmCommand } from "@/lib/crm/model";
 import { currentVault, readOfflineAttachment } from "./vault";
 import type { Dispatch } from "./coordinator";
 export const dispatchDraft: Dispatch = async (draft, signal) => {
@@ -21,6 +22,13 @@ export const dispatchDraft: Dispatch = async (draft, signal) => {
    const command = salonCommand.parse(draft.payload);
    if (command.type !== "APPOINTMENT_SAVE" || command.mutation_id !== draft.mutation_id) throw new Error("OFFLINE_CRITICAL_OPERATION");
    const response = await fetch("/api/salon", { method: "POST", headers: { "Content-Type": "application/json", "X-Workspace-Reference": reference }, body: JSON.stringify(command), cache: "no-store", signal });
+   const body = await response.json(); if (!response.ok) throw new Error(body.code ?? "NETWORK_ERROR");
+   return { correlationId: body.correlationId };
+  }
+  case "CRM": {
+   const command = crmCommand.parse(draft.payload);
+   if (!["NOTE_SAVE", "PREFERENCE_SAVE"].includes(command.type) || command.mutation_id !== draft.mutation_id || command.type === "NOTE_SAVE" && command.archived) throw new Error("OFFLINE_CRITICAL_OPERATION");
+   const response = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json", "X-Workspace-Reference": reference }, body: JSON.stringify(command), cache: "no-store", signal });
    const body = await response.json(); if (!response.ok) throw new Error(body.code ?? "NETWORK_ERROR");
    return { correlationId: body.correlationId };
   }

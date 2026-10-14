@@ -53,5 +53,5 @@ export function classification(domain: OfflineDraft["domain"]) {
  return "SAFE_OFFLINE_DRAFT";
 }
 export function automaticSyncAllowed(domain: OfflineDraft["domain"]) {
- return ["HAIR_CORE", "HAIR_OBSERVATION", "HAIR_PHYSICAL_TEST", "HAIR_HISTORY", "LIVE", "CLIENT", "CRM", "APPOINTMENT", "COLOR_TARGET"].includes(domain);
+ return ["HAIR_CORE", "HAIR_OBSERVATION", "HAIR_PHYSICAL_TEST", "HAIR_HISTORY", "LIVE", "CRM", "APPOINTMENT"].includes(domain);
 }

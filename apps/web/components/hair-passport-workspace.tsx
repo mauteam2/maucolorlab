@@ -265,7 +265,14 @@ export function HairPassportWorkspace({ clientId }: { clientId: string }) {
  const dirty = Boolean(editor && (editor.kind === "create" || editor.kind === "new-region" || JSON.stringify(editor.base) !== JSON.stringify(editor.draft) || editor.label !== editor.initialLabel));
  const availableRegions = regionChoices.filter(type => type === "CUSTOM" || !data?.snapshot?.regions.some(region => region.type === type && region.status === "ACTIVE"));
  return <SalonFrame active="clients"><main id="main-content" className="hp-page">
-  <OfflineDraftPanel entityId={clientId} onSynced={() => void verify()} />
+  <OfflineDraftPanel entityId={clientId} onSynced={accepted => {
+   const ids = new Set(accepted.map(d => d.mutation_id));
+   setEditor(current => current && ids.has(current.requestId) ? null : current);
+   setObservation(current => current && ids.has(current.requestId) ? null : current);
+   setPhysicalTest(current => current && ids.has(current.requestId) ? null : current);
+   setHistory(current => current && ids.has(current.requestId) ? null : current);
+   setLocalSaved(false); void verify();
+  }} />
   {localSaved && <p role="status" className="hp-notice">Taslak cihazda şifreli korundu. Henüz sunucuya kaydedilmedi; bağlantı geldiğinde senkronize edin.</p>}
   <Link prefetch={false} href="/workspace/clients">← {t.clients}</Link>
   {!data ? error ? <div role="alert" className="hp-empty"><h1>{t.unavailable}</h1><p>{t.errors[error as keyof typeof t.errors] ?? t.errors.NETWORK_ERROR}</p><button className="button button-secondary" onClick={() => void verify()}>{t.retry}</button></div> : <p role="status" className="hp-empty">{t.loading}</p> : <>

@@ -1,4 +1,6 @@
 "use client";
+import { LocalIntentButton } from "./local-intent-button";
+import { OfflineDraftPanel } from "./offline-draft-panel";
 import {FinanceContextPanel} from "./finance-context-panel";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -115,7 +117,7 @@ export function ClientWorkspace({ route }: { route: string }) {
   function changeField(field: keyof Draft, value: string) {
     setDraft(previous => previous && { ...previous, [field]: value, request_id: crypto.randomUUID() }); setReview(null); setError(null);
   }
-  return <SalonFrame active="clients" workspace={visible ? context?.organization_name : undefined}><main id="main-content" className="narrow-page clients-page">
+  return <SalonFrame active="clients" workspace={visible ? context?.organization_name : undefined}><main id="main-content" className="narrow-page clients-page"><OfflineDraftPanel entityId={route==="new"?undefined:client?.id}/>
     <nav aria-label="Müşteri gezintisi"><Link prefetch={false} href="/workspace">Çalışma alanı</Link><span aria-hidden="true"> / </span><Link prefetch={false} href="/workspace/clients">Müşteriler</Link></nav>
     {error && <div role="alert" className="client-notice"><p>{clientErrorText[error.code] ?? "Erişim doğrulanamadı. Yeniden deneyin."}</p>{error.correlationId && <small>İşlem: {error.correlationId}</small>}
       <div><button className="button button-secondary" onClick={() => void verify()}>Yeniden dene</button></div>
@@ -135,7 +137,7 @@ export function ClientWorkspace({ route }: { route: string }) {
         <h1>{route === "new" ? "Yeni müşteri" : draft ? "Müşteriyi düzenle" : "Müşteri profili"}</h1>
         {client && !draft && context?.permissions.includes("finance.view") && <FinanceContextPanel clientId={client.id} context={context}/>}
         {client && !draft && <div className="salon-card salon-profile-banner"><span className="salon-avatar" aria-hidden="true">{client.full_name.split(" ").map(part => part[0]).slice(0,2).join("")}</span><div><h2>{client.full_name}</h2><span className="salon-muted">Son güncelleme: {date(client.updated_at)}</span></div></div>}
-        {draft ? <form className="auth-form client-form" onSubmit={event => { event.preventDefault(); save(); }}>
+        {draft ? <form className="auth-form client-form" onSubmit={event => { event.preventDefault(); save(); }}><LocalIntentButton domain="CLIENT" entityId={client?.id} baseVersion={client?.version} prepare={()=>({operation:route==="new"?"create":"update",payload:{...draft,phone_region:"TR",...(route==="new"?{}:{client_id:route})}})}/>
           <fieldset disabled={saving || !!review}><legend>Temel bilgiler</legend>
             <label htmlFor="full-name">Ad Soyad *</label><input id="full-name" autoComplete="name" required minLength={2} maxLength={160} value={draft.full_name} onChange={event => changeField("full_name", event.target.value)} />
             <label htmlFor="phone">Telefon *</label><input id="phone" type="tel" autoComplete="tel" required minLength={8} maxLength={40} aria-describedby="phone-hint" value={draft.phone} onChange={event => changeField("phone", event.target.value)} /><small id="phone-hint">Türkiye için 05…; diğer ülkeler için + ülke koduyla yazın.</small>

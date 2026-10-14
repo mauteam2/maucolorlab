@@ -5,7 +5,7 @@ import { dispatchDraft } from "@/lib/offline/dispatch";
 import { currentVault, lockDraftVault, unlockDraftVault, readOfflineDrafts, storeOfflineDraft, removeOfflineDraft, type DraftVault } from "@/lib/offline/vault";
 import type { OfflineDraft } from "@/lib/offline/model";
 const labels: Record<OfflineDraft["status"], string> = { LOCAL: "Yerel taslak", PENDING_SYNC: "Gönderilmeyi bekliyor", SYNCING: "Gönderiliyor", SYNCED: "Sunucu kabul etti", CONFLICT: "Çakışma · inceleyin", REJECTED: "Sunucu reddetti", REVIEW_REQUIRED: "Güncel kayıtla inceleme gerekli", DEPENDENCY_BLOCKED: "Önce bağlı taslağı tamamlayın" };
-export function OfflineDraftPanel({ entityId, onSynced }: { entityId?: string; onSynced?: () => void }) {
+export function OfflineDraftPanel({ entityId, onSynced }: { entityId?: string; onSynced?: (drafts: OfflineDraft[]) => void }) {
  const [drafts, setDrafts] = useState<OfflineDraft[]>([]), [message, setMessage] = useState(""), [busy, setBusy] = useState(false);
  const vault = useRef<DraftVault | null>(null), request = useRef<AbortController | null>(null), epoch = useRef(0);
  const refresh = useCallback(async (authenticate = false) => {
@@ -41,7 +41,7 @@ export function OfflineDraftPanel({ entityId, onSynced }: { entityId?: string; o
    const run = () => coordinator.batch(selected.identity, controller.signal);
    const result = navigator.locks ? await navigator.locks.request("elifora-offline-sync", run) : await run();
    setMessage("Senkronizasyon denendi. Çakışan ve reddedilen taslaklar korunur.");
-   await refresh(); if (result.some(d => d.status === "SYNCED")) onSynced?.();
+   await refresh(); const accepted = result.filter(d => d.status === "SYNCED"); if (accepted.length) onSynced?.(accepted);
   } catch { setMessage("Senkronizasyon tamamlanamadı. Taslaklar korunuyor; çevrimiçi ve yetkili oturumla yeniden deneyin."); }
   finally { setBusy(false); }
  }

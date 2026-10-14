@@ -135,6 +135,17 @@ try:
     first_bowl=str(uuid.uuid4());second_bowl=str(uuid.uuid4())
     observer.execute(usage(first_bowl,2)+usage(second_bowl,3))
     race('two distinct usage events serialize without lost consumption',process(event(first_bowl)),process(event(second_bowl)));assert balance(color)==15
+    # A count-confirmation intent captured before a lost tab/network response
+    # retains its original count basis. New receipts and adjustments invalidate
+    # that basis; sync cannot silently manufacture a current recount.
+    for movement_type,quantity in [('RECEIPT',1),('ADJUSTMENT_OUT',1)]:
+        auth(observer,user);offline_count=str(uuid.uuid4())
+        baseline=balance(item)
+        assert not result(observer.execute(rpc(command('COUNT_CREATE',id=offline_count,reason='Synthetic captured offline count basis',lines=[{'stock_item_id':item,'lot_id':None,'counted_quantity':baseline}])))).get('code')
+        captured_confirmation=rpc(command('COUNT_CONFIRM',id=offline_count,reason='Original delayed confirmation intent'))
+        observer.execute('reset role;')
+        race('Phase 8 delayed count intent vs '+movement_type,move(movement_type,item,quantity),captured_confirmation,'STOCK_COUNT_STALE')
+    assert balance(item)==25
     observer.execute(f"insert into public.stock_movements(organization_id,location_id,stock_item_id,movement_type,quantity_delta,unit,reason,recorded_by,occurred_at,correlation_id,mutation_id) select 'd4000000-0000-4000-8000-000000000001','{loc}','{item}','RECEIPT',1,'GRAM','Synthetic performance ledger','{user}',statement_timestamp()-n*interval '1 second',gen_random_uuid(),gen_random_uuid() from generate_series(1,10000)n;analyze public.stock_movements;")
     auth(observer,user);metrics={}
     def measure(label,sql):

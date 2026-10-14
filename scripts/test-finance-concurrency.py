@@ -86,6 +86,13 @@ try:
     assert observer.execute(f"select sum(quantity_delta) from public.stock_movements where stock_item_id='{item}';")[-1]=='40.00'
     cid=write(charge(1000));race('client balance payments retain both financial facts',rpc(payment(400,[{'charge_id':cid,'amount_minor':'400'}])),rpc(payment(600,[{'charge_id':cid,'amount_minor':'600'}])))
     assert observer.execute(f"select amount_minor-(select sum(amount_minor) from public.finance_payment_allocations where charge_id='{cid}') from public.finance_documents where id='{cid}';")[-1]=='0'
+    # Capture the exact version/acknowledgment before competing cash facts.
+    # Lost-response/offline retries never replace it with a newly read version.
+    for label in ('first delayed close draft','second independently reviewed close draft'):
+        current=result(observer.execute(f"select jsonb_build_object('version',version) from public.finance_cash_sessions where id='{cash}';"))
+        write(command('CASH_CLOSE_SUBMIT',id=cash,expected_version=current['version'],counted_cash_minor='10100'))
+        captured=rpc(command('CASH_CLOSE_CONFIRM',id=cash,expected_version=current['version']+1,acknowledge_difference=True))
+        race('Phase 8 '+label+' vs new cash payment',rpc(payment(100,method='CASH')),captured,'CASH_CLOSE_STALE')
     # 10k independent immutable facts and their client ledger; no cached balance.
     observer.execute(f"insert into public.finance_documents(id,organization_id,location_id,client_id,type,currency,amount_minor,net_amount_minor,tax_amount_minor,tax_rate_bps,tax_inclusive,description,reason,recorded_by,occurred_at,created_at,correlation_id,mutation_id) select gen_random_uuid(),'{org}','{loc}','{client}',case when n%5=0 then 'EXPENSE' else 'CLIENT_DEBIT' end,'TRY',100,100,0,0,true,'Synthetic scale','Synthetic scale','{user}',statement_timestamp(),statement_timestamp(),gen_random_uuid(),gen_random_uuid() from generate_series(1,10000) n;insert into public.finance_ledger_entries(document_id,organization_id,location_id,client_id,currency,account,amount_minor,recorded_by,created_at) select id,organization_id,location_id,client_id,currency,'CLIENT',amount_minor,recorded_by,created_at from public.finance_documents where description='Synthetic scale' and type='CLIENT_DEBIT';insert into public.finance_expenses(document_id,organization_id,location_id,category,method) select id,organization_id,location_id,'SUPPLIES','CARD' from public.finance_documents where description='Synthetic scale' and type='EXPENSE';analyze public.finance_documents;analyze public.finance_ledger_entries;analyze public.finance_expenses;")
     def read(q):return f"select public.finance_snapshot('{member}','{loc}',{literal(q)});"

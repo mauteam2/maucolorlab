@@ -19,6 +19,32 @@ export async function verifyLiveSession(page:Page,browser:Browser,info:TestInfo,
  await page.reload();await expect(page.getByLabel("Dip kalan süre")).toBeVisible();await expect(page.getByLabel("Görsel kontrol kalan süre")).toBeVisible();
  const timerId=s.timers[0].id;await mutate({type:"TIMER_ACTION",timer_id:timerId,action:"PAUSE"});const paused=s.timers[0].elapsedSeconds;await mutate({type:"TIMER_ACTION",timer_id:timerId,action:"RESUME"});expect(s.timers[0].elapsedSeconds).toBe(paused);
  await page.getByRole("button",{name:"Güncel kaydı yükle"}).click();await expect(page.getByText(`Uygulama sürüyor · Sürüm ${s.recordVersion}`,{exact:true})).toBeVisible();
+ // Lost-tab/device recovery uses the real manager/owner permission and a new
+ // generated controller device. It remains allowed during subscription suspension.
+ const beforeRecovery=structuredClone(s),lostControllerDevice=s.controllerDeviceId;
+ const recoveryContext=(await(await page.request.get("/api/session")).json()).context;
+ configure(recoveryContext.organization_id,"SUSPENDED");
+ const recoveredPage=await page.context().newPage();
+ try {
+  await recoveredPage.goto(`/workspace/live-sessions?client_id=${clientId}&session_id=${id}`);
+  await recoveredPage.getByLabel("Kurtarma gerekçesi").fill("Synthetic lost controller device; owner reviewed takeover");
+  const acceptedRecovery=recoveredPage.waitForResponse(r=>r.url().includes(`/api/live-sessions/${id}?`)&&r.request().method()==="POST"&&r.request().postDataJSON()?.type==="RECOVER_CONTROL");
+  at=Date.now();await recoveredPage.getByRole("button",{name:"Kontrolü bu cihaza al"}).click();
+  const response=await acceptedRecovery;expect(response.status(),await response.text()).toBe(200);s=(await response.json()).data;timings.controllerRecoveryMs=Date.now()-at;
+  expect(s.controlEpoch).toBe(beforeRecovery.controlEpoch+1);expect(s.controllerDeviceId===lostControllerDevice).toBe(false);
+  for(const field of ["timers","steps","bowls","usage","checkpoints","status","startedAt"] as const)expect(s[field]).toEqual(beforeRecovery[field]);
+  const originalCommand=response.request().postDataJSON();
+  const replay=await recoveredPage.request.post(`/api/live-sessions/${id}?client_id=${clientId}`,{headers,data:originalCommand});
+  expect(replay.status()).toBe(200);expect((await replay.json()).data.controlEpoch).toBe(s.controlEpoch);
+  const stale=await page.request.post(`/api/live-sessions/${id}?client_id=${clientId}`,{headers,data:{type:"PAUSE",mutation_id:randomUUID(),device_id:lostControllerDevice,expected_version:s.recordVersion,control_epoch:beforeRecovery.controlEpoch}});
+  expect(stale.status()).toBe(409);expect((await stale.json()).code).toBe("LIVE_SESSION_CONFLICT");
+  const oldController=await page.request.post(`/api/live-sessions/${id}?client_id=${clientId}`,{headers,data:{type:"PAUSE",mutation_id:randomUUID(),device_id:lostControllerDevice,expected_version:s.recordVersion,control_epoch:s.controlEpoch}});
+  expect(oldController.status()).toBe(409);expect((await oldController.json()).code).toBe("LIVE_CONTROLLER_CONFLICT");
+  await recoveredPage.setViewportSize(info.project.name==="chromium"?{width:1440,height:1000}:{width:320,height:800});
+  expect(await recoveredPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await recoveredPage.screenshot({path:info.outputPath(`phase-8-controller-recovery-${info.project.name}.png`),fullPage:true});
+ } finally {await recoveredPage.close();configure(recoveryContext.organization_id,"ACTIVE");}
+ await page.getByRole("button",{name:"Güncel kaydı yükle"}).click();await expect(page.getByText(`Uygulama sürüyor · Sürüm ${s.recordVersion}`,{exact:true})).toBeVisible();
  // The open offline workflow keeps timestamp timers and stores local drafts.
  await page.context().setOffline(true);await page.evaluate(()=>window.dispatchEvent(new Event("offline")));
  await page.getByLabel("Hızlı not").fill("Offline professional note");await page.getByRole("button",{name:"Notu kaydet",exact:true}).click();await expect(page.getByText("READY_FOR_EXPLICIT_SYNC",{exact:false})).toBeVisible();
@@ -60,5 +86,22 @@ export async function verifyLiveSession(page:Page,browser:Browser,info:TestInfo,
  const metrics=JSON.stringify({...timings,realtimePropagation:"NOT_IMPLEMENTED_MANUAL_REFRESH",timerDisplayRefreshIntervalMs:250},null,2);
  await writeFile(info.outputPath("client-live-performance.json"),metrics);
  await info.attach("live-performance",{body:metrics,contentType:"application/json"});
- configure(saasContext.organization_id,"ACTIVE");await costing.finish(info);return id;
+ configure(saasContext.organization_id,"ACTIVE");await costing.finish(info);
+ // A late terminal accounting fact is still only local intent while offline.
+ await page.getByRole("button",{name:"Güncel kaydı yükle"}).click();
+ await page.getByLabel("Ölçülen kullanılan (g)").fill("0");
+ await page.getByLabel("Uzlaştırma / düzeltme gerekçesi").fill("Synthetic delayed terminal measurement; prepared and waste remain UNKNOWN");
+ await page.context().setOffline(true);await page.evaluate(()=>window.dispatchEvent(new Event("offline")));
+ await page.getByRole("button",{name:"Yeni düzeltme kaydı ekle"}).click();
+ await expect(page.getByText(/MATERIAL_RECONCILE · READY_FOR_EXPLICIT_SYNC/)).toBeVisible();
+ await page.context().setOffline(false);await page.evaluate(()=>window.dispatchEvent(new Event("online")));
+ await expect(page.getByRole("button",{name:"Taslağı açık onayla senkronize et"}).first()).toBeEnabled();
+ const accounting=page.waitForResponse(r=>r.url().includes(`/api/live-sessions/${id}?`)&&r.request().method()==="POST"&&r.request().postDataJSON()?.type==="MATERIAL_RECONCILE");
+ await page.getByRole("button",{name:"Taslağı açık onayla senkronize et"}).first().click();
+ const accountingResponse=await accounting;expect(accountingResponse.status(),await accountingResponse.text()).toBe(200);
+ const reconciled=(await accountingResponse.json()).data;
+ expect(reconciled.status).toBe("COMPLETED");expect(reconciled.steps).toEqual(originalSteps);expect(reconciled.usage).toEqual(originalUsage);expect(reconciled.outcome).toEqual(originalOutcome);
+ expect(reconciled.materialReconciliations.at(-1)).toMatchObject({preparedGrams:null,usedGrams:0,wasteGrams:null});
+ await page.screenshot({path:info.outputPath(`phase-8-terminal-reconciliation-${info.project.name}.png`),fullPage:true});
+ return id;
 }
