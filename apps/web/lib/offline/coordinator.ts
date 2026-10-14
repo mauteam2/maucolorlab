@@ -26,7 +26,16 @@ export class SyncCoordinator {
    const drafts = await this.store.list(), states = new Map(drafts.map(d => [d.draft_id, d.status]));
    // A process can end while SYNCING. Replaying the original identity is safe;
    // never allocate a replacement ID or rebase its expected version here.
-   const candidates = drafts.filter(d => ["LOCAL", "PENDING_SYNC", "SYNCING", "DEPENDENCY_BLOCKED"].includes(d.status));
+   const pending = drafts.filter(d => ["LOCAL", "PENDING_SYNC", "SYNCING", "DEPENDENCY_BLOCKED"].includes(d.status));
+   const candidates: OfflineDraft[] = [], visited = new Set<string>(), visiting = new Set<string>();
+   const byId = new Map(pending.map(d => [d.draft_id, d]));
+   const visit = (draft: OfflineDraft) => {
+    if (visited.has(draft.draft_id) || visiting.has(draft.draft_id)) return;
+    visiting.add(draft.draft_id);
+    for (const id of draft.dependencies) { const parent = byId.get(id); if (parent) visit(parent); }
+    visiting.delete(draft.draft_id); visited.add(draft.draft_id); candidates.push(draft);
+   };
+   pending.forEach(visit);
    for (const original of candidates) {
     if (results.length >= limit || signal.aborted) break;
     if (original.next_attempt_at && Date.parse(original.next_attempt_at) > this.clock()) continue;
@@ -48,7 +57,7 @@ export class SyncCoordinator {
       if (!sameScope(identity, await this.freshIdentity())) throw new Error("WORKSPACE_CHANGED");
       draft = { ...draft, status: "SYNCED", correlation_id: accepted.correlationId ?? null };
      } catch (error) {
-      const code = error instanceof Error ? error.message : "NETWORK_ERROR";
+      const code = error instanceof TypeError || (error instanceof Error && error.name === "AbortError") ? "NETWORK_ERROR" : error instanceof Error ? error.message : "NETWORK_ERROR";
       draft = { ...draft, ...syncFailure(code) };
       if (draft.status === "PENDING_SYNC") draft.next_attempt_at = new Date(this.clock() + Math.min(300000, 1000 * 2 ** Math.min(draft.attempt_count, 8))).toISOString();
      }

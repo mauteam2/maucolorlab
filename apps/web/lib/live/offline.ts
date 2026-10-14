@@ -1,6 +1,7 @@
 import { liveCommand, type LiveCommand } from "./model";
 import { makeDraft } from "@/lib/offline/model";
 import { currentVault, unlockDraftVault, readOfflineDrafts, storeOfflineDraft, removeOfflineDraft, readOfflineAttachment } from "@/lib/offline/vault";
+import { recoverLegacyDrafts, removeSealedLegacy } from "@/lib/offline/legacy";
 export type Draft = { key: string; scope: string; command: LiveCommand; createdAt: string; photo?: Blob };
 export const draftable = (type: string) => ["NOTE", "USAGE", "MATERIAL_RECONCILE", "CHECKPOINT_RECORD", "PHOTO"].includes(type);
 function sessionId(scope: string) { return scope.split(":").at(-1)!; }
@@ -14,13 +15,22 @@ export async function storeDraft(d: Draft, clientId?: string) {
  const old = (await readOfflineDrafts(vault)).find(x => x.draft_id === draft.draft_id);
  await storeOfflineDraft(vault, { ...(old ?? draft), status: "PENDING_SYNC" }, d.photo);
 }
-export async function readDrafts(scope: string) {
+export async function readDrafts(scope: string, clientId?: string) {
  const vault = await selected();
+ if (clientId) for (const old of await recoverLegacyDrafts(scope)) {
+  const command = liveCommand.safeParse(old.command);
+  if (!command.success || !draftable(command.data.type)) throw new Error("LEGACY_DRAFT_REVIEW_REQUIRED");
+  await storeDraft({ ...old, command: command.data }, clientId);
+  await removeSealedLegacy(old.scope, old.key);
+ }
  const all = await readOfflineDrafts(vault), result: Draft[] = [];
  for (const d of all) {
   if (d.domain !== "LIVE" || d.status === "SYNCED") continue;
   const payload = d.payload as { command: unknown; scope: string };
-  if (payload.scope !== scope) continue;
+  // A tab can be lost. Keep the original command/device/epoch, while allowing
+  // the same authenticated membership to inspect this session on its new tab.
+  const parts = payload.scope.split(":"), selectedParts = scope.split(":");
+  if (parts[0] !== selectedParts[0] || parts[1] !== selectedParts[1] || parts.at(-1) !== selectedParts.at(-1)) continue;
   result.push({ key: d.draft_id, scope, command: liveCommand.parse(payload.command), createdAt: d.created_at, photo: await readOfflineAttachment(vault, d.draft_id) });
  }
  return result;

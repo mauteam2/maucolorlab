@@ -46,6 +46,19 @@ it("parent acceptance precedes child dispatch; rejected parent blocks child", as
  expect((await failed.coordinator.batch(identity, new AbortController().signal)).map(d => d.status)).toEqual(["REJECTED", "DEPENDENCY_BLOCKED"]);
  expect(failed.dispatch).toHaveBeenCalledOnce();
 });
+it("out-of-order dependencies run parents first and cycles never dispatch", async () => {
+ const parent = await draft(10), child = await draft(11, [parent.draft_id]);
+ const h = harness([child, parent]); await h.coordinator.batch(identity, new AbortController().signal);
+ expect(h.dispatch.mock.calls.map(args => args[0].draft_id)).toEqual([parent.draft_id, child.draft_id]);
+ const cyclic = harness([{ ...parent, dependencies: [child.draft_id] }, child]);
+ expect((await cyclic.coordinator.batch(identity, new AbortController().signal)).every(d => d.status === "DEPENDENCY_BLOCKED")).toBe(true);
+ expect(cyclic.dispatch).not.toHaveBeenCalled();
+});
+it.each([new TypeError("Failed to fetch"), new DOMException("The operation was aborted", "AbortError")])("browser transport failures retain pending identity and backoff", async error => {
+ const original = await draft(), h = harness([original], vi.fn().mockRejectedValue(error));
+ expect((await h.coordinator.batch(identity, new AbortController().signal))[0]).toMatchObject({ status: "PENDING_SYNC", mutation_id: original.mutation_id, payload_hash: original.payload_hash });
+ expect(h.records.get(original.draft_id)?.next_attempt_at).not.toBeNull();
+});
 it("account and organization switching cannot dispatch another identity's intent", async () => {
  for (const field of ["user_id", "organization_id", "location_id", "membership_id", "device_id"] as const) {
   const other = { ...identity, [field]: fixtureId(99) }, h = harness([await draft()], undefined, vi.fn().mockResolvedValue(other));

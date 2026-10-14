@@ -1,3 +1,4 @@
+import { Blob as ServerBlob } from "node:buffer";
 import { it,expect,vi,beforeEach } from "vitest";
 import { liveFixture } from "@/test/live-fixtures";
 import { fixtureId } from "@/test/confidence-fixtures";
@@ -9,7 +10,7 @@ vi.mock("@/lib/brand/controlled-service",()=>({revalidateControlledRecipe:mocks.
 vi.mock("@/lib/supabase/server",()=>({createClient:async()=>({auth:{getUser:mocks.user},rpc:mocks.rpc,storage:{from:()=>({upload:mocks.upload,download:mocks.download})},from:()=>({select:()=>{const q={eq:()=>q,order:()=>q,limit:mocks.read};return q;}})})}));
 import { mutateLiveSession,readLiveSessions,livePhoto } from "./service";
 const correlation=fixtureId(901),ctx={membership_id:fixtureId(900),organization_id:fixtureId(8001),location_id:fixtureId(2),permissions:[...livePermissions]},reference=`${ctx.membership_id}:${ctx.location_id}`;
-beforeEach(()=>{vi.clearAllMocks();vi.stubEnv("ELIFORA_COLOR_PLAN_SIGNING_KEY","a".repeat(64));const f=liveFixture();mocks.context.mockResolvedValue(ctx);mocks.user.mockResolvedValue({data:{user:{id:f.a.actorId}},error:null});mocks.revalidate.mockResolvedValue({...f.a,passportId:f.s.passportId});mocks.read.mockResolvedValue({data:[{payload:f.s}],error:null});mocks.rpc.mockImplementation(async(name,args)=>({error:null,data:name==="live_session_receipt"?null:name==="live_session_clock"?f.a.now:name==="live_session_transfer_allowed"?true:JSON.parse(args.p_envelope).result}));});
+beforeEach(()=>{vi.clearAllMocks();mocks.download.mockResolvedValue({data:null,error:{message:"Synthetic object absent"}});vi.stubEnv("ELIFORA_COLOR_PLAN_SIGNING_KEY","a".repeat(64));const f=liveFixture();mocks.context.mockResolvedValue(ctx);mocks.user.mockResolvedValue({data:{user:{id:f.a.actorId}},error:null});mocks.revalidate.mockResolvedValue({...f.a,passportId:f.s.passportId});mocks.read.mockResolvedValue({data:[{payload:f.s}],error:null});mocks.rpc.mockImplementation(async(name,args)=>({error:null,data:name==="live_session_receipt"?null:name==="live_session_clock"?f.a.now:name==="live_session_transfer_allowed"?true:JSON.parse(args.p_envelope).result}));});
 it("reviewed creation revalidates current dependencies and signs actor context",async()=>{const f=liveFixture();const r=await mutateLiveSession(f.q,null,null,correlation,reference);expect(r.data.status).toBe("PREPARING");expect(mocks.revalidate).toHaveBeenCalledWith(f.q.client_id,f.q.recipe_id,correlation);const args=mocks.rpc.mock.calls.find(([n])=>n==="live_session_store")![1];expect(args.p_signature).toMatch(/^[a-f0-9]{64}$/);expect(JSON.parse(args.p_envelope).actorId).toBe(f.a.actorId);});
 it("start revalidates fresh risk and recipe before storing",async()=>{const f=liveFixture();f.s.status="READY";mocks.read.mockResolvedValue({data:[{payload:f.s}]});await mutateLiveSession({type:"START",mutation_id:fixtureId(990),device_id:f.q.device_id,expected_version:1,control_epoch:1},f.s.id,f.s.clientId,correlation,reference);expect(mocks.revalidate).toHaveBeenCalled();});
 it("blocked risk prevents any persistent start",async()=>{const f=liveFixture();f.s.status="READY";mocks.read.mockResolvedValue({data:[{payload:f.s}]});mocks.revalidate.mockRejectedValue(new AccessError("SESSION_START_BLOCKED_STALE_INPUT",409));await expect(mutateLiveSession({type:"START",mutation_id:fixtureId(990),device_id:f.q.device_id,expected_version:1,control_epoch:1},f.s.id,f.s.clientId,correlation,reference)).rejects.toMatchObject({code:"SESSION_START_BLOCKED_STALE_INPUT"});expect(mocks.rpc.mock.calls.some(([n])=>n==="live_session_store")).toBe(false);});
@@ -29,3 +30,15 @@ it("unreserved photo cannot be uploaded",async()=>{const f=liveFixture();await e
 it("wrong photo MIME cannot replace reserved bytes",async()=>{const {f,p}=photoFixture();await expect(livePhoto(f.s.id,p.id,f.s.clientId,new Blob(["synthetic"],{type:"image/jpeg"}),correlation,reference)).rejects.toMatchObject({status:400});expect(mocks.upload).not.toHaveBeenCalled();});
 it("private photo upload is immutable and final access is rechecked",async()=>{const {f,p}=photoFixture(),bytes=new Blob(["synthetic"],{type:"image/png"});mocks.upload.mockResolvedValue({error:null});expect(await livePhoto(f.s.id,p.id,f.s.clientId,bytes,correlation,reference)).toBeNull();expect(mocks.upload).toHaveBeenCalledWith(p.path,bytes,{contentType:"image/png",upsert:false});expect(mocks.context).toHaveBeenLastCalledWith("live_session.contribute");});
 it("revoked membership conceals downloaded bytes",async()=>{const {f,p}=photoFixture();mocks.download.mockResolvedValue({data:new Blob(["synthetic"],{type:"image/png"}),error:null});mocks.context.mockResolvedValueOnce(ctx).mockResolvedValueOnce(ctx).mockResolvedValueOnce(ctx).mockRejectedValueOnce(new AccessError("MEMBERSHIP_REVOKED",403));await expect(livePhoto(f.s.id,p.id,f.s.clientId,null,correlation,null)).rejects.toMatchObject({status:403});});
+
+it("accepted photo bytes replay without a second storage write after lost response",async()=>{
+ const {f,p}=photoFixture(),bytes=new ServerBlob(["synthetic stable image"],{type:"image/png"});
+ mocks.download.mockResolvedValue({data:bytes,error:null});
+ expect(await livePhoto(f.s.id,p.id,f.s.clientId,bytes as unknown as Blob,correlation,reference)).toBeNull();
+ expect(mocks.upload).not.toHaveBeenCalled();expect(mocks.context).toHaveBeenLastCalledWith("live_session.contribute");
+});
+it("the same reserved photo cannot accept changed bytes on replay",async()=>{
+ const {f,p}=photoFixture();mocks.download.mockResolvedValue({data:new ServerBlob(["original"],{type:"image/png"}),error:null});
+ await expect(livePhoto(f.s.id,p.id,f.s.clientId,new ServerBlob(["changed!"],{type:"image/png"}) as unknown as Blob,correlation,reference)).rejects.toMatchObject({code:"LIVE_PHOTO_UPLOAD_FAILED"});
+ expect(mocks.upload).not.toHaveBeenCalled();
+});

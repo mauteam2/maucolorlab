@@ -86,5 +86,3 @@ def prefix_fixture(name, stop, table):
     text=re.sub(r"\b(from|into|on)\s+"+table+r"\b", lambda match: match[1]+" gate_test."+table,text,flags=re.I)
     text=text.replace("gate_test. "+table,"gate_test."+table)
     return text+"\nreset role;"
-
-

@@ -5,7 +5,7 @@ import { dispatchDraft } from "@/lib/offline/dispatch";
 import { currentVault, lockDraftVault, unlockDraftVault, readOfflineDrafts, storeOfflineDraft, removeOfflineDraft, type DraftVault } from "@/lib/offline/vault";
 import type { OfflineDraft } from "@/lib/offline/model";
 const labels: Record<OfflineDraft["status"], string> = { LOCAL: "Yerel taslak", PENDING_SYNC: "Gönderilmeyi bekliyor", SYNCING: "Gönderiliyor", SYNCED: "Sunucu kabul etti", CONFLICT: "Çakışma · inceleyin", REJECTED: "Sunucu reddetti", REVIEW_REQUIRED: "Güncel kayıtla inceleme gerekli", DEPENDENCY_BLOCKED: "Önce bağlı taslağı tamamlayın" };
-export function OfflineDraftPanel({ entityId, onSynced }: { entityId?: string; onSynced?: (drafts: OfflineDraft[]) => void }) {
+export function OfflineDraftPanel({ entityId, onSynced, silent = false }: { entityId?: string; onSynced?: (drafts: OfflineDraft[]) => void; silent?: boolean }) {
  const [drafts, setDrafts] = useState<OfflineDraft[]>([]), [message, setMessage] = useState(""), [busy, setBusy] = useState(false);
  const vault = useRef<DraftVault | null>(null), request = useRef<AbortController | null>(null), epoch = useRef(0);
  const refresh = useCallback(async (authenticate = false) => {
@@ -30,7 +30,8 @@ export function OfflineDraftPanel({ entityId, onSynced }: { entityId?: string; o
   queueMicrotask(() => void refresh(true));
   window.addEventListener("elifora-drafts-changed", update); window.addEventListener("elifora-offline-lock", logout);
   window.addEventListener("online", online); document.addEventListener("visibilitychange", visibility);
-  return () => { ++generationRef.current; requestRef.current?.abort(); channel?.close(); window.removeEventListener("elifora-drafts-changed", update); window.removeEventListener("elifora-offline-lock", logout); window.removeEventListener("online", online); document.removeEventListener("visibilitychange", visibility); };
+  const timer = window.setInterval(() => { if (navigator.onLine && !document.hidden) void refresh(true); }, 15000);
+  return () => { ++generationRef.current; requestRef.current?.abort(); channel?.close(); clearInterval(timer); window.removeEventListener("elifora-drafts-changed", update); window.removeEventListener("elifora-offline-lock", logout); window.removeEventListener("online", online); document.removeEventListener("visibilitychange", visibility); };
  }, [refresh]);
  async function sync() {
   if (busy || !navigator.onLine) return;
@@ -50,6 +51,7 @@ export function OfflineDraftPanel({ entityId, onSynced }: { entityId?: string; o
   await removeOfflineDraft(vault.current, id); await refresh();
  }
  const pending = drafts.filter(d => d.status !== "SYNCED");
+ if (silent) return null;
  if (!pending.length && !message) return null;
  return <section className="salon-card" aria-label="Yerel taslaklar"><h2>Yerel taslaklar</h2>
   <p className="salon-muted">{pending.length} taslak. Henüz sunucu kaydı değildir. Çıkışta şifreli korunur; yalnızca aynı hesabın yetkili girişinde açılır.</p>

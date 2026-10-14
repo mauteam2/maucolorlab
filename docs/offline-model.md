@@ -38,6 +38,14 @@ membership resolution. They are non-exportable WebCrypto handles in memory;
 no provider/signing key is sent to the browser or written to local storage.
 Device UUIDs are random identifiers, not authority.
 
+Legacy Live IndexedDB intents are sealed atomically before their plaintext is
+removed. A server-derived public ECDH key allows sealing without granting the
+current account access to another member's draft. Recovering the wrapped content
+key requires a fresh authenticated match to the original membership/location;
+the authenticated scope is AES-GCM additional data. Original IDs, epochs, versions
+and photo bytes survive conversion into the common envelope. Unsupported legacy
+commands remain sealed for explicit review, never auto-executed or discarded.
+
 Sign-out/workspace switch broadcasts a memory lock. Backgrounding conceals the
 draft panel and clears its key. Ciphertext is retained, requiring the same user's
 fresh authorized membership to reopen. Another account or organization receives

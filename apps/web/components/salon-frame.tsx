@@ -1,5 +1,5 @@
 "use client";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { BrandLogo } from "./brand-logo";
 import { SalonIcon, type SalonIconName } from "./salon-icon";
@@ -18,7 +18,17 @@ export type SalonSection = typeof salonSections[number]["id"];
 export function SalonFrame({ children, active, workspace, preview = false }: { children: ReactNode; active: SalonSection; workspace?: string; preview?: boolean }) {
  const [open, setOpen] = useState(false);
  const [query, setQuery] = useState("");
+ const [privacyLocked, setPrivacyLocked] = useState(false);
+ useEffect(() => {
+  if (preview) return;
+  const conceal = () => { setPrivacyLocked(true); setQuery(""); setOpen(false); };
+  const channel = typeof BroadcastChannel === "undefined" ? null : new BroadcastChannel("elifora-offline-privacy");
+  if (channel) channel.onmessage = conceal;
+  window.addEventListener("elifora-offline-lock", conceal);
+  return () => { channel?.close(); window.removeEventListener("elifora-offline-lock", conceal); };
+ }, [preview]);
  const current = salonSections.find(section => section.id === active)!;
+ if (privacyLocked) return <main className="container"><BrandLogo /><p role="status">Oturum veya çalışma alanı değişti. Özel bilgiler gizlendi; şifreli taslaklar korunuyor.</p><a className="button" href="/workspace">Çalışma alanını yeniden aç</a></main>;
  return <div className="salon-layout">
   <a className="skip-link" href="#main-content">İçeriğe geç</a>
   <aside className="salon-sidebar" data-open={open}>

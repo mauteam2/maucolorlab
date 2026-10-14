@@ -98,6 +98,11 @@ def revoke():
 def suspended():
     return f"select app_private.saas_control('{ORG}',jsonb_build_object('type','SUBSCRIPTION','expected_version',(select version from app_private.saas_accounts where organization_id='{ORG}'),'plan_version_id',app_private.saas_current('{ORG}')->>'plan_version_id','status','SUSPENDED'),'PHASE8_TEST','Synthetic concurrent restriction',gen_random_uuid());"
 
+def restore_subscription():
+    # Reactivating a revoked member is correctly new structural work and remains
+    # blocked during suspension. Only the disposable operator restores ACTIVE.
+    observer.execute(suspended().replace("'SUSPENDED'", "'ACTIVE'"))
+
 try:
     assert len({observer.pid, a.pid, b.pid}) == 3
     observer.execute('create schema phase8_test;grant usage on schema phase8_test to authenticated;')
@@ -147,6 +152,7 @@ try:
     race('subscription suspension vs existing controller recovery', suspended(), live(recovery), root_first=True)
     audit = result(observer.execute(f"select metadata from public.audit_events where action='live_session.recover_control' and metadata->>'mutation_id'='{recovery['input']['mutation_id']}';"))
     assert audit['subscription']['status'] == 'SUSPENDED'
+    restore_subscription()
 
     version = int(observer.execute(f"select version from public.hair_passports where client_id='{CLIENT}';")[-1])
     first = {'request_id': identifier(), 'expected_version': version, 'technical': {'technical_notes': 'Synthetic concurrent server edit'}}

@@ -20,3 +20,10 @@ it("opens the mobile menu and gives a skip link to the actual main content", () 
  expect(button).toHaveAttribute("aria-expanded","true");
  expect(screen.getByRole("link",{name:"İçeriğe geç"})).toHaveAttribute("href","#main-content");
 });
+it("conceals cached tenant content and workspace labels on account-change notification", () => {
+ render(<SalonFrame active="clients" workspace="Private salon"><main>Private customer</main></SalonFrame>);
+ fireEvent(window, new Event("elifora-offline-lock"));
+ expect(screen.queryByText("Private customer")).not.toBeInTheDocument();
+ expect(screen.queryByText("Private salon")).not.toBeInTheDocument();
+ expect(screen.getByRole("link", { name: "Çalışma alanını yeniden aç" })).toHaveAttribute("href", "/workspace");
+});

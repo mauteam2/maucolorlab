@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { tenantContextSchema, workspaceReference } from "@/lib/tenant/context";
 import { offlineDraft, payloadHash, sameScope, type OfflineDraft, type OfflineIdentity } from "./model";
+import { sealLegacyDrafts } from "./legacy";
 
-const identitySchema = z.strictObject({ user_id: z.uuid(), device_id: z.uuid(), key: z.string().regex(/^[a-f0-9]{64}$/), context: tenantContextSchema });
+const identitySchema = z.strictObject({ user_id: z.uuid(), device_id: z.uuid(), key: z.string().regex(/^[a-f0-9]{64}$/), legacy_public_key: z.string().regex(/^04[a-f0-9]{128}$/), context: tenantContextSchema });
 export type DraftVault = { identity: OfflineIdentity; key: CryptoKey; generation: number };
 let generation = 0, active: DraftVault | null = null;
 let unlocking: Promise<DraftVault> | null = null;
@@ -27,6 +28,7 @@ async function resolveDraftVault(signal?: AbortSignal): Promise<DraftVault> {
  const r = await fetch(`/api/offline-context?device_id=${offlineDeviceId()}`, { cache: "no-store", signal });
  if (!r.ok) { active = null; throw new Error(r.status === 401 ? "SESSION_EXPIRED" : "AUTHORITY_EXPIRED"); }
  const result = identitySchema.parse(await r.json());
+ await sealLegacyDrafts(result.legacy_public_key);
  const bytes = Uint8Array.from(result.key.match(/.{2}/g)!, v => parseInt(v, 16));
  const key = await crypto.subtle.importKey("raw", bytes, "AES-GCM", false, ["encrypt", "decrypt"]);
  if (epoch !== generation || document.hidden) throw new Error("AUTHORITY_EXPIRED");
