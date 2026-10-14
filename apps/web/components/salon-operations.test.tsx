@@ -1,3 +1,4 @@
+vi.mock("./offline-draft-panel",()=>({OfflineDraftPanel:()=>null}));
 import { act,cleanup,fireEvent,render,screen,waitFor } from "@testing-library/react";
 import { afterEach,beforeEach,expect,it,vi } from "vitest";
 import { SalonOperations } from "./salon-operations";

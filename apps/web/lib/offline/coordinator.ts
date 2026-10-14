@@ -8,9 +8,9 @@ export function syncFailure(code: string): { status: OfflineDraft["status"]; con
  if (["SUBSCRIPTION_RESTRICTED", "FEATURE_UNAVAILABLE", "QUOTA_EXCEEDED", "QUOTA_UNKNOWN", "SAAS_UNCONFIGURED"].includes(code)) return { status: "REVIEW_REQUIRED", conflict: "SUBSCRIPTION_CHANGED" };
  if (code === "LIVE_CONTROLLER_CONFLICT") return { status: "CONFLICT", conflict: "CONTROL_EPOCH_CHANGED" };
  if (code === "PAYLOAD_CHANGED") return { status: "REJECTED", conflict: "PAYLOAD_CHANGED" };
- if (/APPOINTMENT.*CONFLICT|AVAILABILITY|SCHEDULE/.test(code)) return { status: "CONFLICT", conflict: "AVAILABILITY_CHANGED" };
- if (/STOCK.*CONFLICT/.test(code)) return { status: "CONFLICT", conflict: "STOCK_CHANGED" };
- if (/CASH.*CONFLICT/.test(code)) return { status: "CONFLICT", conflict: "CASH_CHANGED" };
+ if (/APPOINTMENT.*CONFLICT|AVAILABILITY|SCHEDULE/.test(code) || ["STAFF_DOUBLE_BOOKED", "STAFF_UNAVAILABLE", "STAFF_NOT_ELIGIBLE", "RESOURCE_UNAVAILABLE", "LOCATION_CLOSED", "OUTSIDE_WORKING_HOURS"].includes(code)) return { status: "CONFLICT", conflict: "AVAILABILITY_CHANGED" };
+ if (/STOCK.*CONFLICT/.test(code) || code === "STOCK_COUNT_STALE") return { status: "CONFLICT", conflict: "STOCK_CHANGED" };
+ if (/CASH.*CONFLICT/.test(code) || code === "CASH_CLOSE_STALE") return { status: "CONFLICT", conflict: "CASH_CHANGED" };
  if (code === "CONFLICT" || code.endsWith("CONFLICT") || code === "HAIR_PASSPORT_ALREADY_EXISTS") return { status: "CONFLICT", conflict: "VERSION_CHANGED" };
  if (["NETWORK_ERROR", "TIMEOUT", "AbortError"].includes(code)) return { status: "PENDING_SYNC", conflict: null };
  return { status: "REJECTED", conflict: "VALIDATION_FAILED" };

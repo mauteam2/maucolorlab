@@ -1,3 +1,4 @@
+vi.mock("./offline-draft-panel",()=>({OfflineDraftPanel:()=>null}));
 import {it,expect,vi,beforeEach,afterEach} from "vitest";
 import {render,screen,waitFor,fireEvent,cleanup} from "@testing-library/react";
 import {StockWorkspace} from "./stock-workspace";

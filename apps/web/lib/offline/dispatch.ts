@@ -7,6 +7,7 @@ import { physicalTestCommand } from "@/lib/hair-passport/physical-tests";
 import { sendHistory } from "@/lib/hair-passport/history-mutate";
 import { historyCommand } from "@/lib/hair-passport/history";
 import { liveCommand } from "@/lib/live/model";
+import { salonCommand } from "@/lib/salon/model";
 import { currentVault, readOfflineAttachment } from "./vault";
 import type { Dispatch } from "./coordinator";
 export const dispatchDraft: Dispatch = async (draft, signal) => {
@@ -16,6 +17,13 @@ export const dispatchDraft: Dispatch = async (draft, signal) => {
   case "HAIR_OBSERVATION": await sendObservation(observationCommand.parse(draft.payload), reference, signal); return {};
   case "HAIR_PHYSICAL_TEST": await sendPhysicalTest(physicalTestCommand.parse(draft.payload), reference, signal); return {};
   case "HAIR_HISTORY": await sendHistory(historyCommand.parse(draft.payload), reference, signal); return {};
+  case "APPOINTMENT": {
+   const command = salonCommand.parse(draft.payload);
+   if (command.type !== "APPOINTMENT_SAVE" || command.mutation_id !== draft.mutation_id) throw new Error("OFFLINE_CRITICAL_OPERATION");
+   const response = await fetch("/api/salon", { method: "POST", headers: { "Content-Type": "application/json", "X-Workspace-Reference": reference }, body: JSON.stringify(command), cache: "no-store", signal });
+   const body = await response.json(); if (!response.ok) throw new Error(body.code ?? "NETWORK_ERROR");
+   return { correlationId: body.correlationId };
+  }
   case "LIVE": {
    const payload = draft.payload as { command?: unknown };
    const command = liveCommand.parse(payload.command ?? draft.payload);

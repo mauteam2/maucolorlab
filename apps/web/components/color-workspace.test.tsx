@@ -1,3 +1,4 @@
+vi.mock("./offline-draft-panel",()=>({OfflineDraftPanel:()=>null}));
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 vi.mock("@/lib/hair-passport/load",()=>({loadPassport:vi.fn(),PassportLoadError:class extends Error { constructor(public code:string){super(code);} }}));

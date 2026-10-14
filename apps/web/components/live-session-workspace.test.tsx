@@ -1,4 +1,5 @@
 import { expect,it,vi,beforeEach } from "vitest";
+vi.mock("./offline-draft-panel",()=>({OfflineDraftPanel:()=>null}));
 import { render,screen,waitFor,fireEvent,cleanup } from "@testing-library/react";
 import { liveFixture } from "@/test/live-fixtures";
 import { fixtureId } from "@/test/confidence-fixtures";

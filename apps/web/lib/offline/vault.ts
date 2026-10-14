@@ -5,6 +5,7 @@ import { offlineDraft, payloadHash, sameScope, type OfflineDraft, type OfflineId
 const identitySchema = z.strictObject({ user_id: z.uuid(), device_id: z.uuid(), key: z.string().regex(/^[a-f0-9]{64}$/), context: tenantContextSchema });
 export type DraftVault = { identity: OfflineIdentity; key: CryptoKey; generation: number };
 let generation = 0, active: DraftVault | null = null;
+let unlocking: Promise<DraftVault> | null = null;
 export function offlineDeviceId() {
  const existing = localStorage.getItem("elifora-offline-device");
  if (existing && z.uuid().safeParse(existing).success) return existing;
@@ -12,9 +13,16 @@ export function offlineDeviceId() {
 }
 // Decryption keys live in memory only. Account B cannot decrypt account A's
 // ciphertext. Reload/sign-in requires fresh authenticated membership resolution.
-export function lockDraftVault() { generation++; active = null; }
+export function lockDraftVault() { generation++; active = null; unlocking = null; }
 export function currentVault() { return active; }
-export async function unlockDraftVault(signal?: AbortSignal): Promise<DraftVault> {
+export function unlockDraftVault(signal?: AbortSignal): Promise<DraftVault> {
+ if (unlocking) return unlocking;
+ const pending = resolveDraftVault(signal);
+ unlocking = pending;
+ void pending.finally(() => { if (unlocking === pending) unlocking = null; }).catch(() => undefined);
+ return pending;
+}
+async function resolveDraftVault(signal?: AbortSignal): Promise<DraftVault> {
  const epoch = generation;
  const r = await fetch(`/api/offline-context?device_id=${offlineDeviceId()}`, { cache: "no-store", signal });
  if (!r.ok) { active = null; throw new Error(r.status === 401 ? "SESSION_EXPIRED" : "AUTHORITY_EXPIRED"); }
