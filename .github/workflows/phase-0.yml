@@ -161,8 +161,13 @@ jobs:
           python scripts/configure-disposable-saas.py
       - run: supabase db lint --local --fail-on warning
       - run: supabase test db
+      - name: SaaS real PostgreSQL quota, usage and provider races
+        run: python scripts/test-saas-concurrency.py
       - name: Gate 1 real PostgreSQL concurrency barriers
-        run: python scripts/test-gate-1-concurrency.py
+        run: |
+          supabase db reset --local
+          python scripts/configure-disposable-saas.py
+          python scripts/test-gate-1-concurrency.py
       - name: Stock real PostgreSQL concurrency and 10k movement performance
         run: |
           # Each real-connection harness commits synthetic catalog fixtures.
@@ -217,11 +222,6 @@ jobs:
           path: ${{ runner.temp }}/reporting-performance.json
           if-no-files-found: ignore
           retention-days: 7
-      - name: SaaS real PostgreSQL quota, usage and provider races
-        run: |
-          supabase db reset --local
-          python scripts/configure-disposable-saas.py
-          python scripts/test-saas-concurrency.py
       - name: SaaS database verification evidence
         if: always()
         uses: actions/upload-artifact@v4

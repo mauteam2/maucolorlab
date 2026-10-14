@@ -1,3 +1,4 @@
+import { configure } from "./saas-test-control";
 import { expect,type Page,type TestInfo,type Browser } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
@@ -41,6 +42,8 @@ export async function verifyLiveSession(page:Page,browser:Browser,info:TestInfo,
  await mutate({type:"COMPLETE"},409);
  const beforeHistory=(await(await page.request.get(`/api/clients/${clientId}/hair-passport`)).json()).data.history.items.length;
  const outcome={regionalResults:[{regionId:s.steps[0].regionId,achievedLevel:8,achievedTone:"NEUTRAL",uniformity:"ACCEPTABLE",hairIntegrity:"ACCEPTABLE",assessment:"Personally verified root outcome"}],profile:{colorAccuracy:"ACCEPTABLE",uniformity:"ACCEPTABLE",hairIntegrity:"ACCEPTABLE",processEfficiency:"UNKNOWN",formulaStability:"UNKNOWN"},professionalAssessment:"Actual result personally verified",deviationsReviewed:true};
+ const saasContext=(await(await page.request.get("/api/session")).json()).context;configure(saasContext.organization_id,"SUSPENDED");
+ // Actual suspended account still completes safety review and append-only reconciliation.
  await mutate({type:"COMPLETION_REVIEW",outcome});await page.getByRole("button",{name:"Güncel kaydı yükle"}).click();await expect(page.getByRole("button",{name:"Seansı tamamla ve Hair Passport’a ekle"})).toBeVisible();
  for(const [name,width,height] of [["desktop",1536,1024],["tablet",1024,900],["mobile-320",320,900]] as const){await page.setViewportSize({width,height});timings[`${name}RenderMs`]=await page.evaluate(()=>new Promise<number>(resolve=>{const begin=performance.now();requestAnimationFrame(()=>requestAnimationFrame(()=>resolve(performance.now()-begin)));}));await page.screenshot({path:info.outputPath(`client-live-${name}.png`),fullPage:true});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
  await mutate({type:"COMPLETE"});expect(s.status).toBe("COMPLETED");const completedVersion=s.recordVersion;await mutate({type:"NOTE",text:"Illegal rewrite"},409);expect(s.recordVersion).toBe(completedVersion);
@@ -57,5 +60,5 @@ export async function verifyLiveSession(page:Page,browser:Browser,info:TestInfo,
  const metrics=JSON.stringify({...timings,realtimePropagation:"NOT_IMPLEMENTED_MANUAL_REFRESH",timerDisplayRefreshIntervalMs:250},null,2);
  await writeFile(info.outputPath("client-live-performance.json"),metrics);
  await info.attach("live-performance",{body:metrics,contentType:"application/json"});
- await costing.finish(info);return id;
+ configure(saasContext.organization_id,"ACTIVE");await costing.finish(info);return id;
 }
