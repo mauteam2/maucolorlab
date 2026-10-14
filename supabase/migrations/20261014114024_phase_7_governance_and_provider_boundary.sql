@@ -30,7 +30,7 @@ declare previous_org uuid;begin
  values(org,'saas.provider_link','saas_account',org,reason,corr,jsonb_build_object('platform_actor',actor,'provider',provider,'customer_ref_hash',encode(extensions.digest(customer,'sha256'),'hex')));
 end$$;
 revoke all on function app_private.saas_link_provider(uuid,text,text,text,text,uuid) from public,anon,authenticated,service_role;
-grant execute on function app_private.saas_link_provider(uuid,text,text,text,uuid) to elifora_saas_operator;
+grant execute on function app_private.saas_link_provider(uuid,text,text,text,text,uuid) to elifora_saas_operator;
 
 -- Only a trusted server adapter/operator can invoke this private function.
 -- Signature verification happens over raw bytes before this port is called.
