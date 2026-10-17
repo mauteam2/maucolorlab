@@ -84,14 +84,14 @@ jobs:
       - run: node scripts/verify-browser-bundle.mjs
         working-directory: .
       - run: npx playwright install --with-deps chromium
+      - name: Phase 8 offline browser journeys must pass without retries
+        run: npx playwright test e2e/offline.spec.ts --workers=1 --retries=0
       - name: Phase 5B browser journeys must pass without retries
         run: npx playwright test e2e/costing.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
       - name: Phase 6 report journeys must pass without retries
         run: npx playwright test e2e/reporting.spec.ts --workers=1 --retries=0
       - name: Phase 7 SaaS journeys must pass without retries
         run: npx playwright test e2e/saas.spec.ts --workers=1 --retries=0
-      - name: Phase 8 offline browser journeys must pass without retries
-        run: npx playwright test e2e/offline.spec.ts --workers=1 --retries=0
       - run: npm run test:e2e
       - name: Phase 8 production browser reliability — ten consecutive repetitions, no retries
         run: npx playwright test --config=playwright.reliability.config.ts
