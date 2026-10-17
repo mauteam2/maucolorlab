@@ -95,6 +95,9 @@ jobs:
       - run: npm run test:e2e
       - name: Phase 8 production browser reliability — ten consecutive repetitions, no retries
         run: npx playwright test --config=playwright.reliability.config.ts
+      - name: Verify retained Phase 8 diagnostics, measurements and first-pass evidence
+        working-directory: .
+        run: python scripts/verify-phase-8-evidence.py
       - name: Client UI verification captures (synthetic local fixtures only)
         if: always()
         uses: actions/upload-artifact@v4
@@ -110,8 +113,8 @@ jobs:
             apps/web/test-results/**/reporting-*.png
             apps/web/test-results/**/saas-*.png
             apps/web/test-results/**/phase-8-*.png
-            apps/web/test-results/**/attachments/phase-8-*.json
-            apps/web/test-results/**/attachments/sanitized-route-*.json
+            apps/web/test-results/**/phase-8-*.json
+            apps/web/test-results/**/sanitized-route-*.json
             apps/web/test-results/**/reliability-summary.json
             apps/web/test-results-reliability/**
           if-no-files-found: ignore

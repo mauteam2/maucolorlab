@@ -18,6 +18,9 @@ correlation ID, elapsed time, online/visibility state, busy-form count and viewp
 size. They contain no request/response body, cookies, tokens, passwords or salon
 customer payload. Waits use server responses, committed versions and stable UI
 conditions; no arbitrary sleep or increased-timeout workaround closes G1-09.
+Sanitized diagnostics and Phase 8 numeric measurements are written to each test's
+output directory. CI verifies all 80 repeated diagnostics and six desktop/mobile
+measurement files before uploading; reporter-only body attachments are insufficient.
 
 The targeted Hair regression test proves that the periodic refresh cannot abort
 or supersede an in-flight save and its committed readback. Focus/visibility/authority
