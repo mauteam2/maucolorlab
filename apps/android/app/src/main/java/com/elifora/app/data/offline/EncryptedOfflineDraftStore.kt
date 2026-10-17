@@ -46,12 +46,16 @@ class EncryptedOfflineDraftStore(context: Context) : OfflineDraftStore {
     override suspend fun put(draft: OfflineDraft) = withContext(Dispatchers.IO) {
         val records = read(draft.identity); val old = records.firstOrNull { it.draftId == draft.draftId }
         check(old == null || old.payloadHash == draft.payloadHash && old.mutationId == draft.mutationId && old.domain == draft.domain) { "PAYLOAD_CHANGED" }
-        check(old != null || records.size < 100) { "DRAFT_STORAGE_LIMIT" }
+        val needed = records.filter { it.status != SyncState.SYNCED }.flatMap { it.dependencies }.toSet()
+        val removable = records.filter { it.status == SyncState.SYNCED && it.draftId != draft.draftId && it.draftId !in needed }
+        check(old != null || records.size - removable.size < 100) { "DRAFT_STORAGE_LIMIT" }
         val scope = scope(draft.identity); val name = "$scope:${draft.draftId}"
         val cipher = Cipher.getInstance("AES/GCM/NoPadding"); cipher.init(Cipher.ENCRYPT_MODE, key(scope))
         cipher.updateAAD(name.toByteArray(Charsets.UTF_8))
         val ciphertext = cipher.iv + cipher.doFinal(encodeDraft(draft).toString().toByteArray(Charsets.UTF_8))
-        check(preferences.edit().putString(name, Base64.encodeToString(ciphertext, Base64.NO_WRAP)).commit())
+        val edit = preferences.edit()
+        removable.forEach { edit.remove("$scope:${it.draftId}") }
+        check(edit.putString(name, Base64.encodeToString(ciphertext, Base64.NO_WRAP)).commit())
     }
     override suspend fun remove(identity: OfflineIdentity, draftId: String) = withContext(Dispatchers.IO) {
         check(preferences.edit().remove("${scope(identity)}:$draftId").commit())
