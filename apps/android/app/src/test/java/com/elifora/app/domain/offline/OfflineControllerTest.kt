@@ -106,4 +106,24 @@ class OfflineControllerTest {
         assertEquals(2, store.records.values.count { it.status == SyncState.PENDING_SYNC })
     }
     @Test fun unknownAndMeasuredZeroHashesAreDifferent() { assertNotEquals(offlineHash("{\"value\":null}"), offlineHash("{\"value\":0}")) }
+    @Test fun backgroundDuringAcceptedReadbackCannotRevealPrivateState() = runBlocking {
+        val memory = MemoryStore(); val gate = CompletableDeferred<Unit>(); val reading = CompletableDeferred<Unit>(); var delay = false
+        val store = object : OfflineDraftStore {
+            override suspend fun read(identity: OfflineIdentity): List<OfflineDraft> { if (delay) { reading.complete(Unit); gate.await() }; return memory.read(identity) }
+            override suspend fun put(draft: OfflineDraft) = memory.put(draft)
+            override suspend fun remove(identity: OfflineIdentity, draftId: String) = memory.remove(identity, draftId)
+        }
+        val controller = OfflineController(store, { identity }); controller.bind(context)
+        val draft = controller.capture(DraftDomain.HAIR_HISTORY, "{}", id(10), id(11), null); delay = true
+        val operation = async { controller.accepted(draft) }; reading.await(); controller.conceal(); gate.complete(Unit); operation.await()
+        assertEquals(OfflineState.Locked, controller.state.value)
+    }
+    @Test fun dependenciesAreOrderedEvenWhenChildWasStoredFirst() = runBlocking {
+        val store = MemoryStore(); val controller = OfflineController(store, { identity }); controller.bind(context)
+        val child = controller.capture(DraftDomain.HAIR_HISTORY, "{\"child\":true}", id(10), id(11), null)
+        val parent = controller.capture(DraftDomain.HAIR_HISTORY, "{}", id(12), id(11), null)
+        store.put(child.copy(dependencies = listOf(parent.draftId)))
+        val calls = mutableListOf<String>(); controller.sync(OfflineDispatcher { calls += it.draftId; SyncAcceptance(null) })
+        assertEquals(listOf(parent.draftId, child.draftId), calls)
+    }
 }

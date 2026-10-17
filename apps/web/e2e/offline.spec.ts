@@ -1,4 +1,4 @@
-import { configure } from "./saas-test-control";
+import { configure, sql } from "./saas-test-control";
 import { test, expect } from "./reliability-test";
 import type { Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
@@ -118,6 +118,22 @@ async function operation(page: Page, headers: Record<string, string>, route: str
  const response = await page.request.post(route, { headers, data: { mutation_id: randomUUID(), ...command } });
  expect(response.status(), await response.text()).toBe(expected); return response.json();
 }
+test("switching organization conceals the original encrypted scope and restores it only on return", async ({ page }) => {
+ test.setTimeout(120000); const f = await setup(page), form = await edit(page, "7");
+ await offline(page); await form.getByRole("button", { name: "Kaydet" }).click(); await expect(page.getByText(/Taslak cihazda şifreli korundu/)).toBeVisible(); await online(page);
+ const organization = randomUUID(), location = randomUUID(), member = randomUUID();
+ sql(`insert into public.organizations(id,name,slug,base_currency) values ('${organization}','Synthetic Other Salon','offline-${organization}','TRY');
+ insert into public.locations(id,organization_id,name,timezone) values ('${location}','${organization}','Other Branch','Europe/Istanbul');
+ insert into public.salon_memberships(id,organization_id,user_id,location_id,role_code,status,joined_at) values ('${member}','${organization}','${f.account.userId}',null,'owner','active',now());`);
+ await page.goto("/workspace"); await expectReady(page); await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toBeVisible();
+ await page.getByRole("button", { name: "Çalışma alanını değiştir" }).click(); await expect(page).toHaveURL(/workspaces/);
+ await page.getByRole("button", { name: /Synthetic Other Salon.*Other Branch/ }).click();
+ await expect(page.getByText("Synthetic Other Salon · Other Branch")).toBeVisible();
+ await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toHaveCount(0); expect((await storageShape(page)).count).toBe(1);
+ await page.getByRole("button", { name: "Çalışma alanını değiştir" }).click(); await expect(page).toHaveURL(/workspaces/);
+ await page.getByRole("button", { name: /Studio E2E.*Bolu/ }).click(); await expectReady(page);
+ await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toBeVisible(); await f.account.cleanup();
+});
 test("captured appointment intent rejects a slot booked while disconnected", async ({ page }, info) => {
  test.setTimeout(180000); const f = await setup(page), service = randomUUID();
  const write = (q: object) => operation(page, f.headers, "/api/salon", q);

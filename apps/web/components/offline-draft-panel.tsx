@@ -7,6 +7,7 @@ import type { OfflineDraft } from "@/lib/offline/model";
 const labels: Record<OfflineDraft["status"], string> = { LOCAL: "Yerel taslak", PENDING_SYNC: "Gönderilmeyi bekliyor", SYNCING: "Gönderiliyor", SYNCED: "Sunucu kabul etti", CONFLICT: "Çakışma · inceleyin", REJECTED: "Sunucu reddetti", REVIEW_REQUIRED: "Güncel kayıtla inceleme gerekli", DEPENDENCY_BLOCKED: "Önce bağlı taslağı tamamlayın" };
 export function OfflineDraftPanel({ entityId, onSynced, silent = false }: { entityId?: string; onSynced?: (drafts: OfflineDraft[]) => void; silent?: boolean }) {
  const [drafts, setDrafts] = useState<OfflineDraft[]>([]), [message, setMessage] = useState(""), [busy, setBusy] = useState(false);
+ const [observedAt, setObservedAt] = useState(0);
  const vault = useRef<DraftVault | null>(null), request = useRef<AbortController | null>(null), epoch = useRef(0);
  const refresh = useCallback(async (authenticate = false) => {
   const g = ++epoch.current;
@@ -15,7 +16,7 @@ export function OfflineDraftPanel({ entityId, onSynced, silent = false }: { enti
    if (!selected) return;
    const all = await readOfflineDrafts(selected);
    if (g !== epoch.current || document.hidden) return;
-   vault.current = selected; setDrafts(all.filter(d => !entityId || d.entity_id === entityId)); setMessage("");
+   vault.current = selected; setDrafts(all.filter(d => !entityId || d.entity_id === entityId)); setObservedAt(Date.now()); setMessage("");
   } catch { if (g === epoch.current) { vault.current = null; setDrafts([]); } }
  }, [entityId]);
  useEffect(() => {
@@ -53,7 +54,7 @@ export function OfflineDraftPanel({ entityId, onSynced, silent = false }: { enti
  }
  const pending = drafts.filter(d => d.status !== "SYNCED");
  const conflicts = pending.filter(d => d.status === "CONFLICT").length, failures = pending.filter(d => ["REJECTED", "CONFLICT", "REVIEW_REQUIRED"].includes(d.status)).length;
- const oldest = pending.length ? Math.max(0, Math.floor((Date.now() - Math.min(...pending.map(d => Date.parse(d.created_at)))) / 60000)) : 0;
+ const oldest = pending.length ? Math.max(0, Math.floor((observedAt - Math.min(...pending.map(d => Date.parse(d.created_at)))) / 60000)) : 0;
  if (silent) return null;
  if (!pending.length && !message) return null;
  return <section className="salon-card" aria-label="Yerel taslaklar"><h2>Yerel taslaklar</h2>

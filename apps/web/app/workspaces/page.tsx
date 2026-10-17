@@ -6,6 +6,7 @@ import { resolveSelection, selectionCookie, workspaceReference } from "@/lib/ten
 import { tr } from "@/lib/i18n/tr";
 import { logout } from "@/app/sign-in/actions";
 import { selectWorkspace } from "./actions";
+import { PrivacyActionForm } from "@/components/privacy-action-form";
 export default async function WorkspacesPage({ searchParams }: { searchParams: Promise<{ choose?: string; reason?: string }> }) {
   const query = await searchParams;
   const contexts = await bootstrap().catch((error: unknown) => {
@@ -25,6 +26,6 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
         <span>{context.location_name}</span><span>{tr.roles[context.role]}</span></button>
     </form>)}</div>
     <a className="text-link" href="/workspaces?choose=1">{tr.retry}</a>
-    <form action={logout}><button className="button button-secondary">{tr.logout}</button></form>
+    <PrivacyActionForm action={logout}><button className="button button-secondary">{tr.logout}</button></PrivacyActionForm>
   </main></SalonFrame>;
 }
