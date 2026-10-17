@@ -1,7 +1,7 @@
-import { notFound } from "next/navigation";
+import { requireDevelopmentPreview } from "@/lib/env/preview";
 import { SignInAnimationPreview } from "@/components/sign-in-animation-preview";
 
-export default function SignInAnimationPreviewPage() {
-  if (process.env.NODE_ENV !== "development") notFound();
+export default async function SignInAnimationPreviewPage() {
+  await requireDevelopmentPreview();
   return <SignInAnimationPreview />;
 }

@@ -25,6 +25,13 @@ denial tests still conceal private state. Final closure requires a green exact-h
 CI, no-retry affected journeys and the actual ten-repetition production evidence;
 configuration or a delivery narrative alone is insufficient.
 
+Synthetic preview routes require both ELIFORA_DEPLOYMENT_ENV=development and a
+loopback Host. Optimized next build/start is supported in that local environment;
+staging, pilot and production remain denied even with a forged local Host.
+Parameterized tests sharing a source line retain separate title identities.
+The bounded queue test waits for explicit aria-busy completion and an exact
+remaining-intent count; an intermediate '11 drafts' cannot satisfy '1 draft'.
+
 Production builds set Secure workspace cookies. On trusted localhost, the browser
 and Playwright's standalone HTTP API cookie transport differ. The multi-location
 SaaS structure and client command journeys therefore use actual browser fetch,

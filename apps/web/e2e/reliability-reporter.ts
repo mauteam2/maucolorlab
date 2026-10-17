@@ -5,7 +5,7 @@ export default class ReliabilityReporter implements Reporter {
  private results: { scenario: string; repetition: number; retry: number; status: string; duration_ms: number }[] = [];
  constructor(private options: { output?: string } = {}) {}
  onTestEnd(test: TestCase, result: TestResult) {
-  this.results.push({ scenario: `${test.parent.project()?.name}:${test.location.file.split(/[\\/]/).pop()}:${test.location.line}`,
+  this.results.push({ scenario: `${test.parent.project()?.name}:${test.location.file.split(/[\\/]/).pop()}:${test.location.line}:${test.titlePath().join(" > ")}`,
    repetition: test.repeatEachIndex, retry: result.retry, status: result.status, duration_ms: result.duration });
  }
  onEnd(result: FullResult) {

@@ -57,7 +57,7 @@ export function OfflineDraftPanel({ entityId, onSynced, silent = false }: { enti
  const oldest = pending.length ? Math.max(0, Math.floor((observedAt - Math.min(...pending.map(d => Date.parse(d.created_at)))) / 60000)) : 0;
  if (silent) return null;
  if (!pending.length && !message) return null;
- return <section className="salon-card" aria-label="Yerel taslaklar"><h2>Yerel taslaklar</h2>
+ return <section className="salon-card" aria-label="Yerel taslaklar" aria-busy={busy}><h2>Yerel taslaklar</h2>
   <p className="salon-muted">{pending.length} taslak. Henüz sunucu kaydı değildir. Çıkışta şifreli korunur; yalnızca aynı hesabın yetkili girişinde açılır.</p>
   <p className="salon-muted">{conflicts} çakışma · {failures} inceleme/ret · en eski bekleyen {oldest} dk</p>
   {message && <p role="status">{message}</p>}

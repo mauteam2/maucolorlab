@@ -102,7 +102,11 @@ test("restored draft queue dispatches at most ten original intents per explicit 
  const saveMs = Date.now() - saveAt; await online(page); const restoreAt = Date.now(); await page.reload();
  const sync = page.getByRole("button", { name: "Taslakları senkronize et" }); await expect(sync).toBeVisible(); const restoreMs = Date.now() - restoreAt;
  let accepted = 0; page.on("response", response => { if (new URL(response.url()).pathname === `${f.path}/history` && response.request().method() === "POST" && response.status() === 200) accepted++; });
- const batchAt = Date.now(); await sync.click(); await expect(page.getByText(/1 taslak\. Henüz sunucu kaydı değildir/)).toBeVisible();
+ const firstBatchComplete = page.waitForFunction(() => {
+  const panel = document.querySelector('section[aria-label="Yerel taslaklar"]');
+  return panel?.getAttribute("aria-busy") === "false" && [...panel.querySelectorAll("p")].some(p => /^1 taslak\. Henüz sunucu kaydı değildir/.test(p.textContent ?? ""));
+ });
+ const batchAt = Date.now(); await sync.click(); await firstBatchComplete; await expect(page.getByText(/^1 taslak\. Henüz sunucu kaydı değildir/)).toBeVisible();
  await expect(sync).toBeEnabled(); expect(accepted).toBe(10); const batchMs = Date.now() - batchAt;
  await sync.click(); await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toHaveCount(0); expect(accepted).toBe(11);
  const snapshot = await (await page.request.get(`${f.path}?page_size=100`)).json(); expect(snapshot.data.history.items).toHaveLength(11);
