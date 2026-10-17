@@ -88,7 +88,8 @@ export async function verifyLiveSession(page:Page,browser:Browser,info:TestInfo,
  await info.attach("live-performance",{body:metrics,contentType:"application/json"});
  configure(saasContext.organization_id,"ACTIVE");await costing.finish(info);
  // A late terminal accounting fact is still only local intent while offline.
- await page.getByRole("button",{name:"Güncel kaydı yükle"}).click();
+ await page.goto(`/workspace/live-sessions?client_id=${clientId}&session_id=${id}`);
+ await expect(page.getByRole("button",{name:"Güncel kaydı yükle"})).toBeVisible();
  await page.getByLabel("Ölçülen kullanılan (g)").fill("0");
  await page.getByLabel("Uzlaştırma / düzeltme gerekçesi").fill("Synthetic delayed terminal measurement; prepared and waste remain UNKNOWN");
  await page.context().setOffline(true);await page.evaluate(()=>window.dispatchEvent(new Event("offline")));

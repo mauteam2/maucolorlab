@@ -10,7 +10,7 @@ export default class ReliabilityReporter implements Reporter {
  }
  onEnd(result: FullResult) {
   const first = this.results.filter(r => r.retry === 0), retried = this.results.filter(r => r.retry > 0);
-  const summary = { mode: "production-next-build-start", status: result.status, unique_scenarios: new Set(first.map(r => r.scenario)).size,
+  const summary = { mode: process.env.CI || process.env.ELIFORA_E2E_PRODUCTION === "true" ? "production-next-build-start" : "development-next-dev", status: result.status, unique_scenarios: new Set(first.map(r => r.scenario)).size,
    first_run_passes: first.filter(r => r.status === "passed").length, first_run_failures: first.filter(r => ["failed", "timedOut", "interrupted"].includes(r.status)).length,
    retry_passes: retried.filter(r => r.status === "passed").length, retry_attempts: retried.length, skipped: first.filter(r => r.status === "skipped").length,
    repetitions: Math.max(0, ...first.map(r => r.repetition)) + 1, results: this.results };
