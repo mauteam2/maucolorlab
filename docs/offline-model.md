@@ -33,6 +33,9 @@ offline commits. Local preparation cannot grant those permissions or entitlement
 
 Web: AES-GCM ciphertext in `elifora-offline-intents` IndexedDB, max 100 intents per
 verified scope, 64 KiB command payload and 10 MiB supported photo attachment.
+Accepted local copies are pruned on subsequent writes once no pending child needs
+their acceptance marker. This prevents ordinary online saves exhausting the local
+intent budget; permanent business replay remains in authoritative server receipts.
 Keys are domain-separated on the server and returned only after authenticated
 membership resolution. They are non-exportable WebCrypto handles in memory;
 no provider/signing key is sent to the browser or written to local storage.
@@ -52,6 +55,13 @@ fresh authorized membership to reopen. Another account or organization receives
 a different key and scope. The panel explains retention; explicit discard warns
 before deleting unsynced intent. Server-key rotation intentionally prevents
 decrypting older ciphertext unless an explicit key-retention migration is provided.
+
+Hair supports the already-open controlled editor during a connection loss.
+Appointment, Client and Color preparation is deliberately narrower: capture the
+form intent before leaving the validated screen; the private schedule/profile is
+concealed on connection/lifecycle changes. Preparing or inspecting a local draft
+does not imply offline navigation or full form restoration. Financial/stock form
+preparations remain explicit manual review/re-entry in their fresh domain screens.
 
 Android: the domain controller resolves authenticated user and fresh memberships
 before binding/restoring. Keystore-backed per-scope encryption is behind a data

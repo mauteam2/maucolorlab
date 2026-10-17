@@ -35,3 +35,9 @@ Hair periodic refresh is blocked while a mutation/readback is in flight; foregro
 revalidation still conceals identity and invalidates superseded responses. A
 successful sync clears only editors whose request IDs match the accepted intents,
 preserving any newer user edit.
+
+An authority check may lock the vault while a request is in flight. Only a
+REJECTED/AUTHORITY_EXPIRED or WORKSPACE_CHANGED outcome for the exact already
+stored hash may then be sealed back into that old scope. This cannot unlock it,
+record success or expose data to the next account. If acceptance was uncertain,
+the original mutation identity remains available for authorized server review.

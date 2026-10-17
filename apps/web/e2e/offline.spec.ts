@@ -82,11 +82,32 @@ test("accepted Hair append with lost response replays once after browser reload"
  await expect(page.getByRole("heading", { name: "Synthetic Offline Client" })).toBeVisible();
  await expect(page.getByRole("button", { name: "Taslakları senkronize et" })).toBeVisible();
  const replay = page.waitForResponse(r => new URL(r.url()).pathname === `${f.path}/history` && r.request().method() === "POST");
- await page.getByRole("button", { name: "Taslakları senkronize et" }).click(); const response = await replay;
+ const replayAt = Date.now(); await page.getByRole("button", { name: "Taslakları senkronize et" }).click(); const response = await replay;
  expect(response.status()).toBe(200); expect(response.request().postDataJSON().request_id).toBe(originalId);
  const snapshot = await (await page.request.get(f.path)).json();
  expect(snapshot.data.history.items.filter((r: { description: string }) => r.description === "Synthetic commit without response")).toHaveLength(1);
+ await info.attach("phase-8-replay-performance", { body: Buffer.from(JSON.stringify({ idempotent_replay_ms: Date.now() - replayAt })), contentType: "application/json" });
  await page.screenshot({ path: info.outputPath("phase-8-durable-append-replay.png"), fullPage: true }); await f.account.cleanup();
+});
+
+test("restored draft queue dispatches at most ten original intents per explicit batch", async ({ page }, info) => {
+ test.setTimeout(180000); const f = await setup(page);
+ await page.getByRole("button", { name: "Geçmiş Kaydı Ekle" }).click(); const form = page.locator(".hp-history-editor");
+ await offline(page); const saveAt = Date.now();
+ for (let i = 0; i < 11; i++) {
+  await form.getByLabel("İşlem açıklaması / teknik not").fill(`Synthetic bounded history ${i}`);
+  await form.getByRole("button", { name: "Kaydet", exact: true }).click();
+  await expect.poll(async () => (await storageShape(page)).count).toBe(i + 1);
+ }
+ const saveMs = Date.now() - saveAt; await online(page); const restoreAt = Date.now(); await page.reload();
+ const sync = page.getByRole("button", { name: "Taslakları senkronize et" }); await expect(sync).toBeVisible(); const restoreMs = Date.now() - restoreAt;
+ let accepted = 0; page.on("response", response => { if (new URL(response.url()).pathname === `${f.path}/history` && response.request().method() === "POST" && response.status() === 200) accepted++; });
+ const batchAt = Date.now(); await sync.click(); await expect(page.getByText(/1 taslak\. Henüz sunucu kaydı değildir/)).toBeVisible();
+ await expect(sync).toBeEnabled(); expect(accepted).toBe(10); const batchMs = Date.now() - batchAt;
+ await sync.click(); await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toHaveCount(0); expect(accepted).toBe(11);
+ const snapshot = await (await page.request.get(`${f.path}?page_size=100`)).json(); expect(snapshot.data.history.items).toHaveLength(11);
+ await info.attach("phase-8-batch-performance", { body: Buffer.from(JSON.stringify({ intents: 11, local_capture_total_ms: saveMs, average_local_capture_ms: saveMs / 11, authenticated_reload_restore_ms: restoreMs, first_batch_intents: 10, first_batch_sync_and_readback_ms: batchMs })), contentType: "application/json" });
+ await f.account.cleanup();
 });
 test("signout retains encrypted intent but another account cannot reveal it", async ({ page }) => {
  test.setTimeout(120000); const f = await setup(page), form = await edit(page, "7");
@@ -196,7 +217,7 @@ test("legacy Live intents are atomically sealed and another account cannot unwra
   await new Promise<void>((resolve, reject) => { const t = db.transaction("drafts", "readwrite"); t.objectStore("drafts").put({ key: mutation, scope, createdAt: new Date().toISOString(), command: { type: "NOTE", mutation_id: mutation, text: "Synthetic private legacy intent", expected_version: 1, control_epoch: 1, device_id: scope.split(":")[2] } }); t.oncomplete = () => resolve(); t.onerror = () => reject(t.error); }); db.close();
  }, { mutation, scope });
  await page.reload(); await expect.poll(() => page.evaluate(async () => {
-  const db = await new Promise<IDBDatabase>((resolve, reject) => { const r = indexedDB.open("elifora-live-drafts", 2); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
+  const db = await new Promise<IDBDatabase>((resolve, reject) => { const r = indexedDB.open("elifora-live-drafts"); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
   if (!db.objectStoreNames.contains("sealed")) { db.close(); return null; }
   const counts = await Promise.all(["drafts", "sealed"].map(name => new Promise<number>((resolve, reject) => { const r = db.transaction(name).objectStore(name).count(); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); }))); db.close(); return counts;
  })).toEqual([0, 1]);

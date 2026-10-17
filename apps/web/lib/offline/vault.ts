@@ -71,7 +71,9 @@ export async function storeOfflineDraft(vault: DraftVault, input: OfflineDraft, 
  if (!sameScope(draft, vault.identity) || draft.payload_hash !== await payloadHash(draft.payload)) throw new Error("DRAFT_INTEGRITY_FAILED");
  const drafts = await readOfflineDrafts(vault), previous = drafts.find(d => d.draft_id === draft.draft_id);
  if (previous && (previous.payload_hash !== draft.payload_hash || previous.mutation_id !== draft.mutation_id || previous.domain !== draft.domain)) throw new Error("PAYLOAD_CHANGED");
- if (!previous && drafts.length >= 100) throw new Error("DRAFT_STORAGE_LIMIT");
+ const needed = new Set(drafts.filter(d => d.status !== "SYNCED").flatMap(d => d.dependencies));
+ const removable = drafts.filter(d => d.status === "SYNCED" && d.draft_id !== draft.draft_id && !needed.has(d.draft_id));
+ if (!previous && drafts.length - removable.length >= 100) throw new Error("DRAFT_STORAGE_LIMIT");
  const iv = crypto.getRandomValues(new Uint8Array(12)), recordKey = `${scope(vault.identity)}:${draft.draft_id}`;
  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: new TextEncoder().encode(recordKey) }, vault.key, new TextEncoder().encode(JSON.stringify(draft)));
  let attachment: Stored["attachment"];
@@ -84,6 +86,7 @@ export async function storeOfflineDraft(vault: DraftVault, input: OfflineDraft, 
  try { await new Promise<void>((resolve, reject) => {
   requireVault(vault); const t = db.transaction("drafts", "readwrite");
   const store = t.objectStore("drafts"), existing = store.get(recordKey);
+  for (const accepted of removable) store.delete(`${scope(vault.identity)}:${accepted.draft_id}`);
   existing.onsuccess = () => {
    const old = existing.result as Stored | undefined;
    if (old && old.payload_hash !== draft.payload_hash) { t.abort(); return; }
