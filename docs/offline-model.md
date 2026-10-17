@@ -5,6 +5,21 @@ The authoritative record, actor, tenant, permission, subscription, availability,
 stock balance and financial facts remain on the server. No authenticated HTML
 cache or service worker is introduced.
 
+Command classification (the dispatcher allowlist, not the draft's domain label,
+decides whether a captured command can be sent):
+
+| Classification | Commands / boundary |
+| --- | --- |
+| SAFE_OFFLINE_DRAFT | Controlled Hair intent, CRM note/preference, appointment preparation and bounded Live contribution |
+| REQUIRES_ONLINE_COMMIT | Client/Color preparation review; stock intake/count/consumption acceptance |
+| SAFETY_CRITICAL_ONLINE | Recipe approval/revision/execution, Live START/step/timer/COMPLETE decisions; never generic offline dispatch |
+| FINANCIAL_ONLINE | Payments, refunds, expenses, cash close, authoritative cost/commission facts |
+| RECOVERY_ALLOWED | Online authorized RECOVER_CONTROL, safety abort and existing-work reconciliation under the existing service rules |
+
+RECOVERY_ALLOWED is a lifecycle/entitlement allowance, not offline authority.
+Only bounded factual reconciliation may be journaled locally; controller recovery
+and safety decisions still require a current authoritative connection.
+
 The shared envelope is `OfflineDraftMetadata` in `contracts/offline.schemas.json`.
 It carries a stable draft/mutation identity, domain, organization, location, user,
 membership, device, workspace reference, optional entity/session/version/epoch,

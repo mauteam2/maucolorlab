@@ -20,10 +20,12 @@ async function create(page: Page, name: string, phone: string) {
   return page.url().split("/").at(-1)!;
 }
 async function command(page: Page, operation: string, payload: object) {
-  const session = await (await page.request.get("/api/session")).json();
-  const reference = session.context ? `${session.context.membership_id}:${session.context.location_id}` : "invalid";
-  const response = await page.request.post("/api/clients", { headers: { origin: "http://127.0.0.1:4173", "x-workspace-reference": reference }, data: { operation, payload } });
-  return { status: response.status(), body: await response.json() };
+  return page.evaluate(async ({ operation, payload }) => {
+    const session = await (await fetch("/api/session", { cache: "no-store" })).json();
+    const reference = session.context ? `${session.context.membership_id}:${session.context.location_id}` : "invalid";
+    const response = await fetch("/api/clients", { method: "POST", headers: { "Content-Type": "application/json", "X-Workspace-Reference": reference }, body: JSON.stringify({ operation, payload }) });
+    return { status: response.status, body: await response.json() };
+  }, { operation, payload });
 }
 test("directory, validation, normal create, name/phone search, edit, archive and restore", async ({ page }, testInfo) => {
   test.setTimeout(90000);

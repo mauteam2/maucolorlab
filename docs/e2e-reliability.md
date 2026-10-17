@@ -27,7 +27,7 @@ configuration or a delivery narrative alone is insufficient.
 
 Production builds set Secure workspace cookies. On trusted localhost, the browser
 and Playwright's standalone HTTP API cookie transport differ. The multi-location
-SaaS structure journey therefore sends its commands through actual browser fetch,
+SaaS structure and client command journeys therefore use actual browser fetch,
 preserving the production cookie policy and all quota/replay/authorization checks.
 
 G1-10 (reception technical projection) and G1-11 (legacy RPC coverage) remain tracked
