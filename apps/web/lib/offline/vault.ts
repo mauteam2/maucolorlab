@@ -107,3 +107,18 @@ export async function removeOfflineDraft(vault: DraftVault, id: string) {
  }); } finally { db.close(); }
  window.dispatchEvent(new Event("elifora-drafts-changed"));
 }
+// A fresh authority check can invalidate the in-memory vault during dispatch.
+// Persist only a rejection of an already existing, identical intent in that old
+// encrypted scope. This never reopens the scope, reveals data or records acceptance.
+export async function preserveOfflineRejection(vault: DraftVault, input: OfflineDraft) {
+ const draft = offlineDraft.parse(input);
+ if (draft.status !== "REJECTED" || !["AUTHORITY_EXPIRED", "WORKSPACE_CHANGED"].includes(draft.conflict ?? "") || !sameScope(draft, vault.identity) || draft.payload_hash !== await payloadHash(draft.payload)) throw new Error("AUTHORITY_EXPIRED");
+ const key = `${scope(vault.identity)}:${draft.draft_id}`, iv = crypto.getRandomValues(new Uint8Array(12));
+ const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: new TextEncoder().encode(key) }, vault.key, new TextEncoder().encode(JSON.stringify(draft)));
+ const db = await database();
+ try { await new Promise<void>((resolve, reject) => {
+  const t = db.transaction("drafts", "readwrite"), store = t.objectStore("drafts"), r = store.get(key);
+  r.onsuccess = () => { const old = r.result as Stored | undefined; if (!old || old.scope !== scope(vault.identity) || old.payload_hash !== draft.payload_hash) { t.abort(); return; } store.put({ ...old, iv, ciphertext }); };
+  t.oncomplete = () => resolve(); t.onerror = () => reject(new Error("DRAFT_STORAGE_UNAVAILABLE")); t.onabort = t.onerror;
+ }); } finally { db.close(); }
+}

@@ -10,6 +10,78 @@ servers:
   - url: /
     description: ELIFORA web origin.
 paths:
+  /api/offline-context:
+    get:
+      operationId: getOfflineEncryptionContext
+      summary: Resolve fresh membership and a device-scoped local intent encryption key
+      description: |
+        Private, no-store. Requires current clients.read permission, verified Auth user,
+        and a second authoritative workspace check. Key material is memory-only and
+        must never be logged, cached or persisted. This endpoint accepts no business writes.
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: device_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Fresh scope and derived encryption material
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user_id, device_id, context, key, legacy_public_key]
+                additionalProperties: false
+                properties:
+                  user_id: {type: string, format: uuid}
+                  device_id: {type: string, format: uuid}
+                  context: {$ref: '#/components/schemas/ActiveTenantContext'}
+                  key: {type: string, pattern: '^[a-f0-9]{64}$', writeOnly: false}
+                  legacy_public_key: {type: string, pattern: '^04[a-f0-9]{128}$'}
+        '400': {$ref: '#/components/responses/AccessError'}
+        '401': {$ref: '#/components/responses/AccessError'}
+        '403': {$ref: '#/components/responses/AccessError'}
+        '503': {$ref: '#/components/responses/AccessError'}
+    post:
+      operationId: unwrapLegacyOfflineIntentKey
+      summary: Recover a sealed legacy Live intent key for its current authorized membership
+      description: |
+        Same-origin cookie request, private/no-store, bounded 4 KiB body. Requires
+        fresh live_session.view and original membership/location scope. Scope is
+        authenticated additional data; forgery cannot unwrap a foreign intent.
+        This returns no business acceptance and performs no Live command.
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [scope, ephemeral_public_key, iv, wrapped_key]
+              properties:
+                scope: {type: string, maxLength: 160, description: 'Original membership:location:device:session UUIDs'}
+                ephemeral_public_key: {type: string, pattern: '^04[a-f0-9]{128}$'}
+                iv: {type: string, pattern: '^[a-f0-9]{24}$'}
+                wrapped_key: {type: string, pattern: '^[a-f0-9]{96}$'}
+      responses:
+        '200':
+          description: Memory-only unwrapped content key; never log or persist
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [key]
+                properties:
+                  key: {type: string, pattern: '^[a-f0-9]{64}$'}
+        '400': {$ref: '#/components/responses/AccessError'}
+        '401': {$ref: '#/components/responses/AccessError'}
+        '403': {$ref: '#/components/responses/AccessError'}
+        '503': {$ref: '#/components/responses/AccessError'}
   /api/session:
     get:
       operationId: getVerifiedWorkspace

@@ -198,7 +198,7 @@ test("legacy Live intents are atomically sealed and another account cannot unwra
   if (!response.ok) return false; const body = await response.json();
   const bytes = Uint8Array.from(body.key.match(/.{2}/g) as string[], (v: string) => parseInt(v, 16));
   const key = await crypto.subtle.importKey("raw", bytes, "AES-GCM", false, ["decrypt"]);
-  const data = await crypto.subtle.decrypt({ name: "AES-GCM", iv: row.data_iv, additionalData: new TextEncoder().encode(row.key) }, key, row.data);
+  const data = await crypto.subtle.decrypt({ name: "AES-GCM", iv: new Uint8Array(row.data_iv), additionalData: new TextEncoder().encode(row.key) }, key, row.data);
   return JSON.parse(new TextDecoder().decode(data)).command.mutation_id === expected;
  }, mutation)).toBe(true);
  await page.goto("/workspace"); await expectReady(page); await page.getByRole("button", { name: "Oturumu kapat" }).click(); await expect(page).toHaveURL(/sign-in/);
