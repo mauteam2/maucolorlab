@@ -126,12 +126,12 @@ class OfflineControllerTest {
         val calls = mutableListOf<String>(); controller.sync(OfflineDispatcher { calls += it.draftId; SyncAcceptance(null) })
         assertEquals(listOf(parent.draftId, child.draftId), calls)
     }
-    @Test fun payloadHashMismatchNeverDispatchesEvenFromPersistedStorage() = runBlocking {
+    @Test fun payloadHashMismatchIsRejectedBeforeItCanEnterPersistedState() = runBlocking {
         val store = MemoryStore(); val controller = OfflineController(store, { identity }); controller.bind(context)
         val draft = controller.capture(DraftDomain.HAIR_HISTORY, "{}", id(10), id(11), null)
-        store.records[draft.draftId] = draft.copy(payload = "{\"changed\":true}")
-        controller.sync(OfflineDispatcher { fail("Tampered payload dispatched"); SyncAcceptance(null) })
-        assertEquals(SyncState.REJECTED, store.records[draft.draftId]?.status)
-        assertEquals(ConflictType.PAYLOAD_CHANGED, store.records[draft.draftId]?.conflict)
+        try { store.records[draft.draftId] = draft.copy(payload = "{\"changed\":true}"); fail("Corrupt envelope accepted") }
+        catch (_: IllegalArgumentException) { /* Both decoding and copying validate the envelope hash. */ }
+        assertEquals(draft.payload, store.records[draft.draftId]?.payload)
+        assertEquals(SyncState.PENDING_SYNC, store.records[draft.draftId]?.status)
     }
 }

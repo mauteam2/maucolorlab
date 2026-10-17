@@ -59,9 +59,16 @@ test("one remaining location, exact quota, rejected growth and downgrade preserv
   const { ctx, headers } = await setup(page); configure(ctx.organization_id, "ACTIVE", true, 2); await openAccount(page);
   await expect(page.getByText("1 / 2", { exact: true })).toBeVisible();
   const create = () => ({ type: "CREATE_LOCATION", request_id: randomUUID(), id: randomUUID(), name: "Sentetik şube", timezone: "Europe/Istanbul" });
-  const q = create(), accepted = await page.request.post("/api/saas/structure", { headers, data: q }); expect(accepted.status(), await accepted.text()).toBe(200);
-  expect((await page.request.post("/api/saas/structure", { headers, data: q })).status()).toBe(200);
-  const rejected = await page.request.post("/api/saas/structure", { headers, data: create() }); expect(rejected.status()).toBe(409); expect((await rejected.json()).code).toBe("QUOTA_EXCEEDED");
+  // Browser fetch carries the production Secure workspace cookie on trusted
+  // localhost. APIRequestContext's HTTP cookie transport does not model that
+  // browser exception, which becomes observable after creating a second context.
+  const post = (data: object) => page.evaluate(async ({ data, headers }) => {
+    const response = await fetch("/api/saas/structure", { method: "POST", headers: { ...headers, "Content-Type": "application/json" }, body: JSON.stringify(data) });
+    return { status: response.status, body: await response.json() };
+  }, { data, headers });
+  const q = create(), accepted = await post(q); expect(accepted.status, JSON.stringify(accepted.body)).toBe(200);
+  expect((await post(q)).status).toBe(200);
+  const rejected = await post(create()); expect(rejected.status).toBe(409); expect(rejected.body.code).toBe("QUOTA_EXCEEDED");
   await page.getByRole("button", { name: "Yenile", exact: true }).click(); await expect(page.getByText("2 / 2", { exact: true })).toBeVisible(); await expect(page.getByText("Sınıra ulaşıldı", { exact: true })).toBeVisible();
   configure(ctx.organization_id, "ACTIVE", true, 1); await page.getByRole("button", { name: "Yenile", exact: true }).click();
   await expect(page.getByText("2 / 1", { exact: true })).toBeVisible(); await expect(page.getByText("Yeni sınır aşılıyor; mevcut kayıtlar korunur", { exact: true })).toBeVisible();
