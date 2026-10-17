@@ -20,11 +20,11 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
     <h1>{contexts.length ? tr.select : tr.noMembership}</h1>
     {!contexts.length && <p className="lead">{tr.noMembershipDetail}</p>}
     {query.reason && <p role="alert">{tr.invalidContext}</p>}
-    <div className="workspace-options">{contexts.map((context) => <form action={selectWorkspace} key={workspaceReference(context)}>
+    <div className="workspace-options">{contexts.map((context) => <PrivacyActionForm action={selectWorkspace} key={workspaceReference(context)}>
       <input type="hidden" name="reference" value={workspaceReference(context)} />
       <button className="workspace-option"><strong>{context.organization_name}</strong>
         <span>{context.location_name}</span><span>{tr.roles[context.role]}</span></button>
-    </form>)}</div>
+    </PrivacyActionForm>)}</div>
     <a className="text-link" href="/workspaces?choose=1">{tr.retry}</a>
     <PrivacyActionForm action={logout}><button className="button button-secondary">{tr.logout}</button></PrivacyActionForm>
   </main></SalonFrame>;

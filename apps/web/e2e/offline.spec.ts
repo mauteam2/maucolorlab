@@ -151,11 +151,13 @@ test("switching organization conceals the original encrypted scope and restores 
  insert into public.locations(id,organization_id,name,timezone) values ('${location}','${organization}','Other Branch','Europe/Istanbul');
  insert into public.salon_memberships(id,organization_id,user_id,location_id,role_code,status,joined_at) values ('${member}','${organization}','${f.account.userId}',null,'owner','active',now());`);
  await page.goto("/workspace"); await expectReady(page); await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toBeVisible();
- await page.getByRole("button", { name: "Çalışma alanını değiştir" }).click(); await expect(page).toHaveURL(/workspaces/);
- await page.getByRole("button", { name: /Synthetic Other Salon.*Other Branch/ }).click();
- await expect(page.getByText("Synthetic Other Salon · Other Branch")).toBeVisible();
+ const chooser = await page.context().newPage(); await chooser.goto("/workspaces?choose=1");
+ await chooser.getByRole("button", { name: /Synthetic Other Salon.*Other Branch/ }).click();
+ await expect(chooser.getByText("Synthetic Other Salon · Other Branch")).toBeVisible();
+ await expect(chooser.getByRole("region", { name: "Yerel taslaklar" })).toHaveCount(0);
+ await expect(page.getByText("Özel bilgiler gizlendi", { exact: false })).toBeVisible();
  await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toHaveCount(0); expect((await storageShape(page)).count).toBe(1);
- await page.getByRole("button", { name: "Çalışma alanını değiştir" }).click(); await expect(page).toHaveURL(/workspaces/);
+ await chooser.close(); await page.goto("/workspaces?choose=1");
  await page.getByRole("button", { name: /Studio E2E.*Bolu/ }).click(); await expectReady(page);
  await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toBeVisible(); await f.account.cleanup();
 });
