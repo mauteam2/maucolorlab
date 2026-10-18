@@ -399,3 +399,5 @@ h1 {
 
 .color-regional-details { margin-top: 1rem; }
 .color-regional-details summary { cursor: pointer; color: #6e4b3a; padding: .6rem 0; }
+
+.color-preset-list .button[aria-pressed="true"] { border-color: #6e4b3a; background: #e8d8cc; color: #3b2432; }

@@ -1,5 +1,6 @@
 import { render,screen,fireEvent,cleanup } from "@testing-library/react";
 import { afterEach,expect,it,vi } from "vitest";
+import { useState } from "react";
 import { colorFixture } from "@/test/color-fixtures";
 import { ColorTargetPicker } from "./color-target-picker";
 import { RegionalColorTargetEditor } from "./regional-color-target";
@@ -19,4 +20,12 @@ it("white coverage and disclosed correction have stable accessible names",()=>{
  fireEvent.click(screen.getByText("Ayrıntılı bölgesel ayarlar",{exact:true}));
  fireEvent.change(screen.getByRole("combobox",{name:"Düzeltme"}),{target:{value:"BAND"}});
  expect(change).toHaveBeenLastCalledWith({correction:"BAND"});
+});
+it("a named preset keeps depth, family radio and pressed state aligned with the actual target",()=>{
+ const i=colorFixture();function Editor(){const [definition,setDefinition]=useState(i.target.definition);return <ColorTargetPicker definition={definition} snapshot={i.snapshot.pages[0]!} disabled={false} onChange={setDefinition}/>;}
+ render(<Editor/>);fireEvent.click(screen.getByRole("button",{name:"Soğuk sarı"}));
+ expect(screen.getByRole("combobox",{name:"Hedef derinlik"})).toHaveValue("9");
+ expect(screen.getByRole("radio",{name:"Küllü / soğuk"})).toBeChecked();
+ expect(screen.getByRole("button",{name:"Soğuk sarı"})).toHaveAttribute("aria-pressed","true");
+ expect(screen.getByRole("button",{name:"Karamel"})).toHaveAttribute("aria-pressed","false");
 });
