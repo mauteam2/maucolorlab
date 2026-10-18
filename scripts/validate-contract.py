@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.22.0'
+assert contract['info']['version'] == '0.23.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -422,3 +422,16 @@ native_offline = (root / 'apps/android/app/src/main/java/com/elifora/app/data/of
 for field in contract['components']['schemas']['OfflineDraftMetadata']['required']:
     assert field in native_offline, field
 print('PASS: Phase 8 offline metadata, deterministic states, explicit conflicts and controller recovery authority forgery rejections')
+
+reception=json.loads((root/'contracts/reception.schemas.json').read_text(encoding='utf-8'))
+assert contract['components']['schemas']['AppointmentReadiness']==reception['AppointmentReadiness']
+Draft202012Validator.check_schema(reception['AppointmentReadiness'])
+sample={'schema_version':1,'appointment_id':'e9000000-0000-4000-8000-000000000001','appointment_version':1,'evaluated_at':'2026-10-18T09:00:00Z','preparation_status':'CONSULTATION_REQUIRED','consultation_required':True,'strand_test_status':'UNKNOWN','allocated_minutes':60,'duration_source':'APPOINTMENT_ALLOCATION','technical_clearance':False}
+observation_validator('AppointmentReadiness').validate(sample)
+for field in ('risk','last_formula','developer_grams','notes','photos','cost','commission','organization_id'):
+    assert list(observation_validator('AppointmentReadiness').iter_errors(sample|{field:True})),field
+assert list(observation_validator('AppointmentReadiness').iter_errors(sample|{'technical_clearance':True}))
+assert contract['paths']['/rest/v1/rpc/appointment_readiness']['post']['security']==[{'bearerAuth':[],'publishableKey':[]}]
+native=(root/'apps/android/app/src/main/java/com/elifora/app/data/salon/SupabaseAppointmentReadinessRepository.kt').read_text(encoding='utf-8')
+assert all(field in native for field in sample)
+print('PASS: Phase 9 minimum reception projection, shared native semantics and nine technical authority forgery rejections')

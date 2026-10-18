@@ -16,6 +16,14 @@ function scan(directory) {
     else {
       count++;
       const content = readFileSync(path);
+      const text = content.toString("utf8");
+      if (/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/.test(text) || /\bsk_live_[A-Za-z0-9]{20,}/.test(text)) {
+        throw new Error("Private signing/provider material found in browser artifact");
+      }
+      for (const token of text.matchAll(/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g)) {
+        try { if (JSON.parse(Buffer.from(token[0].split(".")[1], "base64url").toString()).role === "service_role") throw new Error("SERVICE_TOKEN_IN_BUNDLE"); }
+        catch (error) { if (error.message === "SERVICE_TOKEN_IN_BUNDLE") throw error; }
+      }
       if ([status.SERVICE_ROLE_KEY, signingKey].some(key => content.includes(Buffer.from(key)))) {
         throw new Error("Privileged local key found in a browser artifact");
       }

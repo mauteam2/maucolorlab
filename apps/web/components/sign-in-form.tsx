@@ -11,5 +11,6 @@ export function SignInForm() {
     <input id="password" name="password" type="password" autoComplete="current-password" required maxLength={1024} />
     {state.code && <p role="alert">{state.code === "INVALID_CREDENTIALS" ? tr.invalid : tr.network}</p>}
     <button className="button button-primary" disabled={pending}>{pending ? tr.pending : tr.signIn}</button>
+    <a className="text-link" href="/auth/recovery">Parolamı unuttum</a>
   </form>;
 }

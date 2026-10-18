@@ -12,6 +12,7 @@ import com.elifora.app.data.hair.SupabaseHairMutationRepository
 import com.elifora.app.domain.hair.HairPassportController
 
 interface AppContainer {
+    val appointmentReadinessRepository: com.elifora.app.domain.salon.AppointmentReadinessRepository
     val offlineController: com.elifora.app.domain.offline.OfflineController
     val appConfig: AppConfig
     val workspaceController: WorkspaceController
@@ -25,6 +26,7 @@ interface AppContainer {
     val stockController: com.elifora.app.domain.stock.StockController
 }
 class DefaultAppContainer(context: Context) : AppContainer {
+    override val appointmentReadinessRepository by lazy { com.elifora.app.data.salon.SupabaseAppointmentReadinessRepository(repository::appointmentReadiness) }
     private val draftStore by lazy { com.elifora.app.data.offline.EncryptedOfflineDraftStore(context) }
     override val offlineController by lazy { com.elifora.app.domain.offline.OfflineController(draftStore, { selected ->
         val current = repository.list().find { it.reference == selected.reference && it.organizationId == selected.organizationId && it.membershipStatus == "active" }

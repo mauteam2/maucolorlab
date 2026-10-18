@@ -19,7 +19,7 @@ export const test = base.extend<{ sanitizedDiagnostics: void }>({
   // Body-only attachments belong to the reporter, not the per-test output
   // directory. Persist only these explicitly sanitized numeric measurements.
   for (const attachment of info.attachments) {
-   if (/^phase-8-[a-z0-9-]+$/.test(attachment.name) && attachment.contentType === "application/json" && attachment.body) {
+   if (/^phase-(?:8|9)-[a-z0-9-]+$/.test(attachment.name) && attachment.contentType === "application/json" && attachment.body) {
     await writeFile(info.outputPath(`${attachment.name}.json`), attachment.body);
    }
   }

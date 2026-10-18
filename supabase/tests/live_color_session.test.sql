@@ -76,7 +76,7 @@ select is((select count(*) from public.audit_events where action in ('live_sessi
 select is((select count(*) from public.audit_events where action='live_session.photo_uploaded'),1::bigint,'private photo upload audited');
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);
 set local role authenticated;
-select is((select count(*) from public.live_sessions),1::bigint,'authorized viewer can read live state');
+select is((select count(*) from public.live_sessions),0::bigint,'reception cannot read full technical live state; operational projection is separate');
 select is(pg_temp.live_store((select value from result where name='live-envelope'),'b4000000-0000-4000-8000-000000000114')->>'code','FORBIDDEN','viewer cannot control');
 reset role;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000023',true);

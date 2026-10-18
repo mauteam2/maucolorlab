@@ -79,6 +79,8 @@ jobs:
           PY
       - run: npm run lint
       - run: npm run typecheck
+      - name: Production dependency vulnerability gate
+        run: npm audit --omit=dev --audit-level=high
       - run: npm run test
       - run: npm run build
       - run: node scripts/verify-browser-bundle.mjs
@@ -86,6 +88,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Phase 8 offline browser journeys must pass without retries
         run: npx playwright test e2e/offline.spec.ts --workers=1 --retries=0
+      - name: Phase 9 security journeys must pass without retries
+        run: npx playwright test e2e/security.spec.ts --workers=1 --retries=0
       - name: Phase 5B browser journeys must pass without retries
         run: npx playwright test e2e/costing.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
       - name: Phase 6 report journeys must pass without retries
@@ -113,6 +117,8 @@ jobs:
             apps/web/test-results/**/reporting-*.png
             apps/web/test-results/**/saas-*.png
             apps/web/test-results/**/phase-8-*.png
+            apps/web/test-results/**/phase-9-*.png
+            apps/web/test-results/**/phase-9-*.json
             apps/web/test-results/**/phase-8-*.json
             apps/web/test-results/**/sanitized-route-*.json
             apps/web/test-results/**/reliability-summary.json
@@ -126,6 +132,7 @@ jobs:
           name: phase-8-browser-diagnostics
           path: |
             apps/web/test-results/**/phase-8-*.json
+            apps/web/test-results/**/phase-9-*.json
             apps/web/test-results/**/sanitized-route-*.json
             apps/web/test-results/**/reliability-summary.json
             apps/web/test-results-reliability/**/sanitized-route-*.json
@@ -185,7 +192,24 @@ jobs:
           python scripts/start-local-supabase.py
           python scripts/configure-disposable-saas.py
       - run: supabase db lint --local --fail-on warning
+      - name: Review actual migrated function owners, grants and RLS
+        run: python scripts/verify-security-database.py
       - run: supabase test db
+      - name: Phase 9 security concurrency barriers
+        run: |
+          supabase db reset --local
+          python scripts/configure-disposable-saas.py
+          python scripts/test-phase-9-concurrency.py
+          supabase db reset --local
+          python scripts/configure-disposable-saas.py
+      - name: Phase 9 actual database security and performance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-9-database-security
+          path: ${{ runner.temp }}/phase-9-*.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Phase 8 durable replay, offline intent and controller recovery races
         run: |
           supabase db reset --local
@@ -286,6 +310,8 @@ jobs:
           python-version: "3.12"
       - run: pip install -r scripts/verification-requirements.txt
       - run: python scripts/validate-contract.py
+      - run: python scripts/security_inventory.py
+      - run: python scripts/test-security-inventory.py
       - run: python scripts/test-start-local-supabase.py
       - run: python scripts/test-configure-disposable-supabase-ports.py
       - run: python scripts/test-check-catalog-sources.py

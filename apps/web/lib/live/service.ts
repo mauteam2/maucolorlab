@@ -1,4 +1,5 @@
 import "server-only";
+import { allowedImageBytes } from "@/lib/security/image";
 import { throwSaasError } from "@/lib/saas/errors";
 import { createHash,createHmac,randomUUID } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
@@ -53,7 +54,7 @@ export async function mutateLiveSession(raw:unknown,id:string|null,clientId:stri
 export async function livePhoto(id:string,photoId:string,clientId:string,file:Blob|null,correlationId:string,reference?:string|null){
  const ctx=await access(file?"live_session.contribute":"live_session.view",file?reference:undefined),s=liveSession.parse((await readLiveSessions(clientId,id,correlationId)).data),p=s.photos.find(p=>p.id===photoId);
  if(!p)throw new AccessError("LIVE_PHOTO_NOT_FOUND",404);const client=await createClient();
- if(file){if(file.size>10*1024*1024||file.type!==p.contentType)throw new AccessError("VALIDATION_FAILED",400);
+  if(file){if(file.type!==p.contentType||!await allowedImageBytes(file))throw new AccessError("VALIDATION_FAILED",400);
   const existing=await client.storage.from("live-technical").download(p.path);
   if(!existing.error&&existing.data){
    const digest=async(blob:Blob)=>createHash("sha256").update(Buffer.from(await blob.arrayBuffer())).digest("hex");

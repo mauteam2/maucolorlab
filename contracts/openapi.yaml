@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.22.0
+  version: 0.23.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -10,6 +10,65 @@ servers:
   - url: /
     description: ELIFORA web origin.
 paths:
+  /api/salon/appointments/{id}/readiness:
+    get:
+      operationId: appointmentReadiness
+      summary: Minimum operational preparation; never chemical clearance
+      security:
+      - cookieAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Minimal projection plus freshly verified context
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AppointmentReadiness'
+        '403':
+          description: Permission or current membership denied
+        '404':
+          description: Appointment unavailable in authorized scope
+  /rest/v1/rpc/appointment_readiness:
+    post:
+      operationId: appointmentReadinessRpc
+      summary: Native-compatible minimum reception projection
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - p_membership_id
+              - p_location_id
+              - p_appointment_id
+              properties:
+                p_membership_id:
+                  type: string
+                  format: uuid
+                p_location_id:
+                  type: string
+                  format: uuid
+                p_appointment_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Minimal data or typed rejection; caller IDs are preconditions,
+            never authority
   /api/offline-context:
     get:
       operationId: getOfflineEncryptionContext
@@ -4531,6 +4590,11 @@ paths:
           description: Quota/subscription/replay conflict
 components:
   securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sb-project-auth-token
+      description: Provider SSR session cookies; exact project prefix/chunks vary.
     bearerAuth:
       type: http
       scheme: bearer
@@ -38950,4 +39014,58 @@ components:
       - notes
       - outcome
       - actualProcessSeconds
+      additionalProperties: false
+    AppointmentReadiness:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      type: object
+      properties:
+        schema_version:
+          type: number
+          const: 1
+        appointment_id:
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+        appointment_version:
+          type: integer
+          exclusiveMinimum: 0
+          maximum: 9007199254740991
+        evaluated_at:
+          type: string
+          format: date-time
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+        preparation_status:
+          type: string
+          enum:
+          - NOT_REQUIRED
+          - CONSULTATION_REQUIRED
+          - REVIEW_REQUIRED
+        consultation_required:
+          type: boolean
+        strand_test_status:
+          type: string
+          enum:
+          - UNKNOWN
+          - NOT_REQUIRED
+        allocated_minutes:
+          type: integer
+          minimum: 5
+          maximum: 720
+        duration_source:
+          type: string
+          const: APPOINTMENT_ALLOCATION
+        technical_clearance:
+          type: boolean
+          const: false
+      required:
+      - schema_version
+      - appointment_id
+      - appointment_version
+      - evaluated_at
+      - preparation_status
+      - consultation_required
+      - strand_test_status
+      - allocated_minutes
+      - duration_source
+      - technical_clearance
       additionalProperties: false

@@ -1,0 +1,13 @@
+import { beforeEach,it,expect,vi } from "vitest";
+import { salonFixture,salonId } from "@/test/salon-fixtures";
+import { AccessError } from "@/lib/tenant/bootstrap";
+const m=vi.hoisted(()=>({context:vi.fn(),rpc:vi.fn()}));
+vi.mock("@/lib/clients/service",()=>({verifiedClientContext:m.context}));
+vi.mock("@/lib/supabase/server",()=>({createClient:async()=>({rpc:m.rpc})}));
+import { readAppointmentReadiness } from "./service";
+const data=()=>({schema_version:1,appointment_id:salonId(301),appointment_version:1,evaluated_at:"2026-10-18T09:00:00Z",preparation_status:"REVIEW_REQUIRED",consultation_required:true,strand_test_status:"UNKNOWN",allocated_minutes:60,duration_source:"APPOINTMENT_ALLOCATION",technical_clearance:false});
+beforeEach(()=>{vi.clearAllMocks();m.context.mockResolvedValue(salonFixture().context);m.rpc.mockResolvedValue({data:{data:data()}});});
+it("uses only minimal RPC with authoritative context and final recheck",async()=>{expect((await readAppointmentReadiness(salonId(301),salonId(901))).data).toEqual(data());expect(m.rpc).toHaveBeenCalledWith("appointment_readiness",expect.objectContaining({p_membership_id:salonFixture().context.membership_id}));expect(m.context).toHaveBeenCalledTimes(2);expect(m.context).toHaveBeenLastCalledWith("salon.readiness.read");});
+it("late revoked authority conceals projection",async()=>{m.context.mockResolvedValueOnce(salonFixture().context).mockRejectedValueOnce(new AccessError("MEMBERSHIP_REVOKED",403));await expect(readAppointmentReadiness(salonId(301),salonId(901))).rejects.toMatchObject({status:403});});
+it.each(["last_formula","notes","cost","photos"])("rejects unexpected technical field %s",async key=>{m.rpc.mockResolvedValue({data:{data:{...data(),[key]:{}}}});await expect(readAppointmentReadiness(salonId(301),salonId(901))).rejects.toThrow();});
+it("foreign appointment response never leaves boundary",async()=>{m.rpc.mockResolvedValue({data:{data:{...data(),appointment_id:salonId(999)}}});await expect(readAppointmentReadiness(salonId(301),salonId(901))).rejects.toMatchObject({status:503});});

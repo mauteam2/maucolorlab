@@ -33,6 +33,18 @@ export async function seedAccount(locationCount = 1) {
   }));
   return {
     email, password, membershipId, locations, userId,
+    async verifyRevokedSessionRejected() {
+      // Real Auth + PostgREST, no JWT/session contents leave this test helper.
+      const isolated=createClient(status.API_URL,status.ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+      const signed=await isolated.auth.signInWithPassword({email,password});
+      if(signed.error||!signed.data.session)throw new Error("Disposable session fixture failed");
+      const before=await isolated.rpc("list_workspace_contexts");
+      if(before.error)throw new Error("Active session read denied");
+      const revoked=await admin.auth.admin.signOut(signed.data.session.access_token,"global");
+      if(revoked.error)throw new Error("Provider session revocation failed");
+      const after=await isolated.rpc("list_workspace_contexts");
+      return {before:before.status,after:after.status,code:after.error?.message};
+    },
     async addMember(roleCode: "assistant" | "colorist" | "manager" | "reception") {
       const memberEmail = `e2e-${randomUUID()}@elifora.test`;
       const memberPassword = `E2e-${randomUUID()}!`;

@@ -1,0 +1,71 @@
+{
+  "AppointmentReadiness": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "schema_version": {
+        "type": "number",
+        "const": 1
+      },
+      "appointment_id": {
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+      },
+      "appointment_version": {
+        "type": "integer",
+        "exclusiveMinimum": 0,
+        "maximum": 9007199254740991
+      },
+      "evaluated_at": {
+        "type": "string",
+        "format": "date-time",
+        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+      },
+      "preparation_status": {
+        "type": "string",
+        "enum": [
+          "NOT_REQUIRED",
+          "CONSULTATION_REQUIRED",
+          "REVIEW_REQUIRED"
+        ]
+      },
+      "consultation_required": {
+        "type": "boolean"
+      },
+      "strand_test_status": {
+        "type": "string",
+        "enum": [
+          "UNKNOWN",
+          "NOT_REQUIRED"
+        ]
+      },
+      "allocated_minutes": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 720
+      },
+      "duration_source": {
+        "type": "string",
+        "const": "APPOINTMENT_ALLOCATION"
+      },
+      "technical_clearance": {
+        "type": "boolean",
+        "const": false
+      }
+    },
+    "required": [
+      "schema_version",
+      "appointment_id",
+      "appointment_version",
+      "evaluated_at",
+      "preparation_status",
+      "consultation_required",
+      "strand_test_status",
+      "allocated_minutes",
+      "duration_source",
+      "technical_clearance"
+    ],
+    "additionalProperties": false
+  }
+}

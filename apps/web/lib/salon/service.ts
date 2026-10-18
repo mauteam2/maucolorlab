@@ -9,7 +9,15 @@ import { readHairPassport } from "@/lib/hair-passport/service";
 import { liveSession } from "@/lib/live/model";
 import { appointment, salonCommand, salonSnapshot, slotRequest, slotResult, precheckResult, permissionFor } from "./model";
 import { competencySatisfies, durationEstimate } from "./engine";
+import { appointmentReadiness } from "./readiness";
 type Context = Awaited<ReturnType<typeof verifiedClientContext>>;
+export async function readAppointmentReadiness(id:string,correlationId:string) {
+ if(!z.uuid().safeParse(id).success)throw new AccessError("VALIDATION_FAILED",400);
+ const ctx=await access("salon.readiness.read"),client=await createClient();
+ const data=appointmentReadiness.parse(unwrap(await client.rpc("appointment_readiness",{p_membership_id:ctx.membership_id,p_location_id:ctx.location_id,p_appointment_id:id})));
+ if(data.appointment_id!==id)throw new AccessError("NETWORK_ERROR",503);
+ await finish(ctx,"salon.readiness.read");return {data,context:ctx,correlationId};
+}
 export function salonErrorStatus(code: string) {
  return ["UNAUTHENTICATED", "SESSION_EXPIRED"].includes(code) ? 401 : ["FORBIDDEN", "MEMBERSHIP_REQUIRED", "MEMBERSHIP_REVOKED", "TENANT_CONTEXT_INVALID"].includes(code) ? 403 : code === "SALON_NOT_FOUND" ? 404 : ["NETWORK_ERROR"].includes(code) ? 503 : ["VALIDATION_FAILED", "INVALID_LOCAL_TIME", "AMBIGUOUS_LOCAL_TIME"].includes(code) ? 400 : 409;
 }
