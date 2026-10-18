@@ -1,0 +1,13 @@
+import { writeFileSync } from "node:fs";
+import { z } from "../apps/web/node_modules/zod/index.js";
+import { colorPlanning, colorStrategy, engineMetadata, recipeDraft } from "../apps/web/lib/color/model.ts";
+import { targetInterpretation } from "../apps/web/lib/color/interpretation.ts";
+import { targetOptions } from "../apps/web/lib/color/taxonomy.ts";
+import { options } from "../apps/web/lib/color/taxonomy.ts";
+import { colorFixture } from "../apps/web/test/color-fixtures.ts";
+import { evaluateColorPlanning } from "../apps/web/lib/color/engine.ts";
+const schemas=Object.fromEntries(Object.entries({ColorPlanning:colorPlanning,ColorStrategy:colorStrategy,EngineMetadata:engineMetadata,RecipeDraft:recipeDraft,TargetInterpretation:targetInterpretation,ColorTargetOptions:targetOptions}).map(([name,schema])=>[name,z.toJSONSchema(schema,{target:"draft-2020-12",io:"input"})]));
+schemas.ColorPlanning.allOf=[{if:{properties:{engineVersion:{const:"color-engine/1.1.0"}},required:["engineVersion"]},then:{required:["targetInterpretation","confidenceBand","riskBand"]}}];
+writeFileSync(new URL("../contracts/color-pilot.schemas.json",import.meta.url),JSON.stringify(schemas,null,2)+"\n");
+const input=colorFixture();
+writeFileSync(new URL("../contracts/fixtures/color-pilot-contract.json",import.meta.url),JSON.stringify({options,definition:input.target.definition,result:evaluateColorPlanning(input.snapshot,input.confidence,input.risk,input.target)},null,2)+"\n");

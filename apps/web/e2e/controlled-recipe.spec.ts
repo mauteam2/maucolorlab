@@ -63,6 +63,17 @@ test("controlled professional recipe keeps exact arithmetic, immutable history, 
  await page.setViewportSize({width:320,height:900});await panel.scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath("client-controlled-320.png")});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:info.outputPath("client-controlled-320-full.png"),fullPage:true});
  await panel.screenshot({path:info.outputPath("client-controlled-panel-320.png")});
  await verifyLiveSession(page,browser,info,client.id,v2.id,headers);
+ // A broader desired target remains useful but never invents a catalog mapping.
+ await page.goto(`/workspace/colorlab?client_id=${client.id}`);
+ await page.getByRole("region",{name:"Hızlı hedef oluşturucu"}).getByRole("button",{name:"Karamel",exact:true}).click();
+ await page.getByLabel("Çalışma türü").selectOption("ROOT_REFRESH");
+ const expandedRegions=page.locator(".salon-region-editor");
+ for(let index=0;index<3;index++)if(!await expandedRegions.nth(index).locator("legend").innerText().then(text=>text.startsWith("Dip")))await expandedRegions.nth(index).getByLabel("Mevcut rengi koru").check();
+ const expandedResponse=page.waitForResponse(r=>r.url().endsWith("/color-plans")&&r.request().method()==="POST");await page.getByRole("button",{name:"Renk planı oluştur",exact:true}).click();const expanded=await expandedResponse;expect(expanded.ok(),await expanded.text()).toBe(true);
+ expect((await expanded.json()).data.result.status).toBe("DRAFT");
+ await page.getByRole("region",{name:"Kontrollü marka reçetesi"}).getByRole("button",{name:"Uyumlu tonları getir"}).click();
+ await expect(page.getByText("Bu hedef için doğrulanmış marka eşlemesi yok",{exact:true})).toBeVisible();
+ expect((await(await page.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`)).json()).data.result.snapshots.colorEngine).toBe(v1.result.snapshots.colorEngine);
  const foreign=await seedAccount(),foreignContext=await browser.newContext({baseURL:"http://127.0.0.1:4173"});
  try{const other=await foreignContext.newPage();await login(other,foreign);await expectReady(other);const denied=await other.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`);expect(denied.status()).toBe(404);expect(await denied.json()).not.toHaveProperty("data");}finally{await foreignContext.close();}
  const current=(await(await page.request.get(`${base}/hair-passport`)).json()).data;

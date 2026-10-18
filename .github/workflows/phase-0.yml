@@ -90,6 +90,8 @@ jobs:
         run: npx playwright test e2e/offline.spec.ts --workers=1 --retries=0
       - name: Phase 9 security journeys must pass without retries
         run: npx playwright test e2e/security.spec.ts --workers=1 --retries=0
+      - name: ColorLab expanded targets and verified controlled recipe must pass without retries
+        run: npx playwright test e2e/color-pilot.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
       - name: Phase 5B browser journeys must pass without retries
         run: npx playwright test e2e/costing.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
       - name: Phase 6 report journeys must pass without retries
@@ -119,6 +121,9 @@ jobs:
             apps/web/test-results/**/phase-8-*.png
             apps/web/test-results/**/phase-9-*.png
             apps/web/test-results/**/phase-9-*.json
+            apps/web/test-results/**/color-pilot-*.png
+            apps/web/test-results/**/color-pilot-*.json
+            ${{ runner.temp }}/color-pilot-*.json
             apps/web/test-results/**/phase-8-*.json
             apps/web/test-results/**/sanitized-route-*.json
             apps/web/test-results/**/reliability-summary.json
@@ -133,6 +138,8 @@ jobs:
           path: |
             apps/web/test-results/**/phase-8-*.json
             apps/web/test-results/**/phase-9-*.json
+            apps/web/test-results/**/color-pilot-*.json
+            ${{ runner.temp }}/color-pilot-*.json
             apps/web/test-results/**/sanitized-route-*.json
             apps/web/test-results/**/reliability-summary.json
             apps/web/test-results-reliability/**/sanitized-route-*.json

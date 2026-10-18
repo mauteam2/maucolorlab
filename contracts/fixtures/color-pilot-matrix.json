@@ -1,0 +1,31 @@
+{
+  "modelVersion": "color-engine/1.1.0",
+  "qualification": "DETERMINISTIC_PRODUCT_FIXTURES_NOT_SCIENTIFIC_VALIDATION",
+  "cases": [
+    {"id":"virgin","family":"NATURAL","level":7,"expected":"DRAFT"},
+    {"id":"grey-coverage","family":"NATURAL","level":7,"grey":true,"expected":"DRAFT"},
+    {"id":"permanent-color","family":"ASH","level":7,"history":"COLOR","expected":"DRAFT"},
+    {"id":"bleached-hair","family":"BEIGE","level":7,"risk":{"historyCount":1,"localized":true},"expected":"DRAFT"},
+    {"id":"porous-ends","family":"GOLD","level":7,"risk":{"highPorosity":true,"fullTests":true},"expected":"DRAFT"},
+    {"id":"regional-mismatch","family":"NATURAL","level":7,"variation":true,"risk":{"fullTests":true},"expected":"DRAFT"},
+    {"id":"banding","family":"BEIGE","level":7,"correction":"BAND","expected":"DRAFT"},
+    {"id":"healthy-darkening","family":"NATURAL","level":6,"expected":"DRAFT"},
+    {"id":"same-level","family":"ASH","level":7,"expected":"DRAFT"},
+    {"id":"warm-brunette","family":"GOLD","level":5,"expected":"DRAFT"},
+    {"id":"cool-brunette","family":"ASH","level":5,"expected":"DRAFT"},
+    {"id":"caramel","family":"CARAMEL","level":7,"expected":"DRAFT"},
+    {"id":"copper","family":"COPPER","level":7,"expected":"DRAFT"},
+    {"id":"red","family":"RED","level":7,"expected":"DRAFT"},
+    {"id":"violet","family":"VIOLET","level":7,"expected":"DRAFT"},
+    {"id":"beige-blonde","family":"BEIGE","level":9,"expected":"DRAFT"},
+    {"id":"gold-blonde","family":"GOLD","level":9,"expected":"DRAFT"},
+    {"id":"cool-blonde","family":"ASH","level":9,"expected":"DRAFT"},
+    {"id":"high-risk-lightening","family":"ASH","level":10,"risk":{"highPorosity":true,"lowElasticity":true,"fullTests":true},"expected":"BLOCKED"},
+    {"id":"strand-test-required","family":"GOLD","level":8,"risk":{"missingTests":true},"expected":"REQUIRES_TEST"},
+    {"id":"recovery-required","family":"NATURAL","level":7,"risk":{"highPorosity":true,"lowElasticity":true,"fullTests":true},"expected":"BLOCKED"},
+    {"id":"multi-session","family":"BEIGE","level":9,"current":4,"expected":"DRAFT","feasibility":"MULTI_SESSION"},
+    {"id":"blocked-scope","family":"NATURAL","level":7,"risk":{"outside":true},"expected":"BLOCKED"},
+    {"id":"unknown-history","family":"COPPER","level":7,"risk":{"bleachUnknown":true},"expected":"REQUIRES_ASSESSMENT"},
+    {"id":"missing-manufacturer-map","family":"CARAMEL","level":7,"expected":"DRAFT","noMapping":true}
+  ]
+}

@@ -1,0 +1,844 @@
+{
+  "options": {
+    "taxonomyVersion": "color-target-taxonomy/1.0.0",
+    "targetSchemaVersion": 1,
+    "levels": [
+      {
+        "value": 1,
+        "label": "Siyah"
+      },
+      {
+        "value": 2,
+        "label": "Çok koyu kahve"
+      },
+      {
+        "value": 3,
+        "label": "Koyu kahve"
+      },
+      {
+        "value": 4,
+        "label": "Orta kahve"
+      },
+      {
+        "value": 5,
+        "label": "Açık kahve"
+      },
+      {
+        "value": 6,
+        "label": "Koyu sarı"
+      },
+      {
+        "value": 7,
+        "label": "Orta sarı"
+      },
+      {
+        "value": 8,
+        "label": "Açık sarı"
+      },
+      {
+        "value": 9,
+        "label": "Çok açık sarı"
+      },
+      {
+        "value": 10,
+        "label": "En açık sarı"
+      }
+    ],
+    "families": [
+      {
+        "id": "NATURAL",
+        "label": "Doğal / nötr",
+        "tones": [
+          "NEUTRAL"
+        ],
+        "warmth": "NEUTRAL",
+        "color": "#87745e"
+      },
+      {
+        "id": "ASH",
+        "label": "Küllü / soğuk",
+        "tones": [
+          "ASH_COOL"
+        ],
+        "warmth": "COOL",
+        "color": "#877f7c"
+      },
+      {
+        "id": "BEIGE",
+        "label": "Bej",
+        "tones": [
+          "NEUTRAL",
+          "GOLD_WARM"
+        ],
+        "warmth": "NEUTRAL",
+        "color": "#b49b75"
+      },
+      {
+        "id": "GOLD",
+        "label": "Altın / sıcak",
+        "tones": [
+          "GOLD_WARM"
+        ],
+        "warmth": "WARM",
+        "color": "#b48b46"
+      },
+      {
+        "id": "CARAMEL",
+        "label": "Karamel",
+        "tones": [
+          "GOLD_WARM",
+          "COPPER"
+        ],
+        "warmth": "WARM",
+        "color": "#a86e3e"
+      },
+      {
+        "id": "COPPER",
+        "label": "Bakır",
+        "tones": [
+          "COPPER"
+        ],
+        "warmth": "WARM",
+        "color": "#ae653d"
+      },
+      {
+        "id": "RED",
+        "label": "Kızıl",
+        "tones": [
+          "RED"
+        ],
+        "warmth": "WARM",
+        "color": "#913f44"
+      },
+      {
+        "id": "VIOLET",
+        "label": "Viyole",
+        "tones": [
+          "VIOLET"
+        ],
+        "warmth": "COOL",
+        "color": "#79566f"
+      }
+    ],
+    "presets": [
+      {
+        "id": "COOL_BRUNETTE",
+        "label": "Soğuk kahve",
+        "level": 5,
+        "family": "ASH"
+      },
+      {
+        "id": "WARM_BRUNETTE",
+        "label": "Sıcak kahve",
+        "level": 5,
+        "family": "GOLD"
+      },
+      {
+        "id": "CARAMEL",
+        "label": "Karamel",
+        "level": 7,
+        "family": "CARAMEL"
+      },
+      {
+        "id": "COPPER",
+        "label": "Bakır",
+        "level": 7,
+        "family": "COPPER"
+      },
+      {
+        "id": "NATURAL_BRUNETTE",
+        "label": "Doğal kahve",
+        "level": 5,
+        "family": "NATURAL"
+      },
+      {
+        "id": "BEIGE_BLONDE",
+        "label": "Bej sarı",
+        "level": 9,
+        "family": "BEIGE"
+      },
+      {
+        "id": "GOLD_BLONDE",
+        "label": "Altın sarı",
+        "level": 9,
+        "family": "GOLD"
+      },
+      {
+        "id": "COOL_BLONDE",
+        "label": "Soğuk sarı",
+        "level": 9,
+        "family": "ASH"
+      }
+    ],
+    "preview": "ILLUSTRATIVE_ONLY",
+    "numericPigmentStrength": "UNKNOWN"
+  },
+  "definition": {
+    "schemaVersion": 1,
+    "mode": "UNIFORM_COLOR",
+    "globalIntent": "REFRESH",
+    "regions": [
+      {
+        "regionId": "c1000000-0000-4000-8000-000000000010",
+        "level": 7,
+        "toneFamily": "NEUTRAL",
+        "mixedFamilies": [],
+        "warmth": "NEUTRAL",
+        "greyPriority": "NONE",
+        "liftPriority": "NONE",
+        "depositPriority": "NONE",
+        "toneIntent": "CHANGE",
+        "contrast": "NONE",
+        "preserve": false,
+        "handling": "STANDARD",
+        "correction": "NONE",
+        "intermediateLevel": null
+      },
+      {
+        "regionId": "c1000000-0000-4000-8000-000000000011",
+        "level": 7,
+        "toneFamily": "NEUTRAL",
+        "mixedFamilies": [],
+        "warmth": "NEUTRAL",
+        "greyPriority": "NONE",
+        "liftPriority": "NONE",
+        "depositPriority": "NONE",
+        "toneIntent": "CHANGE",
+        "contrast": "NONE",
+        "preserve": false,
+        "handling": "STANDARD",
+        "correction": "NONE",
+        "intermediateLevel": null
+      },
+      {
+        "regionId": "c1000000-0000-4000-8000-000000000012",
+        "level": 7,
+        "toneFamily": "NEUTRAL",
+        "mixedFamilies": [],
+        "warmth": "NEUTRAL",
+        "greyPriority": "NONE",
+        "liftPriority": "NONE",
+        "depositPriority": "NONE",
+        "toneIntent": "CHANGE",
+        "contrast": "NONE",
+        "preserve": false,
+        "handling": "STANDARD",
+        "correction": "NONE",
+        "intermediateLevel": null
+      }
+    ]
+  },
+  "result": {
+    "engineVersion": "color-engine/1.1.0",
+    "evaluatedAt": "2026-10-01T12:00:00.000Z",
+    "metadata": {
+      "colorVersion": "color-engine/1.1.0",
+      "colorRulesFingerprint": "a9bbfcab20deec3027f8c22f99d9cfa7136394f614bd8824e5fa2afe5fe2cbd5",
+      "inputFingerprint": "e252e03d94a3dd601dd43c2a85145ad1b6e42aecaaa02c683ff1c0b0b7bf911f",
+      "passportId": "c1000000-0000-4000-8000-000000000003",
+      "passportVersion": 1,
+      "hairFingerprint": "506d7c56ee365345c593d8ca7462ff149201f9bb82100b6257ef643f5516faee",
+      "targetId": "c1000000-0000-4000-8000-000000004000",
+      "targetVersion": 1,
+      "targetFingerprint": "2a01d31cab54084eff719d597afe6421671062354cb1e767af7c71d235b49bc1",
+      "confidenceVersion": "confidence-engine/1.0.0",
+      "confidenceFingerprint": "506d7c56ee365345c593d8ca7462ff149201f9bb82100b6257ef643f5516faee",
+      "confidenceRulesFingerprint": "9dbc228079f87bf2373f9edc8e0194cb48e5430db31ea73d08676158400eafed",
+      "riskVersion": "risk-engine/1.0.0",
+      "riskFingerprint": "d1f7195ed515559807098c09e92ff6971f9aeb7363b27f3209f5f6f6b29f3770",
+      "riskRulesFingerprint": "ec322876dbbba63c28a3454d14c3bc09a5f2017d8712e441aab400ba2b4f5e36"
+    },
+    "targetInterpretation": {
+      "schemaVersion": 1,
+      "taxonomyVersion": "color-target-taxonomy/1.0.0",
+      "mode": "UNIFORM_COLOR",
+      "globalIntent": "REFRESH",
+      "regions": [
+        {
+          "regionId": "c1000000-0000-4000-8000-000000000010",
+          "level": 7,
+          "tones": [
+            "NEUTRAL"
+          ],
+          "warmth": "NEUTRAL",
+          "greyIntent": "NONE",
+          "preserve": false,
+          "correction": "NONE",
+          "intermediateLevel": null
+        },
+        {
+          "regionId": "c1000000-0000-4000-8000-000000000011",
+          "level": 7,
+          "tones": [
+            "NEUTRAL"
+          ],
+          "warmth": "NEUTRAL",
+          "greyIntent": "NONE",
+          "preserve": false,
+          "correction": "NONE",
+          "intermediateLevel": null
+        },
+        {
+          "regionId": "c1000000-0000-4000-8000-000000000012",
+          "level": 7,
+          "tones": [
+            "NEUTRAL"
+          ],
+          "warmth": "NEUTRAL",
+          "greyIntent": "NONE",
+          "preserve": false,
+          "correction": "NONE",
+          "intermediateLevel": null
+        }
+      ],
+      "numericPigmentStrength": "UNKNOWN",
+      "preview": "ILLUSTRATIVE_ONLY"
+    },
+    "confidenceBand": "HIGH",
+    "riskBand": "LOW",
+    "status": "DRAFT",
+    "feasibility": "DIRECT",
+    "targetIssues": [],
+    "regions": [
+      {
+        "regionId": "c1000000-0000-4000-8000-000000000010",
+        "currentLevel": 7,
+        "naturalLevel": 6,
+        "targetLevel": 7,
+        "delta": 0,
+        "actions": [
+          "SAME_LEVEL",
+          "TONE_ONLY"
+        ],
+        "separateHandling": false,
+        "porousEndsLater": false,
+        "naturalBaseSupport": false,
+        "reasonCodes": [
+          "TARGET_SAME_LEVEL",
+          "TONE_ADJUSTMENT_INTENT"
+        ]
+      },
+      {
+        "regionId": "c1000000-0000-4000-8000-000000000011",
+        "currentLevel": 7,
+        "naturalLevel": 6,
+        "targetLevel": 7,
+        "delta": 0,
+        "actions": [
+          "SAME_LEVEL",
+          "TONE_ONLY"
+        ],
+        "separateHandling": false,
+        "porousEndsLater": false,
+        "naturalBaseSupport": false,
+        "reasonCodes": [
+          "TARGET_SAME_LEVEL",
+          "TONE_ADJUSTMENT_INTENT"
+        ]
+      },
+      {
+        "regionId": "c1000000-0000-4000-8000-000000000012",
+        "currentLevel": 7,
+        "naturalLevel": 6,
+        "targetLevel": 7,
+        "delta": 0,
+        "actions": [
+          "SAME_LEVEL",
+          "TONE_ONLY"
+        ],
+        "separateHandling": false,
+        "porousEndsLater": false,
+        "naturalBaseSupport": false,
+        "reasonCodes": [
+          "TARGET_SAME_LEVEL",
+          "TONE_ADJUSTMENT_INTENT"
+        ]
+      }
+    ],
+    "safetyGate": {
+      "outcome": "CONTINUE_TECHNICAL_PLANNING",
+      "canProgress": true,
+      "reasonCodes": [
+        "NO_ESCALATING_STRUCTURED_FACT"
+      ]
+    },
+    "requiredPhysicalTests": [],
+    "requiredInformation": [],
+    "reasonCodes": [
+      "BRAND_ADAPTER_REQUIRED",
+      "TARGET_SAME_LEVEL",
+      "TONE_ADJUSTMENT_INTENT"
+    ],
+    "primaryStrategy": {
+      "id": "bed9336d3e96de5b1070a523ff25019e34d49e97d7ab16dc1887470a096d8e6e",
+      "type": "CONSERVATIVE",
+      "eligibility": "ELIGIBLE_FOR_PLANNING",
+      "engineVersion": "color-engine/1.1.0",
+      "sessions": {
+        "min": 1,
+        "max": 1
+      },
+      "regionIds": [
+        "c1000000-0000-4000-8000-000000000010",
+        "c1000000-0000-4000-8000-000000000011",
+        "c1000000-0000-4000-8000-000000000012"
+      ],
+      "stages": [
+        {
+          "sequence": 1,
+          "kind": "ASSESS",
+          "regionIds": [
+            "c1000000-0000-4000-8000-000000000010",
+            "c1000000-0000-4000-8000-000000000011",
+            "c1000000-0000-4000-8000-000000000012"
+          ],
+          "checkpoint": true,
+          "reasonCodes": []
+        },
+        {
+          "sequence": 2,
+          "kind": "PREPARE",
+          "regionIds": [
+            "c1000000-0000-4000-8000-000000000010",
+            "c1000000-0000-4000-8000-000000000011",
+            "c1000000-0000-4000-8000-000000000012"
+          ],
+          "checkpoint": false,
+          "reasonCodes": []
+        },
+        {
+          "sequence": 3,
+          "kind": "ROOT_APPLICATION",
+          "regionIds": [
+            "c1000000-0000-4000-8000-000000000010"
+          ],
+          "checkpoint": false,
+          "reasonCodes": [
+            "TARGET_SAME_LEVEL",
+            "TONE_ADJUSTMENT_INTENT"
+          ]
+        },
+        {
+          "sequence": 4,
+          "kind": "TONE",
+          "regionIds": [
+            "c1000000-0000-4000-8000-000000000010"
+          ],
+          "checkpoint": false,
+          "reasonCodes": []
+        },
+        {
+          "sequence": 5,
+          "kind": "LENGTHS_APPLICATION",
+          "regionIds": [
+            "c1000000-0000-4000-8000-000000000011"
+          ],
+          "checkpoint": false,
+          "reasonCodes": [
+            "TARGET_SAME_LEVEL",
+            "TONE_ADJUSTMENT_INTENT"
+          ]
+        },
+        {
+          "sequence": 6,
+          "kind": "TONE",
+          "regionIds": [
+            "c1000000-0000-4000-8000-000000000011"
+          ],
+          "checkpoint": false,
+          "reasonCodes": []
+        },
+        {
+          "sequence": 7,
+          "kind": "ENDS_APPLICATION",
+          "regionIds": [
+            "c1000000-0000-4000-8000-000000000012"
+          ],
+          "checkpoint": false,
+          "reasonCodes": [
+            "TARGET_SAME_LEVEL",
+            "TONE_ADJUSTMENT_INTENT"
+          ]
+        },
+        {
+          "sequence": 8,
+          "kind": "TONE",
+          "regionIds": [
+            "c1000000-0000-4000-8000-000000000012"
+          ],
+          "checkpoint": false,
+          "reasonCodes": []
+        },
+        {
+          "sequence": 9,
+          "kind": "FINALIZE",
+          "regionIds": [
+            "c1000000-0000-4000-8000-000000000010",
+            "c1000000-0000-4000-8000-000000000011",
+            "c1000000-0000-4000-8000-000000000012"
+          ],
+          "checkpoint": true,
+          "reasonCodes": []
+        }
+      ],
+      "technicalIntent": [
+        {
+          "regionId": "c1000000-0000-4000-8000-000000000010",
+          "currentLevel": 7,
+          "naturalLevel": 6,
+          "targetLevel": 7,
+          "delta": 0,
+          "actions": [
+            "SAME_LEVEL",
+            "TONE_ONLY"
+          ],
+          "separateHandling": false,
+          "porousEndsLater": false,
+          "naturalBaseSupport": false,
+          "reasonCodes": [
+            "TARGET_SAME_LEVEL",
+            "TONE_ADJUSTMENT_INTENT"
+          ]
+        },
+        {
+          "regionId": "c1000000-0000-4000-8000-000000000011",
+          "currentLevel": 7,
+          "naturalLevel": 6,
+          "targetLevel": 7,
+          "delta": 0,
+          "actions": [
+            "SAME_LEVEL",
+            "TONE_ONLY"
+          ],
+          "separateHandling": false,
+          "porousEndsLater": false,
+          "naturalBaseSupport": false,
+          "reasonCodes": [
+            "TARGET_SAME_LEVEL",
+            "TONE_ADJUSTMENT_INTENT"
+          ]
+        },
+        {
+          "regionId": "c1000000-0000-4000-8000-000000000012",
+          "currentLevel": 7,
+          "naturalLevel": 6,
+          "targetLevel": 7,
+          "delta": 0,
+          "actions": [
+            "SAME_LEVEL",
+            "TONE_ONLY"
+          ],
+          "separateHandling": false,
+          "porousEndsLater": false,
+          "naturalBaseSupport": false,
+          "reasonCodes": [
+            "TARGET_SAME_LEVEL",
+            "TONE_ADJUSTMENT_INTENT"
+          ]
+        }
+      ],
+      "requiredCheckpoints": [
+        "RISK_REASSESSMENT",
+        "REGIONAL_INTEGRITY"
+      ],
+      "requiredPhysicalTests": [],
+      "requiredInformation": [],
+      "riskConsiderations": [],
+      "tradeoffs": {
+        "integrityPreservation": "PRIORITIZED",
+        "targetAccuracy": "FULL_INTENT",
+        "complexity": "SIMPLE",
+        "uncertainty": "LOW",
+        "maintenance": "REQUIRES_PROFESSIONAL_REVIEW"
+      },
+      "reasonCodes": [
+        "BRAND_ADAPTER_REQUIRED",
+        "TARGET_SAME_LEVEL",
+        "TONE_ADJUSTMENT_INTENT"
+      ]
+    },
+    "alternatives": [],
+    "recipeDraft": {
+      "id": "bcbce3c164a160938a081bd5fb4b3f305572014139a4e09aee5e5311f76b14e7",
+      "version": 1,
+      "parentVersionId": null,
+      "origin": "ENGINE",
+      "executionStatus": "REQUIRES_BRAND_ADAPTER",
+      "target": {
+        "id": "c1000000-0000-4000-8000-000000004000",
+        "seriesId": "c1000000-0000-4000-8000-000000004001",
+        "version": 1,
+        "previousVersionId": null,
+        "clientId": "c1000000-0000-4000-8000-000000000004",
+        "passportId": "c1000000-0000-4000-8000-000000000003",
+        "definition": {
+          "schemaVersion": 1,
+          "mode": "UNIFORM_COLOR",
+          "globalIntent": "REFRESH",
+          "regions": [
+            {
+              "regionId": "c1000000-0000-4000-8000-000000000010",
+              "level": 7,
+              "toneFamily": "NEUTRAL",
+              "mixedFamilies": [],
+              "warmth": "NEUTRAL",
+              "greyPriority": "NONE",
+              "liftPriority": "NONE",
+              "depositPriority": "NONE",
+              "toneIntent": "CHANGE",
+              "contrast": "NONE",
+              "preserve": false,
+              "handling": "STANDARD",
+              "correction": "NONE",
+              "intermediateLevel": null
+            },
+            {
+              "regionId": "c1000000-0000-4000-8000-000000000011",
+              "level": 7,
+              "toneFamily": "NEUTRAL",
+              "mixedFamilies": [],
+              "warmth": "NEUTRAL",
+              "greyPriority": "NONE",
+              "liftPriority": "NONE",
+              "depositPriority": "NONE",
+              "toneIntent": "CHANGE",
+              "contrast": "NONE",
+              "preserve": false,
+              "handling": "STANDARD",
+              "correction": "NONE",
+              "intermediateLevel": null
+            },
+            {
+              "regionId": "c1000000-0000-4000-8000-000000000012",
+              "level": 7,
+              "toneFamily": "NEUTRAL",
+              "mixedFamilies": [],
+              "warmth": "NEUTRAL",
+              "greyPriority": "NONE",
+              "liftPriority": "NONE",
+              "depositPriority": "NONE",
+              "toneIntent": "CHANGE",
+              "contrast": "NONE",
+              "preserve": false,
+              "handling": "STANDARD",
+              "correction": "NONE",
+              "intermediateLevel": null
+            }
+          ]
+        },
+        "createdAt": "2026-10-01T12:00:00.000Z",
+        "createdBy": "c1000000-0000-4000-8000-000000000007"
+      },
+      "strategy": {
+        "id": "bed9336d3e96de5b1070a523ff25019e34d49e97d7ab16dc1887470a096d8e6e",
+        "type": "CONSERVATIVE",
+        "eligibility": "ELIGIBLE_FOR_PLANNING",
+        "engineVersion": "color-engine/1.1.0",
+        "sessions": {
+          "min": 1,
+          "max": 1
+        },
+        "regionIds": [
+          "c1000000-0000-4000-8000-000000000010",
+          "c1000000-0000-4000-8000-000000000011",
+          "c1000000-0000-4000-8000-000000000012"
+        ],
+        "stages": [
+          {
+            "sequence": 1,
+            "kind": "ASSESS",
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000010",
+              "c1000000-0000-4000-8000-000000000011",
+              "c1000000-0000-4000-8000-000000000012"
+            ],
+            "checkpoint": true,
+            "reasonCodes": []
+          },
+          {
+            "sequence": 2,
+            "kind": "PREPARE",
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000010",
+              "c1000000-0000-4000-8000-000000000011",
+              "c1000000-0000-4000-8000-000000000012"
+            ],
+            "checkpoint": false,
+            "reasonCodes": []
+          },
+          {
+            "sequence": 3,
+            "kind": "ROOT_APPLICATION",
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000010"
+            ],
+            "checkpoint": false,
+            "reasonCodes": [
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          },
+          {
+            "sequence": 4,
+            "kind": "TONE",
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000010"
+            ],
+            "checkpoint": false,
+            "reasonCodes": []
+          },
+          {
+            "sequence": 5,
+            "kind": "LENGTHS_APPLICATION",
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000011"
+            ],
+            "checkpoint": false,
+            "reasonCodes": [
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          },
+          {
+            "sequence": 6,
+            "kind": "TONE",
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000011"
+            ],
+            "checkpoint": false,
+            "reasonCodes": []
+          },
+          {
+            "sequence": 7,
+            "kind": "ENDS_APPLICATION",
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000012"
+            ],
+            "checkpoint": false,
+            "reasonCodes": [
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          },
+          {
+            "sequence": 8,
+            "kind": "TONE",
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000012"
+            ],
+            "checkpoint": false,
+            "reasonCodes": []
+          },
+          {
+            "sequence": 9,
+            "kind": "FINALIZE",
+            "regionIds": [
+              "c1000000-0000-4000-8000-000000000010",
+              "c1000000-0000-4000-8000-000000000011",
+              "c1000000-0000-4000-8000-000000000012"
+            ],
+            "checkpoint": true,
+            "reasonCodes": []
+          }
+        ],
+        "technicalIntent": [
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000010",
+            "currentLevel": 7,
+            "naturalLevel": 6,
+            "targetLevel": 7,
+            "delta": 0,
+            "actions": [
+              "SAME_LEVEL",
+              "TONE_ONLY"
+            ],
+            "separateHandling": false,
+            "porousEndsLater": false,
+            "naturalBaseSupport": false,
+            "reasonCodes": [
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          },
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000011",
+            "currentLevel": 7,
+            "naturalLevel": 6,
+            "targetLevel": 7,
+            "delta": 0,
+            "actions": [
+              "SAME_LEVEL",
+              "TONE_ONLY"
+            ],
+            "separateHandling": false,
+            "porousEndsLater": false,
+            "naturalBaseSupport": false,
+            "reasonCodes": [
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          },
+          {
+            "regionId": "c1000000-0000-4000-8000-000000000012",
+            "currentLevel": 7,
+            "naturalLevel": 6,
+            "targetLevel": 7,
+            "delta": 0,
+            "actions": [
+              "SAME_LEVEL",
+              "TONE_ONLY"
+            ],
+            "separateHandling": false,
+            "porousEndsLater": false,
+            "naturalBaseSupport": false,
+            "reasonCodes": [
+              "TARGET_SAME_LEVEL",
+              "TONE_ADJUSTMENT_INTENT"
+            ]
+          }
+        ],
+        "requiredCheckpoints": [
+          "RISK_REASSESSMENT",
+          "REGIONAL_INTEGRITY"
+        ],
+        "requiredPhysicalTests": [],
+        "requiredInformation": [],
+        "riskConsiderations": [],
+        "tradeoffs": {
+          "integrityPreservation": "PRIORITIZED",
+          "targetAccuracy": "FULL_INTENT",
+          "complexity": "SIMPLE",
+          "uncertainty": "LOW",
+          "maintenance": "REQUIRES_PROFESSIONAL_REVIEW"
+        },
+        "reasonCodes": [
+          "BRAND_ADAPTER_REQUIRED",
+          "TARGET_SAME_LEVEL",
+          "TONE_ADJUSTMENT_INTENT"
+        ]
+      },
+      "metadata": {
+        "colorVersion": "color-engine/1.1.0",
+        "colorRulesFingerprint": "a9bbfcab20deec3027f8c22f99d9cfa7136394f614bd8824e5fa2afe5fe2cbd5",
+        "inputFingerprint": "e252e03d94a3dd601dd43c2a85145ad1b6e42aecaaa02c683ff1c0b0b7bf911f",
+        "passportId": "c1000000-0000-4000-8000-000000000003",
+        "passportVersion": 1,
+        "hairFingerprint": "506d7c56ee365345c593d8ca7462ff149201f9bb82100b6257ef643f5516faee",
+        "targetId": "c1000000-0000-4000-8000-000000004000",
+        "targetVersion": 1,
+        "targetFingerprint": "2a01d31cab54084eff719d597afe6421671062354cb1e767af7c71d235b49bc1",
+        "confidenceVersion": "confidence-engine/1.0.0",
+        "confidenceFingerprint": "506d7c56ee365345c593d8ca7462ff149201f9bb82100b6257ef643f5516faee",
+        "confidenceRulesFingerprint": "9dbc228079f87bf2373f9edc8e0194cb48e5430db31ea73d08676158400eafed",
+        "riskVersion": "risk-engine/1.0.0",
+        "riskFingerprint": "d1f7195ed515559807098c09e92ff6971f9aeb7363b27f3209f5f6f6b29f3770",
+        "riskRulesFingerprint": "ec322876dbbba63c28a3454d14c3bc09a5f2017d8712e441aab400ba2b4f5e36"
+      },
+      "reasonCodes": [
+        "BRAND_ADAPTER_REQUIRED",
+        "TARGET_SAME_LEVEL",
+        "TONE_ADJUSTMENT_INTENT"
+      ]
+    }
+  }
+}

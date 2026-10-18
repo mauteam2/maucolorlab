@@ -9,6 +9,7 @@ import { riskRules } from "@/lib/risk/rules";
 import { assessPhysicalTest } from "@/lib/risk/physical-tests";
 import { colorTarget, validateTarget, type ColorTarget } from "./target";
 import { colorRules as rules } from "./rules";
+import { interpretTarget } from "./interpretation";
 import { ColorInputError, colorPlanning, type ColorPlanning, type RegionPlan, type ColorReasonCode, type ColorStage, type ColorStrategy } from "./model";
 export const colorHash=(value:unknown)=>createHash("sha256").update(canonical(value)).digest("hex");
 const stable=<T>(items:T[])=>[...new Map(items.map(i=>[canonical(i),i])).entries()].sort(([a],[b])=>a<b?-1:a>b?1:0).map(([,i])=>i);
@@ -33,7 +34,7 @@ export function evaluateColorPlanning(snapshot:ConfidenceInput,confidence:CaseCo
   passportId:n.passportId,passportVersion:n.passportVersion,hairFingerprint:colorHash(n),targetId:target.id,targetVersion:target.version,targetFingerprint:colorHash(normalizedTarget),
   confidenceVersion:"confidence-engine/1.0.0" as const,confidenceFingerprint:confidence.inputFingerprint,confidenceRulesFingerprint:confidence.rulesFingerprint,
   riskVersion:"risk-engine/1.0.0" as const,riskFingerprint:risk.inputFingerprint,riskRulesFingerprint:risk.rulesFingerprint};
- const result:ColorPlanning={engineVersion:rules.version,evaluatedAt:n.evaluatedAt,metadata,status:"DRAFT",feasibility:"DIRECT",targetIssues:validation.issues,
+ const result:ColorPlanning={engineVersion:rules.version,evaluatedAt:n.evaluatedAt,metadata,targetInterpretation:interpretTarget(normalizedTarget.definition),confidenceBand:confidence.band,riskBand:risk.overallBand,status:"DRAFT",feasibility:"DIRECT",targetIssues:validation.issues,
   regions:[],safetyGate:risk.gate,requiredPhysicalTests:stable(risk.requiredPhysicalTests),requiredInformation:stable(riskAssessment.shape.requiredInformation.parse(risk.requiredInformation)),reasonCodes:["BRAND_ADAPTER_REQUIRED"],
   primaryStrategy:null,alternatives:[],recipeDraft:null};
  const blocked=(status:ColorPlanning["status"],feasibility:ColorPlanning["feasibility"],code:ColorReasonCode)=>{

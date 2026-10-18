@@ -1,6 +1,6 @@
 /** Brand-independent planning defaults; no manufacturer chemistry or achievement guarantees. */
 export const colorRules = {
- version:"color-engine/1.0.0", targetSchemaVersion:1,
+ version:"color-engine/1.1.0", targetSchemaVersion:1,
  smallLiftMax:1, moderateLiftMax:3, fillDarkeningDelta:3, greyNaturalBaseThreshold:0.5,
  sessions:{direct:{min:1,max:1}, staged:{min:1,max:2}, major:{min:2,max:4}, processedMajor:{min:3,max:6}},
  minimumFieldQuality:0.4,

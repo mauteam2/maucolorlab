@@ -5598,6 +5598,31 @@
         "apps/web/lib/security/security.test.ts",
         "apps/web/e2e/auth.spec.ts"
       ]
+    },
+    "GET /api/color-target-options": {
+      "source": "apps/web/app/api/color-target-options/route.ts",
+      "definition_sha256": "a5572029a55480787a5e33280bac96d0145f14edfc755d5216e2b4fe5f249fff",
+      "domain": "Color Engine qualitative target metadata",
+      "authentication": "Current provider session through verifiedClientContext/bootstrap and Phase 9 request guard",
+      "membership": "Fresh active database membership; never JWT user metadata",
+      "location_scope": "Selected active location context, metadata contains no tenant rows",
+      "permission": "color_plan.read AND hair_passport.read AND clients.read",
+      "entitlement": "Unmetered static target browsing; authoritative plan execution retains COLOR_ENGINE entitlement/metering",
+      "allowed_roles": [
+        "owner",
+        "manager",
+        "colorist",
+        "assistant"
+      ],
+      "access": "READ_ONLY static qualitative metadata, no manufacturer chemistry",
+      "idempotency": "Read-only; no mutations or usage events",
+      "audit": "No customer data read/write; correlation header, no read audit spam",
+      "direct_client_callable": true,
+      "evidence": [
+        "apps/web/lib/color/options.test.ts",
+        "apps/web/e2e/color-pilot.spec.ts",
+        "docs/color-target-taxonomy.md"
+      ]
     }
   },
   "actions": {
@@ -5841,7 +5866,8 @@
     "20261018081514_phase_9_reception_security_projection.sql": "01ff9a81af940e6f70b64b4ebfa5b9a24c8894cb988cd2d1192ab4bdaf18bcfa",
     "20261018082353_phase_9_session_grant_hardening.sql": "a19eee45ab2789a821cad041d90b38f5f879d31920a938330d45792e20a01326",
     "20261018090413_phase_9_reception_archive_correction.sql": "4c7ccec9e4d12becad571418586abb79b64c9655a4a9e9dd7c5879c1f67fdd07",
-    "20261018092007_phase_9_postgrest_guard_boundary.sql": "296fd386400a9958a322bbaa413ed62947ada52ade6a9d05127ca829af967fed"
+    "20261018092007_phase_9_postgrest_guard_boundary.sql": "296fd386400a9958a322bbaa413ed62947ada52ade6a9d05127ca829af967fed",
+    "20261018131809_colorlab_pilot_target_interpretation.sql": "35c39fb17a03c0ddafc857d52156d5159ac1fa82ade9fe68e1378f4f698c2419"
   },
   "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data",
   "disposable_ci_functions": {

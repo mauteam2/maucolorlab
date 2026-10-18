@@ -1,5 +1,10 @@
 # ELIFORA Color Engine 1.0.0
 
+Historical foundation reference. New evaluations use the versioned 1.1.0 target
+interpretation described in [the pilot model](color-engine-pilot-model.md); the
+planning thresholds and safety chain below remain unchanged. Old signed results
+and Phase 1F OpenAPI schemas are retained without rewriting.
+
 Phase 1F provides brand-independent technical planning. It creates immutable targets and an initial Recipe Draft; every draft has `executionStatus: REQUIRES_BRAND_ADAPTER`. There are no manufacturer codes, developers, mixing ratios, grams, processing times, prices or chemical compatibility decisions. Web and Android screens remain unchanged.
 
 ## Authoritative chain

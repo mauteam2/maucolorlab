@@ -215,7 +215,7 @@ baseline = json.loads((root / 'contracts/fixtures/phase-1f-schema-fingerprints.j
 for name, fingerprint in baseline.items():
     current = json.dumps(contract['components']['schemas'][name], sort_keys=True, separators=(',', ':'))
     assert __import__('hashlib').sha256(current.encode()).hexdigest() == fingerprint, 'Phase 1F contract changed: ' + name
-assert contract['info']['version'] == '0.23.0'
+assert contract['info']['version'] == '0.24.0'
 brand_golden = json.loads((root / 'contracts/fixtures/brand-golden.json').read_text())
 assert len(brand_golden['cases']) >= 30
 assert len({c['name'] for c in brand_golden['cases']}) == len(brand_golden['cases'])
@@ -435,3 +435,17 @@ assert contract['paths']['/rest/v1/rpc/appointment_readiness']['post']['security
 native=(root/'apps/android/app/src/main/java/com/elifora/app/data/salon/SupabaseAppointmentReadinessRepository.kt').read_text(encoding='utf-8')
 assert all(field in native for field in sample)
 print('PASS: Phase 9 minimum reception projection, shared native semantics and nine technical authority forgery rejections')
+
+pilot_color=json.loads((root/'contracts/fixtures/color-pilot-contract.json').read_text(encoding='utf-8'))
+observation_validator('ColorTargetOptions').validate(pilot_color['options'])
+observation_validator('TargetDefinition').validate(pilot_color['definition'])
+observation_validator('ColorPlanningCurrent').validate(pilot_color['result'])
+for key in ('targetInterpretation','confidenceBand','riskBand'):
+    unsafe=copy.deepcopy(pilot_color['result']);del unsafe[key]
+    assert list(observation_validator('ColorPlanningCurrent').iter_errors(unsafe)),key
+for key in ('manufacturerCode','developerGrams','processingMinutes','executable','pigmentStrength'):
+    assert list(observation_validator('TargetDefinition').iter_errors(pilot_color['definition']|{key:True})),key
+native_color=(root/'apps/android/app/src/main/java/com/elifora/app/domain/color/ColorTargets.kt').read_text(encoding='utf-8')
+for key in ('COOL_BRUNETTE','WARM_BRUNETTE','NATURAL_BRUNETTE','CARAMEL','COPPER','BEIGE_BLONDE','GOLD_BLONDE','COOL_BLONDE'):
+    assert key in native_color,key
+print('PASS: expanded ColorLab intent, versioned interpretation, native presets and eight authority/version rejections')

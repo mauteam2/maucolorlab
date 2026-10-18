@@ -94,6 +94,10 @@ class SupabaseAuthRepository(
     suspend fun reportingSnapshot(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/reporting_snapshot", body) }
     suspend fun stockSnapshot(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/stock_snapshot", body) }
     suspend fun appointmentReadiness(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/appointment_readiness", body) }
+    suspend fun colorOperation(rpc: String, body: String): HttpReply = mutex.withLock {
+        require(rpc in setOf("color_target_operation", "color_plan_operation"))
+        authenticated("POST", "/rest/v1/rpc/$rpc", body)
+    }
     suspend fun crmOperation(body: String): HttpReply = mutex.withLock { authenticated("POST", "/rest/v1/rpc/crm_operation", body) }
     suspend fun hairMutation(rpc: String, body: String): HttpReply = mutex.withLock {
         require(rpc in setOf("hair_core_operation", "hair_observation_operation", "hair_physical_test_operation", "hair_history_operation"))
