@@ -18,7 +18,7 @@ Never automatically regenerate approvals in CI.
 `verify-security-database.py` inspects actual post-migration pg_proc, ACLs, owners,
 search_path, table/view/sequence grants, RLS policies, bucket privacy and custom
 roles. Runtime names/counts must match the source ledger. PUBLIC cannot execute
-application functions; anon/service_role have only the pre-request hook exception.
+application functions; anon/service_role have only the no-data public pre-request hook exception.
 Normal authenticated roles have no direct domain table writes; the preexisting
 profile display-name/locale column grants are retained. Invoker/writer roles
 remain NOLOGIN/NOBYPASSRLS; privileged helpers are constrained by their reviewed

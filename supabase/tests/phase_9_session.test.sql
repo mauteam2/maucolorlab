@@ -17,5 +17,5 @@ select set_config('request.jwt.claims','{"role":"authenticated","sub":"e9000000-
 select throws_ok('select app_private.require_active_session()','PT401','SESSION_EXPIRED','authenticated JWT without session cannot bypass revocation');
 reset role;
 select set_config('request.jwt.claims','{}',true);
-select ok(exists(select 1 from pg_db_role_setting s join pg_roles r on r.oid=s.setrole where r.rolname='authenticator' and 'pgrst.db_pre_request=app_private.require_active_session'=any(s.setconfig)),'actual PostgREST pre-request hook configured');
+select ok(exists(select 1 from pg_db_role_setting s join pg_roles r on r.oid=s.setrole where r.rolname='authenticator' and 'pgrst.db_pre_request=public.request_session_guard'=any(s.setconfig)),'actual PostgREST pre-request hook configured');
 select * from finish();rollback;

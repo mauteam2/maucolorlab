@@ -1,0 +1,27 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+set local search_path=public,extensions;
+select no_plan();
+\ir fixtures/phase-9-salon.inc
+insert into app_private.stock_receipts values('a4000000-0000-4000-8000-000000000001','a4000000-0000-4000-8000-000000000021',gen_random_uuid(),'{"type":"RECEIPT","_location":"a4000000-0000-4000-8000-000000000011"}','{}');
+insert into app_private.finance_receipts(organization_id,location_id,actor_id,mutation_id,input,response) values('a4000000-0000-4000-8000-000000000001','a4000000-0000-4000-8000-000000000011','a4000000-0000-4000-8000-000000000021',gen_random_uuid(),'{}','{}');
+set local role elifora_stock_writer;
+select is((select count(*) from app_private.stock_receipts),1::bigint,'restricted stock writer can replay its own active actor receipt');
+select set_config('request.jwt.claim.sub','a4000000-0000-4000-8000-000000000022',true);
+select is((select count(*) from app_private.stock_receipts),0::bigint,'foreign actor/tenant stock receipt denied even to writer');
+reset role;
+select set_config('request.jwt.claim.sub','a4000000-0000-4000-8000-000000000021',true);
+set local role elifora_finance_writer;
+select is((select count(*) from app_private.finance_receipts),1::bigint,'finance writer can replay active scoped receipt');
+select set_config('request.jwt.claim.sub','a4000000-0000-4000-8000-000000000022',true);
+select is((select count(*) from app_private.finance_receipts),0::bigint,'foreign finance receipt denied even to writer');
+reset role;
+update public.salon_memberships set status='revoked',revoked_at=now() where id='a4000000-0000-4000-8000-000000000111';
+select set_config('request.jwt.claim.sub','a4000000-0000-4000-8000-000000000021',true);
+set local role elifora_stock_writer;
+select is((select count(*) from app_private.stock_receipts),0::bigint,'revoked stock actor cannot read old receipt');
+reset role;
+set local role elifora_finance_writer;
+select is((select count(*) from app_private.finance_receipts),0::bigint,'revoked finance actor cannot read old receipt');
+reset role;
+select * from finish();rollback;

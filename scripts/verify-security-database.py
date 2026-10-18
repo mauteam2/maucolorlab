@@ -21,6 +21,17 @@ try:
     # drift finding can be investigated rather than guessed or suppressed.
     path=Path(os.environ['RUNNER_TEMP'])/'phase-9-database-security.json'
     path.write_text(json.dumps(catalog,indent=2))
+    fixture_names=set(inventory['disposable_ci_functions'])
+    for name,entry in inventory['disposable_ci_functions'].items():
+        import hashlib
+        source=Path(__file__).resolve().parents[1]/entry['source']
+        assert hashlib.sha256(source.read_text(encoding='utf-8').encode()).hexdigest()==entry['source_sha256'],name
+        fixture=next(f for f in functions if f['name']==name)
+        assert fixture['owner']=='postgres' and fixture['definer'],name
+        assert not any(g['role'] in ('PUBLIC','anon','authenticated','service_role') for g in fixture['grants'] or []),name
+    # CI-only trigger fixtures are explicitly classified, source-pinned and have
+    # no application EXECUTE grant. They are counted separately, never ignored by prefix.
+    functions=[f for f in functions if f['name'] not in fixture_names]
     actual_names={f['name'] for f in functions};expected_names=set(inventory['functions'])
     assert len(functions)==len(inventory['functions']), ('Function count/overload drift',len(functions),len(inventory['functions']),'unclassified',sorted(actual_names-expected_names),'stale',sorted(expected_names-actual_names))
     assert actual_names==expected_names, ('Unclassified runtime function',sorted(actual_names-expected_names),sorted(expected_names-actual_names))
@@ -29,7 +40,7 @@ try:
         assert f['owner'] not in ('anon','authenticated','service_role'),f
         assert any(v in ('search_path=""','search_path=') for v in f['settings'] or []), (f['name'],'unsafe search_path')
         assert not any(g['role']=='PUBLIC' for g in f['grants'] or []),(f['name'],'implicit PUBLIC execute')
-        if f['name']!='app_private.require_active_session':
+        if f['name']!='public.request_session_guard':
             assert not any(g['role'] in ('anon','service_role') for g in f['grants'] or []),(f['name'],'unnecessary anon/service execute')
     for table in catalog['relations']:
         if table['kind'] in ('r','p'): assert table['rls'],(table['name'],'RLS disabled')

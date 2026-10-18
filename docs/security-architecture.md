@@ -7,7 +7,7 @@ for application permission. Entitlement never grants a role.
 
 The Web server verifies the provider user and resolves workspace selection from
 current DB memberships. Sensitive services recheck context before releasing data.
-PostgREST's configured `app_private.require_active_session` additionally checks
+PostgREST's configured no-data `public.request_session_guard` additionally checks
 the Auth JWT session ID against `auth.sessions` on every Data API request. Storage
 uses the same predicate in a restrictive policy because it bypasses PostgREST.
 Postgres SQL migration/pgTAP contexts without Auth JWTs are not provider sessions;

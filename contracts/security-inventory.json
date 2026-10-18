@@ -4266,6 +4266,28 @@
         "supabase/tests/workspace_context.test.sql",
         "scripts/verify-security-database.py"
       ]
+    },
+    "public.request_session_guard": {
+      "domain": "auth",
+      "authentication": "provider JWT role/session recheck; anonymous/server roles return no data",
+      "membership": "not applicable; this function emits no tenant projection",
+      "location_scope": "not applicable; no caller arguments",
+      "permission": "current authenticated provider session must exist in auth.sessions",
+      "entitlement": "not applicable",
+      "allowed_roles": "anon/authenticated/service_role; no business data or mutation",
+      "access": "READ_SESSION_GUARD",
+      "idempotency": "not applicable, read-only guard",
+      "audit": "no payload; Auth provider history; application security errors typed",
+      "direct_client_callable": true,
+      "evidence": [
+        "supabase/tests/phase_9_session.test.sql",
+        "supabase/tests/phase_9_rpc_matrix.test.sql",
+        "scripts/verify-security-database.py"
+      ],
+      "source": "supabase/migrations/20261018092007_phase_9_postgrest_guard_boundary.sql",
+      "signature": "",
+      "security_definer": true,
+      "definition_sha256": "0f657bb908442fed931456d24fa14e8bab79cc3ef6f78102e969ae196c2c8065"
     }
   },
   "routes": {
@@ -5818,7 +5840,18 @@
     "20261014163029_phase_8_recovery_json_guard_correction.sql": "99da3b75e6c8f8834bca6c602cc3bf1030fee47d0f5430d94a762c1fea41ad62",
     "20261018081514_phase_9_reception_security_projection.sql": "01ff9a81af940e6f70b64b4ebfa5b9a24c8894cb988cd2d1192ab4bdaf18bcfa",
     "20261018082353_phase_9_session_grant_hardening.sql": "a19eee45ab2789a821cad041d90b38f5f879d31920a938330d45792e20a01326",
-    "20261018090413_phase_9_reception_archive_correction.sql": "4c7ccec9e4d12becad571418586abb79b64c9655a4a9e9dd7c5879c1f67fdd07"
+    "20261018090413_phase_9_reception_archive_correction.sql": "4c7ccec9e4d12becad571418586abb79b64c9655a4a9e9dd7c5879c1f67fdd07",
+    "20261018092007_phase_9_postgrest_guard_boundary.sql": "296fd386400a9958a322bbaa413ed62947ada52ade6a9d05127ca829af967fed"
   },
-  "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data"
+  "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data",
+  "disposable_ci_functions": {
+    "app_private.ci_saas_fixture": {
+      "source": "scripts/configure-disposable-saas.py",
+      "source_sha256": "d2d28c53e74742fa9df5876bd3f06835d54a6e2c852b8ec79a4d36a44b2da37f",
+      "security_definer": true,
+      "owner": "postgres",
+      "grants": "no application EXECUTE; only disposable location trigger",
+      "not_shipped": "not a migration; CI=true and project_id guard"
+    }
+  }
 }
