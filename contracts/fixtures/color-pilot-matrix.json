@@ -22,7 +22,7 @@
     {"id":"cool-blonde","family":"ASH","level":9,"expected":"DRAFT"},
     {"id":"high-risk-lightening","family":"ASH","level":10,"risk":{"highPorosity":true,"lowElasticity":true,"fullTests":true},"expected":"BLOCKED"},
     {"id":"strand-test-required","family":"GOLD","level":8,"risk":{"missingTests":true},"expected":"REQUIRES_TEST"},
-    {"id":"recovery-required","family":"NATURAL","level":7,"risk":{"highPorosity":true,"lowElasticity":true,"fullTests":true},"expected":"BLOCKED"},
+    {"id":"recovery-required","family":"NATURAL","level":7,"risk":{"lowElasticity":true,"fullTests":true},"expected":"REQUIRES_RECOVERY"},
     {"id":"multi-session","family":"BEIGE","level":9,"current":4,"expected":"DRAFT","feasibility":"MULTI_SESSION"},
     {"id":"blocked-scope","family":"NATURAL","level":7,"risk":{"outside":true},"expected":"BLOCKED"},
     {"id":"unknown-history","family":"COPPER","level":7,"risk":{"bleachUnknown":true},"expected":"REQUIRES_ASSESSMENT"},
