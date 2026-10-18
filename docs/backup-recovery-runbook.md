@@ -32,9 +32,13 @@ without an actually operated backup schedule and timed restore drills.
 
 `phase_9_recovery.test.sql` is a logical source-fixture recovery drill on a freshly
 migrated disposable DB: it seeds authoritative operational history, builds a real
-projection, removes derived rows, rebuilds and compares canonical contents while
-proving source history unchanged. Existing reporting/SaaS tests exercise full
-source-derived rebuild and usage-event idempotency. It is not a cloud backup restore,
+projection, removes derived rows, rebuilds and compares all business fields (excluding regenerated
+evaluation timestamps) while
+proving source history unchanged. It also restores the existing signed technical
+source fixture, removes derived SaaS usage counters, rebuilds them from the genuine
+metered events and verifies source IDs/hashes/quantities remain unchanged. Existing
+reporting/SaaS tests exercise full source-derived rebuild and usage-event idempotency.
+It is not a cloud backup restore,
 Storage disaster recovery test or measured production RPO/RTO.
 
 Recoverability: archived clients restore only via controlled permission/version

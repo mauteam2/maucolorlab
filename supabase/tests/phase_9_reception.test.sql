@@ -3,6 +3,7 @@ create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
 select no_plan();
 \ir fixtures/phase-9-salon.inc
+select is((select value#>>'{data,status}' from salon_results where name='booked'),'CONFIRMED','real operational fixture is booked before authorization checks');
 update public.salon_memberships set role_code='reception',location_id='a4000000-0000-4000-8000-000000000011' where id='a4000000-0000-4000-8000-000000000111';
 insert into public.locations(id,organization_id,name,timezone) values('a4000000-0000-4000-8000-000000000013','a4000000-0000-4000-8000-000000000001','Other location','Europe/Istanbul');
 set local role authenticated;
@@ -34,10 +35,10 @@ select is(public.hair_passport_snapshot('b4000000-0000-4000-8000-000000000114','
 select is((select count(*) from storage.objects where bucket_id='live-technical'),0::bigint,'reception cannot download reserved private technical photos');
 select ok(not app_private.user_has_permission('b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','cost.view'),'reception acquisition cost denied');
 select ok(not app_private.user_has_permission('b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','commission.view_all'),'reception team commission denied');
-select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"kind":"COST_BASIS"}',gen_random_uuid())->>'code','FORBIDDEN','direct acquisition cost RPC denied');
-select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"kind":"COMMISSION_ALL"}',gen_random_uuid())->>'code','FORBIDDEN','direct team commission RPC denied');
+select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"kind":"COST_BASIS"}')->>'code','FORBIDDEN','direct acquisition cost RPC denied');
+select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"kind":"COMMISSION_ALL"}')->>'code','FORBIDDEN','direct team commission RPC denied');
 select is(public.crm_read('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"operation":"summary","client_id":"b4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,last_technical_memory}',null,'CRM operational summary does not re-leak technical memory');
-select is(public.reporting_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"kind":"TECHNICAL","period":"THIS_MONTH"}',gen_random_uuid())->>'code','FORBIDDEN','technical report denied');
+select is(public.reporting_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"kind":"TECHNICAL","period":"THIS_MONTH"}')->>'code','FORBIDDEN','technical report denied');
 reset role;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000021',true);
 set local role authenticated;

@@ -12,10 +12,11 @@ import { competencySatisfies, durationEstimate } from "./engine";
 import { appointmentReadiness } from "./readiness";
 type Context = Awaited<ReturnType<typeof verifiedClientContext>>;
 export async function readAppointmentReadiness(id:string,correlationId:string) {
- if(!z.uuid().safeParse(id).success)throw new AccessError("VALIDATION_FAILED",400);
+ const identifier=z.uuid().transform(value=>value.toLowerCase()).safeParse(id);
+ if(!identifier.success)throw new AccessError("VALIDATION_FAILED",400);
  const ctx=await access("salon.readiness.read"),client=await createClient();
- const data=appointmentReadiness.parse(unwrap(await client.rpc("appointment_readiness",{p_membership_id:ctx.membership_id,p_location_id:ctx.location_id,p_appointment_id:id})));
- if(data.appointment_id!==id)throw new AccessError("NETWORK_ERROR",503);
+ const data=appointmentReadiness.parse(unwrap(await client.rpc("appointment_readiness",{p_membership_id:ctx.membership_id,p_location_id:ctx.location_id,p_appointment_id:identifier.data})));
+ if(data.appointment_id!==identifier.data)throw new AccessError("NETWORK_ERROR",503);
  await finish(ctx,"salon.readiness.read");return {data,context:ctx,correlationId};
 }
 export function salonErrorStatus(code: string) {
@@ -28,7 +29,7 @@ async function access(permission: string, reference?: string | null) {
 }
 async function finish(ctx: Context, permission: string) {
  const current = await access(permission, workspaceReference(ctx));
- if (current.organization_id !== ctx.organization_id) throw new AccessError("TENANT_CONTEXT_INVALID", 403);
+ if (current.organization_id !== ctx.organization_id || current.role!==ctx.role || [...current.permissions].sort().join()!==[...ctx.permissions].sort().join()) throw new AccessError("TENANT_CONTEXT_INVALID", 403);
 }
 function unwrap(result: { data: unknown; error: unknown }) {
  if (result.error) throw new AccessError("NETWORK_ERROR", 503);

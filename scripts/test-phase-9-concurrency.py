@@ -20,7 +20,7 @@ def wait(blocker,blocked):
  raise AssertionError('No real PostgreSQL blocking barrier')
 try:
  observer.execute('create schema gate_test;grant usage on schema gate_test to authenticated;')
- text=prefix_fixture('salon_operations.test.sql',"select is((select value#>>'{data,status}'",'salon_results')
+ text=prefix_fixture('fixtures/phase-9-salon.inc','-- END_PHASE_9_FIXTURE','salon_results')
  observer.execute('begin;'+text+'commit;')
  observer.execute(f"update public.salon_memberships set role_code='reception',location_id='{loc}' where id='{member}';")
  # Read first: active membership share lock protects this projection until it
