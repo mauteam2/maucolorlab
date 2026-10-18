@@ -26,7 +26,7 @@ export function ColorTargetSummary({definition,snapshot}:{definition:TargetDefin
 }
 export function SecondaryDirection({region,onChange}:{region:RegionalColorTarget;onChange:(patch:Partial<RegionalColorTarget>)=>void}){
  const primary=region.toneFamily==="MIXED"?region.mixedFamilies[0]:region.toneFamily;
- return <label>İkincil ton yönü<select disabled={!primary} value={region.toneFamily==="MIXED"?region.mixedFamilies[1]??"":""} onChange={e=>{
+ return <label>İkincil ton yönü<select aria-label="İkincil ton yönü" disabled={!primary} value={region.toneFamily==="MIXED"?region.mixedFamilies[1]??"":""} onChange={e=>{
   const secondary=e.target.value as RegionalColorTarget["mixedFamilies"][number]|"";
   if(primary)onChange(secondary?{toneFamily:"MIXED",mixedFamilies:[primary as RegionalColorTarget["mixedFamilies"][number],secondary].sort()}:{toneFamily:primary,mixedFamilies:[]});
  }}><option value="">Yok</option>{Object.entries(toneLabels).filter(([key])=>key!=="MIXED"&&key!==primary).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select><span className="salon-muted">Birlikte tarif edilen yönlerdir; baskınlık ve doz oranı belirlenmez.</span></label>;
