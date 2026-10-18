@@ -30,5 +30,20 @@ class InventoryTests(unittest.TestCase):
             discovered=inventory.discover(root)
             self.assertTrue(discovered['functions']['public.x']['security_definer'])
             self.assertIn('POST /api/x',discovered['routes'])
+    def test_javascript_route_cannot_escape_classification(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'supabase/migrations').mkdir(parents=True);(root/'apps/web/app/api/x').mkdir(parents=True)
+            (root/'apps/web/app/api/x/route.js').write_text('export const POST=handler;')
+            self.assertIn('POST /api/x',inventory.discover(root)['routes'])
+    def test_inline_action_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'supabase/migrations').mkdir(parents=True);(root/'apps/web/app').mkdir(parents=True)
+            (root/'apps/web/app/page.tsx').write_text('export default function Page(){async function action(){"use server";}}')
+            with self.assertRaises(AssertionError):inventory.discover(root)
+    def test_unrecognized_action_export_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'supabase/migrations').mkdir(parents=True);(root/'apps/web/app').mkdir(parents=True)
+            (root/'apps/web/app/actions.js').write_text('"use server"; export const operation=async()=>{};')
+            with self.assertRaises(AssertionError):inventory.discover(root)
 
 if __name__=='__main__':unittest.main()

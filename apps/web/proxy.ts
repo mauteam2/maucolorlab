@@ -29,4 +29,4 @@ export async function proxy(request: NextRequest) {
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
-export const config = { matcher: ["/sign-in", "/workspaces", "/workspace/:path*", "/api/session", "/api/clients"] };
+export const config = { matcher: ["/sign-in", "/auth/update-password", "/workspaces", "/workspace/:path*", "/api/session", "/api/clients"] };

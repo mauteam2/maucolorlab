@@ -10,6 +10,27 @@ servers:
   - url: /
     description: ELIFORA web origin.
 paths:
+  /rest/v1/rpc/request_session_guard:
+    post:
+      operationId: requestSessionGuard
+      summary: No-data PostgREST session guard; does not authorize any business operation
+      security:
+      - publishableKey: []
+      description: Anonymous/server requests return no data. An authenticated provider
+        JWT requires a current matching auth.sessions row. There are no caller-controlled
+        arguments.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+      responses:
+        '204':
+          description: No data; business permission checks remain mandatory
+        '401':
+          description: Typed SESSION_EXPIRED for invalid/revoked authenticated session
   /api/salon/appointments/{id}/readiness:
     get:
       operationId: appointmentReadiness

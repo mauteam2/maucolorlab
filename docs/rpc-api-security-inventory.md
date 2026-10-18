@@ -10,7 +10,8 @@ idempotency/audit expectations and existing executable evidence.
 `python scripts/security_inventory.py` fails on unclassified or removed surfaces,
 changed definitions/signatures and missing evidence. `test-security-inventory.py`
 proves new public RPC, private definer, API, action and modified code fail. The
-scanner recognizes function/const exports and rejects unknown route export forms;
+scanner recognizes TypeScript/JavaScript function/const route exports and rejects
+unknown route export forms and unsupported/inline server actions;
 current function names are not overloaded, and newly changed overloads fail closed.
 Review a deliberate API change and update its approved hash and classification.
 Never automatically regenerate approvals in CI.

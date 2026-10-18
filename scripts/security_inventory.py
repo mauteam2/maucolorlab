@@ -36,7 +36,8 @@ def discover(root=ROOT):
                 security_definer=bool(re.search(r'security\s+definer',head,re.I)),
                 definition_sha256=digest(sql[m.start():end+len(m[3])]))
     routes = {}
-    for path in (root/'apps/web/app').rglob('route.ts'):
+    for path in (root/'apps/web/app').rglob('route.*'):
+        if path.name not in ('route.ts','route.js'):continue
         source=path.read_text(encoding='utf-8')
         methods=sorted(set(re.findall(r'export\s+(?:(?:async\s+)?function|const|let)\s+(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\b',source)))
         for block in re.findall(r'export\s*\{([^}]+)\}',source):
@@ -48,10 +49,13 @@ def discover(root=ROOT):
     for directory,dirs,files in os.walk(root/'apps/web'):
         dirs[:]=[d for d in dirs if d not in ('node_modules','.next','captures','test-results','test-results-reliability','.git')]
         for filename in files:
-            if not filename.endswith(('.ts','.tsx')):continue
+            if not filename.endswith(('.ts','.tsx','.js','.jsx')):continue
             path=Path(directory)/filename
             source=path.read_text(encoding='utf-8')
-            if not re.match(r'\s*[\"\']use server[\"\']',source):continue
+            if not re.match(r'\s*[\"\']use server[\"\']',source):
+                assert not re.search(r'[\"\']use server[\"\']',source),f'Inline server action needs explicit inventory parser review: {path}'
+                continue
+            assert not re.search(r'export\s+(?:const|let|default|\{)',source),f'Unrecognized server action export needs review: {path}'
             for name in re.findall(r'export\s+async\s+function\s+(\w+)',source):
                 actions[path.relative_to(root).as_posix()+'#'+name]=dict(source=path.relative_to(root).as_posix(),definition_sha256=digest(source))
     return dict(functions=functions,routes=routes,actions=actions)
@@ -69,6 +73,7 @@ def validate(root=ROOT):
             entry=registered[name]
             assert required <= entry.keys(), (name,'missing security classification')
             assert all(entry[field] not in ('',None,[]) for field in required), (name,'empty classification')
+            assert all(str(entry[field]).strip().upper() not in ('UNKNOWN','UNCLASSIFIED','TODO') for field in required), (name,'unclassified placeholder')
             assert entry['source']==surface['source'] and entry['definition_sha256']==surface['definition_sha256'], (name,'changed surface requires explicit security review')
             for field in ('signature','security_definer'):
                 if field in surface: assert entry[field]==surface[field], (name,field)

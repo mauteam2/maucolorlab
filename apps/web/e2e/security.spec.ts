@@ -25,6 +25,7 @@ test("reception gets only operational preparation; technical APIs, reports, expo
  const report=await api(page,"/api/reporting?kind=OVERVIEW&period=THIS_MONTH");expect(report.status).toBe(200);expect(JSON.stringify(report.body)).not.toMatch(/developer_grams|color_grams|professionalAssessment|recipeDraft/);
  const exported=await api(page,"/api/reporting",{type:"EXPORT",request:{kind:"TECHNICAL",period:"THIS_MONTH"}});expect(exported.status).toBe(403);
  await page.goto("/workspace/appointments");await page.getByLabel("Takvim başlangıcı").fill(f.date);await page.getByRole("button",{name:/10:00 · Synthetic security client/}).click();await page.getByRole("button",{name:"Randevu hazırlığını kontrol et"}).click();await expect(page.getByText("Teknik danışmanlık gerekli.", {exact:true})).toBeVisible();await expect(page.getByRole("button",{name:"Teknik ön kontrol",exact:true})).toHaveCount(0);
+ await page.screenshot({path:info.outputPath("phase-9-reception.png"),fullPage:true});
  await page.setViewportSize({width:320,height:740});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath("phase-9-reception-320.png"),fullPage:true});
  await page.goto(`/workspace/clients/${f.client.id}/hair-passport`);await expect(page.getByRole("alert")).toBeVisible();await expect(page.getByRole("button",{name:"Hair Passport Oluştur"})).toHaveCount(0);await expect(page.locator("#hp-regions")).toHaveCount(0);await f.account.cleanup();
 });

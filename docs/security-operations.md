@@ -47,3 +47,10 @@ full nonce-only CSP is not claimed. Provider rate limits plus bounded payloads,
 engine validation/source gates and finite quotas remain the abuse foundation.
 Hosted SMTP, backup/PITR, external penetration testing, signing-key migration and
 release signing/device tests remain reviewed readiness work before a real pilot.
+
+Production dependency audit: no findings after the compatible patch. Development
+lint chain: five affected packages (eslint-config-next, @next/eslint-plugin-next,
+fast-glob, micromatch, braces), all tracking the braces stack-exhaustion advisory.
+No compatible fixed braces release was offered by the registry audit; a suggested
+framework lint downgrade is not applied. Sources: [Next advisory](https://github.com/advisories/GHSA-vcvr-r3jv-pc5j),
+[braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm).
