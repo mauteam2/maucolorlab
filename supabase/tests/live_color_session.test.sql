@@ -77,6 +77,8 @@ select is((select count(*) from public.audit_events where action='live_session.p
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000024',true);
 set local role authenticated;
 select is((select count(*) from public.live_sessions),0::bigint,'reception cannot read full technical live state; operational projection is separate');
+select is((select count(*) from public.live_photos),0::bigint,'reception cannot enumerate the actual reserved technical photo');
+select is((select count(*) from storage.objects where bucket_id='live-technical'),0::bigint,'reception cannot read the actual previously uploaded private photo');
 select is(pg_temp.live_store((select value from result where name='live-envelope'),'b4000000-0000-4000-8000-000000000114')->>'code','FORBIDDEN','viewer cannot control');
 reset role;
 select set_config('request.jwt.claim.sub','b4000000-0000-4000-8000-000000000023',true);

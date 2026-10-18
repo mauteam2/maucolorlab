@@ -28,10 +28,14 @@ select is((select count(*) from public.live_session_versions),0::bigint,'version
 select is((select count(*) from public.hair_passports),0::bigint,'reception full passport is hidden');
 select is((select count(*) from public.hair_observations),0::bigint,'reception observations hidden');
 select is((select count(*) from public.hair_evidence),0::bigint,'reception evidence hidden');
+select is((select count(*) from public.color_plans),0::bigint,'real signed Color Plan chemistry is hidden');
+select is((select count(*) from public.controlled_brand_recipes),0::bigint,'real controlled recipe chemistry is hidden');
 select is(public.hair_passport_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','b4000000-0000-4000-8000-000000000031','{}',gen_random_uuid())->>'code','FORBIDDEN','direct legacy Hair RPC also denied');
 select is((select count(*) from storage.objects where bucket_id='live-technical'),0::bigint,'reception cannot download reserved private technical photos');
 select ok(not app_private.user_has_permission('b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','cost.view'),'reception acquisition cost denied');
 select ok(not app_private.user_has_permission('b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000011','commission.view_all'),'reception team commission denied');
+select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"kind":"COST_BASIS"}',gen_random_uuid())->>'code','FORBIDDEN','direct acquisition cost RPC denied');
+select is(public.costing_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"kind":"COMMISSION_ALL"}',gen_random_uuid())->>'code','FORBIDDEN','direct team commission RPC denied');
 select is(public.crm_read('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"operation":"summary","client_id":"b4000000-0000-4000-8000-000000000031"}')#>>'{data,summary,last_technical_memory}',null,'CRM operational summary does not re-leak technical memory');
 select is(public.reporting_snapshot('b4000000-0000-4000-8000-000000000114','b4000000-0000-4000-8000-000000000011','{"kind":"TECHNICAL","period":"THIS_MONTH"}',gen_random_uuid())->>'code','FORBIDDEN','technical report denied');
 reset role;

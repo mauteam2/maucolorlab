@@ -152,7 +152,8 @@
       "evidence": [
         "supabase/tests/tenant_rls.test.sql",
         "supabase/tests/workspace_context.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.client_name_key": {
@@ -320,7 +321,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/client_identity.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.can_access_hair": {
@@ -452,7 +454,8 @@
       "evidence": [
         "supabase/tests/hair_passport_read.test.sql",
         "supabase/tests/phase_8_durable_replay.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.can_initialize_hair_region": {
@@ -584,7 +587,8 @@
       "evidence": [
         "supabase/tests/hair_passport_read.test.sql",
         "supabase/tests/phase_8_durable_replay.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.can_select_new_hair_observation": {
@@ -672,7 +676,8 @@
       "evidence": [
         "supabase/tests/hair_passport_read.test.sql",
         "supabase/tests/phase_8_durable_replay.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.execute_hair_physical_test": {
@@ -716,7 +721,8 @@
       "evidence": [
         "supabase/tests/hair_passport_read.test.sql",
         "supabase/tests/phase_8_durable_replay.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.hair_history_evidence": {
@@ -782,7 +788,8 @@
       "evidence": [
         "supabase/tests/hair_passport_read.test.sql",
         "supabase/tests/phase_8_durable_replay.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "public.hair_confidence_snapshot": {
@@ -804,7 +811,8 @@
       "evidence": [
         "supabase/tests/hair_passport_read.test.sql",
         "supabase/tests/phase_8_durable_replay.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.color_target_definition": {
@@ -951,7 +959,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/color_plan.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.verify_color_signature": {
@@ -1077,7 +1086,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/color_plan.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.is_catalog_operator": {
@@ -1161,7 +1171,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/catalog_governance.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.catalog_content_guard": {
@@ -1245,7 +1256,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/catalog_governance.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.brand_recipe_guard": {
@@ -1333,7 +1345,8 @@
       "evidence": [
         "supabase/tests/brand_catalog.test.sql",
         "supabase/tests/controlled_brand_recipe.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "public.brand_adapter_snapshot": {
@@ -1355,7 +1368,8 @@
       "evidence": [
         "supabase/tests/brand_catalog.test.sql",
         "supabase/tests/controlled_brand_recipe.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.lock_brand_catalog": {
@@ -1565,7 +1579,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/catalog_governance.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.catalog_governance_command": {
@@ -1607,7 +1622,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/catalog_governance.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "public.catalog_operator_access": {
@@ -1628,7 +1644,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/catalog_governance.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.controlled_recipe_guard": {
@@ -1716,7 +1733,8 @@
       "evidence": [
         "supabase/tests/brand_catalog.test.sql",
         "supabase/tests/controlled_brand_recipe.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.live_immutable": {
@@ -1782,7 +1800,8 @@
       "evidence": [
         "supabase/tests/live_color_session.test.sql",
         "supabase/tests/phase_8_controller_recovery.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.live_permission": {
@@ -1826,7 +1845,8 @@
       "evidence": [
         "supabase/tests/live_color_session.test.sql",
         "supabase/tests/phase_8_controller_recovery.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "public.live_session_receipt": {
@@ -1848,7 +1868,8 @@
       "evidence": [
         "supabase/tests/live_color_session.test.sql",
         "supabase/tests/phase_8_controller_recovery.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.store_live_session": {
@@ -1892,7 +1913,8 @@
       "evidence": [
         "supabase/tests/live_color_session.test.sql",
         "supabase/tests/phase_8_controller_recovery.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.audit_live_photo": {
@@ -2200,7 +2222,8 @@
       "evidence": [
         "supabase/tests/salon_operations.test.sql",
         "supabase/tests/phase_9_reception.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "public.salon_operation": {
@@ -2222,7 +2245,8 @@
       "evidence": [
         "supabase/tests/salon_operations.test.sql",
         "supabase/tests/phase_9_reception.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "public.salon_slots": {
@@ -2244,7 +2268,8 @@
       "evidence": [
         "supabase/tests/salon_operations.test.sql",
         "supabase/tests/phase_9_reception.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.crm_note_permission": {
@@ -2433,7 +2458,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/client_crm.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "public.crm_operation": {
@@ -2454,7 +2480,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/client_crm.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.crm_allowed_keys": {
@@ -2664,7 +2691,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/stock_ledger.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.stock_snapshot": {
@@ -2706,7 +2734,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/stock_ledger.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.stock_shape": {
@@ -3105,7 +3134,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/finance_cash_retail_privacy.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.finance_cash_guard": {
@@ -3168,7 +3198,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/finance_cash_retail_privacy.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.cost_round": {
@@ -3378,7 +3409,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/costing_commission_privacy.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.profitability_breakdown": {
@@ -3420,7 +3452,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/costing_commission_privacy.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.finance_client_balance_amount": {
@@ -3672,7 +3705,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/reporting_golden.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "public.reporting_operation": {
@@ -3693,7 +3727,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/reporting_golden.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.report_keys": {
@@ -3882,7 +3917,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/saas_safety.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.saas_structure_guard": {
@@ -4008,7 +4044,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/saas_safety.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "public.saas_structure_operation": {
@@ -4029,7 +4066,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/saas_safety.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.saas_storage_allowed": {
@@ -4071,7 +4109,8 @@
       "direct_client_callable": true,
       "evidence": [
         "supabase/tests/saas_safety.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.saas_observe_expiry": {
@@ -4180,7 +4219,8 @@
       "evidence": [
         "supabase/tests/salon_operations.test.sql",
         "supabase/tests/phase_9_reception.test.sql",
-        "scripts/verify-security-database.py"
+        "scripts/verify-security-database.py",
+        "supabase/tests/phase_9_rpc_matrix.test.sql"
       ]
     },
     "app_private.require_active_session": {

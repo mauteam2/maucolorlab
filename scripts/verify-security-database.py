@@ -17,8 +17,13 @@ try:
     'roles',(select jsonb_agg(jsonb_build_object('name',rolname,'superuser',rolsuper,'bypassrls',rolbypassrls,'login',rolcanlogin)) from pg_roles where rolname in ('anon','authenticated','service_role') or rolname like 'elifora_%')
     );"""))
     functions=catalog['functions']
-    assert len(functions)==len(inventory['functions']), 'Function count/overload drift'
-    assert {f['name'] for f in functions}==set(inventory['functions']), 'Unclassified runtime function'
+    # Retain safe catalog metadata even when validation correctly fails, so a
+    # drift finding can be investigated rather than guessed or suppressed.
+    path=Path(os.environ['RUNNER_TEMP'])/'phase-9-database-security.json'
+    path.write_text(json.dumps(catalog,indent=2))
+    actual_names={f['name'] for f in functions};expected_names=set(inventory['functions'])
+    assert len(functions)==len(inventory['functions']), ('Function count/overload drift',len(functions),len(inventory['functions']),'unclassified',sorted(actual_names-expected_names),'stale',sorted(expected_names-actual_names))
+    assert actual_names==expected_names, ('Unclassified runtime function',sorted(actual_names-expected_names),sorted(expected_names-actual_names))
     for f in functions:
         assert f['definer']==inventory['functions'][f['name']]['security_definer'],f
         assert f['owner'] not in ('anon','authenticated','service_role'),f
