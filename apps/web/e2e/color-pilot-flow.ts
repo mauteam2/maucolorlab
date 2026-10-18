@@ -20,7 +20,7 @@ export async function colorPilotFixture(page:Page,change:{current?:number;high?:
   }
  }
  await page.goto(`/workspace/colorlab?client_id=${client.id}`);
- await page.getByLabel("Renk planı müşterisi").selectOption(client.id);await expect(page.getByRole("region",{name:"Hızlı hedef oluşturucu"})).toBeVisible();
+ await expect(page.getByLabel("Renk planı müşterisi")).toHaveValue(client.id);await expect(page.getByRole("region",{name:"Hızlı hedef oluşturucu"})).toBeVisible();
  return {account,client,base,headers};
 }
 export async function generatePilotPlan(page:Page){

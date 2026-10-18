@@ -5,7 +5,7 @@ sign-in intro remain unchanged. Only the target workflow and result explanation 
 
 Select the client and inspect Hair Passport. Fast presets or depth → family → region
 scope create explicit targets. The professional regional editor preserves existing
-additional fields and adds optional secondary direction. A preflight summary shows
+additional fields and adds optional secondary direction. Advanced regional controls are disclosed progressively; stored correction/isolation settings remain visible. A preflight summary shows
 the current regional level, grey ratio, evidence presence and desired target; it is
 editable before the existing authenticated server evaluation.
 

@@ -20,6 +20,7 @@ test("expert secondary direction, grey coverage and regional correction retain d
  await page.getByLabel("Çalışma türü").selectOption("COLOR_CORRECTION");await page.getByLabel("Genel amaç").selectOption("CORRECT");
  const regions=page.locator(".salon-region-editor"),root=regions.filter({has:page.locator("legend",{hasText:/^Dip/})});
  await root.getByLabel("İkincil ton yönü",{exact:true}).selectOption("GOLD_WARM");await root.getByLabel("Beyaz önceliği",{exact:true}).selectOption("COVER");
+ await root.getByText("Ayrıntılı bölgesel ayarlar",{exact:true}).click();
  await root.getByLabel("Düzeltme",{exact:true}).selectOption("BAND");await root.getByLabel("Ara hedef seviye",{exact:true}).fill("6");
  const p=await generatePilotPlan(page);expect(p.result.status).toBe("DRAFT");expect(new Set(p.result.regions.map((r:{currentLevel:number})=>r.currentLevel)).size).toBe(2);expect(p.result.regions.some((r:{separateHandling:boolean})=>r.separateHandling)).toBe(true);
  expect(p.result.targetInterpretation.regions.some((r:{tones:string[];greyIntent:string})=>r.tones.includes("COPPER")&&r.tones.includes("GOLD_WARM")&&r.greyIntent==="COVER")).toBe(true);

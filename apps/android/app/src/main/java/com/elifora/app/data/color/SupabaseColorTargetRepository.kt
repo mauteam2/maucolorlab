@@ -45,7 +45,7 @@ class SupabaseColorTargetRepository(
     }
     companion object {
         fun encode(t: TargetDefinition): JSONObject = JSONObject().put("schemaVersion", 1).put("mode", t.mode.name).put("globalIntent", t.globalIntent).put("regions", JSONArray(t.regions.map { r ->
-            JSONObject().put("regionId", UUID.fromString(r.regionId)).put("level", r.level ?: JSONObject.NULL).put("toneFamily", r.toneFamily?.name ?: JSONObject.NULL).put("mixedFamilies", JSONArray(r.mixedFamilies.map { it.name }.sorted())).put("warmth", r.warmth).put("greyPriority", r.greyPriority).put("liftPriority", r.liftPriority).put("depositPriority", r.depositPriority).put("toneIntent", r.toneIntent).put("contrast", r.contrast).put("preserve", r.preserve).put("handling", r.handling).put("correction", r.correction).put("intermediateLevel", r.intermediateLevel ?: JSONObject.NULL)
+            JSONObject().put("regionId", UUID.fromString(r.regionId).toString()).put("level", r.level ?: JSONObject.NULL).put("toneFamily", r.toneFamily?.name ?: JSONObject.NULL).put("mixedFamilies", JSONArray(r.mixedFamilies.map { it.name }.sorted())).put("warmth", r.warmth).put("greyPriority", r.greyPriority).put("liftPriority", r.liftPriority).put("depositPriority", r.depositPriority).put("toneIntent", r.toneIntent).put("contrast", r.contrast).put("preserve", r.preserve).put("handling", r.handling).put("correction", r.correction).put("intermediateLevel", r.intermediateLevel ?: JSONObject.NULL)
         }))
         fun parse(t: JSONObject): TargetDefinition {
             require(t.keys().asSequence().toSet() == setOf("schemaVersion", "mode", "globalIntent", "regions") && t.get("schemaVersion") is Number && t.getDouble("schemaVersion") == 1.0)

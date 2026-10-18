@@ -49,3 +49,10 @@ it("appointment link selects its actual customer after fresh reads without creat
  expect(screen.getByRole("button",{name:"Hedefi kaydet"})).toBeVisible();
  expect(vi.mocked(fetch).mock.calls.every(([url])=>url==="/api/session"||url==="/api/clients")).toBe(true);
 });
+it("selecting the already active customer preserves the verified target editor",async()=>{
+ setup();render(<ColorWorkspace initialClientId={client.id}/>);
+ expect(await screen.findByRole("button",{name:"Hedefi kaydet"})).toBeVisible();
+ fireEvent.change(screen.getByLabelText("Renk planı müşterisi"),{target:{value:client.id}});
+ expect(screen.getByRole("button",{name:"Hedefi kaydet"})).toBeVisible();
+ expect(screen.queryByText("Güvenli çalışma alanı yükleniyor…")).toBeNull();
+});

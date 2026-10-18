@@ -56,10 +56,11 @@ it("historical 1.0 plan reads without rewriting or pretending new interpretation
  expect(colorPlanning.safeParse({...old,engineVersion:"color-engine/1.1.0"}).success).toBe(false);
 });
 it("measures interpretation, full evaluation and brand mapping without omitting safety",()=>{
- const i=colorFixture(),{packet}=pilotFixture(),samples=20;
+ const i=colorFixture(),{packet,plan:pilotPlan}=pilotFixture(),samples=20;
  let start=performance.now();for(let n=0;n<samples;n++)interpretTarget(i.target.definition);const interpretation=(performance.now()-start)/samples;
- start=performance.now();let plan=evaluateColorPlanning(i.snapshot,i.confidence,i.risk,i.target);for(let n=0;n<samples;n++)plan=evaluateColorPlanning(i.snapshot,i.confidence,i.risk,i.target);const evaluation=(performance.now()-start)/(samples+1);
- start=performance.now();for(let n=0;n<samples;n++)evaluatePilotCandidates(plan,packet);const mapping=(performance.now()-start)/samples;
+ start=performance.now();for(let n=0;n<samples;n++)evaluateColorPlanning(i.snapshot,i.confidence,i.risk,i.target);const evaluation=(performance.now()-start)/samples;
+ start=performance.now();for(let n=0;n<samples;n++)evaluatePilotCandidates(pilotPlan,packet);const mapping=(performance.now()-start)/samples;
+ expect(evaluatePilotCandidates(pilotPlan,packet).status).toBe("CANDIDATES_FOR_REVIEW");
  const metrics={samples,target_interpretation_mean_ms:interpretation,color_engine_evaluation_mean_ms:evaluation,brand_adapter_mapping_mean_ms:mapping};
  expect(Object.values(metrics).every(v=>Number.isFinite(v)&&v>=0)).toBe(true);
  if(process.env.RUNNER_TEMP){mkdirSync(process.env.RUNNER_TEMP,{recursive:true});writeFileSync(join(process.env.RUNNER_TEMP,"color-pilot-engine-performance.json"),JSON.stringify(metrics));}
