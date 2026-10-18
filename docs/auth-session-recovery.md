@@ -5,6 +5,9 @@ store, fake device intelligence, fingerprinting or platform impersonation.
 
 `/auth/recovery` sends a provider PKCE reset email and always returns the same
 public message for known, unknown, invalid, rate-limited or unavailable identities.
+Disposable/local Auth configuration uses a 15-minute provider email token expiry
+and secure password change. The two local callback URLs are exact allowlist entries;
+hosted environments must configure their own HTTPS values before any pilot.
 Provider configured request budgets apply; no process-memory pseudo distributed
 rate limiter or commercial usage limit is introduced. CI's elevated Auth budget
 is restricted to finite synthetic loopback fixtures and is not a production setting.

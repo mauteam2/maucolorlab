@@ -15,7 +15,7 @@ class SupabaseAppointmentReadinessRepository(private val rpc: suspend (String) -
     }
     companion object {
         fun parse(row: JSONObject, expectedId: String): AppointmentReadiness {
-            require(row.keySet() == setOf("schema_version", "appointment_id", "appointment_version", "evaluated_at", "preparation_status", "consultation_required", "strand_test_status", "allocated_minutes", "duration_source", "technical_clearance"))
+            require(row.keys().asSequence().toSet() == setOf("schema_version", "appointment_id", "appointment_version", "evaluated_at", "preparation_status", "consultation_required", "strand_test_status", "allocated_minutes", "duration_source", "technical_clearance"))
             require(row.getInt("schema_version") == 1 && !row.getBoolean("technical_clearance"))
             require(row.get("technical_clearance") is Boolean && row.get("consultation_required") is Boolean)
             for (field in listOf("schema_version", "appointment_version", "allocated_minutes")) {

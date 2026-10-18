@@ -31,7 +31,7 @@ Risk, version and epoch checks. Current schema supports one active signing key,
 not a historical multi-key verifier. If external historical re-verification is
 required, implement a versioned key-ID/verifier migration before rotation, never
 replace historical attribution. Phase 8 draft/wrap derivation currently depends on
-the same server secret: retain/decrypt/migrate old vaults under scoped authorization
+the same server key. Preserve and migrate old vaults under scoped authorization
 before retiring it, or old encrypted drafts become unreadable. No production key
 is rotated by this phase; this dependency is an explicit operational limitation.
 

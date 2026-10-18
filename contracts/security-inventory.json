@@ -4140,10 +4140,10 @@
       ]
     },
     "app_private.appointment_readiness": {
-      "source": "supabase/migrations/20261018081514_phase_9_reception_security_projection.sql",
+      "source": "supabase/migrations/20261018090413_phase_9_reception_archive_correction.sql",
       "signature": "p_membership uuid,p_location uuid,p_appointment uuid",
       "security_definer": true,
-      "definition_sha256": "c01b70f55e07dda69685837e47188497e9513f1a4d4563d5ff1fc03818862f7c",
+      "definition_sha256": "95811cceaa461802b0c33465076ebf0311ab607cb468b820fbf223a8081bce89",
       "domain": "salon",
       "authentication": "inherited verified caller or trusted trigger owner; private schema not exposed",
       "membership": "current active DB membership, never JWT user metadata",
@@ -5541,7 +5541,7 @@
   "actions": {
     "apps/web/app/auth/recovery/actions.ts#requestRecovery": {
       "source": "apps/web/app/auth/recovery/actions.ts",
-      "definition_sha256": "47580dedba18abb6d199c864cbce6fb0cb94c351a7db9f795830043576cf6612",
+      "definition_sha256": "630fabb501a9938216897706f2b2c6dda82fc63b717cc41d3a4f631b1907d165",
       "domain": "auth",
       "authentication": "provider PKCE/session for recovery completion; generic recovery request and workspace-reset are public",
       "membership": "not applicable to identity-only actions; workspace selection resolves fresh membership",
@@ -5560,7 +5560,7 @@
     },
     "apps/web/app/auth/recovery/actions.ts#updateRecoveredPassword": {
       "source": "apps/web/app/auth/recovery/actions.ts",
-      "definition_sha256": "47580dedba18abb6d199c864cbce6fb0cb94c351a7db9f795830043576cf6612",
+      "definition_sha256": "630fabb501a9938216897706f2b2c6dda82fc63b717cc41d3a4f631b1907d165",
       "domain": "auth",
       "authentication": "provider PKCE/session for recovery completion; generic recovery request and workspace-reset are public",
       "membership": "not applicable to identity-only actions; workspace selection resolves fresh membership",
@@ -5777,7 +5777,8 @@
     "20261014153959_phase_8_live_controller_recovery.sql": "77aa6218478a69fa2c9a68fd8167155860483e76a02ecb078d733f4613dc93dd",
     "20261014163029_phase_8_recovery_json_guard_correction.sql": "99da3b75e6c8f8834bca6c602cc3bf1030fee47d0f5430d94a762c1fea41ad62",
     "20261018081514_phase_9_reception_security_projection.sql": "01ff9a81af940e6f70b64b4ebfa5b9a24c8894cb988cd2d1192ab4bdaf18bcfa",
-    "20261018082353_phase_9_session_grant_hardening.sql": "a19eee45ab2789a821cad041d90b38f5f879d31920a938330d45792e20a01326"
+    "20261018082353_phase_9_session_grant_hardening.sql": "a19eee45ab2789a821cad041d90b38f5f879d31920a938330d45792e20a01326",
+    "20261018090413_phase_9_reception_archive_correction.sql": "4c7ccec9e4d12becad571418586abb79b64c9655a4a9e9dd7c5879c1f67fdd07"
   },
   "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data"
 }

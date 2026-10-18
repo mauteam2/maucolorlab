@@ -14,6 +14,10 @@ export async function requestRecovery(_state:{code:string},form:FormData){
 export async function updateRecoveredPassword(_state:{code:string},form:FormData){
  try{await origin();const password=z.string().min(12).max(128).safeParse(form.get("password"));if(!password.success||password.data!==form.get("confirm"))return {code:"INVALID_PASSWORD"};
   const client=await createClient(),user=await client.auth.getUser();if(user.error||!user.data.user)return {code:"RECOVERY_INVALID"};
+  // Auth JWT signature/user existence alone is not session revocation proof.
+  // This identity-only RPC invokes the authoritative Data API session hook and
+  // remains valid for accounts that have no salon membership.
+  if((await client.rpc("list_workspace_contexts")).error)return {code:"RECOVERY_INVALID"};
   const result=await client.auth.updateUser({password:password.data});if(result.error)return {code:"RECOVERY_INVALID"};
   // No old session may keep technical authority after successful recovery.
   const signedOut=await client.auth.signOut({scope:"global"});
