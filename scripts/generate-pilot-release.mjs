@@ -1,0 +1,13 @@
+import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+const root=fileURLToPath(new URL('../',import.meta.url));
+const read=p=>readFileSync(root+p,'utf8').replace(/\r\n/g,'\n');
+const migrations=readdirSync(root+'supabase/migrations').filter(p=>p.endsWith('.sql')).sort();
+const head=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
+if(process.env.ELIFORA_RELEASE_SHA && process.env.ELIFORA_RELEASE_SHA!==head) throw Error('RELEASE_SHA_MISMATCH');
+const inventory=JSON.parse(read('contracts/security-inventory.json'));
+const fingerprint={schemaVersion:1,gitSha:head,buildVersion:process.env.ELIFORA_RELEASE_VERSION??'development',ciRun:process.env.ELIFORA_RELEASE_CI_RUN??null,openApiVersion:read('contracts/openapi.yaml').match(/version:\s*["']?([0-9.]+)/)[1],colorEngineVersion:'color-engine/1.1.0',migrationHead:migrations.at(-1).split('_')[0],migrationDigest:createHash('sha256').update(migrations.map(n=>n+':'+inventory.migration_sha256[n]).join('\n')).digest('hex'),catalogs:[{key:'schwarzkopf-igora-royal-absolutes',sourceSha256:createHash('sha256').update(read('contracts/catalogs/schwarzkopf-igora-royal-absolutes.json')).digest('hex'),brands:1,lines:1,shades:29,developers:2,rules:58,officialDocuments:3}]};
+writeFileSync(root+'apps/web/lib/pilot/release.generated.json',JSON.stringify(fingerprint,null,2)+'\n');
+console.log('Generated safe ELIFORA release fingerprint');

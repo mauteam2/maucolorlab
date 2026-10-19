@@ -1,0 +1,9 @@
+import {beforeEach,expect,it,vi} from "vitest";
+const {rpc}=vi.hoisted(()=>({rpc:vi.fn()}));
+vi.mock("@/lib/supabase/server",()=>({createClient:async()=>({rpc})}));
+import {databaseReleaseStatus,releaseFingerprint} from "./release";
+beforeEach(()=>{vi.resetAllMocks();vi.stubEnv("ELIFORA_COLOR_PLAN_SIGNING_KEY","0123456789abcdef".repeat(4));});
+const status=()=>({migrationHead:releaseFingerprint.migrationHead,signingMatches:true,privateStorage:true,colorEngineVersion:"color-engine/1.1.0",catalogs:[]});
+it("verifies migration, signing and private storage without returning the key",async()=>{rpc.mockResolvedValue({data:status()});expect(await databaseReleaseStatus()).toEqual(status());const args=rpc.mock.calls[0]![1];expect(args.p_challenge).toMatch(/^[a-f0-9]{64}$/);expect(args.p_signature).toMatch(/^[a-f0-9]{64}$/);expect(JSON.stringify(args)).not.toContain(process.env.ELIFORA_COLOR_PLAN_SIGNING_KEY);});
+it.each([{migrationHead:"20260910000000"},{signingMatches:false},{privateStorage:false},{colorEngineVersion:"forged"}])("rejects incompatible or partially configured DB",bad=>{rpc.mockResolvedValue({data:{...status(),...bad}});return expect(databaseReleaseStatus()).rejects.toThrow("RELEASE_NOT_READY");});
+it("rejects missing RPC and signing configuration",async()=>{rpc.mockResolvedValue({error:{message:"private"}});await expect(databaseReleaseStatus()).rejects.toThrow("RELEASE_NOT_READY");vi.stubEnv("ELIFORA_COLOR_PLAN_SIGNING_KEY","");await expect(databaseReleaseStatus()).rejects.toThrow("RELEASE_NOT_READY");});

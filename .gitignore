@@ -33,3 +33,4 @@ supabase/.temp/
 
 # Python verification cache
 __pycache__/
+apps/web/lib/pilot/release.generated.json

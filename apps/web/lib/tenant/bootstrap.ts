@@ -12,6 +12,10 @@ export async function bootstrap() {
       throw new AccessError("NETWORK_ERROR", 503);
     throw new AccessError(authError?.name === "AuthSessionMissingError" ? "UNAUTHENTICATED" : "SESSION_EXPIRED", 401);
   }
+  if (["staging", "pilot", "production"].includes(process.env.ELIFORA_DEPLOYMENT_ENV ?? "")) {
+    try { const { databaseReleaseStatus } = await import("@/lib/pilot/release"); await databaseReleaseStatus(); }
+    catch { throw new AccessError("RELEASE_NOT_READY", 503); }
+  }
   const { data, error, status } = await client.rpc("list_workspace_contexts");
   if (error) {
     if (status === 401) throw new AccessError("SESSION_EXPIRED", 401);

@@ -25,6 +25,9 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: local-ci-publishable-key
       ELIFORA_DEPLOYMENT_ENV: development
+      ELIFORA_RELEASE_SHA: ${{ github.sha }}
+      ELIFORA_RELEASE_VERSION: pilot.0.10.0
+      ELIFORA_RELEASE_CI_RUN: ${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -94,6 +97,8 @@ jobs:
         run: npx playwright test e2e/color-pilot.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
       - name: Phase 5B browser journeys must pass without retries
         run: npx playwright test e2e/costing.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
+      - name: Phase 10 empty-tenant pilot workflow and private feedback must pass without retries
+        run: npx playwright test e2e/pilot-readiness.spec.ts --workers=1 --retries=0
       - name: Phase 6 report journeys must pass without retries
         run: npx playwright test e2e/reporting.spec.ts --workers=1 --retries=0
       - name: Phase 7 SaaS journeys must pass without retries
@@ -123,6 +128,8 @@ jobs:
             apps/web/test-results/**/phase-9-*.json
             apps/web/test-results/**/color-pilot-*.png
             apps/web/test-results/**/color-pilot-*.json
+            apps/web/test-results/**/phase-10-*.png
+            apps/web/test-results/**/phase-10-*.json
             ${{ runner.temp }}/color-pilot-*.json
             apps/web/test-results/**/phase-8-*.json
             apps/web/test-results/**/sanitized-route-*.json
@@ -139,6 +146,7 @@ jobs:
             apps/web/test-results/**/phase-8-*.json
             apps/web/test-results/**/phase-9-*.json
             apps/web/test-results/**/color-pilot-*.json
+            apps/web/test-results/**/phase-10-*.json
             ${{ runner.temp }}/color-pilot-*.json
             apps/web/test-results/**/sanitized-route-*.json
             apps/web/test-results/**/reliability-summary.json
@@ -209,6 +217,16 @@ jobs:
           python scripts/test-phase-9-concurrency.py
           supabase db reset --local
           python scripts/configure-disposable-saas.py
+      - name: Phase 10 admission lock and rollback barriers
+        run: python scripts/test-pilot-concurrency.py
+      - name: Phase 10 admission evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-10-database-verification
+          path: ${{ runner.temp }}/phase-10-*.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Phase 9 actual database security and performance evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -322,6 +340,8 @@ jobs:
       - run: python scripts/test-start-local-supabase.py
       - run: python scripts/test-configure-disposable-supabase-ports.py
       - run: python scripts/test-check-catalog-sources.py
+      - run: python scripts/test-pilot-readiness.py
+      - run: python scripts/pilot_readiness.py queue contracts/pilot-document-review-queue.json
       - name: Scan repository history for secrets
         run: |
           gh release download v8.30.1 --repo gitleaks/gitleaks --pattern 'gitleaks_8.30.1_linux_x64.tar.gz' --dir "$RUNNER_TEMP/gitleaks"

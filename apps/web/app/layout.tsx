@@ -9,6 +9,7 @@ import "./finance.css";
 import "./costing.css";
 import "./reporting.css";
 import "./saas.css";
+import "./pilot.css";
 
 export const metadata: Metadata = {
   title: {

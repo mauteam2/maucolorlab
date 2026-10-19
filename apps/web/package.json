@@ -7,7 +7,12 @@
     "node": ">=20.9.0"
   },
   "scripts": {
+    "postinstall": "node ../../scripts/generate-pilot-release.mjs",
+    "pretypecheck": "node ../../scripts/generate-pilot-release.mjs",
+    "pretest": "node ../../scripts/generate-pilot-release.mjs",
+    "predev": "node ../../scripts/generate-pilot-release.mjs",
     "dev": "next dev",
+    "prebuild": "node ../../scripts/generate-pilot-release.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint app components lib e2e proxy.ts *.config.ts --max-warnings=0",

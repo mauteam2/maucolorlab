@@ -4288,6 +4288,52 @@
       "signature": "",
       "security_definer": true,
       "definition_sha256": "0f657bb908442fed931456d24fa14e8bab79cc3ef6f78102e969ae196c2c8065"
+    },
+    "app_private.pilot_provision": {
+      "source": "supabase/migrations/20261019121555_phase_10_pilot_readiness.sql",
+      "signature": "p_request_id uuid,p_owner_user_id uuid,p_definition jsonb,p_actor text,p_reason text,p_correlation_id uuid",
+      "security_definer": true,
+      "definition_sha256": "7bc4df4051d1f0da559e3d04cc200106a2ac2cd6d2c97c8f494e1994778a6bed",
+      "domain": "pilot-readiness",
+      "authentication": "Provider session verified for public status; separately assumed non-login elifora_pilot_operator for provisioning",
+      "membership": "Owner current membership rechecked before/after HTTP status; no tenant projection in release RPC; confirmed provider user for scoped provisioning",
+      "location_scope": "No tenant data in global release status; provisioning creates exactly one explicitly approved empty tenant and initial location",
+      "permission": "salon.read plus owner for HTTP status; authenticated session for global configuration RPC; only elifora_pilot_operator EXECUTE for private provision",
+      "entitlement": "Provision creates UNCONFIGURED account, no plan; existing quota triggers retained; status consumes no quota",
+      "allowed_roles": "Owner diagnostics; authenticated session no-data configuration attestation; explicit trusted non-login pilot operator",
+      "access": "OPERATOR_WRITE",
+      "idempotency": "Owner advisory lock plus immutable request receipt and fingerprint; status read only",
+      "audit": "pilot.admit append-only audit with operator actor, reason, correlation and request; status read only",
+      "direct_client_callable": false,
+      "evidence": [
+        "supabase/tests/pilot_readiness.test.sql",
+        "scripts/test-pilot-concurrency.py",
+        "apps/web/app/api/pilot/status/route.test.ts",
+        "docs/pilot-operations.md"
+      ]
+    },
+    "public.pilot_release_status": {
+      "source": "supabase/migrations/20261019121555_phase_10_pilot_readiness.sql",
+      "signature": "p_challenge text,p_signature text",
+      "security_definer": true,
+      "definition_sha256": "3a44796453fecff422ea8fec94852f7d89c5ac6bfbc10c4f8764ede933d32933",
+      "domain": "pilot-readiness",
+      "authentication": "Provider session verified for public status; separately assumed non-login elifora_pilot_operator for provisioning",
+      "membership": "Owner current membership rechecked before/after HTTP status; no tenant projection in release RPC; confirmed provider user for scoped provisioning",
+      "location_scope": "No tenant data in global release status; provisioning creates exactly one explicitly approved empty tenant and initial location",
+      "permission": "salon.read plus owner for HTTP status; authenticated session for global configuration RPC; only elifora_pilot_operator EXECUTE for private provision",
+      "entitlement": "Provision creates UNCONFIGURED account, no plan; existing quota triggers retained; status consumes no quota",
+      "allowed_roles": "Owner diagnostics; authenticated session no-data configuration attestation; explicit trusted non-login pilot operator",
+      "access": "READ_CONFIGURATION_ONLY",
+      "idempotency": "Owner advisory lock plus immutable request receipt and fingerprint; status read only",
+      "audit": "pilot.admit append-only audit with operator actor, reason, correlation and request; status read only",
+      "direct_client_callable": true,
+      "evidence": [
+        "supabase/tests/pilot_readiness.test.sql",
+        "scripts/test-pilot-concurrency.py",
+        "apps/web/app/api/pilot/status/route.test.ts",
+        "docs/pilot-operations.md"
+      ]
     }
   },
   "routes": {
@@ -5623,6 +5669,27 @@
         "apps/web/e2e/color-pilot.spec.ts",
         "docs/color-target-taxonomy.md"
       ]
+    },
+    "GET /api/pilot/status": {
+      "source": "apps/web/app/api/pilot/status/route.ts",
+      "definition_sha256": "ed38bb2b28bb7f52c7b44fdb1e9e5b260629a5e63c57614c24acd535d899f26f",
+      "domain": "pilot-readiness",
+      "authentication": "Provider session verified for public status; separately assumed non-login elifora_pilot_operator for provisioning",
+      "membership": "Owner current membership rechecked before/after HTTP status; no tenant projection in release RPC; confirmed provider user for scoped provisioning",
+      "location_scope": "No tenant data in global release status; provisioning creates exactly one explicitly approved empty tenant and initial location",
+      "permission": "salon.read plus owner for HTTP status; authenticated session for global configuration RPC; only elifora_pilot_operator EXECUTE for private provision",
+      "entitlement": "Provision creates UNCONFIGURED account, no plan; existing quota triggers retained; status consumes no quota",
+      "allowed_roles": "Owner diagnostics; authenticated session no-data configuration attestation; explicit trusted non-login pilot operator",
+      "access": "READ_CONFIGURATION_ONLY",
+      "idempotency": "Owner advisory lock plus immutable request receipt and fingerprint; status read only",
+      "audit": "pilot.admit append-only audit with operator actor, reason, correlation and request; status read only",
+      "direct_client_callable": false,
+      "evidence": [
+        "supabase/tests/pilot_readiness.test.sql",
+        "scripts/test-pilot-concurrency.py",
+        "apps/web/app/api/pilot/status/route.test.ts",
+        "docs/pilot-operations.md"
+      ]
     }
   },
   "actions": {
@@ -5867,7 +5934,8 @@
     "20261018082353_phase_9_session_grant_hardening.sql": "a19eee45ab2789a821cad041d90b38f5f879d31920a938330d45792e20a01326",
     "20261018090413_phase_9_reception_archive_correction.sql": "4c7ccec9e4d12becad571418586abb79b64c9655a4a9e9dd7c5879c1f67fdd07",
     "20261018092007_phase_9_postgrest_guard_boundary.sql": "296fd386400a9958a322bbaa413ed62947ada52ade6a9d05127ca829af967fed",
-    "20261018131809_colorlab_pilot_target_interpretation.sql": "35c39fb17a03c0ddafc857d52156d5159ac1fa82ade9fe68e1378f4f698c2419"
+    "20261018131809_colorlab_pilot_target_interpretation.sql": "35c39fb17a03c0ddafc857d52156d5159ac1fa82ade9fe68e1378f4f698c2419",
+    "20261019121555_phase_10_pilot_readiness.sql": "bd8b9db6e94835322398d3c03f5dfa708938b705326b7a25c27e3d8ea96844c7"
   },
   "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data",
   "disposable_ci_functions": {

@@ -53,6 +53,7 @@ export function WorkspaceShell() {
       : <p role="status">{failed ? tr.network : tr.loading}</p>}
     {context?.permissions.includes("reports.read") && <ReportingWorkspace embedded />}
     {failed && <a href="/workspace" className="text-link">{tr.retry}</a>}
+    {context?.role === "owner" && <Link prefetch={false} className="button button-secondary" href="/workspace/settings/pilot">Kontrollü pilot kurulum kılavuzu</Link>}
     <OfflineDraftPanel />
     <PrivacyActionForm action={logout}><button className="button button-primary">{tr.logout}</button></PrivacyActionForm>
   </main></SalonFrame>;

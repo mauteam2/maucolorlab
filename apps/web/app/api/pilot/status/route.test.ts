@@ -1,0 +1,13 @@
+import {beforeEach,expect,it,vi} from "vitest";
+const m=vi.hoisted(()=>({context:vi.fn(),status:vi.fn()}));
+vi.mock("@/lib/clients/service",()=>({verifiedClientContext:m.context}));
+vi.mock("@/lib/pilot/release",()=>({databaseReleaseStatus:m.status,releaseFingerprint:{gitSha:"a".repeat(40)}}));
+import {GET} from "./route";
+import {AccessError} from "@/lib/tenant/bootstrap";
+const ctx={organization_id:"org",membership_id:"member",location_id:"location",role:"owner"};
+beforeEach(()=>{vi.resetAllMocks();m.context.mockResolvedValue(ctx);m.status.mockResolvedValue({migrationHead:"20261019121555"});});
+it("returns only safe version configuration with no-store and correlation",async()=>{const r=await GET(new Request("http://localhost/api/pilot/status"));expect(r.status).toBe(200);expect(r.headers.get("cache-control")).toContain("no-store");expect((await r.json()).data.backupVerified).toBe(false);});
+it("denies reception before reading diagnostics",async()=>{m.context.mockResolvedValue({...ctx,role:"reception"});expect((await GET(new Request("http://localhost/api/pilot/status"))).status).toBe(403);expect(m.status).not.toHaveBeenCalled();});
+it("conceals an in-flight response after membership changes",async()=>{m.context.mockResolvedValueOnce(ctx).mockResolvedValueOnce({...ctx,location_id:"other"});expect((await GET(new Request("http://localhost/api/pilot/status"))).status).toBe(403);});
+it("preserves auth denial and conceals internal failures",async()=>{m.context.mockRejectedValueOnce(new AccessError("SESSION_EXPIRED",401));expect((await GET(new Request("http://localhost/api/pilot/status"))).status).toBe(401);m.context.mockResolvedValue(ctx);m.status.mockRejectedValue(new Error("private database details"));const r=await GET(new Request("http://localhost/api/pilot/status"));expect(r.status).toBe(503);expect(await r.text()).not.toContain("private database");});
+it("rejects query payloads",async()=>expect((await GET(new Request("http://localhost/api/pilot/status?client=private"))).status).toBe(400));

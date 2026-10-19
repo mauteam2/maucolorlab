@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "releaseSha": "97ce4e491fc1ebc3e9dae42adc3fa32d7babf633",
+  "environment": "staging",
+  "checks": {
+    "SECURITY": {
+      "status": "BLOCKED",
+      "reason": "Current-head CI and actual hosted RLS/grant inspection required.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "DATA": {
+      "status": "BLOCKED",
+      "reason": "Two synthetic tenants tested in CI; hosted isolation and privacy decisions still required.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "AUTH": {
+      "status": "BLOCKED",
+      "reason": "Hosted invite, recovery email, refresh and revocation not executed.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "COLOR_ENGINE": {
+      "status": "BLOCKED",
+      "reason": "Current-head automated engine/Live/outcome evidence and final professional usability review required.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "BRAND_DATA": {
+      "status": "BLOCKED",
+      "reason": "Exact narrow IGORA pack; hosted governed publication/provenance evidence required.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "LIVE": {
+      "status": "BLOCKED",
+      "reason": "Current-head strict Live recovery, safety and outcome evidence required; hosted smoke pending.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "STOCK": {
+      "status": "BLOCKED",
+      "reason": "Current-head consumption/lineage/outbox/reconciliation evidence required; hosted smoke pending.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "FINANCE": {
+      "status": "BLOCKED",
+      "reason": "Current-head payment replay/cost/commission evidence required; hosted smoke pending.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "REPORTING": {
+      "status": "BLOCKED",
+      "reason": "Current-head projections/export evidence required; hosted smoke pending.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "OFFLINE": {
+      "status": "BLOCKED",
+      "reason": "Current-head strict interruption/reconnect/controller evidence required; hosted smoke pending.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "BACKUP": {
+      "status": "BLOCKED",
+      "reason": "Hosted DB/Storage backup, key escrow and isolated restore evidence unavailable.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "PERFORMANCE": {
+      "status": "BLOCKED",
+      "reason": "CI production-build profiling prepared; no hosted measurements available.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "UX": {
+      "status": "BLOCKED",
+      "reason": "Current-head 320px browser evidence and professional usability review pending.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    "SUPPORT": {
+      "status": "BLOCKED",
+      "reason": "Support owner/channel/coverage and approved privacy/retention notice not yet supplied.",
+      "evidence": [],
+      "reviewedBy": null,
+      "reviewedAt": null
+    }
+  }
+}
