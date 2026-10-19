@@ -10,9 +10,13 @@ salon admission, candidate outreach or public production is authorized by this p
   mapping, numerical pigment strength, achievable lift, exact time or executable
   recipe. The current controlled workflow is the restricted single-root refresh
   pilot with professional shade/grams selection and official ratio calculation.
-- Native Android ColorLab is not full parity. No real-device/emulator smoke result
-  is available in this phase; Android is excluded from pilot-critical acceptance
-  until that evidence exists. Compiled instrumentation APK is not a device test.
+- Native Android ColorLab is not full parity. The 2026-10-19 API 36.1 emulator
+  smoke did not complete: first instrumentation aborted with System has crashed;
+  a second run returned Process crashed without a completed JUnit result. Local
+  debug/test APK build passed. Android remains excluded from pilot-critical
+  acceptance; neither a compiled APK nor these aborted attempts is a device pass.
+  Release evidence records APK hashes, source tree and both logs; crash root cause
+  remains unresolved, rather than being assumed to be a product or host defect.
 - Web evidence is Chromium desktop/mobile profile including 320 px, not Safari or
   Firefox certification. Local/CI production build is not a hosted deployment.
 - Hosted invitation/recovery mail, external domain/configuration, real isolated

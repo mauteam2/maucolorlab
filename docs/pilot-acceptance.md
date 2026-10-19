@@ -36,9 +36,11 @@ review the actual evidence and ensure it matches the deployed fingerprint.
 
 Web is primary. Actual Chromium desktop/mobile profiles and 320px checks are the
 automated scope; Safari/Firefox remain unclaimed. Android unit/lint/debug and test
-APK builds remain mandatory engineering regressions, but no emulator/real device
-has been exercised here. Without controlled device evidence native Android is not
-included in pilot-critical acceptance or distribution readiness.
+APK builds remain mandatory engineering regressions. A local API 36.1 emulator
+was exercised on 2026-10-19, but both instrumentation attempts aborted (System has
+crashed, then Process crashed); no completed JUnit pass exists. Logs and APK/source
+hashes are retained in release evidence. Without a successful controlled smoke,
+native Android is excluded from pilot-critical acceptance/distribution readiness.
 
 Professional colorist usability review is an independent human gate. Record
 reviewer identity/role, staging release, synthetic or consenting case category,
