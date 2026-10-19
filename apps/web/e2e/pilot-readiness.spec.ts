@@ -16,7 +16,7 @@ test("pilot admitted empty salon to verified recipe, Live, stock, finance, profi
  const measure=async<T,>(journey:string,operation:()=>Promise<T>)=>{const start=Date.now(),value=await operation();measurements.push({journey,elapsedMs:Date.now()-start,environment:"DISPOSABLE_CI_PRODUCTION_BUILD"});return value;};
  await controlledRecipeJourney(page,browser,info,admittedAccount,{
   async afterLogin(){
-   const empty=await measure("empty-salon-read",()=>page.request.get('/api/salon'));expect(empty.status()).toBe(200);const d=(await empty.json()).data;expect(d.services).toHaveLength(0);expect(d.staff).toHaveLength(0);expect(d.appointments).toHaveLength(0);
+   const day=new Date().toISOString().slice(0,10),empty=await measure("empty-salon-read",()=>page.request.get(`/api/salon?from=${day}&to=${day}`));expect(empty.status(),await empty.text()).toBe(200);const d=(await empty.json()).data;expect(d.services).toHaveLength(0);expect(d.staff).toHaveLength(0);expect(d.appointments).toHaveLength(0);
    const status=await page.request.get('/api/pilot/status');expect(status.status(),await status.text()).toBe(200);expect((await status.json()).data.database.signingMatches).toBe(true);
    await page.goto('/workspace/settings/pilot');await expect(page.getByRole('heading',{name:'İlk gün kurulum sırası'})).toBeVisible();await expect(page.getByText(/29 ton · 2 geliştirici · 58 kural/)).toBeVisible();
    await page.setViewportSize({width:320,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath('phase-10-setup-320.png'),fullPage:true});
