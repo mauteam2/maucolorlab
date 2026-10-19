@@ -36,4 +36,10 @@ class ReadinessTests(unittest.TestCase):
         d=queue();d['documents']*=2
         with self.assertRaises(AssertionError):validate_queue(d)
     def test_empty_queue_is_honest(self):self.assertEqual(validate_queue({'schemaVersion':1,'documents':[]})['documents'],0)
+    def test_credential_bearing_origin_denied(self):
+        d=queue();d['documents'][0]['origin']='https://operator:private@manufacturer.example/guide'
+        with self.assertRaises(AssertionError):validate_queue(d)
+    def test_timezone_required(self):
+        d=checklist();d['checks']['AUTH'].update(status='PASS',evidence=['hosted evidence'],reviewedBy='OPERATOR',reviewedAt='2026-10-19T12:00:00')
+        with self.assertRaises(AssertionError):validate_checklist(d)
 unittest.main()

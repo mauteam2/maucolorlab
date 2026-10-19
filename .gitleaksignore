@@ -11,3 +11,7 @@
 decdce5caec32c929981dbb77dd3141c7875abfc:docs/security-operations.md:generic-api-key:34
 decdce5caec32c929981dbb77dd3141c7875abfc:contracts/security-inventory.json:generic-api-key:5769
 decdce5caec32c929981dbb77dd3141c7875abfc:contracts/security-inventory.json:generic-api-key:5772
+# Phase 10 historical deterministic repeated-hex unit-test inputs, never credentials.
+# Current tests now generate ephemeral random material. Do not ignore a file/rule.
+a7b162750d1829373451cbcdbb822f38fee099e5:apps/web/lib/pilot/config.test.ts:generic-api-key:3
+a7b162750d1829373451cbcdbb822f38fee099e5:apps/web/lib/pilot/release.test.ts:generic-api-key:5

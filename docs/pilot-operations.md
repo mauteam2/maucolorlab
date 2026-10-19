@@ -67,7 +67,15 @@ Release notes per deployment: new, fixed, known limitations, engine/catalog chan
 migration/checkpoint notes, gates and rollback compatibility. Phase 10 introduces
 readiness configuration, controlled admission, setup/feedback and deployment docs;
 engine 1.1.0/chemistry/catalog source pack remain unchanged. Pilot admission/health
-migration `20261019121555` is forward only. No real tenant or commercial plan seeded.
+migration `20261019121555` and operator-assumption correction `20261019125352` are
+forward only. No real tenant or commercial plan seeded. The correction assigns the
+new non-login operator role only to the existing migration administrator, postgres;
+authenticated, anon, service_role and authenticator receive no role membership.
+
+The first CI found two scanner matches in deterministic repeated-hex test inputs,
+not actual credentials. Current tests generate ephemeral random bytes. Only the
+two exact historical commit/file/line fingerprints are excluded; no path/rule is
+disabled and full-history scanning remains required.
 
 Feature flags may expose optional pilot UX; no flag grants permission, entitlement,
 RLS bypass, safety exemption or catalog verification. Public production is refused

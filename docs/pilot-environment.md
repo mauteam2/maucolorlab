@@ -2,7 +2,9 @@
 
 Phase 10 prepares a release, not public production. No hosted project, domain,
 SMTP provider, backup service, support owner or professional review has yet been
-identified in this task. Their gates remain BLOCKED, not inferred from local CI.
+identified in this task. Read-only connected project discovery on 2026-10-19 found
+no ELIFORA staging/pilot project; no existing unrelated project was touched.
+Their gates remain BLOCKED, not inferred from local CI.
 
 Use separate Supabase projects and separate secret stores for development, CI,
 staging and salon pilot. Never deploy against the disposable CI project or copy

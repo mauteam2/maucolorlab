@@ -9,7 +9,8 @@ Real salons must not be admitted before the complete gate and explicit approval.
 to the approved entry base. Copy it to the release evidence directory, set the
 actual candidate SHA, and attach versioned evidence/reviewer/time per category.
 Do not treat that source template as a completed current-head gate. Validate with
-`python scripts/pilot_readiness.py checklist PATH`; BLOCKED/FAIL and even an
+`python scripts/pilot_readiness.py checklist PATH`; candidate SHA must match the
+current checkout (or an explicitly supplied `--expected-sha`). BLOCKED/FAIL and even an
 inapplicable required domain return NO_GO/nonzero. All fourteen categories apply
 to this Web pilot. A structural PASS does not authenticate an operator's claims;
 review the actual evidence and ensure it matches the deployed fingerprint.
