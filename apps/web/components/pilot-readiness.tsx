@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SalonFrame, SalonHeading, SalonCard } from "./salon-frame";
 import { feedbackCategories, reviewDimensions, feedbackDocument } from "@/lib/pilot/feedback";
 type Release={gitSha:string;colorEngineVersion:string;catalogs:unknown[];publishedCatalogs?:unknown[];migrationHead:string;buildVersion:string};
@@ -17,12 +17,14 @@ const setup=[
  ["Raporlar ve yetkili veri dışa aktarımı","/workspace/reports"],
 ] as const;
 export function PilotReadiness() {
+ const lastRelease=useRef<string|null>(null);
  const [release,setRelease]=useState<Release|null>(null),[error,setError]=useState("");
  const [category,setCategory]=useState<typeof feedbackCategories[number]>(feedbackCategories[0]),[severity,setSeverity]=useState("P3"),[comment,setComment]=useState(""),[ratings,setRatings]=useState<(number|null)[]>(Array(10).fill(null)),[consent,setConsent]=useState(false);
  useEffect(()=>{
   let alive=true,epoch=0;
-  const clear=()=>{epoch++;setRelease(null);setComment("");setRatings(Array(10).fill(null));setConsent(false);};
-  const load=async()=>{clear();const generation=epoch;if(document.hidden||!navigator.onLine)return;try{const r=await fetch("/api/pilot/status",{cache:"no-store",signal:AbortSignal.timeout(10000)});const b=await r.json();if(!alive||generation!==epoch||document.hidden||!navigator.onLine)return;if(!r.ok)throw Error();setRelease(b.data.release);setError("");}catch{if(alive&&generation===epoch)setError("Pilot tanılaması doğrulanamadı. Oturumu ve ortam yapılandırmasını kontrol edin.");}};
+  const clearDraft=()=>{setComment("");setRatings(Array(10).fill(null));setConsent(false);};
+  const clear=()=>{epoch++;lastRelease.current=null;setRelease(null);clearDraft();};
+  const load=async()=>{if(document.hidden||!navigator.onLine){clear();return;}const generation=++epoch;setRelease(null);try{const r=await fetch("/api/pilot/status",{cache:"no-store",signal:AbortSignal.timeout(10000)});const b=await r.json();if(!alive||generation!==epoch||document.hidden||!navigator.onLine)return;if(!r.ok)throw Error();const fingerprint=JSON.stringify(b.data.release);if(lastRelease.current!==null&&lastRelease.current!==fingerprint)clearDraft();lastRelease.current=fingerprint;setRelease(b.data.release);setError("");}catch{if(alive&&generation===epoch){clear();setError("Pilot tanılaması doğrulanamadı. Oturumu ve ortam yapılandırmasını kontrol edin.");}}};
   const visibility=()=>{if(document.hidden)clear();else void load();};
   void load();const timer=setInterval(()=>void load(),60000);window.addEventListener("focus",load);window.addEventListener("online",load);window.addEventListener("offline",clear);window.addEventListener("elifora-offline-lock",clear);document.addEventListener("visibilitychange",visibility);
   return()=>{alive=false;clearInterval(timer);window.removeEventListener("focus",load);window.removeEventListener("online",load);window.removeEventListener("offline",clear);window.removeEventListener("elifora-offline-lock",clear);document.removeEventListener("visibilitychange",visibility);};

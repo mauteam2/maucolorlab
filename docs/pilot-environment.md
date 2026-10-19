@@ -1,10 +1,26 @@
 # ELIFORA controlled pilot environment
 
-Phase 10 prepares a release, not public production. No hosted project, domain,
-SMTP provider, backup service, support owner or professional review has yet been
-identified in this task. Read-only connected project discovery on 2026-10-19 found
-no ELIFORA staging/pilot project; no existing unrelated project was touched.
-Their gates remain BLOCKED, not inferred from local CI.
+The user requested selecting and setting up staging within Phase 10. This is
+controlled non-production work; no real salon admission or public launch follows
+automatically. As of 2026-10-19 no new hosted ELIFORA project/domain is created.
+Organization selection and commercial hosting cost agreement remain pending.
+Read-only discovery found pabuctrend-360-dev (connector and CLI) and maucolorlab
+(CLI); older inactive projects are not assumed valid isolated staging targets.
+No unrelated project or team was changed.
+
+The proposed host is a separate ELIFORA Vercel Pro team and staging project,
+using a provider-assigned HTTPS address first. The current connected Vercel team
+venusstudiopanel is Hobby; this commercial product must not be deployed under
+Hobby's personal/non-commercial allowance. Pro's quoted USD20/month platform
+fee, metered overage and applicable taxes require explicit agreement before
+purchase. Supabase project costs depend on the selected organization; obtain
+that actual quote after selection. Free synthetic staging is not evidence of
+hosted backup readiness for real salon data. No domain purchase is assumed.
+
+HUMAN_GATE_COLORIST_REVIEW — OPEN.
+HUMAN_GATE_PILOT_SUPPORT_OWNER — OPEN.
+Both states were explicitly confirmed by the user. Hosted checks and human gates
+remain BLOCKED until actual evidence exists; local CI does not close them.
 
 Use separate Supabase projects and separate secret stores for development, CI,
 staging and salon pilot. Never deploy against the disposable CI project or copy
@@ -99,3 +115,22 @@ Do not roll back immutable business history with a code rollback. Stop writes fo
 unsafe releases, preserve facts and use reviewed forward corrections. Previous
 binary may restart only if its expected schema/signing/catalog protocol matches.
 Keep the previous build and release notes; never deploy an unqualified “latest”.
+
+## Proposed Web provider settings
+
+Use a dedicated Next.js project, Node 24, root apps/web, npm ci, npm run build,
+and include repository source outside the root (scripts, contracts, migrations).
+Build from the exact reviewed Git commit; verify Git checkout availability for
+the fingerprint generator rather than trusting arbitrary supplied metadata.
+Keep staging deployments access-protected and exact Auth callback/origin settings
+aligned with the chosen HTTPS address. Do not enable public signup or connect a
+production database. Store the private signing material as a sensitive server
+setting; no application service-role credential is needed.
+
+Provider sources reviewed 2026-10-19: [Vercel Pro](https://vercel.com/docs/plans/pro-plan),
+[plan restrictions](https://vercel.com/pricing),
+[build settings](https://vercel.com/docs/builds/configure-a-build),
+[monorepo source access](https://vercel.com/docs/monorepos/monorepo-faq),
+[Supabase organization billing](https://supabase.com/docs/guides/platform/billing-on-supabase),
+[backup coverage](https://supabase.com/docs/guides/platform/backups).
+These are a setup proposal, not evidence of resources created or tests performed.
