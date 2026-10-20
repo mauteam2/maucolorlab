@@ -58,7 +58,13 @@ def discover(root=ROOT):
             assert not re.search(r'export\s+(?:const|let|default|\{)',source),f'Unrecognized server action export needs review: {path}'
             for name in re.findall(r'export\s+async\s+function\s+(\w+)',source):
                 actions[path.relative_to(root).as_posix()+'#'+name]=dict(source=path.relative_to(root).as_posix(),definition_sha256=digest(source))
-    return dict(functions=functions,routes=routes,actions=actions)
+    edge_functions={}
+    for path in sorted((root/'supabase/functions').glob('*/index.ts')):
+        assets=sorted(path.parent.glob('*.ts'))
+        # Bind the privileged entry point AND its implementation dependencies.
+        body='\n'.join(p.name+'\n'+p.read_text(encoding='utf-8') for p in assets)
+        edge_functions[path.parent.name]=dict(source=path.relative_to(root).as_posix(),definition_sha256=digest(body))
+    return dict(functions=functions,routes=routes,actions=actions,edge_functions=edge_functions)
 
 def validate(root=ROOT):
     inventory=json.loads((root/'contracts/security-inventory.json').read_text(encoding='utf-8'))

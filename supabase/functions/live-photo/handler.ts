@@ -33,7 +33,7 @@ export function createPhotoHandler(env:Environment, transport:typeof fetch=fetch
     if(old.ok){const existing=await old.arrayBuffer();if(existing.byteLength!==length||hex(await crypto.subtle.digest("SHA-256",existing))!==e.digest)throw new Error("409");}
     else {
      if(old.status!==400&&old.status!==404)throw new Error("503");
-     const saved=await transport(objectUrl,{method:"POST",headers:{...storageHeaders,"Content-Type":a.contentType,"x-upsert":"false","cache-control":"0"},body:file});
+     const saved=await transport(objectUrl,{method:"POST",headers:{...storageHeaders,"Content-Type":a.contentType,"x-upsert":"false","cache-control":"max-age=0","x-metadata":btoa(JSON.stringify({elifora_actor:a.actorId,elifora_digest:e.digest}))},body:file});
      // A concurrent identical writer may win after our absence check. Compare
      // the winning bytes; never overwrite them and never accept changed bytes.
      if(!saved.ok){const winner=await transport(objectUrl,{headers:storageHeaders});if(!winner.ok||hex(await crypto.subtle.digest("SHA-256",await winner.arrayBuffer()))!==e.digest)throw new Error("409");}
