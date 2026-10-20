@@ -15,7 +15,7 @@ export function createPhotoHandler(env:Environment, transport:typeof fetch=fetch
    const authority=async()=>{
     const r=await transport(`${env.url}/rest/v1/rpc/live_photo_access`,{method:"POST",headers:{apikey:env.anonKey,Authorization:authorization,"Content-Type":"application/json"},body:JSON.stringify({p_envelope:envelope,p_signature:signature})});
     if(!r.ok)throw new Error(r.status===401?"401":"403");
-    const b=await r.json();if(!b.data||b.code)throw new Error("403");return b.data as {path:string;contentType:string;actorId:string};
+    const b=await r.json();if(b.code==="QUOTA_UNKNOWN")throw new Error("QUOTA_UNKNOWN");if(!b.data||b.code)throw new Error("403");return b.data as {path:string;contentType:string;actorId:string};
    };
    const a=await authority();
    if(!["image/png","image/jpeg","image/webp"].includes(a.contentType))throw new Error("403");
@@ -43,6 +43,6 @@ export function createPhotoHandler(env:Environment, transport:typeof fetch=fetch
    const r=await transport(objectUrl,{headers:storageHeaders});if(!r.ok)throw new Error("404");
    const bytes=await r.arrayBuffer();if(bytes.byteLength>maximum)throw new Error("413");
    await authority();return new Response(bytes,{headers:{...headers,"Content-Type":a.contentType}});
-  }catch(e){const code=e instanceof Error?e.message:"503";return new Response(null,{status:["400","401","403","404","409","413"].includes(code)?Number(code):503,headers});}
+  }catch(e){const code=e instanceof Error?e.message:"503";if(code==="QUOTA_UNKNOWN")return Response.json({code},{status:409,headers});return new Response(null,{status:["400","401","403","404","409","413"].includes(code)?Number(code):503,headers});}
  };
 }

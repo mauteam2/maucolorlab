@@ -4352,7 +4352,7 @@
         "apps/web/lib/security/photo-edge.test.ts",
         "apps/web/lib/security/photo-image.test.ts"
       ],
-      "source": "supabase/migrations/20261020131858_phase_10_photo_proxy_boundary.sql",
+      "source": "supabase/migrations/20261020135648_phase_10_photo_proxy_boundary.sql",
       "signature": "p_envelope text,p_signature text",
       "security_definer": true,
       "definition_sha256": "4631b1959f4e1d1ad67e7ab3222ccc9be07119149b86494da378b95889c9e9c2"
@@ -5959,7 +5959,7 @@
     "20261018131809_colorlab_pilot_target_interpretation.sql": "35c39fb17a03c0ddafc857d52156d5159ac1fa82ade9fe68e1378f4f698c2419",
     "20261019121555_phase_10_pilot_readiness.sql": "bd8b9db6e94835322398d3c03f5dfa708938b705326b7a25c27e3d8ea96844c7",
     "20261019125352_phase_10_operator_role_assignment.sql": "d2a068d305fa8a75d10bc6be9e2d70371e3f75781dc1d0c658418d217bb1f829",
-    "20261020131858_phase_10_photo_proxy_boundary.sql": "7b03325a8129d0d58c9f41ed1e36043334059c0138ae2c469688ec2e34e99a6d"
+    "20261020135648_phase_10_photo_proxy_boundary.sql": "7b03325a8129d0d58c9f41ed1e36043334059c0138ae2c469688ec2e34e99a6d"
   },
   "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data",
   "disposable_ci_functions": {

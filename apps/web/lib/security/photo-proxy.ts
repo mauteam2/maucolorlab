@@ -20,6 +20,6 @@ export async function proxyPhoto(context:{membership_id:string;location_id:strin
  const url=new URL("/functions/v1/live-photo",process.env.NEXT_PUBLIC_SUPABASE_URL);
  const r=await fetch(url,{method:image?"POST":"GET",headers:{Authorization:`Bearer ${auth.data.session.access_token}`,apikey:process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
   "X-Elifora-Envelope":Buffer.from(envelope).toString("base64"),"X-Elifora-Signature":signature,...(image?{"Content-Type":image.type}:{})},body:image,cache:"no-store",signal:AbortSignal.timeout(30000)});
- if(!r.ok)throw new AccessError(r.status===401?"SESSION_EXPIRED":r.status===403?"FORBIDDEN":r.status===404?"LIVE_PHOTO_NOT_FOUND":"LIVE_PHOTO_UPLOAD_FAILED",r.status===401?401:r.status===403?403:r.status===404?404:409);
+ if(!r.ok){let quota=false;try{quota=(await r.json()).code==="QUOTA_UNKNOWN";}catch{}throw new AccessError(quota?"QUOTA_UNKNOWN":r.status===401?"SESSION_EXPIRED":r.status===403?"FORBIDDEN":r.status===404?"LIVE_PHOTO_NOT_FOUND":"LIVE_PHOTO_UPLOAD_FAILED",r.status===401?401:r.status===403?403:r.status===404?404:409);}
  return image?null:await r.blob();
 }
