@@ -3,7 +3,8 @@
 live-technical remains private. A restrictive policy denies all authenticated
 direct object operations: upload/read/list/sign/update/delete. The existing
 non-login Live writer retains scoped SELECT solely for signed persistence's
-object-existence invariant; it has no Storage mutation grants. The supported path
+object-existence invariant. Separate restrictive INSERT/UPDATE/DELETE policies
+deny mutations even through inherited SQL grants. The supported path
 is Web livePhoto -> live-photo Edge -> Storage. Web has no service-role key.
 After current membership and reservation checks it decodes/re-encodes PNG/JPEG/
 WebP, strips metadata, rejects active/trailing payloads and signs a short-lived
