@@ -47,7 +47,7 @@ inventory movement/count confirmation and subscription administration never beco
 offline commits. Local preparation cannot grant those permissions or entitlements.
 
 Web: AES-GCM ciphertext in `elifora-offline-intents` IndexedDB, max 100 intents per
-verified scope, 64 KiB command payload and 10 MiB supported photo attachment.
+verified scope, 64 KiB command payload and 4 MiB supported photo attachment.
 Accepted local copies are pruned on subsequent writes once no pending child needs
 their acceptance marker. This prevents ordinary online saves exhausting the local
 intent budget; permanent business replay remains in authoritative server receipts.

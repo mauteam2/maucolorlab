@@ -1,3 +1,4 @@
+import { PHOTO_MAX_BYTES } from "@/lib/security/photo-policy";
 import { z } from "zod";
 import { tenantContextSchema, workspaceReference } from "@/lib/tenant/context";
 import { offlineDraft, payloadHash, sameScope, type OfflineDraft, type OfflineIdentity } from "./model";
@@ -78,7 +79,7 @@ export async function storeOfflineDraft(vault: DraftVault, input: OfflineDraft, 
  const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: new TextEncoder().encode(recordKey) }, vault.key, new TextEncoder().encode(JSON.stringify(draft)));
  let attachment: Stored["attachment"];
  if (photo) {
-  if (photo.size > 10 * 1024 * 1024 || !["image/jpeg", "image/png", "image/webp"].includes(photo.type)) throw new Error("DRAFT_TOO_LARGE");
+  if (photo.size > PHOTO_MAX_BYTES || !["image/jpeg", "image/png", "image/webp"].includes(photo.type)) throw new Error("DRAFT_TOO_LARGE");
   const photoIv = crypto.getRandomValues(new Uint8Array(12));
   attachment = { iv: photoIv, type: photo.type, ciphertext: await crypto.subtle.encrypt({ name: "AES-GCM", iv: photoIv, additionalData: new TextEncoder().encode(`${recordKey}:attachment`) }, vault.key, await photo.arrayBuffer()) };
  }

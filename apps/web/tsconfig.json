@@ -37,6 +37,6 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules", "captures", "test-results", "test-results-reliability"
   ]
 }

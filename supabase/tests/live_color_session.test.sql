@@ -61,7 +61,7 @@ reset role;
 insert into public.live_photos values('b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000803','b4000000-0000-4000-8000-000000000901','BEFORE','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/b4000000-0000-4000-8000-000000000901','image/png','b4000000-0000-4000-8000-000000000021',statement_timestamp());
 insert into storage.objects(bucket_id,name) values('live-technical','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/b4000000-0000-4000-8000-000000000901');
 set local role authenticated;
-select is((select count(*) from storage.objects where bucket_id='live-technical'),1::bigint,'own authorized private photo read allowed');
+select is((select count(*) from storage.objects where bucket_id='live-technical'),0::bigint,'direct photo read/signing denied; authorized reads require the application proxy');
 select throws_ok('insert into storage.objects(bucket_id,name) values(''live-technical'',''invented/unreserved/photo'')','42501',null,'unreserved photo path cannot bypass metadata authorization');
 select throws_ok('update public.live_sessions set status=''COMPLETED''','42501',null,'normal authenticated role cannot forge completion');
 select throws_ok('insert into public.live_usage(organization_id,session_id,id) values(gen_random_uuid(),gen_random_uuid(),gen_random_uuid())','42501',null,'normal role cannot forge usage actor or grams');

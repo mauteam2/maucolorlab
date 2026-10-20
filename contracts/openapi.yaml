@@ -2950,7 +2950,7 @@ paths:
         '200':
           description: Immutable photo upload recorded and audited
         default:
-          description: Structured error; max 10 MiB; metadata must be reserved first
+          description: Structured error; max 4 MiB; application-controlled private image proxy; metadata must be reserved first
           content:
             application/json:
               schema:

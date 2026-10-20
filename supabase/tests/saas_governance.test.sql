@@ -54,12 +54,12 @@ create function pg_temp.photo(n integer) returns text language plpgsql as $$decl
  insert into public.live_photos values('b4000000-0000-4000-8000-000000000001','b4000000-0000-4000-8000-000000000803',gen_random_uuid(),'BEFORE',path,'image/png','b4000000-0000-4000-8000-000000000021',statement_timestamp());return path;end$$;
 select pg_temp.photo(1),pg_temp.photo(2),pg_temp.photo(3),pg_temp.photo(4);
 set local role authenticated;
-select lives_ok($$insert into storage.objects(bucket_id,name) values('live-technical','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/1')$$,'registered own upload with explicitly uncapped quota succeeds');
+select is(public.saas_storage_access('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/1')#>>'{data,allowed}','true','explicit uncapped quota permits the validated proxy upload');
 reset role;
 select pg_temp.change_saas('SUSPENDED');
 set local role authenticated;
-select lives_ok($$insert into storage.objects(bucket_id,name) values('live-technical','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/2')$$,'suspended running session can preserve safety evidence');
-select is((select count(*) from storage.objects where bucket_id='live-technical'),2::bigint,'suspension does not hide authorized historical evidence');
+select is(public.saas_storage_access('b4000000-0000-4000-8000-000000000111','b4000000-0000-4000-8000-000000000011','b4000000-0000-4000-8000-000000000001/b4000000-0000-4000-8000-000000000803/b4000000-0000-4000-8000-000000000021/2')#>>'{data,allowed}','true','suspended running session can preserve safety evidence through validated proxy');
+select is((select count(*) from storage.objects where bucket_id='live-technical'),0::bigint,'suspension never opens a direct read or signing bypass');
 reset role;
 -- Missing definitions are unknown, not unlimited. Downgrade retains excess.
 select pg_temp.change_saas('ACTIVE');
