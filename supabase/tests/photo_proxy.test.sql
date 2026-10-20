@@ -29,5 +29,9 @@ select ok(pg_temp.proxy() ? 'code','correct proof cannot bypass revoked membersh
 select ok(pg_temp.proxy('{"method":"GET","digest":null,"size":0}') ? 'code','revoked read rejected before privileged storage');
 select is((select file_size_limit from storage.buckets where id='live-technical'),4194304::bigint,'provider bucket matches Web limit');
 select ok(not has_function_privilege('service_role','public.live_photo_access(text,text)','execute'),'admin storage identity cannot authorize itself');
+select ok(has_table_privilege('elifora_live_writer','storage.objects','SELECT'),'signed Live persistence can check required object existence');
+select ok(not has_table_privilege('elifora_live_writer','storage.objects','INSERT'),'internal writer cannot bypass proxy validation with an insert');
+select ok(not has_table_privilege('elifora_live_writer','storage.objects','UPDATE'),'internal writer cannot replace immutable image bytes');
+select ok(not has_table_privilege('elifora_live_writer','storage.objects','DELETE'),'internal writer cannot delete image evidence');
 select * from finish();
 rollback;

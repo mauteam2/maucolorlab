@@ -5960,7 +5960,8 @@
     "20261019121555_phase_10_pilot_readiness.sql": "bd8b9db6e94835322398d3c03f5dfa708938b705326b7a25c27e3d8ea96844c7",
     "20261019125352_phase_10_operator_role_assignment.sql": "d2a068d305fa8a75d10bc6be9e2d70371e3f75781dc1d0c658418d217bb1f829",
     "20261020135648_phase_10_photo_proxy_boundary.sql": "7b03325a8129d0d58c9f41ed1e36043334059c0138ae2c469688ec2e34e99a6d",
-    "20261020141417_phase_10_photo_audit_attribution.sql": "bb6fbba00387198de02a96efe3e07c8dea45a188de5c0e6bb97dbba66f764731"
+    "20261020141417_phase_10_photo_audit_attribution.sql": "bb6fbba00387198de02a96efe3e07c8dea45a188de5c0e6bb97dbba66f764731",
+    "20261020142926_phase_10_internal_photo_visibility.sql": "563026f540f5c586aff70f056288ca7121cb5b204942ff112c2478bf30ff5788"
   },
   "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data",
   "disposable_ci_functions": {
