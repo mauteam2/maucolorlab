@@ -14,7 +14,7 @@ paths:
     get:
       operationId: readColorRegistry
       summary: Browse non-executable discovery metadata and authoritative support availability
-      security: &id001
+      security: &registrySecurity
       - bearerAuth: []
         publishableKey: []
       parameters:
@@ -96,7 +96,7 @@ paths:
     post:
       operationId: browseColorRegistryRpc
       summary: RLS-protected read-only global catalog registry
-      security: *id001
+      security: *registrySecurity
       requestBody:
         required: true
         content:
