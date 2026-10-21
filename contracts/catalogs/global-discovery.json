@@ -1,0 +1,1126 @@
+{
+  "schemaVersion": 1,
+  "purpose": "DISCOVERY_ONLY",
+  "tables": {
+    "color_registry_manufacturers": [
+      {
+        "id": "loreal",
+        "display_name": "L’Oréal"
+      },
+      {
+        "id": "wella-company",
+        "display_name": "Wella Company"
+      },
+      {
+        "id": "henkel",
+        "display_name": "Henkel"
+      },
+      {
+        "id": "kao",
+        "display_name": "Kao"
+      },
+      {
+        "id": "keune",
+        "display_name": "Keune"
+      },
+      {
+        "id": "revlon",
+        "display_name": "Revlon"
+      }
+    ],
+    "color_registry_brands": [
+      {
+        "id": "loreal-professionnel",
+        "manufacturer_id": "loreal",
+        "display_name": "L’Oréal Professionnel"
+      },
+      {
+        "id": "wella-professionals",
+        "manufacturer_id": "wella-company",
+        "display_name": "Wella Professionals"
+      },
+      {
+        "id": "schwarzkopf-professional",
+        "manufacturer_id": "henkel",
+        "display_name": "Schwarzkopf Professional"
+      },
+      {
+        "id": "goldwell",
+        "manufacturer_id": "kao",
+        "display_name": "Goldwell"
+      },
+      {
+        "id": "matrix",
+        "manufacturer_id": "loreal",
+        "display_name": "Matrix"
+      },
+      {
+        "id": "redken",
+        "manufacturer_id": "loreal",
+        "display_name": "Redken"
+      },
+      {
+        "id": "keune",
+        "manufacturer_id": "keune",
+        "display_name": "Keune"
+      },
+      {
+        "id": "revlon-professional",
+        "manufacturer_id": "revlon",
+        "display_name": "Revlon Professional"
+      }
+    ],
+    "color_registry_lines": [
+      {
+        "id": "loreal-professionnel-inoa",
+        "brand_id": "loreal-professionnel",
+        "display_name": "iNOA"
+      },
+      {
+        "id": "loreal-professionnel-majirel",
+        "brand_id": "loreal-professionnel",
+        "display_name": "Majirel"
+      },
+      {
+        "id": "loreal-professionnel-dia-light",
+        "brand_id": "loreal-professionnel",
+        "display_name": "Dia Light"
+      },
+      {
+        "id": "loreal-professionnel-dia-color",
+        "brand_id": "loreal-professionnel",
+        "display_name": "Dia Color"
+      },
+      {
+        "id": "wella-professionals-koleston-perfect",
+        "brand_id": "wella-professionals",
+        "display_name": "Koleston Perfect"
+      },
+      {
+        "id": "wella-professionals-illumina-color",
+        "brand_id": "wella-professionals",
+        "display_name": "Illumina Color"
+      },
+      {
+        "id": "wella-professionals-koleston-xpress",
+        "brand_id": "wella-professionals",
+        "display_name": "Koleston Xpress"
+      },
+      {
+        "id": "wella-professionals-color-touch",
+        "brand_id": "wella-professionals",
+        "display_name": "Color Touch"
+      },
+      {
+        "id": "schwarzkopf-professional-igora-royal",
+        "brand_id": "schwarzkopf-professional",
+        "display_name": "IGORA ROYAL"
+      },
+      {
+        "id": "schwarzkopf-professional-igora-royal-absolutes",
+        "brand_id": "schwarzkopf-professional",
+        "display_name": "IGORA ROYAL ABSOLUTES"
+      },
+      {
+        "id": "schwarzkopf-professional-igora-vibrance",
+        "brand_id": "schwarzkopf-professional",
+        "display_name": "IGORA VIBRANCE"
+      },
+      {
+        "id": "schwarzkopf-professional-igora-royal-highlifts",
+        "brand_id": "schwarzkopf-professional",
+        "display_name": "IGORA ROYAL HIGHLIFTS"
+      },
+      {
+        "id": "schwarzkopf-professional-igora-royal-fashion-lights",
+        "brand_id": "schwarzkopf-professional",
+        "display_name": "IGORA ROYAL FASHION LIGHTS"
+      },
+      {
+        "id": "schwarzkopf-professional-igora-zero-amm",
+        "brand_id": "schwarzkopf-professional",
+        "display_name": "IGORA ZERO AMM"
+      },
+      {
+        "id": "goldwell-topchic",
+        "brand_id": "goldwell",
+        "display_name": "Topchic"
+      },
+      {
+        "id": "goldwell-colorance",
+        "brand_id": "goldwell",
+        "display_name": "Colorance"
+      },
+      {
+        "id": "goldwell-elumen",
+        "brand_id": "goldwell",
+        "display_name": "Elumen"
+      },
+      {
+        "id": "goldwell-topchic-zero",
+        "brand_id": "goldwell",
+        "display_name": "Topchic Zero"
+      },
+      {
+        "id": "matrix-socolor",
+        "brand_id": "matrix",
+        "display_name": "SoColor"
+      },
+      {
+        "id": "matrix-socolor-sync",
+        "brand_id": "matrix",
+        "display_name": "SoColor Sync"
+      },
+      {
+        "id": "redken-shades-eq-gloss",
+        "brand_id": "redken",
+        "display_name": "Shades EQ Gloss"
+      },
+      {
+        "id": "redken-color-gels-lacquers",
+        "brand_id": "redken",
+        "display_name": "Color Gels Lacquers"
+      },
+      {
+        "id": "redken-color-gels-oils",
+        "brand_id": "redken",
+        "display_name": "Color Gels Oils"
+      },
+      {
+        "id": "keune-tinta-color",
+        "brand_id": "keune",
+        "display_name": "Tinta Color"
+      },
+      {
+        "id": "keune-semi-color",
+        "brand_id": "keune",
+        "display_name": "Semi Color"
+      },
+      {
+        "id": "keune-so-pure-color",
+        "brand_id": "keune",
+        "display_name": "So Pure Color"
+      },
+      {
+        "id": "revlon-professional-revlonissimo-colorsmetique",
+        "brand_id": "revlon-professional",
+        "display_name": "Revlonissimo Colorsmetique"
+      },
+      {
+        "id": "revlon-professional-revlonissimo-color-sublime",
+        "brand_id": "revlon-professional",
+        "display_name": "Revlonissimo Color Sublime"
+      },
+      {
+        "id": "revlon-professional-color-excel",
+        "brand_id": "revlon-professional",
+        "display_name": "Color Excel"
+      }
+    ],
+    "color_registry_entries": [
+      {
+        "id": "f34cb649-51bd-50a2-b60f-0e4fda66b41a",
+        "line_id": "loreal-professionnel-inoa",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "5a756a9d-9de4-56b7-8f09-7aa88ca9159c",
+        "line_id": "loreal-professionnel-majirel",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "bd6c0e5b-fff3-55e5-b7b0-f8a6f78dc38e",
+        "line_id": "loreal-professionnel-dia-light",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "6b70054f-ec55-5af5-a659-281adf94fbbd",
+        "line_id": "loreal-professionnel-dia-color",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "310c7b55-eb40-5397-bf68-966636338727",
+        "line_id": "wella-professionals-koleston-perfect",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "aa798ab3-f6cc-5fd9-a02b-72d2c6fa1b9d",
+        "line_id": "wella-professionals-illumina-color",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "c9d3f46d-3043-5b1f-877f-0ccc9bca9e53",
+        "line_id": "wella-professionals-koleston-xpress",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "331291f4-3fb4-59e3-bed9-80a203b5d449",
+        "line_id": "wella-professionals-color-touch",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "681bece8-4c97-552f-a767-35a864bc84ef",
+        "line_id": "wella-professionals-color-touch",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "0dc6df0d-0bfb-54a4-b996-0300031634e2",
+        "line_id": "schwarzkopf-professional-igora-royal",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "fda8e679-618e-57c3-bdb0-b2b2523abff6",
+        "line_id": "schwarzkopf-professional-igora-royal-absolutes",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "bba8048b-9fd4-5de0-b790-d409282c4b54",
+        "line_id": "schwarzkopf-professional-igora-vibrance",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "8bdd1507-3577-5987-b9cc-228eb2b26b6c",
+        "line_id": "schwarzkopf-professional-igora-royal-highlifts",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "3350f964-1241-5a90-b8f1-b8ea5dc929a1",
+        "line_id": "schwarzkopf-professional-igora-royal-fashion-lights",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "8dce1b8e-600f-55c6-94cd-c2e50df911d0",
+        "line_id": "schwarzkopf-professional-igora-zero-amm",
+        "region": "US",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "f89395a7-4ab5-5b21-92c3-48a15d73c6cc",
+        "line_id": "goldwell-topchic",
+        "region": "CA",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "6f46c816-17a6-5156-80d7-3197ca4a2ff6",
+        "line_id": "goldwell-colorance",
+        "region": "CA",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "23648164-f466-5c85-8e6e-637a5e877e55",
+        "line_id": "goldwell-elumen",
+        "region": "CA",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "4129e02d-16a6-5b22-89d4-82945c7f0836",
+        "line_id": "goldwell-topchic-zero",
+        "region": "CA",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "488eb2ec-e80b-55c8-977b-aa3d4f691cb2",
+        "line_id": "goldwell-topchic",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "1a72e4e0-100e-57b1-919a-5a12f873a8e3",
+        "line_id": "goldwell-colorance",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "98545ecd-1eae-5683-a5d7-a41823b7611b",
+        "line_id": "goldwell-elumen",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "1d0205b2-879e-5434-9f08-e2ebd2741c21",
+        "line_id": "matrix-socolor",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "e060e2e8-10d9-5cd9-9b02-670f529a8104",
+        "line_id": "matrix-socolor-sync",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "212bb07c-e0e3-596b-9437-19834ca896bb",
+        "line_id": "redken-shades-eq-gloss",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "328d2b01-5690-5d08-98c6-572d0facc8f2",
+        "line_id": "redken-color-gels-lacquers",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "4ace5ebe-7b49-5c69-bff8-3aa3ab7a3f94",
+        "line_id": "redken-color-gels-oils",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "52e0c5b5-6c7f-5b77-ac4b-7c82e819ac18",
+        "line_id": "keune-tinta-color",
+        "region": "GB",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "d25a4e63-4bce-5045-b8b7-5ff1de74273f",
+        "line_id": "keune-semi-color",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "bed7dcad-b76f-5a81-bf86-d81a49a6350f",
+        "line_id": "keune-so-pure-color",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "d384921e-66b4-556e-a514-927f0bc1a9b7",
+        "line_id": "revlon-professional-revlonissimo-colorsmetique",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "ffc1f90b-5cd5-5f3d-82a6-4b21ab873aa8",
+        "line_id": "revlon-professional-revlonissimo-color-sublime",
+        "region": "UNKNOWN",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      },
+      {
+        "id": "9175f48b-efb1-5052-986d-3554f0d54eb5",
+        "line_id": "revlon-professional-color-excel",
+        "region": "ES",
+        "revision": 1,
+        "previous_id": null,
+        "state": "SOURCE_COLLECTED",
+        "technical_line_id": null,
+        "last_reviewed_at": null,
+        "review_reference": null
+      }
+    ],
+    "color_registry_sources": [
+      {
+        "id": "goldwell-ca",
+        "brand_id": "goldwell",
+        "region": "CA",
+        "url": "https://www.goldwell.com/en-ca/products/hair-color/permanent/topchic/topchic-colorance-color-card/",
+        "resolved_url": "https://www.goldwell.com/en-ca/products/hair-color/permanent/topchic/topchic-colorance-color-card/",
+        "title": "Topchic & Colorance Color Card",
+        "document_type": "SHADE_CHART_INDEX",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:45.168447+00:00",
+        "sha256": "335c38b89210672e3a1421a5cf874ef3ddbc57d9ae0927af36cb16eb8d158d8d",
+        "byte_length": 272064,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "goldwell-guide",
+        "brand_id": "goldwell",
+        "region": "UNKNOWN",
+        "url": "https://www.goldwell.com/content/dam/education/Education_PDF_All%20about%20color_GOLDWELL-ALL_2022-02-23.pdf",
+        "resolved_url": "https://www.goldwell.com/find-us/",
+        "title": "Find Us",
+        "document_type": "TECHNICAL_GUIDE",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:45.499957+00:00",
+        "sha256": "9579f68d04019ea219f3667ec6159e14dd8f7a5a3afdfc1cbc108d1738e5fb5e",
+        "byte_length": 29251,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "igora-us",
+        "brand_id": "schwarzkopf-professional",
+        "region": "US",
+        "url": "https://www.schwarzkopf-professional.com/us/en/color/igora.html",
+        "resolved_url": "https://www.schwarzkopf-professional.com/us/en/color/igora.html",
+        "title": "IGORA | Schwarzkopf Professional",
+        "document_type": "PRODUCT_PORTFOLIO",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:44.783448+00:00",
+        "sha256": "c594fd142d5b3b4ef6198ffcc502368855c481e231c9c2747ce7f504490182ef",
+        "byte_length": 405677,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "igora-zero-us",
+        "brand_id": "schwarzkopf-professional",
+        "region": "US",
+        "url": "https://www.schwarzkopf-professional.com/us/en/color/igora/zero-amm.html",
+        "resolved_url": "https://www.schwarzkopf-professional.com/us/en/color/igora/zero-amm.html",
+        "title": "IGORA® ZERO AMM | Schwarzkopf Professional®",
+        "document_type": "PRODUCT_PAGE",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:45.261334+00:00",
+        "sha256": "57e2b2deda4d07c4e9aa2e4b3eb270e7e40b90e23125d0c67f22defea4ae7649",
+        "byte_length": 443915,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "keune-semi",
+        "brand_id": "keune",
+        "region": "UNKNOWN",
+        "url": "https://www.keune.com/keune-semi-color/",
+        "resolved_url": "https://www.keune.com/keune-semi-color/",
+        "title": "KEUNE Semi Color | A demi permanent hair coloring",
+        "document_type": "PRODUCT_PAGE",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:46.016216+00:00",
+        "sha256": "d9acc4af5b4cf92c146c354f3ac37940d79501119bc1d0f85a16173f2036c13f",
+        "byte_length": 186167,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "keune-so-pure",
+        "brand_id": "keune",
+        "region": "UNKNOWN",
+        "url": "https://professional.keune.com/productinformation-so-pure-color",
+        "resolved_url": "https://professional.keune.com/productinformation-so-pure-color",
+        "title": "Color - So Pure",
+        "document_type": "PRODUCT_PAGE",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:46.542436+00:00",
+        "sha256": "f2952d53f9b26afc6087b244c327555fa9576a716adbdfeae9db69bec3fe5e66",
+        "byte_length": 111046,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "keune-tinta-uk",
+        "brand_id": "keune",
+        "region": "GB",
+        "url": "https://professional.uk.keune.com/productinformation-tinta-color",
+        "resolved_url": "https://professional.uk.keune.com/productinformation-tinta-color",
+        "title": "Color - Tinta Color",
+        "document_type": "PRODUCT_PAGE",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:46.021777+00:00",
+        "sha256": "f05cbd5e23d947705a9de9c4e21f2a379ee1771e8778089a97124a6250795f30",
+        "byte_length": 115776,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "loreal-us",
+        "brand_id": "loreal-professionnel",
+        "region": "US",
+        "url": "https://us.lorealprofessionnel.com/pro-resources/shade-charts",
+        "resolved_url": "https://us.lorealprofessionnel.com/pro-resources/shade-charts",
+        "title": "L'Oréal Professionnel Shade Charts: iNOA, Majirel & More",
+        "document_type": "SHADE_CHART_INDEX",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:44.786764+00:00",
+        "sha256": "b51063ac80052bfdc2533dac5a768375c53e4dda26263c680338e41014a2b2c5",
+        "byte_length": 146569,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "matrix-socolor",
+        "brand_id": "matrix",
+        "region": "UNKNOWN",
+        "url": "https://www.matrix.com/professional/products/haircolor/permanent-cream-hair-color",
+        "resolved_url": "https://www.matrix.com/professional/products/haircolor/permanent-cream-hair-color",
+        "title": "Matrix SoColor Pre-Bonded Permanent Cream Hair Color | Matrix Professional",
+        "document_type": "PRODUCT_PAGE",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:45.739058+00:00",
+        "sha256": "a438c229935147fc1ddf1727d8af9781b7ffb2414897105803b5e4f751de8386",
+        "byte_length": 748674,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "matrix-sync",
+        "brand_id": "matrix",
+        "region": "UNKNOWN",
+        "url": "https://www.matrix.com/professional/products/haircolor/socolor-sync-ammonia-free-demi-permanent-hair-color",
+        "resolved_url": "https://www.matrix.com/professional/products/haircolor/socolor-sync-ammonia-free-demi-permanent-hair-color",
+        "title": "SoColor Sync Ammonia-Free Demi-Permanent Color | Matrix",
+        "document_type": "PRODUCT_PAGE",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:45.835929+00:00",
+        "sha256": "fda1f8cc14b6f8c1b0fdc8b692fbb13a82e59626869966db092e96d126ba88c7",
+        "byte_length": 491826,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "redken-charts",
+        "brand_id": "redken",
+        "region": "UNKNOWN",
+        "url": "https://www.redkenpro.com/education/shade-charts",
+        "resolved_url": "https://www.redkenpro.com/education/shade-charts",
+        "title": "Redken Shade Charts: Shades EQ, Color Gels Lacquers & More | RedkenPro",
+        "document_type": "SHADE_CHART_INDEX",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:45.795538+00:00",
+        "sha256": "65ebddee080d64e404aa4ed5dd0638a9c92e8cd7af6973eff4297f45c1ca31a4",
+        "byte_length": 328121,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "revlon-excel-es",
+        "brand_id": "revlon-professional",
+        "region": "ES",
+        "url": "https://www.revlonprofessional.com/es/producto/color-excel-ammonia-free-tone-on-tone-creme-color/",
+        "resolved_url": "https://www.revlonprofessional.com/es/producto/color-excel-ammonia-free-tone-on-tone-creme-color/",
+        "title": "Coloración de aclaración baja sin amoniaco - Revlon Professional",
+        "document_type": "PRODUCT_PAGE",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:47.532340+00:00",
+        "sha256": "6d0ae296b713aa91e64a9a3423c8fd240d30615f1c777cc544d99591ed1d771d",
+        "byte_length": 281035,
+        "language": "es",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "revlon-lines",
+        "brand_id": "revlon-professional",
+        "region": "UNKNOWN",
+        "url": "https://www.revlonprofessional.com/products/revlonissimo/",
+        "resolved_url": "https://www.revlonprofessional.com/products/revlonissimo/",
+        "title": "Revlonissimo™ - Revlon Professional",
+        "document_type": "PRODUCT_PORTFOLIO",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:47.532830+00:00",
+        "sha256": "a821a5e050d3b3b5c9cecc3fa4459eabe3b2b87e89c3c9b5144783b2e0c3cac4",
+        "byte_length": 222782,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "wella-touch-guide",
+        "brand_id": "wella-professionals",
+        "region": "UNKNOWN",
+        "url": "https://www.wella.com/professional/m/pdf/FactSheet_EN/WELLA-Color-College_FactSheet_Color_Touch.pdf",
+        "resolved_url": "https://www.wella.com/professional/m/pdf/FactSheet_EN/WELLA-Color-College_FactSheet_Color_Touch.pdf",
+        "title": "COLOR TOUCH Fact Sheet",
+        "document_type": "TECHNICAL_GUIDE",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:45.205811+00:00",
+        "sha256": "b728f2dae2fbe85a6d36e9ec78eb3aeda4265825479448fa7573e95d20470209",
+        "byte_length": 336953,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "wella-touch-us",
+        "brand_id": "wella-professionals",
+        "region": "US",
+        "url": "https://www.wella.com/professional/en-US/color-touch",
+        "resolved_url": "https://www.wella.com/professional/en-US/color-touch",
+        "title": "Color Touch Semi-Permanent Hair Color | Wella Professionals US",
+        "document_type": "PRODUCT_PAGE",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:45.105877+00:00",
+        "sha256": "d7d14d8d372dae0c3fa28805c860172af0bb7e9cd5699e28b73600fca3b614dd",
+        "byte_length": 278697,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      },
+      {
+        "id": "wella-us",
+        "brand_id": "wella-professionals",
+        "region": "US",
+        "url": "https://www.wella.com/professional/en-US/color",
+        "resolved_url": "https://www.wella.com/professional/en-US/color",
+        "title": "Professional Hair Color Products | Wella Professionals US",
+        "document_type": "PRODUCT_PORTFOLIO",
+        "document_version": null,
+        "document_date": null,
+        "retrieved_at": "2026-10-21T13:06:45.066671+00:00",
+        "sha256": "4ebfe02044d2c14831134065502b779293e5535bbd22ac33c0cf1ef835542e46",
+        "byte_length": 179358,
+        "language": "en",
+        "review_status": "SOURCE_COLLECTED"
+      }
+    ],
+    "color_registry_line_sources": [
+      {
+        "entry_id": "f34cb649-51bd-50a2-b60f-0e4fda66b41a",
+        "source_id": "loreal-us",
+        "brand_id": "loreal-professionnel",
+        "region": "US"
+      },
+      {
+        "entry_id": "5a756a9d-9de4-56b7-8f09-7aa88ca9159c",
+        "source_id": "loreal-us",
+        "brand_id": "loreal-professionnel",
+        "region": "US"
+      },
+      {
+        "entry_id": "bd6c0e5b-fff3-55e5-b7b0-f8a6f78dc38e",
+        "source_id": "loreal-us",
+        "brand_id": "loreal-professionnel",
+        "region": "US"
+      },
+      {
+        "entry_id": "6b70054f-ec55-5af5-a659-281adf94fbbd",
+        "source_id": "loreal-us",
+        "brand_id": "loreal-professionnel",
+        "region": "US"
+      },
+      {
+        "entry_id": "310c7b55-eb40-5397-bf68-966636338727",
+        "source_id": "wella-us",
+        "brand_id": "wella-professionals",
+        "region": "US"
+      },
+      {
+        "entry_id": "aa798ab3-f6cc-5fd9-a02b-72d2c6fa1b9d",
+        "source_id": "wella-us",
+        "brand_id": "wella-professionals",
+        "region": "US"
+      },
+      {
+        "entry_id": "c9d3f46d-3043-5b1f-877f-0ccc9bca9e53",
+        "source_id": "wella-us",
+        "brand_id": "wella-professionals",
+        "region": "US"
+      },
+      {
+        "entry_id": "331291f4-3fb4-59e3-bed9-80a203b5d449",
+        "source_id": "wella-touch-us",
+        "brand_id": "wella-professionals",
+        "region": "US"
+      },
+      {
+        "entry_id": "681bece8-4c97-552f-a767-35a864bc84ef",
+        "source_id": "wella-touch-guide",
+        "brand_id": "wella-professionals",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "0dc6df0d-0bfb-54a4-b996-0300031634e2",
+        "source_id": "igora-us",
+        "brand_id": "schwarzkopf-professional",
+        "region": "US"
+      },
+      {
+        "entry_id": "fda8e679-618e-57c3-bdb0-b2b2523abff6",
+        "source_id": "igora-us",
+        "brand_id": "schwarzkopf-professional",
+        "region": "US"
+      },
+      {
+        "entry_id": "bba8048b-9fd4-5de0-b790-d409282c4b54",
+        "source_id": "igora-us",
+        "brand_id": "schwarzkopf-professional",
+        "region": "US"
+      },
+      {
+        "entry_id": "8bdd1507-3577-5987-b9cc-228eb2b26b6c",
+        "source_id": "igora-us",
+        "brand_id": "schwarzkopf-professional",
+        "region": "US"
+      },
+      {
+        "entry_id": "3350f964-1241-5a90-b8f1-b8ea5dc929a1",
+        "source_id": "igora-us",
+        "brand_id": "schwarzkopf-professional",
+        "region": "US"
+      },
+      {
+        "entry_id": "8dce1b8e-600f-55c6-94cd-c2e50df911d0",
+        "source_id": "igora-zero-us",
+        "brand_id": "schwarzkopf-professional",
+        "region": "US"
+      },
+      {
+        "entry_id": "f89395a7-4ab5-5b21-92c3-48a15d73c6cc",
+        "source_id": "goldwell-ca",
+        "brand_id": "goldwell",
+        "region": "CA"
+      },
+      {
+        "entry_id": "6f46c816-17a6-5156-80d7-3197ca4a2ff6",
+        "source_id": "goldwell-ca",
+        "brand_id": "goldwell",
+        "region": "CA"
+      },
+      {
+        "entry_id": "23648164-f466-5c85-8e6e-637a5e877e55",
+        "source_id": "goldwell-ca",
+        "brand_id": "goldwell",
+        "region": "CA"
+      },
+      {
+        "entry_id": "4129e02d-16a6-5b22-89d4-82945c7f0836",
+        "source_id": "goldwell-ca",
+        "brand_id": "goldwell",
+        "region": "CA"
+      },
+      {
+        "entry_id": "488eb2ec-e80b-55c8-977b-aa3d4f691cb2",
+        "source_id": "goldwell-guide",
+        "brand_id": "goldwell",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "1a72e4e0-100e-57b1-919a-5a12f873a8e3",
+        "source_id": "goldwell-guide",
+        "brand_id": "goldwell",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "98545ecd-1eae-5683-a5d7-a41823b7611b",
+        "source_id": "goldwell-guide",
+        "brand_id": "goldwell",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "1d0205b2-879e-5434-9f08-e2ebd2741c21",
+        "source_id": "matrix-socolor",
+        "brand_id": "matrix",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "e060e2e8-10d9-5cd9-9b02-670f529a8104",
+        "source_id": "matrix-sync",
+        "brand_id": "matrix",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "212bb07c-e0e3-596b-9437-19834ca896bb",
+        "source_id": "redken-charts",
+        "brand_id": "redken",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "328d2b01-5690-5d08-98c6-572d0facc8f2",
+        "source_id": "redken-charts",
+        "brand_id": "redken",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "4ace5ebe-7b49-5c69-bff8-3aa3ab7a3f94",
+        "source_id": "redken-charts",
+        "brand_id": "redken",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "52e0c5b5-6c7f-5b77-ac4b-7c82e819ac18",
+        "source_id": "keune-tinta-uk",
+        "brand_id": "keune",
+        "region": "GB"
+      },
+      {
+        "entry_id": "d25a4e63-4bce-5045-b8b7-5ff1de74273f",
+        "source_id": "keune-semi",
+        "brand_id": "keune",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "bed7dcad-b76f-5a81-bf86-d81a49a6350f",
+        "source_id": "keune-so-pure",
+        "brand_id": "keune",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "d384921e-66b4-556e-a514-927f0bc1a9b7",
+        "source_id": "revlon-lines",
+        "brand_id": "revlon-professional",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "ffc1f90b-5cd5-5f3d-82a6-4b21ab873aa8",
+        "source_id": "revlon-lines",
+        "brand_id": "revlon-professional",
+        "region": "UNKNOWN"
+      },
+      {
+        "entry_id": "9175f48b-efb1-5052-986d-3554f0d54eb5",
+        "source_id": "revlon-excel-es",
+        "brand_id": "revlon-professional",
+        "region": "ES"
+      }
+    ],
+    "color_registry_metadata": [
+      {
+        "id": "igora-zero-us-10-19",
+        "entry_id": "8dce1b8e-600f-55c6-94cd-c2e50df911d0",
+        "source_id": "igora-zero-us",
+        "kind": "SHADE",
+        "manufacturer_code": "10-19",
+        "display_name": null,
+        "documented_level": null,
+        "documented_tone": null
+      },
+      {
+        "id": "igora-zero-us-9-42",
+        "entry_id": "8dce1b8e-600f-55c6-94cd-c2e50df911d0",
+        "source_id": "igora-zero-us",
+        "kind": "SHADE",
+        "manufacturer_code": "9-42",
+        "display_name": null,
+        "documented_level": null,
+        "documented_tone": null
+      },
+      {
+        "id": "igora-zero-us-6-0",
+        "entry_id": "8dce1b8e-600f-55c6-94cd-c2e50df911d0",
+        "source_id": "igora-zero-us",
+        "kind": "SHADE",
+        "manufacturer_code": "6-0",
+        "display_name": null,
+        "documented_level": null,
+        "documented_tone": null
+      },
+      {
+        "id": "igora-zero-us-6-23",
+        "entry_id": "8dce1b8e-600f-55c6-94cd-c2e50df911d0",
+        "source_id": "igora-zero-us",
+        "kind": "SHADE",
+        "manufacturer_code": "6-23",
+        "display_name": null,
+        "documented_level": null,
+        "documented_tone": null
+      },
+      {
+        "id": "igora-zero-us-7-55",
+        "entry_id": "8dce1b8e-600f-55c6-94cd-c2e50df911d0",
+        "source_id": "igora-zero-us",
+        "kind": "SHADE",
+        "manufacturer_code": "7-55",
+        "display_name": null,
+        "documented_level": null,
+        "documented_tone": null
+      },
+      {
+        "id": "igora-zero-us-7-77",
+        "entry_id": "8dce1b8e-600f-55c6-94cd-c2e50df911d0",
+        "source_id": "igora-zero-us",
+        "kind": "SHADE",
+        "manufacturer_code": "7-77",
+        "display_name": null,
+        "documented_level": null,
+        "documented_tone": null
+      },
+      {
+        "id": "matrix-sync-5m",
+        "entry_id": "e060e2e8-10d9-5cd9-9b02-670f529a8104",
+        "source_id": "matrix-sync",
+        "kind": "SHADE",
+        "manufacturer_code": "5M",
+        "display_name": "Medium Brown Mocha",
+        "documented_level": null,
+        "documented_tone": null
+      },
+      {
+        "id": "matrix-10-volume-cream",
+        "entry_id": "e060e2e8-10d9-5cd9-9b02-670f529a8104",
+        "source_id": "matrix-sync",
+        "kind": "DEVELOPER",
+        "manufacturer_code": null,
+        "display_name": "10 Volume Matrix Cream Developer",
+        "documented_level": null,
+        "documented_tone": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+# ELIFORA global professional color catalog
+
+This bounded expansion continues approved `04c869c76a5d351cd37378fe4dcaa5b48fdb482d` (CI 39441426674). It is not Phase 11. Phase 10 human/infrastructure gates remain open and real-salon admission remains disabled.
+
+The global discovery registry is separate from `brand_catalog_releases`, `catalog_products`, technical facts, compatibility rules, signed plans and historical recipes. Discovery IDs cannot resolve through `brand_catalog_packet`. No discovery table is an input to the Color Engine or Live Session. No manufacturer name switch was added to either engine.
+
+Relational global-reference tables contain manufacturers, brands, lines, append-only regional entry revisions, source receipts, region/brand-constrained source links and shade/developer metadata. They contain no tenant or client data. Discovery metadata deliberately has no pigment vector, processing time, ratio or compatibility field. Explicit metadata can record a manufacturer's code, display name, documented level and documented tone without interpreting notation.
+
+Only an explicit identity- and region-matched link to an independently governed PUBLISHED technical release can advertise controlled recipe support. The registry does not publish that release. Each existing recipe operation still re-reads and locks authoritative catalog content, verifies signatures, risk/confidence/feasibility, physical-test requirements, context, version and freshness. Availability is not clinical feasibility or permission to execute. Retired technical releases immediately lose new-support visibility; immutable historical references remain in their existing tables.
+
+Read-only `color_registry_browse` runs as SECURITY INVOKER. Every reference table has forced RLS requiring current active database membership with `color_plan.read`; anon and service-role have no explicit relation/RPC grants. Application service checks selected workspace before and after the query. Normal owners, managers and catalog operators cannot directly mutate discovery tables. Controlled source intake uses reviewed forward migrations, not a browser write API. Append-only guards, conditional predecessor/revision checks and a shared per-line/region transaction advisory lock serialize future intake revisions; every inserted row has a private hashed audit receipt.
+
+Web `/workspace/catalog` and `GET /api/color-registry` provide bounded search, brand/market/state filtering, source provenance, metadata counts, published-rule counts and last review dates using existing salon components. ColorLab's informational selector has no recipe mutation or fallback side effect. Full-text GIN brand/line/metadata indexes, regional/revision B-trees and metadata/source foreign-key indexes support expansion without schema changes. Limits are 1–50 rows and offset 0–10,000; later deep archival paging can add a cursor without broadening chemistry.
+
+Shared DTOs live in `contracts/color-registry.schemas.json` and OpenAPI; runtime validation lives in `registry-model.ts`. Existing Android technical consumers remain unchanged and cannot interpret discovery as a technical packet. Android remains part of regression build verification; this slice does not introduce an Android catalog UI.
+
+The initial source list is a point-in-time intake, not an exhaustive world inventory. See [coverage](catalog-coverage-status.md), [source policy](catalog-source-policy.md), [regions](catalog-region-model.md) and [verification workflow](catalog-verification-workflow.md).

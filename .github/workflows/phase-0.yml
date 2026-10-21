@@ -99,6 +99,8 @@ jobs:
         run: npx playwright test e2e/costing.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
       - name: Phase 10 empty-tenant pilot workflow and private feedback must pass without retries
         run: npx playwright test e2e/pilot-readiness.spec.ts --workers=1 --retries=0
+      - name: Global catalog discovery and regional non-execution must pass without retries
+        run: npx playwright test e2e/color-registry.spec.ts --workers=1 --retries=0
       - name: Phase 6 report journeys must pass without retries
         run: npx playwright test e2e/reporting.spec.ts --workers=1 --retries=0
       - name: Phase 7 SaaS journeys must pass without retries
@@ -130,6 +132,7 @@ jobs:
             apps/web/test-results/**/color-pilot-*.json
             apps/web/test-results/**/phase-10-*.png
             apps/web/test-results/**/phase-10-*.json
+            apps/web/test-results/**/global-catalog-*.png
             ${{ runner.temp }}/color-pilot-*.json
             apps/web/test-results/**/phase-8-*.json
             apps/web/test-results/**/sanitized-route-*.json
@@ -210,6 +213,16 @@ jobs:
       - name: Review actual migrated function owners, grants and RLS
         run: python scripts/verify-security-database.py
       - run: supabase test db
+      - name: Global discovery intake races retain conditional versions
+        run: python scripts/test-color-registry-concurrency.py
+      - name: Global catalog concurrency evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: global-catalog-database-verification
+          path: ${{ runner.temp }}/global-catalog-concurrency.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Phase 9 security concurrency barriers
         run: |
           supabase db reset --local
@@ -335,6 +348,7 @@ jobs:
           python-version: "3.12"
       - run: pip install -r scripts/verification-requirements.txt
       - run: python scripts/validate-contract.py
+      - run: python scripts/verify-global-catalog.py
       - run: python scripts/security_inventory.py
       - run: python scripts/test-security-inventory.py
       - run: python scripts/test-start-local-supabase.py

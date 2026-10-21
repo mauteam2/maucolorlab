@@ -449,3 +449,19 @@ native_color=(root/'apps/android/app/src/main/java/com/elifora/app/domain/color/
 for key in ('COOL_BRUNETTE','WARM_BRUNETTE','NATURAL_BRUNETTE','CARAMEL','COPPER','BEIGE_BLONDE','GOLD_BLONDE','COOL_BLONDE'):
     assert key in native_color,key
 print('PASS: expanded ColorLab intent, versioned interpretation, native presets and eight authority/version rejections')
+
+registry=json.loads((root/'contracts/color-registry.schemas.json').read_text(encoding='utf-8'))
+for name,schema in registry.items():
+    Draft202012Validator.check_schema(schema)
+    assert contract['components']['schemas'][name]==schema
+registry_fixture=json.loads((root/'contracts/fixtures/color-registry.json').read_text(encoding='utf-8'))
+registry_validator=Draft202012Validator(registry['ColorRegistryPage'],format_checker=FormatChecker())
+registry_validator.validate(registry_fixture)
+for state in ('DISCOVERED','SOURCE_COLLECTED','UNDER_REVIEW','VERIFIED','REJECTED','SUPERSEDED'):
+    invalid=copy.deepcopy(registry_fixture)
+    invalid['items'][0].update(state=state,recipeSupport=True,catalogId=invalid['items'][0]['id'],ruleCount=58)
+    assert list(registry_validator.iter_errors(invalid)),state
+invalid=copy.deepcopy(registry_fixture)
+invalid['items'][0].update(state='PUBLISHED',region='UNKNOWN',recipeSupport=True,catalogId=invalid['items'][0]['id'],ruleCount=58)
+assert list(registry_validator.iter_errors(invalid))
+print('PASS: global catalog discovery DTOs; six nonpublished states and UNKNOWN cannot claim governed recipe support')

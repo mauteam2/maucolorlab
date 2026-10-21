@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: ELIFORA Service API
-  version: 0.24.0
+  version: 0.25.0
   description: |
     ELIFORA authentication, verified workspace, and organization client identity.
     Auth uses Supabase Auth. Every client operation revalidates membership and
@@ -10,6 +10,147 @@ servers:
   - url: /
     description: ELIFORA web origin.
 paths:
+  /api/color-registry:
+    get:
+      operationId: readColorRegistry
+      summary: Browse non-executable discovery metadata and authoritative support availability
+      security: &id001
+      - bearerAuth: []
+        publishableKey: []
+      parameters:
+      - in: query
+        name: query
+        required: false
+        schema:
+          default: ''
+          type: string
+          maxLength: 80
+      - in: query
+        name: brand
+        required: false
+        schema:
+          type: string
+          pattern: ^[a-z0-9-]{1,100}$
+      - in: query
+        name: region
+        required: false
+        schema:
+          type: string
+          pattern: ^(UNKNOWN|GLOBAL|EU|[A-Z]{2})$
+      - in: query
+        name: state
+        required: false
+        schema:
+          type: string
+          enum:
+          - DISCOVERED
+          - SOURCE_COLLECTED
+          - UNDER_REVIEW
+          - VERIFIED
+          - PUBLISHED
+          - REJECTED
+          - SUPERSEDED
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          type: integer
+          minimum: 0
+          maximum: 10000
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 25
+          type: integer
+          minimum: 1
+          maximum: 50
+      responses:
+        '200':
+          description: Authorized global reference metadata; discovery never grants
+            chemistry execution
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - data
+                - correlationId
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ColorRegistryPage'
+                  correlationId:
+                    type: string
+                    format: uuid
+        '400':
+          description: Invalid or duplicate filter
+        '401':
+          description: Session expired
+        '403':
+          description: Current authorized membership required
+        '503':
+          description: Catalog unavailable
+  /rest/v1/rpc/color_registry_browse:
+    post:
+      operationId: browseColorRegistryRpc
+      summary: RLS-protected read-only global catalog registry
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                p_query:
+                  type: string
+                  maxLength: 80
+                  default: ''
+                p_brand:
+                  type:
+                  - string
+                  - 'null'
+                  maxLength: 100
+                p_region:
+                  type:
+                  - string
+                  - 'null'
+                  pattern: ^(UNKNOWN|GLOBAL|EU|[A-Z]{2})$
+                p_state:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - DISCOVERED
+                  - SOURCE_COLLECTED
+                  - UNDER_REVIEW
+                  - VERIFIED
+                  - PUBLISHED
+                  - REJECTED
+                  - SUPERSEDED
+                  - null
+                p_offset:
+                  type: integer
+                  minimum: 0
+                  maximum: 10000
+                  default: 0
+                p_limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+                  default: 25
+      responses:
+        '200':
+          description: Same read-only page as Web
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ColorRegistryPage'
+        '403':
+          description: Membership or RLS denied
   /rest/v1/rpc/request_session_guard:
     post:
       operationId: requestSessionGuard
@@ -42359,3 +42500,246 @@ components:
         - message
         - correlationId
         additionalProperties: false
+    ColorRegistryQuery:
+      type: object
+      properties:
+        query:
+          default: ''
+          type: string
+          maxLength: 80
+        brand:
+          type: string
+          pattern: ^[a-z0-9-]{1,100}$
+        region:
+          type: string
+          pattern: ^(UNKNOWN|GLOBAL|EU|[A-Z]{2})$
+        state:
+          type: string
+          enum:
+          - DISCOVERED
+          - SOURCE_COLLECTED
+          - UNDER_REVIEW
+          - VERIFIED
+          - PUBLISHED
+          - REJECTED
+          - SUPERSEDED
+        offset:
+          default: 0
+          type: integer
+          minimum: 0
+          maximum: 10000
+        limit:
+          default: 25
+          type: integer
+          minimum: 1
+          maximum: 50
+      additionalProperties: false
+    ColorRegistryPage:
+      type: object
+      properties:
+        schemaVersion:
+          type: number
+          const: 1
+        total:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        offset:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 50
+        brands:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                pattern: ^[a-z0-9-]{1,100}$
+              name:
+                type: string
+            required:
+            - id
+            - name
+            additionalProperties: false
+        regions:
+          type: array
+          items:
+            type: string
+            pattern: ^(UNKNOWN|GLOBAL|EU|[A-Z]{2})$
+        items:
+          maxItems: 50
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+              lineId:
+                type: string
+                pattern: ^[a-z0-9-]{1,100}$
+              line:
+                type: string
+              brandId:
+                type: string
+                pattern: ^[a-z0-9-]{1,100}$
+              brand:
+                type: string
+              manufacturer:
+                type: string
+              region:
+                type: string
+                pattern: ^(UNKNOWN|GLOBAL|EU|[A-Z]{2})$
+              state:
+                type: string
+                enum:
+                - DISCOVERED
+                - SOURCE_COLLECTED
+                - UNDER_REVIEW
+                - VERIFIED
+                - PUBLISHED
+                - REJECTED
+                - SUPERSEDED
+              lastReviewedAt:
+                anyOf:
+                - type: string
+                  format: date-time
+                  pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                - type: 'null'
+              recipeSupport:
+                type: boolean
+              catalogId:
+                anyOf:
+                - type: string
+                  format: uuid
+                  pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$
+                - type: 'null'
+              shadeCount:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+              developerCount:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+              ruleCount:
+                type: integer
+                minimum: 0
+                maximum: 9007199254740991
+              sources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      pattern: ^[a-z0-9-]{1,100}$
+                    url:
+                      type: string
+                      format: starts_with
+                      pattern: ^https:\/\/.*
+                    title:
+                      type: string
+                    documentType:
+                      type: string
+                    region:
+                      type: string
+                      pattern: ^(UNKNOWN|GLOBAL|EU|[A-Z]{2})$
+                    language:
+                      type: string
+                    documentVersion:
+                      type:
+                      - string
+                      - 'null'
+                    documentDate:
+                      type:
+                      - string
+                      - 'null'
+                    retrievedAt:
+                      type: string
+                      format: date-time
+                      pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|([+-](?:[01]\d|2[0-3]):[0-5]\d)))$
+                    sha256:
+                      type: string
+                      pattern: ^[a-f0-9]{64}$
+                    reviewStatus:
+                      type: string
+                      enum:
+                      - SOURCE_COLLECTED
+                      - UNDER_REVIEW
+                      - VERIFIED
+                      - REJECTED
+                      - SUPERSEDED
+                  required:
+                  - id
+                  - url
+                  - title
+                  - documentType
+                  - region
+                  - language
+                  - documentVersion
+                  - documentDate
+                  - retrievedAt
+                  - sha256
+                  - reviewStatus
+                  additionalProperties: false
+            required:
+            - id
+            - lineId
+            - line
+            - brandId
+            - brand
+            - manufacturer
+            - region
+            - state
+            - lastReviewedAt
+            - recipeSupport
+            - catalogId
+            - shadeCount
+            - developerCount
+            - ruleCount
+            - sources
+            additionalProperties: false
+            allOf:
+            - if:
+                properties:
+                  recipeSupport:
+                    const: true
+              then:
+                properties:
+                  state:
+                    const: PUBLISHED
+                  catalogId:
+                    type: string
+                    format: uuid
+                  region:
+                    not:
+                      const: UNKNOWN
+                  ruleCount:
+                    type: integer
+                    minimum: 1
+            - if:
+                properties:
+                  recipeSupport:
+                    const: false
+              then:
+                properties:
+                  catalogId:
+                    type: 'null'
+                  ruleCount:
+                    const: 0
+      required:
+      - schemaVersion
+      - total
+      - offset
+      - limit
+      - brands
+      - regions
+      - items
+      additionalProperties: false

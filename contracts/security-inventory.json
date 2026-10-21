@@ -4356,6 +4356,98 @@
       "signature": "p_envelope text,p_signature text",
       "security_definer": true,
       "definition_sha256": "4631b1959f4e1d1ad67e7ab3222ccc9be07119149b86494da378b95889c9e9c2"
+    },
+    "app_private.can_read_color_registry": {
+      "source": "supabase/migrations/20261021130128_global_catalog_discovery_registry.sql",
+      "signature": "",
+      "security_definer": true,
+      "definition_sha256": "62542a859bbf2ca175b86f6d72ad5dea19b5089c883a852e644652d69a2c5eb2",
+      "domain": "brand",
+      "authentication": "Current provider user JWT and request_session_guard; no browser service role",
+      "membership": "Current active DB membership and color_plan.read; selected workspace checked before and after Web service read",
+      "location_scope": "Global reference metadata only, no tenant/customer records; selected workspace remains authoritative for operational access",
+      "permission": "color_plan.read; no application mutation grant or discovery publication endpoint",
+      "entitlement": "Not applicable: informational reference discovery does not execute Brand Adapter or chemistry",
+      "allowed_roles": "Only DB membership roles currently granted color_plan.read",
+      "access": "READ_OR_INTERNAL_HELPER",
+      "idempotency": "Read-only browse; intake appends immutable source/revision identities under a line/region advisory lock",
+      "audit": "Private append-only SHA-256 intake audit for reviewed forward migrations; no execution from metadata",
+      "direct_client_callable": false,
+      "evidence": [
+        "supabase/tests/color_registry.test.sql",
+        "apps/web/lib/brand/registry-service.test.ts",
+        "apps/web/lib/brand/registry-model.test.ts",
+        "scripts/verify-security-database.py"
+      ]
+    },
+    "app_private.color_registry_append_guard": {
+      "source": "supabase/migrations/20261021130128_global_catalog_discovery_registry.sql",
+      "signature": "",
+      "security_definer": false,
+      "definition_sha256": "ce11e7a575dab67d37a4e02e783a4e8c55b5235e73b9c71463d1151eaa2d9379",
+      "domain": "brand",
+      "authentication": "Private trigger invoked only by trusted migration/database owner; no application EXECUTE grant",
+      "membership": "No application writer: trigger protects globally shared reference metadata from rewrites",
+      "location_scope": "Global reference metadata only, no tenant/customer records; selected workspace remains authoritative for operational access",
+      "permission": "No normal app role may INSERT/UPDATE/DELETE discovery or audit relations",
+      "entitlement": "Not applicable: informational reference discovery does not execute Brand Adapter or chemistry",
+      "allowed_roles": "Reviewed migration owner only; normal app roles denied writes by ACL and forced RLS",
+      "access": "INTERNAL_MUTATION_TRIGGER",
+      "idempotency": "Read-only browse; intake appends immutable source/revision identities under a line/region advisory lock",
+      "audit": "Private append-only SHA-256 intake audit for reviewed forward migrations; no execution from metadata",
+      "direct_client_callable": false,
+      "evidence": [
+        "supabase/tests/color_registry.test.sql",
+        "apps/web/lib/brand/registry-service.test.ts",
+        "apps/web/lib/brand/registry-model.test.ts",
+        "scripts/verify-security-database.py"
+      ]
+    },
+    "app_private.color_registry_intake_audit": {
+      "source": "supabase/migrations/20261021130128_global_catalog_discovery_registry.sql",
+      "signature": "",
+      "security_definer": true,
+      "definition_sha256": "00ca376b2afa35bb284865102a479b2c95fd05f43bf7d4f130ade25d88f6a025",
+      "domain": "brand",
+      "authentication": "Private trigger invoked only by trusted migration/database owner; no application EXECUTE grant",
+      "membership": "No application writer: trigger protects globally shared reference metadata from rewrites",
+      "location_scope": "Global reference metadata only, no tenant/customer records; selected workspace remains authoritative for operational access",
+      "permission": "No normal app role may INSERT/UPDATE/DELETE discovery or audit relations",
+      "entitlement": "Not applicable: informational reference discovery does not execute Brand Adapter or chemistry",
+      "allowed_roles": "Reviewed migration owner only; normal app roles denied writes by ACL and forced RLS",
+      "access": "INTERNAL_MUTATION_TRIGGER",
+      "idempotency": "Read-only browse; intake appends immutable source/revision identities under a line/region advisory lock",
+      "audit": "Private append-only SHA-256 intake audit for reviewed forward migrations; no execution from metadata",
+      "direct_client_callable": false,
+      "evidence": [
+        "supabase/tests/color_registry.test.sql",
+        "apps/web/lib/brand/registry-service.test.ts",
+        "apps/web/lib/brand/registry-model.test.ts",
+        "scripts/verify-security-database.py"
+      ]
+    },
+    "public.color_registry_browse": {
+      "source": "supabase/migrations/20261021130128_global_catalog_discovery_registry.sql",
+      "signature": "p_query text default '',p_brand text default null,p_region text default null,p_state text default null,p_offset integer default 0,p_limit integer default 25",
+      "security_definer": false,
+      "definition_sha256": "17f942ce219ce9bc6811fe34c2c79647da539d339f626419c5a3d3c65ef9b43a",
+      "domain": "brand",
+      "authentication": "Current provider user JWT and request_session_guard; no browser service role",
+      "membership": "Current active DB membership and color_plan.read; selected workspace checked before and after Web service read",
+      "location_scope": "Global reference metadata only, no tenant/customer records; selected workspace remains authoritative for operational access",
+      "permission": "color_plan.read; no application mutation grant or discovery publication endpoint",
+      "entitlement": "Not applicable: informational reference discovery does not execute Brand Adapter or chemistry",
+      "allowed_roles": "Only DB membership roles currently granted color_plan.read",
+      "access": "READ_OR_INTERNAL_HELPER",
+      "idempotency": "Read-only browse; intake appends immutable source/revision identities under a line/region advisory lock",
+      "audit": "Private append-only SHA-256 intake audit for reviewed forward migrations; no execution from metadata",
+      "direct_client_callable": true,
+      "evidence": [
+        "supabase/tests/color_registry.test.sql",
+        "apps/web/lib/brand/registry-service.test.ts",
+        "apps/web/lib/brand/registry-model.test.ts",
+        "scripts/verify-security-database.py"
+      ]
     }
   },
   "routes": {
@@ -5712,6 +5804,27 @@
         "apps/web/app/api/pilot/status/route.test.ts",
         "docs/pilot-operations.md"
       ]
+    },
+    "GET /api/color-registry": {
+      "source": "apps/web/app/api/color-registry/route.ts",
+      "definition_sha256": "0ceb6b54a4dcad84e5543f5c4c50a5f271196765e745e5d4bf79ef62786adea4",
+      "domain": "brand",
+      "authentication": "Current provider user JWT and request_session_guard; no browser service role",
+      "membership": "Current active DB membership and color_plan.read; selected workspace checked before and after Web service read",
+      "location_scope": "Global reference metadata only, no tenant/customer records; selected workspace remains authoritative for operational access",
+      "permission": "color_plan.read; no application mutation grant or discovery publication endpoint",
+      "entitlement": "Not applicable: informational reference discovery does not execute Brand Adapter or chemistry",
+      "allowed_roles": "Only DB membership roles currently granted color_plan.read",
+      "access": "READ_OR_INTERNAL_HELPER",
+      "idempotency": "Read-only browse; intake appends immutable source/revision identities under a line/region advisory lock",
+      "audit": "Private append-only SHA-256 intake audit for reviewed forward migrations; no execution from metadata",
+      "direct_client_callable": true,
+      "evidence": [
+        "supabase/tests/color_registry.test.sql",
+        "apps/web/lib/brand/registry-service.test.ts",
+        "apps/web/lib/brand/registry-model.test.ts",
+        "scripts/verify-security-database.py"
+      ]
     }
   },
   "actions": {
@@ -5962,7 +6075,9 @@
     "20261020135648_phase_10_photo_proxy_boundary.sql": "7b03325a8129d0d58c9f41ed1e36043334059c0138ae2c469688ec2e34e99a6d",
     "20261020141417_phase_10_photo_audit_attribution.sql": "bb6fbba00387198de02a96efe3e07c8dea45a188de5c0e6bb97dbba66f764731",
     "20261020142926_phase_10_internal_photo_visibility.sql": "563026f540f5c586aff70f056288ca7121cb5b204942ff112c2478bf30ff5788",
-    "20261020143354_phase_10_photo_command_policies.sql": "36ccfb23ad817f75b8bf1b1cd04276e8363657fecac8ed01a17f692e7d8d91e0"
+    "20261020143354_phase_10_photo_command_policies.sql": "36ccfb23ad817f75b8bf1b1cd04276e8363657fecac8ed01a17f692e7d8d91e0",
+    "20261021130128_global_catalog_discovery_registry.sql": "8aeeb9637e99f2c17a79d45369e65b9d3f6b7d04929162ba93f30e9d9fd7f293",
+    "20261021130803_global_catalog_official_source_intake.sql": "c45e2928d4ad6eeec6d4088a1e1012e4bc6deaef7a706c69a9df0edaf305d66b"
   },
   "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data",
   "disposable_ci_functions": {

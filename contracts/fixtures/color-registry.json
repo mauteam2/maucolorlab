@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "total": 33,
+  "offset": 0,
+  "limit": 25,
+  "brands": [
+    {
+      "id": "loreal-professionnel",
+      "name": "Lâ€™OrÃ©al Professionnel"
+    }
+  ],
+  "regions": [
+    "US"
+  ],
+  "items": [
+    {
+      "id": "f34cb649-51bd-50a2-b60f-0e4fda66b41a",
+      "lineId": "loreal-professionnel-inoa",
+      "line": "iNOA",
+      "brandId": "loreal-professionnel",
+      "brand": "Lâ€™OrÃ©al Professionnel",
+      "manufacturer": "L’Oréal",
+      "region": "US",
+      "state": "SOURCE_COLLECTED",
+      "lastReviewedAt": null,
+      "recipeSupport": false,
+      "catalogId": null,
+      "shadeCount": 0,
+      "developerCount": 0,
+      "ruleCount": 0,
+      "sources": [
+        {
+          "id": "loreal-us",
+          "url": "https://us.lorealprofessionnel.com/pro-resources/shade-charts",
+          "title": "L'OrÃ©al Professionnel Shade Charts: iNOA, Majirel & More",
+          "documentType": "SHADE_CHART_INDEX",
+          "region": "US",
+          "language": "en",
+          "documentVersion": null,
+          "documentDate": null,
+          "retrievedAt": "2026-10-21T13:06:44.786764+00:00",
+          "sha256": "b51063ac80052bfdc2533dac5a768375c53e4dda26263c680338e41014a2b2c5",
+          "reviewStatus": "SOURCE_COLLECTED"
+        }
+      ]
+    }
+  ]
+}
