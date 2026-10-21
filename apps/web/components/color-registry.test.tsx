@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { CatalogDiscoverySelector, ColorRegistryLibrary } from "./color-registry";
 import { unsupportedRegistryMessage } from "@/lib/brand/registry-model";
 const row = { id: "c2000000-0000-4000-8000-000000000001", lineId: "keune-tinta", line: "Tinta Color", brandId: "keune", brand: "Keune", manufacturer: "Keune", region: "GB", state: "SOURCE_COLLECTED", lastReviewedAt: null, recipeSupport: false, catalogId: null, shadeCount: 0, developerCount: 0, ruleCount: 0, sources: [] };
@@ -8,7 +8,7 @@ beforeEach(() => { vi.stubGlobal("fetch", fetcher); fetcher.mockReset().mockReso
 it("information-only ColorLab selection never calls any recipe mutation", async () => {
  render(<CatalogDiscoverySelector/>);
  expect(fetcher).not.toHaveBeenCalled();
- fireEvent.click(screen.getByText("Listelenen serileri incele"));
+ await act(async () => { fireEvent.click(screen.getByText("Listelenen serileri incele")); });
  await screen.findByRole("option", { name: "Keune · Tinta Color · GB" });
  fireEvent.change(screen.getByLabelText("Listelenen seri"), { target: { value: row.id } });
  expect(screen.getByText(unsupportedRegistryMessage)).toBeVisible();

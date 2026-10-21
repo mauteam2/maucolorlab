@@ -61,7 +61,7 @@ export function CatalogDiscoverySelector() {
  const { page, error } = useRegistry("limit=50", enabled);
  const [selected, setSelected] = useState("");
  const entry = page?.items.find(item => item.id === selected);
- return <SalonCard title="Marka ve seri keşfi"><details onToggle={event => { if (event.currentTarget.open) setEnabled(true); }}><summary>Listelenen serileri incele</summary><p>Bu seçim bilgi amaçlıdır; kontrollü reçetenin üretici seçimini değiştirmez.</p>
+ return <SalonCard title="Marka ve seri keşfi"><details onToggle={event => { if (event.currentTarget.open) setEnabled(true); }}><summary onClick={() => setEnabled(true)}>Listelenen serileri incele</summary><p>Bu seçim bilgi amaçlıdır; kontrollü reçetenin üretici seçimini değiştirmez.</p>
   {enabled && !page && !error && <p role="status">Seriler yükleniyor…</p>}{error && <p role="alert">{error}</p>}
   <label>Listelenen seri<select value={selected} onChange={event => setSelected(event.target.value)}><option value="">Seri inceleyin</option>{page?.items.map(item => <option key={item.id} value={item.id}>{item.brand} · {item.line} · {item.region}</option>)}</select></label>
   {entry && <p role="status">{entry.recipeSupport ? "Yayınlanmış destek mevcut; kontrollü reçetede bağlama özel doğrulama gerekir." : unsupportedRegistryMessage}</p>}
