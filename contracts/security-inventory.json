@@ -4381,10 +4381,10 @@
       ]
     },
     "app_private.color_registry_append_guard": {
-      "source": "supabase/migrations/20261021130128_global_catalog_discovery_registry.sql",
+      "source": "supabase/migrations/20261021144458_global_catalog_reference_scope.sql",
       "signature": "",
       "security_definer": false,
-      "definition_sha256": "ce11e7a575dab67d37a4e02e783a4e8c55b5235e73b9c71463d1151eaa2d9379",
+      "definition_sha256": "f934acbbb858e6cdc2d3f5a86f97b7c063f841bb8375dce5b063b39200676528",
       "domain": "brand",
       "authentication": "Private trigger invoked only by trusted migration/database owner; no application EXECUTE grant",
       "membership": "No application writer: trigger protects globally shared reference metadata from rewrites",
@@ -6077,7 +6077,8 @@
     "20261020142926_phase_10_internal_photo_visibility.sql": "563026f540f5c586aff70f056288ca7121cb5b204942ff112c2478bf30ff5788",
     "20261020143354_phase_10_photo_command_policies.sql": "36ccfb23ad817f75b8bf1b1cd04276e8363657fecac8ed01a17f692e7d8d91e0",
     "20261021130128_global_catalog_discovery_registry.sql": "8aeeb9637e99f2c17a79d45369e65b9d3f6b7d04929162ba93f30e9d9fd7f293",
-    "20261021130803_global_catalog_official_source_intake.sql": "cada8d415c6229dc3bf5c7e699086287217f40d59e596b95d4c4c190572a7983"
+    "20261021130803_global_catalog_official_source_intake.sql": "cada8d415c6229dc3bf5c7e699086287217f40d59e596b95d4c4c190572a7983",
+    "20261021144458_global_catalog_reference_scope.sql": "e5aad627e1a656856d8eeb66f68f31ec5579747c8703e93cc52cd656588b0ee6"
   },
   "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data",
   "disposable_ci_functions": {

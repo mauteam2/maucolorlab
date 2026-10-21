@@ -24,6 +24,16 @@ select throws_ok($$insert into color_registry_line_sources(entry_id,source_id,br
 select throws_ok($$insert into color_registry_entries(id,line_id,region,revision,state) values(gen_random_uuid(),'keune-tinta-color','TR',1,'VERIFIED')$$,'23514','DISCOVERY_REVIEW_REQUIRED','cannot skip intake/review with a VERIFIED flag');
 select throws_ok($$insert into color_registry_entries(id,line_id,region,revision,state) values(gen_random_uuid(),'keune-tinta-color','TR',2,'DISCOVERED')$$,'23514','DISCOVERY_VERSION_CONFLICT','conditional append rejects stale/missing predecessor');
 select set_config('request.jwt.claim.sub','cc000000-0000-4000-8000-000000000001',true);
+-- A real tenant-only draft may exist, but its line identity cannot enter the
+-- shared registry, even through a trusted intake author before publication.
+insert into brand_catalog_releases(id,series_id,version,scope,organization_id,created_by)
+values('cc000000-0000-4000-8000-000000000041','cc000000-0000-4000-8000-000000000042',1,'ORGANIZATION','cc000000-0000-4000-8000-000000000011','cc000000-0000-4000-8000-000000000001');
+insert into catalog_brands(id,catalog_id,display_name) values('cc000000-0000-4000-8000-000000000043','cc000000-0000-4000-8000-000000000041','Keune');
+insert into catalog_product_lines(id,catalog_id,brand_id,display_name) values('cc000000-0000-4000-8000-000000000044','cc000000-0000-4000-8000-000000000041','cc000000-0000-4000-8000-000000000043','Tinta Color');
+insert into catalog_products(id,series_id,version,catalog_id,brand_id,line_id,manufacturer_code,display_name,product_type,professional_category,country_region)
+values('cc000000-0000-4000-8000-000000000045','cc000000-0000-4000-8000-000000000046',1,'cc000000-0000-4000-8000-000000000041','cc000000-0000-4000-8000-000000000043','cc000000-0000-4000-8000-000000000044','TEST_ONLY','Synthetic, not manufacturer chemistry','SHADE','TEST_ONLY','GB');
+select throws_ok($$insert into color_registry_entries(id,line_id,region,revision,previous_id,state,technical_line_id)
+select gen_random_uuid(),line_id,region,revision+1,id,'UNDER_REVIEW','cc000000-0000-4000-8000-000000000044' from color_registry_entries where line_id='keune-tinta-color' and region='GB'$$,'23514','GLOBAL_REFERENCE_REQUIRED','shared discovery cannot disclose a tenant-private technical line ID');
 set local role authenticated;
 select is((select count(*) from color_registry_lines),29::bigint,'authorized salon A can read global reference metadata');
 select is((color_registry_browse()->>'total')::integer,30,'pagination counts regional records separately from 29 lines');
@@ -40,6 +50,7 @@ select throws_ok($$delete from color_registry_sources$$,'42501',null,'source his
 select throws_ok($$select * from app_private.color_registry_intake_audit$$,'42501',null,'operator provenance audit not exposed as application data');
 select set_config('request.jwt.claim.sub','cc000000-0000-4000-8000-000000000002',true);
 select is((select count(*) from color_registry_lines),29::bigint,'authorized unrelated tenant sees same intentional global reference set');
+select is(brand_catalog_packet('cc000000-0000-4000-8000-000000000041'),null::jsonb,'tenant B cannot resolve tenant A technical draft through existing API');
 reset role;
 update salon_memberships set status='revoked',revoked_at=now() where id='cc000000-0000-4000-8000-000000000032';
 set local role authenticated;
