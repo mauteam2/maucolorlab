@@ -4,10 +4,11 @@ import Link from "next/link";
 import { discoveryLabels, discoveryStates, registryPage, unsupportedRegistryMessage, type RegistryPage } from "@/lib/brand/registry-model";
 import { SalonCard, SalonFrame, SalonHeading } from "./salon-frame";
 
-function useRegistry(search: string) {
+function useRegistry(search: string, enabled = true) {
  const [page, setPage] = useState<RegistryPage | null>(null);
  const [error, setError] = useState("");
  useEffect(() => {
+  if (!enabled) return;
   const controller = new AbortController();
   let active = true;
   fetch(`/api/color-registry?${search}`, { cache: "no-store", signal: controller.signal }).then(async response => {
@@ -16,7 +17,7 @@ function useRegistry(search: string) {
    if (active) { setPage(next); setError(""); }
   }).catch(error => { if (active) { setPage(null); setError(error instanceof Error ? error.message : "Katalog yüklenemedi."); } });
   return () => { active = false; controller.abort(); };
- }, [search]);
+ }, [search, enabled]);
  return { page, error };
 }
 
@@ -56,12 +57,15 @@ export function ColorRegistryLibrary() {
 
 /** Information-only selection has no catalog ID, product or execution side effect. */
 export function CatalogDiscoverySelector() {
- const { page } = useRegistry("limit=50");
+ const [enabled, setEnabled] = useState(false);
+ const { page, error } = useRegistry("limit=50", enabled);
  const [selected, setSelected] = useState("");
  const entry = page?.items.find(item => item.id === selected);
- return <SalonCard title="Marka ve seri keşfi"><p>Bu seçim bilgi amaçlıdır; kontrollü reçetenin üretici seçimini değiştirmez.</p>
+ return <SalonCard title="Marka ve seri keşfi"><details onToggle={event => { if (event.currentTarget.open) setEnabled(true); }}><summary>Listelenen serileri incele</summary><p>Bu seçim bilgi amaçlıdır; kontrollü reçetenin üretici seçimini değiştirmez.</p>
+  {enabled && !page && !error && <p role="status">Seriler yükleniyor…</p>}{error && <p role="alert">{error}</p>}
   <label>Listelenen seri<select value={selected} onChange={event => setSelected(event.target.value)}><option value="">Seri inceleyin</option>{page?.items.map(item => <option key={item.id} value={item.id}>{item.brand} · {item.line} · {item.region}</option>)}</select></label>
   {entry && <p role="status">{entry.recipeSupport ? "Yayınlanmış destek mevcut; kontrollü reçetede bağlama özel doğrulama gerekir." : unsupportedRegistryMessage}</p>}
+  </details>
   <Link href="/workspace/catalog" className="button button-secondary">Marka kütüphanesini aç</Link>
  </SalonCard>;
 }

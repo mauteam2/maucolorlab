@@ -145,4 +145,3 @@ insert into public.color_registry_metadata(id,entry_id,source_id,kind,manufactur
  ('igora-zero-us-7-77','8dce1b8e-600f-55c6-94cd-c2e50df911d0','igora-zero-us','SHADE','7-77',null,null,null),
  ('matrix-sync-5m','e060e2e8-10d9-5cd9-9b02-670f529a8104','matrix-sync','SHADE','5M','Medium Brown Mocha',null,null),
  ('matrix-10-volume-cream','e060e2e8-10d9-5cd9-9b02-670f529a8104','matrix-sync','DEVELOPER',null,'10 Volume Matrix Cream Developer',null,null);
-

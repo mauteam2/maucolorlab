@@ -7,6 +7,8 @@ const fetcher = vi.fn();
 beforeEach(() => { vi.stubGlobal("fetch", fetcher); fetcher.mockReset().mockResolvedValue(Response.json({ data: { schemaVersion: 1, total: 1, offset: 0, limit: 25, brands: [{ id: "keune", name: "Keune" }], regions: ["GB"], items: [row] } })); });
 it("information-only ColorLab selection never calls any recipe mutation", async () => {
  render(<CatalogDiscoverySelector/>);
+ expect(fetcher).not.toHaveBeenCalled();
+ fireEvent.click(screen.getByText("Listelenen serileri incele"));
  await screen.findByRole("option", { name: "Keune · Tinta Color · GB" });
  fireEvent.change(screen.getByLabelText("Listelenen seri"), { target: { value: row.id } });
  expect(screen.getByText(unsupportedRegistryMessage)).toBeVisible();

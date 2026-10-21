@@ -26,6 +26,7 @@ test("global discovery library has region-specific official receipts and no reci
 test("ColorLab listed line selection stays information-only without cross-brand fallback", async ({ page }) => {
  const account = await seedAccount(1); await login(page, account); await expectReady(page);
  await page.goto("/workspace/colorlab");
+ await page.getByText("Listelenen serileri incele", { exact: true }).click();
  await page.getByLabel("Listelenen seri").selectOption({ label: "Keune · Tinta Color · GB" });
  await expect(page.getByText(unavailable, { exact: true })).toBeVisible();
  const catalog = await page.request.get("/api/color-registry?brand=keune&region=GB");
