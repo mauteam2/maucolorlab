@@ -32,10 +32,10 @@ export function ColorRegistryLibrary() {
    event.preventDefault(); const data = new FormData(event.currentTarget); const params = new URLSearchParams({ limit: "25" });
    for (const [key, value] of data) if (String(value)) params.set(key, String(value)); setSearch(params.toString());
   }}>
-   <label>Marka veya seri ara<input type="search" name="query" maxLength={80}/></label>
-   <label>Marka<select name="brand"><option value="">Tüm markalar</option>{page?.brands.map(brand => <option key={brand.id} value={brand.id}>{brand.name}</option>)}</select></label>
-   <label>Pazar<select name="region"><option value="">Tüm pazarlar</option>{page?.regions.map(region => <option key={region}>{region}</option>)}</select></label>
-   <label>İnceleme durumu<select name="state"><option value="">Tüm durumlar</option>{discoveryStates.map(state => <option key={state} value={state}>{discoveryLabels[state]}</option>)}</select></label>
+   <label>Marka veya seri ara<input aria-label="Marka veya seri ara" type="search" name="query" maxLength={80}/></label>
+   <label>Marka<select aria-label="Marka" name="brand"><option value="">Tüm markalar</option>{page?.brands.map(brand => <option key={brand.id} value={brand.id}>{brand.name}</option>)}</select></label>
+   <label>Pazar<select aria-label="Pazar" name="region"><option value="">Tüm pazarlar</option>{page?.regions.map(region => <option key={region}>{region}</option>)}</select></label>
+   <label>İnceleme durumu<select aria-label="İnceleme durumu" name="state"><option value="">Tüm durumlar</option>{discoveryStates.map(state => <option key={state} value={state}>{discoveryLabels[state]}</option>)}</select></label>
    <button className="button button-primary">Filtrele</button>
   </form></SalonCard>
   {error && <p role="alert">{error}</p>}{!page && !error && <p role="status">Katalog yükleniyor…</p>}
