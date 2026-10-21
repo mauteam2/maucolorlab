@@ -25,7 +25,6 @@ LINES = [
  ('schwarzkopf-professional', 'igora-us', ['IGORA ROYAL', 'IGORA ROYAL ABSOLUTES', 'IGORA VIBRANCE', 'IGORA ROYAL HIGHLIFTS', 'IGORA ROYAL FASHION LIGHTS']),
  ('schwarzkopf-professional', 'igora-zero-us', ['IGORA ZERO AMM']),
  ('goldwell', 'goldwell-ca', ['Topchic', 'Colorance', 'Elumen', 'Topchic Zero']),
- ('goldwell', 'goldwell-guide', ['Topchic', 'Colorance', 'Elumen']),
  ('matrix', 'matrix-socolor', ['SoColor']), ('matrix', 'matrix-sync', ['SoColor Sync']),
  ('redken', 'redken-charts', ['Shades EQ Gloss', 'Color Gels Lacquers', 'Color Gels Oils']),
  ('keune', 'keune-tinta-uk', ['Tinta Color']), ('keune', 'keune-semi', ['Semi Color']),
@@ -52,7 +51,7 @@ def inserts(table, rows):
 
 if __name__ == '__main__':
  sources = json.loads((ROOT / 'apps/web/captures/catalog-intake/sources.json').read_text(encoding='utf-8'))
- assert len(sources) == 16, 'Partial intake must not silently become the initial seed'
+ assert len(sources) == 15, 'Partial intake must not silently become the initial seed'
  by_source = {row['id']: row for row in sources}
  manufacturers = [dict(id=k, display_name=n) for k,n in [('loreal','L’Oréal'),('wella-company','Wella Company'),('henkel','Henkel'),('kao','Kao'),('keune','Keune'),('revlon','Revlon')]]
  brands = [dict(id=k, manufacturer_id=m, display_name=n) for k,m,n in BRANDS]

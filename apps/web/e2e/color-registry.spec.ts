@@ -6,7 +6,7 @@ test("global discovery library has region-specific official receipts and no reci
  const account = await seedAccount(1); await login(page, account); await expectReady(page);
  await page.goto("/workspace/catalog");
  await expect(page.getByRole("heading", { name: "Marka kütüphanesi", exact: true })).toBeVisible();
- await expect(page.getByRole("status")).toContainText("33 bölgesel kayıt");
+ await expect(page.getByRole("status")).toContainText("30 bölgesel kayıt");
  await page.getByLabel("Marka veya seri ara").fill("Color Touch");
  await page.getByLabel("Pazar", { exact: true }).selectOption("US");
  await page.getByRole("button", { name: "Filtrele", exact: true }).click();

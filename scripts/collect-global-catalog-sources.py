@@ -23,7 +23,6 @@ SOURCES = [
     ('igora-us', 'https://www.schwarzkopf-professional.com/us/en/color/igora.html', 'US', 'en', 'PRODUCT_PORTFOLIO'),
     ('igora-zero-us', 'https://www.schwarzkopf-professional.com/us/en/color/igora/zero-amm.html', 'US', 'en', 'PRODUCT_PAGE'),
     ('goldwell-ca', 'https://www.goldwell.com/en-ca/products/hair-color/permanent/topchic/topchic-colorance-color-card/', 'CA', 'en', 'SHADE_CHART_INDEX'),
-    ('goldwell-guide', 'https://www.goldwell.com/content/dam/education/Education_PDF_All%20about%20color_GOLDWELL-ALL_2022-02-23.pdf', 'UNKNOWN', 'en', 'TECHNICAL_GUIDE'),
     ('matrix-socolor', 'https://www.matrix.com/professional/products/haircolor/permanent-cream-hair-color', 'UNKNOWN', 'en', 'PRODUCT_PAGE'),
     ('matrix-sync', 'https://www.matrix.com/professional/products/haircolor/socolor-sync-ammonia-free-demi-permanent-hair-color', 'UNKNOWN', 'en', 'PRODUCT_PAGE'),
     ('redken-charts', 'https://www.redkenpro.com/education/shade-charts', 'UNKNOWN', 'en', 'SHADE_CHART_INDEX'),
@@ -50,8 +49,10 @@ def collect(item):
         assert len(body) <= 20 * 1024 * 1024, 'Source exceeds intake limit'
         mime = response.headers.get_content_type()
         assert mime in ('text/html', 'application/pdf'), (key, mime)
+        if kind in ('TECHNICAL_GUIDE', 'SHADE_CHART', 'IFU', 'DEVELOPER_GUIDE', 'COMPATIBILITY_GUIDE'):
+            assert mime == 'application/pdf' and body.startswith(b'%PDF'), 'Expected technical PDF; redirect/landing HTML is not evidence'
         title = re.search(r'<title[^>]*>(.*?)</title>', body.decode('utf-8', 'replace'), re.I | re.S)
-        title = html.unescape(re.sub(r'\s+', ' ', title[1]).strip()) if title else {'wella-touch-guide': 'COLOR TOUCH Fact Sheet', 'goldwell-guide': 'ALL ABOUT COLOR', 'keune-tinta-uk': 'Color - Tinta Color', 'keune-so-pure': 'Color - So Pure'}[key]
+        title = html.unescape(re.sub(r'\s+', ' ', title[1]).strip()) if title else {'wella-touch-guide': 'COLOR TOUCH Fact Sheet', 'keune-tinta-uk': 'Color - Tinta Color', 'keune-so-pure': 'Color - So Pure'}[key]
         assert body.startswith(b'%PDF') or (title and len(body) > 3000), 'Invalid document'
         (DEST / (key + ('.pdf' if mime == 'application/pdf' else '.html'))).write_bytes(body)
         return dict(id=key, url=url, resolvedUrl=response.url, title=title, documentType=kind,

@@ -68,9 +68,6 @@ insert into public.color_registry_entries(id,line_id,region,revision,previous_id
  ('6f46c816-17a6-5156-80d7-3197ca4a2ff6','goldwell-colorance','CA',1,null,'SOURCE_COLLECTED',null,null,null),
  ('23648164-f466-5c85-8e6e-637a5e877e55','goldwell-elumen','CA',1,null,'SOURCE_COLLECTED',null,null,null),
  ('4129e02d-16a6-5b22-89d4-82945c7f0836','goldwell-topchic-zero','CA',1,null,'SOURCE_COLLECTED',null,null,null),
- ('488eb2ec-e80b-55c8-977b-aa3d4f691cb2','goldwell-topchic','UNKNOWN',1,null,'SOURCE_COLLECTED',null,null,null),
- ('1a72e4e0-100e-57b1-919a-5a12f873a8e3','goldwell-colorance','UNKNOWN',1,null,'SOURCE_COLLECTED',null,null,null),
- ('98545ecd-1eae-5683-a5d7-a41823b7611b','goldwell-elumen','UNKNOWN',1,null,'SOURCE_COLLECTED',null,null,null),
  ('1d0205b2-879e-5434-9f08-e2ebd2741c21','matrix-socolor','UNKNOWN',1,null,'SOURCE_COLLECTED',null,null,null),
  ('e060e2e8-10d9-5cd9-9b02-670f529a8104','matrix-socolor-sync','UNKNOWN',1,null,'SOURCE_COLLECTED',null,null,null),
  ('212bb07c-e0e3-596b-9437-19834ca896bb','redken-shades-eq-gloss','UNKNOWN',1,null,'SOURCE_COLLECTED',null,null,null),
@@ -85,7 +82,6 @@ insert into public.color_registry_entries(id,line_id,region,revision,previous_id
 
 insert into public.color_registry_sources(id,brand_id,region,url,resolved_url,title,document_type,document_version,document_date,retrieved_at,sha256,byte_length,language,review_status) values
  ('goldwell-ca','goldwell','CA','https://www.goldwell.com/en-ca/products/hair-color/permanent/topchic/topchic-colorance-color-card/','https://www.goldwell.com/en-ca/products/hair-color/permanent/topchic/topchic-colorance-color-card/','Topchic & Colorance Color Card','SHADE_CHART_INDEX',null,null,'2026-10-21T13:06:45.168447+00:00','335c38b89210672e3a1421a5cf874ef3ddbc57d9ae0927af36cb16eb8d158d8d',272064,'en','SOURCE_COLLECTED'),
- ('goldwell-guide','goldwell','UNKNOWN','https://www.goldwell.com/content/dam/education/Education_PDF_All%20about%20color_GOLDWELL-ALL_2022-02-23.pdf','https://www.goldwell.com/find-us/','Find Us','TECHNICAL_GUIDE',null,null,'2026-10-21T13:06:45.499957+00:00','9579f68d04019ea219f3667ec6159e14dd8f7a5a3afdfc1cbc108d1738e5fb5e',29251,'en','SOURCE_COLLECTED'),
  ('igora-us','schwarzkopf-professional','US','https://www.schwarzkopf-professional.com/us/en/color/igora.html','https://www.schwarzkopf-professional.com/us/en/color/igora.html','IGORA | Schwarzkopf Professional','PRODUCT_PORTFOLIO',null,null,'2026-10-21T13:06:44.783448+00:00','c594fd142d5b3b4ef6198ffcc502368855c481e231c9c2747ce7f504490182ef',405677,'en','SOURCE_COLLECTED'),
  ('igora-zero-us','schwarzkopf-professional','US','https://www.schwarzkopf-professional.com/us/en/color/igora/zero-amm.html','https://www.schwarzkopf-professional.com/us/en/color/igora/zero-amm.html','IGORA® ZERO AMM | Schwarzkopf Professional®','PRODUCT_PAGE',null,null,'2026-10-21T13:06:45.261334+00:00','57e2b2deda4d07c4e9aa2e4b3eb270e7e40b90e23125d0c67f22defea4ae7649',443915,'en','SOURCE_COLLECTED'),
  ('keune-semi','keune','UNKNOWN','https://www.keune.com/keune-semi-color/','https://www.keune.com/keune-semi-color/','KEUNE Semi Color | A demi permanent hair coloring','PRODUCT_PAGE',null,null,'2026-10-21T13:06:46.016216+00:00','d9acc4af5b4cf92c146c354f3ac37940d79501119bc1d0f85a16173f2036c13f',186167,'en','SOURCE_COLLECTED'),
@@ -121,9 +117,6 @@ insert into public.color_registry_line_sources(entry_id,source_id,brand_id,regio
  ('6f46c816-17a6-5156-80d7-3197ca4a2ff6','goldwell-ca','goldwell','CA'),
  ('23648164-f466-5c85-8e6e-637a5e877e55','goldwell-ca','goldwell','CA'),
  ('4129e02d-16a6-5b22-89d4-82945c7f0836','goldwell-ca','goldwell','CA'),
- ('488eb2ec-e80b-55c8-977b-aa3d4f691cb2','goldwell-guide','goldwell','UNKNOWN'),
- ('1a72e4e0-100e-57b1-919a-5a12f873a8e3','goldwell-guide','goldwell','UNKNOWN'),
- ('98545ecd-1eae-5683-a5d7-a41823b7611b','goldwell-guide','goldwell','UNKNOWN'),
  ('1d0205b2-879e-5434-9f08-e2ebd2741c21','matrix-socolor','matrix','UNKNOWN'),
  ('e060e2e8-10d9-5cd9-9b02-670f529a8104','matrix-sync','matrix','UNKNOWN'),
  ('212bb07c-e0e3-596b-9437-19834ca896bb','redken-charts','redken','UNKNOWN'),

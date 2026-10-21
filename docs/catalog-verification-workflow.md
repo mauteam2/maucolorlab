@@ -2,7 +2,7 @@
 
 Discovery entry states: DISCOVERED → SOURCE_COLLECTED → UNDER_REVIEW → VERIFIED → PUBLISHED. REJECTED and SUPERSEDED preserve history. Review may return to source collection; a rejected/superseded record can begin a new source-collected revision. Every change appends a revision referencing the current predecessor under a line/region lock; stale or skipped predecessors fail. A newly inserted record cannot begin VERIFIED/PUBLISHED.
 
-Discovery VERIFIED means its metadata review has a dated review reference. It does not approve executable chemistry. No such human review was fabricated in the initial intake: all 33 entries and all 16 sources remain SOURCE_COLLECTED, with no last-reviewed date or technical binding.
+Discovery VERIFIED means its metadata review has a dated review reference. It does not approve executable chemistry. No such human review was fabricated in the initial intake: all 30 entries and all 15 sources remain SOURCE_COLLECTED, with no last-reviewed date or technical binding.
 
 Executable technical data continues through the existing governed boundary: official source intake → draft import → technical review → complete source review → golden/fingerprint validation → human approval → publish. Existing catalog operators and permissions, source review actors, content fingerprints, lifecycle locks, stale checks and immutable historical attribution remain authoritative. CI validates behavior and synthetic golden cases; it cannot provide human manufacturer approval.
 

@@ -6077,7 +6077,7 @@
     "20261020142926_phase_10_internal_photo_visibility.sql": "563026f540f5c586aff70f056288ca7121cb5b204942ff112c2478bf30ff5788",
     "20261020143354_phase_10_photo_command_policies.sql": "36ccfb23ad817f75b8bf1b1cd04276e8363657fecac8ed01a17f692e7d8d91e0",
     "20261021130128_global_catalog_discovery_registry.sql": "8aeeb9637e99f2c17a79d45369e65b9d3f6b7d04929162ba93f30e9d9fd7f293",
-    "20261021130803_global_catalog_official_source_intake.sql": "8c139d5f6e942dde7611e71e3a2d395da5a0728fcd424f4875576cf9504f5ac9"
+    "20261021130803_global_catalog_official_source_intake.sql": "cada8d415c6229dc3bf5c7e699086287217f40d59e596b95d4c4c190572a7983"
   },
   "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data",
   "disposable_ci_functions": {

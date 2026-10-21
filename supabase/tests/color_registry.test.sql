@@ -10,7 +10,7 @@ insert into public.salon_memberships(id,organization_id,location_id,user_id,role
  ('cc000000-0000-4000-8000-000000000032','cc000000-0000-4000-8000-000000000012','cc000000-0000-4000-8000-000000000022','cc000000-0000-4000-8000-000000000002','owner','active',now());
 select is((select count(*) from color_registry_brands),8::bigint,'eight discovered brands, separately counted');
 select is((select count(*) from color_registry_lines),29::bigint,'29 discovered lines');
-select is((select count(*) from color_registry_sources),16::bigint,'16 actual collected official source receipts');
+select is((select count(*) from color_registry_sources),15::bigint,'15 actual collected official source receipts');
 select is((select count(*) from color_registry_metadata where kind='SHADE'),7::bigint,'seven shade metadata records, not manufacturer portfolio totals');
 select is((select count(*) from color_registry_metadata where kind='DEVELOPER'),1::bigint,'one developer listing creates no compatibility');
 select is((select count(*) from color_registry_entries where state='PUBLISHED'),0::bigint,'no automatic publication');
@@ -26,7 +26,7 @@ select throws_ok($$insert into color_registry_entries(id,line_id,region,revision
 select set_config('request.jwt.claim.sub','cc000000-0000-4000-8000-000000000001',true);
 set local role authenticated;
 select is((select count(*) from color_registry_lines),29::bigint,'authorized salon A can read global reference metadata');
-select is((color_registry_browse()->>'total')::integer,33,'pagination counts regional records separately from 29 lines');
+select is((color_registry_browse()->>'total')::integer,30,'pagination counts regional records separately from 29 lines');
 select is(jsonb_array_length(color_registry_browse(p_limit=>1)->'items'),1,'bounded page is enforced by database');
 select is((color_registry_browse(p_region=>'TR')->>'total')::integer,0,'no fallback from missing TR scope to US/UNKNOWN');
 select is((color_registry_browse(p_query=>'Color Touch')->>'total')::integer,2,'indexed name search retains US and UNKNOWN evidence separately');

@@ -428,39 +428,6 @@
         "review_reference": null
       },
       {
-        "id": "488eb2ec-e80b-55c8-977b-aa3d4f691cb2",
-        "line_id": "goldwell-topchic",
-        "region": "UNKNOWN",
-        "revision": 1,
-        "previous_id": null,
-        "state": "SOURCE_COLLECTED",
-        "technical_line_id": null,
-        "last_reviewed_at": null,
-        "review_reference": null
-      },
-      {
-        "id": "1a72e4e0-100e-57b1-919a-5a12f873a8e3",
-        "line_id": "goldwell-colorance",
-        "region": "UNKNOWN",
-        "revision": 1,
-        "previous_id": null,
-        "state": "SOURCE_COLLECTED",
-        "technical_line_id": null,
-        "last_reviewed_at": null,
-        "review_reference": null
-      },
-      {
-        "id": "98545ecd-1eae-5683-a5d7-a41823b7611b",
-        "line_id": "goldwell-elumen",
-        "region": "UNKNOWN",
-        "revision": 1,
-        "previous_id": null,
-        "state": "SOURCE_COLLECTED",
-        "technical_line_id": null,
-        "last_reviewed_at": null,
-        "review_reference": null
-      },
-      {
         "id": "1d0205b2-879e-5434-9f08-e2ebd2741c21",
         "line_id": "matrix-socolor",
         "region": "UNKNOWN",
@@ -596,22 +563,6 @@
         "retrieved_at": "2026-10-21T13:06:45.168447+00:00",
         "sha256": "335c38b89210672e3a1421a5cf874ef3ddbc57d9ae0927af36cb16eb8d158d8d",
         "byte_length": 272064,
-        "language": "en",
-        "review_status": "SOURCE_COLLECTED"
-      },
-      {
-        "id": "goldwell-guide",
-        "brand_id": "goldwell",
-        "region": "UNKNOWN",
-        "url": "https://www.goldwell.com/content/dam/education/Education_PDF_All%20about%20color_GOLDWELL-ALL_2022-02-23.pdf",
-        "resolved_url": "https://www.goldwell.com/find-us/",
-        "title": "Find Us",
-        "document_type": "TECHNICAL_GUIDE",
-        "document_version": null,
-        "document_date": null,
-        "retrieved_at": "2026-10-21T13:06:45.499957+00:00",
-        "sha256": "9579f68d04019ea219f3667ec6159e14dd8f7a5a3afdfc1cbc108d1738e5fb5e",
-        "byte_length": 29251,
         "language": "en",
         "review_status": "SOURCE_COLLECTED"
       },
@@ -954,24 +905,6 @@
         "source_id": "goldwell-ca",
         "brand_id": "goldwell",
         "region": "CA"
-      },
-      {
-        "entry_id": "488eb2ec-e80b-55c8-977b-aa3d4f691cb2",
-        "source_id": "goldwell-guide",
-        "brand_id": "goldwell",
-        "region": "UNKNOWN"
-      },
-      {
-        "entry_id": "1a72e4e0-100e-57b1-919a-5a12f873a8e3",
-        "source_id": "goldwell-guide",
-        "brand_id": "goldwell",
-        "region": "UNKNOWN"
-      },
-      {
-        "entry_id": "98545ecd-1eae-5683-a5d7-a41823b7611b",
-        "source_id": "goldwell-guide",
-        "brand_id": "goldwell",
-        "region": "UNKNOWN"
       },
       {
         "entry_id": "1d0205b2-879e-5434-9f08-e2ebd2741c21",

@@ -7,9 +7,9 @@ Initial intake: 2026-10-21. Counts below are separate measures; discovery is not
 | Manufacturer groups recorded | 6 |
 | Discovered professional brands | 8 |
 | Discovered product lines | 29 |
-| Regional entry records | 33 |
-| Official source receipts collected | 16 |
-| Of these, technical PDFs collected | 2 |
+| Regional entry records | 30 |
+| Official source receipts collected | 15 |
+| Of these, technical PDFs collected | 1 |
 | Shade metadata records | 7 |
 | Developer metadata records | 1 |
 | Discovery records under review | 0 |

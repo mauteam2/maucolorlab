@@ -349,6 +349,7 @@ jobs:
       - run: pip install -r scripts/verification-requirements.txt
       - run: python scripts/validate-contract.py
       - run: python scripts/verify-global-catalog.py
+      - run: python scripts/test-global-catalog-intake.py
       - run: python scripts/security_inventory.py
       - run: python scripts/test-security-inventory.py
       - run: python scripts/test-start-local-supabase.py
