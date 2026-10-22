@@ -1,0 +1,90 @@
+name: ELIFORA hosted catalog staging verification
+
+on:
+  push:
+    branches: [codex/catalog-staging-hosted-verification]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-staging-hosted-smoke
+  cancel-in-progress: false
+
+env:
+  CATALOG_SHA: d801587f22044485a5f0be6abd40aa48e2f0799f
+
+jobs:
+  candidate:
+    name: Candidate hosted browser checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CATALOG_BYPASS: ${{ secrets.ELIFORA_CATALOG_SMOKE_BYPASS }}
+      CATALOG_EMAIL: ${{ secrets.ELIFORA_CATALOG_SMOKE_EMAIL }}
+      CATALOG_PASSWORD: ${{ secrets.ELIFORA_CATALOG_SMOKE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+        working-directory: apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Confirm old release fails closed against migrated staging
+        run: node scripts/verify-hosted-color-registry.mjs
+        env:
+          CATALOG_MODE: previous
+          CATALOG_ORIGIN: https://elifora-staging-3pitjqg5e-elifora.vercel.app
+      - name: Verify exact catalog candidate in real hosted browser
+        run: node scripts/verify-hosted-color-registry.mjs
+        env:
+          CATALOG_MODE: candidate
+          CATALOG_ORIGIN: https://elifora-staging-dzta0prvg-elifora.vercel.app
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hosted-catalog-candidate
+          path: |
+            apps/web/captures/reports/catalog-staging-*.png
+            apps/web/captures/reports/catalog-staging-browser*.json
+            apps/web/captures/reports/catalog-staging-runtime*.json
+            apps/web/captures/reports/catalog-staging-previous-release.json
+          retention-days: 14
+
+  canonical:
+    name: Canonical alias hosted browser checks
+    needs: candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CATALOG_BYPASS: ${{ secrets.ELIFORA_CATALOG_SMOKE_BYPASS }}
+      CATALOG_EMAIL: ${{ secrets.ELIFORA_CATALOG_SMOKE_EMAIL }}
+      CATALOG_PASSWORD: ${{ secrets.ELIFORA_CATALOG_SMOKE_PASSWORD }}
+      CATALOG_MODE: canonical
+      CATALOG_ORIGIN: https://elifora-staging.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+        working-directory: apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Wait for operator alias assignment and verify canonical application
+        run: node scripts/verify-hosted-color-registry.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hosted-catalog-canonical
+          path: |
+            apps/web/captures/reports/catalog-staging-*.png
+            apps/web/captures/reports/catalog-staging-browser*.json
+            apps/web/captures/reports/catalog-staging-runtime*.json
+          retention-days: 14
