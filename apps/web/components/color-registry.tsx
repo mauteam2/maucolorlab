@@ -18,7 +18,7 @@ function useRegistry(search: string, enabled = true) {
    if (!response.ok) throw new Error("Katalog yüklenemedi. Bağlantınızı ve çalışma alanı erişiminizi kontrol edin.");
    const next = registryPage.parse((await response.json()).data);
    if (active) { setPage(next); setError(""); }
-  }).catch(error => { if (active) { setPage(null); setError(error instanceof Error ? error.message : "Katalog yüklenemedi."); } });
+  }).catch(() => { if (active) { setPage(null); setError("Katalog yüklenemedi. Bağlantınızı ve çalışma alanı erişiminizi kontrol edip yeniden deneyin."); } });
   return () => { active = false; controller.abort(); };
  }, [search, enabled]);
  return { page, error };

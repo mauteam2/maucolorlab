@@ -13,7 +13,7 @@ const money = (value: number) => new Intl.NumberFormat("tr-TR", { style: "curren
 const colours = ["Karamel", "Bakır", "Soğuk kahve"];
 function Badge({ text, warning = false }: { text: string; warning?: boolean }) { return <span className={`salon-badge ${warning ? "warning" : "success"}`}>{text}</span>; }
 function Swatch({ index = 0 }: { index?: number }) { return <span className={`salon-swatch ${index === 1 ? "copper" : index === 2 ? "cool" : ""}`} aria-hidden="true" />; }
-function SampleTable({ headers, rows }: { headers: string[]; rows: React.ReactNode[][] }) { return <div className="salon-table-scroll"><table className="salon-table"><thead><tr>{headers.map(header => <th key={header}>{header}</th>)}</tr></thead><tbody>{rows.map((row, index) => <tr key={index}>{row.map((cell, col) => <td key={col}>{cell}</td>)}</tr>)}</tbody></table></div>; }
+function SampleTable({ headers, rows }: { headers: string[]; rows: React.ReactNode[][] }) { return <div className="salon-table-scroll"><table className="salon-table responsive-records"><thead><tr>{headers.map(header => <th scope="col" key={header}>{header}</th>)}</tr></thead><tbody>{rows.map((row, index) => <tr key={index}>{row.map((cell, col) => <td data-label={headers[col]} key={col}>{cell}</td>)}</tr>)}</tbody></table></div>; }
 function exportCsv(headers: string[], rows: (string | number)[][]) {
  const csv = "\uFEFF" + [headers, ...rows].map(row => row.map(cell => `"${String(cell).replaceAll('"', '""')}"`).join(";")).join("\r\n");
  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));

@@ -126,3 +126,12 @@
 @media(prefers-reduced-motion:reduce) {.salon-layout * {scroll-behavior:auto;animation:none!important;transition:none!important;}}
 /* Keep tenant/location context visible when the compact navigation takes over. */
 @media(max-width:900px) {.salon-identity {display:flex;}}
+@media(max-width:600px) {
+ .responsive-records {display:block;}
+ .responsive-records thead {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}
+ .responsive-records tbody {display:block;}
+ .responsive-records tr {display:block;padding:12px 0;border-bottom:1px solid var(--color-border);}
+ .responsive-records td {display:grid;grid-template-columns:minmax(65px,.7fr) minmax(0,1fr);gap:12px;padding:7px 0;border:0;}
+ .responsive-records td::before {content:attr(data-label);color:var(--ink-secondary);font-size:12px;}
+ .responsive-records .salon-badge {white-space:normal;justify-self:start;}
+}

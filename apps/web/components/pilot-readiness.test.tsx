@@ -4,13 +4,13 @@ import {PilotReadiness} from "./pilot-readiness";
 const release={gitSha:"a".repeat(40),colorEngineVersion:"color-engine/1.1.0",catalogs:[],migrationHead:"20261019125352",buildVersion:"pilot.0.10.0"};
 afterEach(()=>{cleanup();vi.useRealTimers();vi.unstubAllGlobals();});
 async function prepared(){
- vi.useFakeTimers();const fetcher=vi.fn(async()=>Response.json({data:{release}}));vi.stubGlobal("fetch",fetcher);
+ vi.useFakeTimers();const fetcher=vi.fn(async(url:RequestInfo|URL)=>url==="/api/session"?Response.json({code:"UNAUTHORIZED"},{status:401}):Response.json({data:{release}}));vi.stubGlobal("fetch",fetcher);
  await act(async()=>{render(<PilotReadiness/>);});
  fireEvent.change(screen.getByLabelText("Yorum",{exact:true}),{target:{value:"Synthetic professional review"}});
  fireEvent.change(screen.getByLabelText("Hedef seçiminin açıklığı",{exact:true}),{target:{value:"4"}});fireEvent.click(screen.getByRole("checkbox"));return fetcher;
 }
 it("retains an unfinished review after successful periodic authorization against the same release",async()=>{
- const fetcher=await prepared();await act(async()=>{await vi.advanceTimersByTimeAsync(60000);});expect(fetcher).toHaveBeenCalledTimes(2);
+ const fetcher=await prepared();await act(async()=>{await vi.advanceTimersByTimeAsync(60000);});expect(fetcher.mock.calls.filter(([url])=>url==="/api/pilot/status")).toHaveLength(2);
  expect(screen.getByLabelText("Yorum",{exact:true})).toHaveValue("Synthetic professional review");expect(screen.getByLabelText("Hedef seçiminin açıklığı",{exact:true})).toHaveValue("4");expect(screen.getByRole("checkbox")).toBeChecked();
 });
 it("clears review and consent when revalidation denies access, including after later recovery",async()=>{

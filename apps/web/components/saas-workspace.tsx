@@ -41,7 +41,7 @@ export function SaasWorkspace() {
       else { await load(); setNotice("Kullanım özeti kalıcı kaynak olaylarından yeniden oluşturuldu."); }
     } catch (e) { if (token === epoch.current) setNotice(saasMessage(e instanceof Error ? e.message : "")); } finally { setBusy(false); }
   }
-  return <SalonFrame active="settings" workspace={ctx?.organization_name}><main id="main-content" className="salon-main saas-workspace">
+  return <SalonFrame active="settings" context={ctx} workspace={ctx?.organization_name}><main id="main-content" className="salon-main saas-workspace">
     <SalonHeading title="Plan, abonelik ve kullanım" description="Kuruluş hesabınızın yapılandırılmış erişimini ve kullanım sınırlarını inceleyin." actions={<button className="button button-secondary" onClick={() => void load()}>Yenile</button>} />
     <Link className="text-link" prefetch={false} href="/workspace/settings">Salon ayarlarına dön →</Link>
     {error && <p role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}{!data && !error && <p role="status">Hesap durumu yükleniyor…</p>}

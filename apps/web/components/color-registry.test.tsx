@@ -1,10 +1,11 @@
-import { beforeEach, expect, it, vi } from "vitest";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { CatalogDiscoverySelector, ColorRegistryLibrary } from "./color-registry";
 import { unsupportedRegistryMessage } from "@/lib/brand/registry-model";
 const row = { id: "c2000000-0000-4000-8000-000000000001", lineId: "keune-tinta", line: "Tinta Color", brandId: "keune", brand: "Keune", manufacturer: "Keune", region: "GB", state: "SOURCE_COLLECTED", lastReviewedAt: null, recipeSupport: false, catalogId: null, shadeCount: 0, developerCount: 0, ruleCount: 0, sources: [] };
 const fetcher = vi.fn();
-beforeEach(() => { vi.stubGlobal("fetch", fetcher); fetcher.mockReset().mockResolvedValue(Response.json({ data: { schemaVersion: 1, total: 1, offset: 0, limit: 25, brands: [{ id: "keune", name: "Keune" }], regions: ["GB"], items: [row] } })); });
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+beforeEach(() => { vi.stubGlobal("fetch", fetcher); fetcher.mockReset().mockImplementation(async () => Response.json({ data: { schemaVersion: 1, total: 1, offset: 0, limit: 25, brands: [{ id: "keune", name: "Keune" }], regions: ["GB"], items: [row] } })); });
 it("information-only ColorLab selection never calls any recipe mutation", async () => {
  render(<CatalogDiscoverySelector/>);
  expect(fetcher).not.toHaveBeenCalled();

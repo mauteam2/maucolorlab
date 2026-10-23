@@ -1,5 +1,7 @@
 /** Presentation labels only: command values and server state are never translated. */
 const labels: Record<string, string> = {
+ NOTE: "Not", USAGE: "Malzeme kullanımı", MATERIAL_RECONCILE: "Malzeme mutabakatı", CHECKPOINT_RECORD: "Kontrol kaydı", PHOTO: "Fotoğraf",
+ CONFLICT_REVIEW: "Çakışma incelemesi gerekli", READY_FOR_EXPLICIT_SYNC: "Açık onayla gönderilmeye hazır",
  PENDING: "Bekliyor", IN_PROGRESS: "Uygulanıyor", COMPLETED: "Tamamlandı", SUPERSEDED: "Yeni sürümle değiştirildi",
  RUNNING: "Çalışıyor", PAUSED: "Duraklatıldı", CANCELLED: "İptal edildi",
  LIFT_CHECK: "Açılma kontrolü", TONE_CHECK: "Ton kontrolü", HAIR_INTEGRITY_CHECK: "Saç bütünlüğü kontrolü", ELASTICITY_CHECK: "Esneklik kontrolü", VISUAL_CHECK: "Görsel kontrol", CUSTOM: "Özel kontrol",
