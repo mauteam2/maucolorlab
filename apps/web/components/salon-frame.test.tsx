@@ -1,9 +1,10 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it } from "vitest";
+import { salonFixture } from "@/test/salon-fixtures";
 import { SalonFrame } from "./salon-frame";
 afterEach(cleanup);
 it("marks exactly one current section and never links unfinished modules into the live workspace", () => {
- render(<SalonFrame active="clients"><main id="main-content">Müşteri içeriği</main></SalonFrame>);
+ render(<SalonFrame active="clients" context={{...salonFixture().context, permissions:[...salonFixture().context.permissions,"finance.view","reports.read"]}}><main id="main-content">Müşteri içeriği</main></SalonFrame>);
  const navigation=screen.getByRole("navigation",{name:"Ana gezinti"});
  expect(navigation.querySelectorAll('[aria-current="page"]')).toHaveLength(1);
  expect(screen.getByRole("link",{name:"Müşteriler bölümü"})).toHaveAttribute("href","/workspace/clients");
@@ -26,4 +27,19 @@ it("conceals cached tenant content and workspace labels on account-change notifi
  expect(screen.queryByText("Private customer")).not.toBeInTheDocument();
  expect(screen.queryByText("Private salon")).not.toBeInTheDocument();
  expect(screen.getByRole("link", { name: "Çalışma alanını yeniden aç" })).toHaveAttribute("href", "/workspace");
+});
+
+it("conceals technical and financial navigation from reception and unknown sessions", () => {
+ const {rerender}=render(<SalonFrame active="clients" context={{...salonFixture().context,role:"reception",permissions:["clients.read","salon.read"]}}><main/></SalonFrame>);
+ expect(screen.queryByRole("link",{name:"ColorLab bölümü"})).toBeNull();
+ expect(screen.queryByRole("link",{name:"Marka kütüphanesi bölümü"})).toBeNull();
+ expect(screen.queryByRole("link",{name:"Finans bölümü"})).toBeNull();
+ expect(screen.getByRole("link",{name:"Müşteriler bölümü"})).toBeVisible();
+ rerender(<SalonFrame active="clients" context={null}><main/></SalonFrame>);
+ expect(screen.queryByRole("link",{name:"Müşteriler bölümü"})).toBeNull();
+});
+it("Escape closes navigation and restores keyboard focus", () => {
+ render(<SalonFrame active="dashboard" context={null}><main/></SalonFrame>);
+ const button=screen.getByRole("button",{name:"Menü"});fireEvent.click(button);fireEvent.keyDown(button,{key:"Escape"});
+ expect(button).toHaveAttribute("aria-expanded","false");expect(button).toHaveFocus();
 });

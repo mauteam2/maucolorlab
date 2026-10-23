@@ -94,6 +94,6 @@ export async function expectReady(page: Page) {
     }));
     throw new Error(`Workspace navigation failed; login state: ${code}; field state: ${JSON.stringify(fields)}`, { cause: error });
   }
-  await expect(page.getByRole("heading", { name: "Çalışma alanınız hazır." })).toBeVisible();
-  await expect(page.getByText("Studio E2E · Bolu")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bugün" })).toBeVisible();
+  await expect(page.locator(".today-context").filter({ hasText: "Studio E2E" })).toContainText("Bolu");
 }

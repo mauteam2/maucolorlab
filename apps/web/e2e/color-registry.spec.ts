@@ -1,6 +1,6 @@
 import { expect, test } from "./reliability-test";
 import { seedAccount, login, expectReady } from "./local-auth";
-const unavailable = "Bu seri ELIFORA kataloğunda bulunuyor ancak doğrulanmış teknik reçete desteği henüz yayınlanmadı.";
+const unavailable = "Bu seri ELIFORA kataloğunda yer alıyor ancak doğrulanmış teknik reçete desteği henüz yayınlanmadı.";
 
 test("global discovery library has region-specific official receipts and no recipe authority", async ({ page }, info) => {
  const account = await seedAccount(1); await login(page, account); await expectReady(page);

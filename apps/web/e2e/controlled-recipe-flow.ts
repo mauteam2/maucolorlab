@@ -50,12 +50,12 @@ export async function controlledRecipeJourney(page:Page,browser:Browser,info:Tes
  await panel.getByLabel("Uzman ton ve geliştirici seçimi").selectOption(`${candidate.productId}:${candidate.developerId}`);await panel.getByLabel("Boya miktarı (g)").fill("30.15");
  const savedResponse=page.waitForResponse(r=>r.url().endsWith("/api/controlled-brand-recipes")&&r.request().method()==="POST");await panel.getByRole("button",{name:"Kontrollü taslağı kaydet",exact:true}).click();const saved=await savedResponse;expect(saved.ok(),await saved.text()).toBeTruthy();const v1=(await saved.json()).data;
  expect(v1.result).toMatchObject({colorGrams:30.15,developerGrams:30.15,totalGrams:60.3,executable:false,professionalReviewRequired:true});expect(v1.result.selected.processingMinutes).toEqual({min:30,max:45});
- await expect(panel.getByText(/Toplam: 60.3 g/).first()).toBeVisible();
+ await expect(panel.getByText("60.3 g").first()).toBeVisible();
  const original=JSON.parse(saved.request().postData()!);expect((await(await page.request.post("/api/controlled-brand-recipes",{headers,data:original})).json()).data.id).toBe(v1.id);
  expect((await page.request.post("/api/controlled-brand-recipes",{headers,data:{...original,color_grams:31}})).status()).toBe(409);
  for(const field of ["white_ratio","developer_grams","processing_minutes","executable","organization_id"]){expect((await page.request.post("/api/controlled-brand-recipes",{headers,data:{...original,request_id:randomUUID(),[field]:true}})).status()).toBe(400);}
  await panel.getByLabel("Boya miktarı (g)").fill("45");const revisedResponse=page.waitForResponse(r=>r.url().endsWith("/api/controlled-brand-recipes")&&r.request().method()==="POST");await panel.getByRole("button",{name:"Yeni reçete sürümünü kaydet"}).click();const revised=await revisedResponse;expect(revised.ok(),await revised.text()).toBeTruthy();const v2=(await revised.json()).data;expect(v2.version).toBe(2);expect(v2.supersedesId).toBe(v1.id);expect(v2.seriesId).toBe(v1.seriesId);expect(v2.result.totalGrams).toBe(90);
- await expect(panel.getByText(/Toplam: 90 g/).first()).toBeVisible();
+ await expect(panel.getByText("90 g").first()).toBeVisible();
  expect((await(await page.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`)).json()).data.result.colorGrams).toBe(30.15);
  expect((await page.request.post("/api/controlled-brand-recipes",{headers,data:{...original,request_id:randomUUID(),supersedes_id:v1.id}})).status()).toBe(409);
  await panel.scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath("client-controlled-desktop.png")});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:info.outputPath("client-controlled-full.png"),fullPage:true});

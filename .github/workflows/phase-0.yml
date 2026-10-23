@@ -133,6 +133,7 @@ jobs:
             apps/web/test-results/**/phase-10-*.png
             apps/web/test-results/**/phase-10-*.json
             apps/web/test-results/**/global-catalog-*.png
+            apps/web/test-results/**/ui-ux-*.png
             ${{ runner.temp }}/color-pilot-*.json
             apps/web/test-results/**/phase-8-*.json
             apps/web/test-results/**/sanitized-route-*.json

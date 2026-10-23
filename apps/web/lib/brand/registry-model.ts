@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const discoveryStates = ["DISCOVERED", "SOURCE_COLLECTED", "UNDER_REVIEW", "VERIFIED", "PUBLISHED", "REJECTED", "SUPERSEDED"] as const;
-export const unsupportedRegistryMessage = "Bu seri ELIFORA kataloğunda bulunuyor ancak doğrulanmış teknik reçete desteği henüz yayınlanmadı.";
+export const unsupportedRegistryMessage = "Bu seri ELIFORA kataloğunda yer alıyor ancak doğrulanmış teknik reçete desteği henüz yayınlanmadı.";
 export const discoveryLabels: Record<typeof discoveryStates[number], string> = {
  DISCOVERED: "Marka / seri listelendi", SOURCE_COLLECTED: "Kaynaklar toplandı", UNDER_REVIEW: "Teknik incelemede",
  VERIFIED: "Veri incelemesi tamamlandı", PUBLISHED: "Kontrollü reçete desteği yayınlandı", REJECTED: "Reddedildi", SUPERSEDED: "Yerine yeni kayıt / emekli",

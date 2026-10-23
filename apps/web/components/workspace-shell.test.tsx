@@ -8,7 +8,7 @@ it("conceals tenant identity until a fresh session request completes", async () 
   const fetch = vi.fn(() => new Promise<Response>(() => {}));
   vi.stubGlobal("fetch", fetch);
   render(<WorkspaceShell />);
-  expect(screen.queryByRole("heading", { name: "Çalışma alanınız hazır." })).toBeNull();
+  expect(screen.queryByRole("heading", { name: "Bugün" })).toBeNull();
   expect(screen.getByRole("status")).toHaveTextContent("Erişiminiz doğrulanıyor");
   expect(fetch).toHaveBeenCalledWith("/api/session", expect.objectContaining({ cache: "no-store" }));
 });
@@ -16,5 +16,5 @@ it("stays concealed when initial verification fails", async () => {
   vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
   render(<WorkspaceShell />);
   expect(await screen.findByText(/Bağlantı kurulamadı/)).toBeVisible();
-  expect(screen.queryByRole("heading", { name: "Çalışma alanınız hazır." })).toBeNull();
+  expect(screen.queryByRole("heading", { name: "Bugün" })).toBeNull();
 });

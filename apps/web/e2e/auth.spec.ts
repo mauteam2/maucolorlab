@@ -36,7 +36,7 @@ test("multiple locations require deliberate selection and reject a forged refere
     await page.context().addCookies([{ name: "elifora-workspace", value: "foreign-membership:foreign-location", url: "http://127.0.0.1:4173" }]);
     await page.reload();
     await expect(page).toHaveURL(/\/workspaces\?reason=TENANT_CONTEXT_INVALID/);
-    await expect(page.getByRole("heading", { name: "Çalışma alanınız hazır." })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Bugün" })).toHaveCount(0);
     expect((await page.context().cookies()).some(c => c.name === "elifora-workspace")).toBe(false);
   } finally { await account.cleanup(); }
 });
@@ -50,7 +50,7 @@ test("revocation removes an existing session's workspace without deleting its au
     await account.revoke();
     await expect(page).toHaveURL(/\/workspaces\?reason=/, { timeout: 25000 });
     await expect(page.getByRole("heading", { name: "Henüz bir çalışma alanına erişiminiz yok." })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Çalışma alanınız hazır." })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Bugün" })).toHaveCount(0);
     expect((await page.context().cookies()).some(c => c.name === "elifora-workspace")).toBe(false);
     await page.goto("/workspace");
     await expect(page).toHaveURL(/\/workspaces/);
@@ -109,7 +109,7 @@ test("offline workspace is concealed and retry revalidates", async ({ page }) =>
   try {
     await login(page, account); await expectReady(page);
     await page.context().setOffline(true);
-    await expect(page.getByRole("heading", { name: "Çalışma alanınız hazır." })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Bugün" })).toHaveCount(0);
     await expect(page.getByRole("status")).toContainText("Bağlantı kurulamadı");
     await page.context().setOffline(false);
     await expectReady(page);

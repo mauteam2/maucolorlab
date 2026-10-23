@@ -19,7 +19,7 @@ function exportCsv(headers: string[], rows: (string | number)[][]) {
  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
  const link = document.createElement("a"); link.href = url; link.download = "elifora-ornek-veriler.csv"; link.click(); URL.revokeObjectURL(url);
 }
-export function SalonPreview({ screen }: { screen: SalonSection | "profile" }) {
+export function SalonPreview({ screen }: { screen: Exclude<SalonSection, "live" | "catalog"> | "profile" }) {
  const active = screen === "profile" ? "clients" : screen;
  const [notice, setNotice] = useState("");
  const [dialog, setDialog] = useState("");

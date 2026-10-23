@@ -18,9 +18,19 @@ it("information-only ColorLab selection never calls any recipe mutation", async 
 it("library distinguishes metadata and technical support and submits regional filters", async () => {
  render(<ColorRegistryLibrary/>);
  await screen.findByText(unsupportedRegistryMessage);
- expect(screen.getByText(/Ton metadata: 0/)).toBeVisible();
+ expect(screen.getByText(/Kayıtlı ton/)).toBeVisible();
  fireEvent.change(screen.getByLabelText("Pazar"), { target: { value: "GB" } });
  fireEvent.click(screen.getByRole("button", { name: "Filtrele" }));
- await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
- expect(fetcher.mock.calls[1]![0]).toContain("region=GB");
+ await waitFor(() => expect(fetcher.mock.calls.filter(call=>String(call[0]).startsWith("/api/color-registry"))).toHaveLength(2));
+ expect(fetcher.mock.calls.filter(call=>String(call[0]).startsWith("/api/color-registry"))[1]![0]).toContain("region=GB");
+});
+it("source coverage filters only loaded records without granting recipe support", async () => {
+ render(<ColorRegistryLibrary/>);
+ await screen.findByText(unsupportedRegistryMessage);
+ fireEvent.change(screen.getByLabelText("Bu sayfada kaynak kapsamı"), { target: { value: "TECHNICAL" } });
+ expect(screen.getByText("Bu filtrelerde seri bulunamadı")).toBeVisible();
+ expect(screen.getByText(/1 bölgesel kayıt.*Bu sayfada 0 kayıt/)).toBeVisible();
+ fireEvent.change(screen.getByLabelText("Bu sayfada kaynak kapsamı"), { target: { value: "MISSING" } });
+ expect(screen.getByText(unsupportedRegistryMessage)).toBeVisible();
+ expect(fetcher.mock.calls.filter(call => String(call[0]).startsWith("/api/color-registry"))).toHaveLength(1);
 });

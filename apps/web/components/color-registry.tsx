@@ -2,8 +2,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { discoveryLabels, discoveryStates, registryPage, unsupportedRegistryMessage, type RegistryPage } from "@/lib/brand/registry-model";
+import { EmptyState, LoadingState, StatusBadge, TechnicalNotice } from "./professional-ui";
 import { SalonCard, SalonFrame, SalonHeading } from "./salon-frame";
 
+const market = (value: string) => ({ UNKNOWN: "Bölgesel kapsam doğrulanmadı", GLOBAL: "Küresel", EU: "Avrupa Birliği", GB: "Birleşik Krallık", US: "ABD", TR: "Türkiye" } as Record<string,string>)[value] ?? value;
+const documentLabel = (value: string) => ({ TECHNICAL_GUIDE:"Teknik kılavuz", IFU:"Kullanım talimatı", COMPATIBILITY_GUIDE:"Uyumluluk kılavuzu", PRODUCT_PAGE:"Ürün sayfası", SHADE_CHART:"Ton kartelası", SAFETY_DATA_SHEET:"Güvenlik bilgi formu", BRAND_PAGE:"Marka sayfası" } as Record<string,string>)[value] ?? "Resmî belge";
 function useRegistry(search: string, enabled = true) {
  const [page, setPage] = useState<RegistryPage | null>(null);
  const [error, setError] = useState("");
@@ -23,33 +26,37 @@ function useRegistry(search: string, enabled = true) {
 
 export function ColorRegistryLibrary() {
  const [search, setSearch] = useState("limit=25");
+ const [coverage, setCoverage] = useState("ALL");
  const { page, error } = useRegistry(search);
+ const entries = page?.items.filter(entry => {
+  const technical = entry.sources.some(source => ["TECHNICAL_GUIDE", "IFU", "COMPATIBILITY_GUIDE"].includes(source.documentType));
+  return coverage === "ALL" || (coverage === "TECHNICAL" ? technical : !technical);
+ }) ?? [];
  function paginate(offset: number) { const params = new URLSearchParams(search); params.set("offset", String(offset)); setSearch(params.toString()); }
- return <SalonFrame active="colorlab"><main id="main-content" className="salon-main">
+ return <SalonFrame active="catalog"><main id="main-content" className="salon-main">
   <SalonHeading title="Marka kütüphanesi" description="ELIFORA’da listelenen seriler ve doğrulanmış teknik reçete desteği." actions={<Link href="/workspace/colorlab" className="button button-secondary">ColorLab’a dön</Link>} />
-  <div className="salon-notice"><strong>Katalogda bulunması reçete desteği anlamına gelmez.</strong><p>Pazarlar birbirinin yerine geçmez. UNKNOWN, bölgesel kapsamın henüz doğrulanmadığını belirtir. Ton ve geliştirici sayıları yalnızca kaydedilen metadata satırlarıdır; üreticinin toplam ürün sayısı değildir.</p></div>
-  <SalonCard><form className="salon-form-grid" onSubmit={event => {
+  <TechnicalNotice title="Katalog kaydı ve reçete yetkisi ayrı değerlendirilir"><p>Pazarlar birbirinin yerine geçmez. Ton ve geliştirici sayıları yalnızca kaydedilen referans bilgilerini gösterir; üreticinin toplam ürün sayısı değildir.</p></TechnicalNotice>
+  <SalonCard><form className="registry-filters" onSubmit={event => {
    event.preventDefault(); const data = new FormData(event.currentTarget); const params = new URLSearchParams({ limit: "25" });
    for (const [key, value] of data) if (String(value)) params.set(key, String(value)); setSearch(params.toString());
   }}>
    <label>Marka veya seri ara<input aria-label="Marka veya seri ara" type="search" name="query" maxLength={80}/></label>
    <label>Marka<select aria-label="Marka" name="brand"><option value="">Tüm markalar</option>{page?.brands.map(brand => <option key={brand.id} value={brand.id}>{brand.name}</option>)}</select></label>
-   <label>Pazar<select aria-label="Pazar" name="region"><option value="">Tüm pazarlar</option>{page?.regions.map(region => <option key={region}>{region}</option>)}</select></label>
+   <label>Pazar<select aria-label="Pazar" name="region"><option value="">Tüm pazarlar</option>{page?.regions.map(region => <option key={region} value={region}>{market(region)}</option>)}</select></label>
    <label>İnceleme durumu<select aria-label="İnceleme durumu" name="state"><option value="">Tüm durumlar</option>{discoveryStates.map(state => <option key={state} value={state}>{discoveryLabels[state]}</option>)}</select></label>
    <button className="button button-primary">Filtrele</button>
   </form></SalonCard>
-  {error && <p role="alert">{error}</p>}{!page && !error && <p role="status">Katalog yükleniyor…</p>}
-  {page && <div className="salon-stack"><p role="status">{page.total} bölgesel kayıt · Sayfa {Math.floor(page.offset / page.limit) + 1}</p>
-   {!page.items.length && <SalonCard><p>Bu filtrelerde seri bulunamadı. Reçete verisi başka bir markadan tamamlanmaz.</p></SalonCard>}
-   {page.items.map(entry => <SalonCard key={entry.id} title={`${entry.brand} · ${entry.line}`}>
-    <div className="salon-toolbar"><span className="salon-badge">ELIFORA kataloğunda mevcut</span><span className={`salon-badge ${entry.recipeSupport ? "success" : "warning"}`}>{discoveryLabels[entry.state]}</span><span>Pazar: {entry.region}</span></div>
-    <p>{entry.manufacturer} · Ton metadata: {entry.shadeCount} · Geliştirici metadata: {entry.developerCount} · Yayınlanmış kural: {entry.ruleCount}</p>
-    <p>Son teknik inceleme: {entry.lastReviewedAt ? new Date(entry.lastReviewedAt).toLocaleDateString("tr-TR") : "Henüz yapılmadı"}</p>
-    <p>{entry.recipeSupport ? "Doğrulanmış reçete desteği mevcut. Güvenlik ve bağlama özel uyumluluk ayrıca kontrol edilir." : unsupportedRegistryMessage}</p>
+  {error && <p role="alert">{error}</p>}{!page && !error && <LoadingState label="Katalog yükleniyor…"/>}
+  {page && <div className="registry-list"><div className="salon-toolbar"><p role="status">{page.total} bölgesel kayıt · Sayfa {Math.floor(page.offset / page.limit) + 1} · Bu sayfada {entries.length} kayıt gösteriliyor</p><label>Bu sayfada kaynak kapsamı<select value={coverage} onChange={event => setCoverage(event.target.value)}><option value="ALL">Tüm kaynak kapsamları</option><option value="TECHNICAL">Teknik belge toplanmış</option><option value="MISSING">Teknik belge eksik</option></select></label></div>
+   {!entries.length && <EmptyState title="Bu filtrelerde seri bulunamadı">Pazarı, kaynak kapsamını veya sayfayı değiştirin. Eksik reçete verisi başka bir markadan tamamlanmaz.</EmptyState>}
+   {entries.map(entry => <article className="registry-record" key={entry.id}>
+    <div><span className="ui-eyebrow">{entry.brand}</span><h2>{entry.brand} · {entry.line}</h2><StatusBadge tone={entry.recipeSupport ? "success" : "unknown"}>{discoveryLabels[entry.state]}</StatusBadge><p>{entry.manufacturer}<br/>Pazar: {market(entry.region)}</p></div>
+    <div><div className="registry-metadata"><span><strong>{entry.sources.length}</strong>Resmî kaynak</span><span><strong>{entry.shadeCount}</strong>Kayıtlı ton</span><span><strong>{entry.developerCount}</strong>Kayıtlı geliştirici</span><span><strong>{entry.ruleCount}</strong>Yayınlanmış kural</span></div>
+    <p>{entry.recipeSupport ? "Doğrulanmış reçete desteği mevcut. Güvenlik ve bağlama özel uyumluluk ayrıca kontrol edilir." : unsupportedRegistryMessage}</p><p className="salon-muted">Son teknik inceleme: {entry.lastReviewedAt ? new Date(entry.lastReviewedAt).toLocaleDateString("tr-TR") : "Henüz yapılmadı"}</p><Link href="/workspace/colorlab">ColorLab’da teknik değerlendirmeyi aç →</Link></div>
     <details><summary>{entry.sources.length} resmî kaynak · {entry.sources.some(source => ["TECHNICAL_GUIDE", "IFU", "COMPATIBILITY_GUIDE"].includes(source.documentType)) ? "Teknik belge toplandı; inceleme gerekir" : "Teknik kural doğrulaması eksik"}</summary>
-     {entry.sources.map(source => <div key={source.id} style={{ overflowWrap: "anywhere", paddingBlock: 12 }}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><p>{source.documentType} · {source.region} · {source.language} · {source.reviewStatus}</p><p>Belge sürümü: {source.documentVersion ?? "UNKNOWN"} · Belge tarihi: {source.documentDate ?? "UNKNOWN"}</p><p>Toplandı: {new Date(source.retrievedAt).toLocaleDateString("tr-TR")} · SHA-256: <code>{source.sha256}</code></p></div>)}
+     {entry.sources.map(source => <div key={source.id} className="registry-source"><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><p>{documentLabel(source.documentType)} · {market(source.region)} · {source.language} · {discoveryLabels[source.reviewStatus]}</p><p>Belge sürümü: {source.documentVersion ?? "Bilinmiyor"} · Belge tarihi: {source.documentDate ?? "Bilinmiyor"}</p><p>Toplandı: {new Date(source.retrievedAt).toLocaleDateString("tr-TR")} · SHA-256: <code>{source.sha256}</code></p></div>)}
     </details>
-   </SalonCard>)}
+   </article>)}
    <div className="salon-toolbar"><button className="button button-secondary" disabled={!page.offset} onClick={() => paginate(Math.max(0, page.offset - page.limit))}>Önceki</button><button className="button button-secondary" disabled={page.offset + page.limit >= page.total || page.offset >= 10000} onClick={() => paginate(page.offset + page.limit)}>Sonraki</button></div>
   </div>}
  </main></SalonFrame>;
