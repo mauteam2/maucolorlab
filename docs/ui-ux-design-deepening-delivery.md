@@ -64,7 +64,7 @@ Text accompanies semantic color, controls retain labels, keyboard focus is visib
 
 ## Performance
 
-No dependency or animation library has been added. One successful local production build emitted 46 JS chunks totaling 1,999,075 bytes (591,361 gzip) and two CSS files totaling 71,696 bytes (14,610 gzip). These are aggregate emitted chunks, **not per-route transfer sizes** or a final-head benchmark. The current added stylesheet is 16,624 bytes (4,119 gzip). Baseline-to-final bundle/render comparison remains outstanding.
+No dependency or animation library has been added. The successful local production build of `fde5348e55ddb591161121b65086febe1272b58a` with Next.js 16.4.1 emitted 46 JS chunks totaling 1,699,856 bytes (530,058 gzip) and two CSS files totaling 70,843 bytes (14,610 gzip). These are aggregate emitted chunks, **not per-route transfer sizes**. The added stylesheet is 16,624 bytes (4,119 gzip). Baseline-to-final bundle/render comparison remains outstanding; differences from the earlier intermediate build also include the approved Next.js update and must not be attributed solely to design work.
 
 ## Screenshots
 
@@ -77,6 +77,10 @@ Local development previews: `apps/web/captures/reports/ui-ux-preview-{screen}-{1
 - Local typecheck and a production build passed during the iteration. The first full local unit run suffered worker-start/time-budget failures (1,464 passed, 10 failed, seven worker errors); it is not a passing result. A repeat after targeted fixture/presentation corrections is pending at the time of this report.
 - A local six-scenario intro run against the development server returned three passes and three failures (missing playback observation, a navigation timeout, and a late brush-mask observation). The approved intro implementation has not been edited; these failures still need a controlled production-build recheck and are not waived.
 - The full local unit repeat also reported Hair Passport and Live cases exceeding their existing time budgets. Final lint, unit, intro and real authenticated browser evidence must be recorded before this status is changed to complete. No test timeout or security gate was relaxed.
+- After the approved security update: local lint, typecheck, production build and the production dependency audit passed (zero production vulnerabilities). Seven targeted component files passed all 45 tests, including Finance, Catalog, Hair Passport, Live, Pilot Readiness, SalonFrame and shared professional UI. Earlier failures are retained above rather than erased.
+- The first 16.4.1 CI attempt (`39998712038`) exposed two omitted cross-platform optional lockfile entries. Restoring the existing `@emnapi/core` and `@emnapi/runtime` 1.11.3 records fixed the Linux clean-install check. CI `39999583793` passed clean install, Web lint/typecheck/security/build, all 1,573 Web unit tests in 140 files, Android, contracts, database/RLS/concurrency, and four real catalog browser scenarios without retries.
+- That run then stopped in the offline browser group: 18 passed, two failed (desktop/mobile variants of organization switching). The retained DOM snapshots show the correct new organization and branch in separate fields; the test still expected their old combined text. The test now checks both visible fields and all three authoritative organization/location/membership IDs. Encrypted-draft isolation, cross-tab concealment and return-to-original-scope assertions remain intact. A follow-up CI run is required; no failure is waived.
+- An automatic approval review rejected starting the local production server on port 3001 with the reason `blocked by policy`. The same action was not retried through another route. Final browser verification remains assigned to the existing CI environment.
 
 ## Git
 

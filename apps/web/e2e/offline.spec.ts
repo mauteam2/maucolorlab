@@ -153,7 +153,14 @@ test("switching organization conceals the original encrypted scope and restores 
  await page.goto("/workspace"); await expectReady(page); await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toBeVisible();
  const chooser = await page.context().newPage(); await chooser.goto("/workspaces?choose=1");
  await chooser.getByRole("button", { name: /Synthetic Other Salon.*Other Branch/ }).click();
- await expect(chooser.getByText("Synthetic Other Salon · Other Branch")).toBeVisible();
+ // The redesigned workspace separates salon identity from branch/role context.
+ // Verify both visible fields and the authoritative scope, not their punctuation.
+ await expect(chooser.locator(".today-context").getByText("Synthetic Other Salon", { exact: true })).toBeVisible();
+ await expect(chooser.locator(".today-context").getByText("Other Branch · Salon Sahibi", { exact: true })).toBeVisible();
+ const selectedScope = await (await chooser.request.get("/api/session")).json();
+ expect(selectedScope.context.organization_id).toBe(organization);
+ expect(selectedScope.context.location_id).toBe(location);
+ expect(selectedScope.context.membership_id).toBe(member);
  await expect(chooser.getByRole("region", { name: "Yerel taslaklar" })).toHaveCount(0);
  await expect(page.getByText("Özel bilgiler gizlendi", { exact: false })).toBeVisible();
  await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toHaveCount(0); expect((await storageShape(page)).count).toBe(1);
