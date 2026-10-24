@@ -3,7 +3,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { SyncCoordinator } from "@/lib/offline/coordinator";
 import { dispatchDraft } from "@/lib/offline/dispatch";
 import { currentVault, lockDraftVault, unlockDraftVault, readOfflineDrafts, storeOfflineDraft, preserveOfflineRejection, removeOfflineDraft, type DraftVault } from "@/lib/offline/vault";
-import type { OfflineDraft } from "@/lib/offline/model";
+import type { ConflictType, OfflineDraft } from "@/lib/offline/model";
+const domainLabels: Record<OfflineDraft["domain"], string> = {
+ HAIR_CORE: "Saç profili", HAIR_OBSERVATION: "Teknik gözlem", HAIR_PHYSICAL_TEST: "Fiziksel test", HAIR_HISTORY: "Teknik geçmiş",
+ LIVE: "Canlı uygulama", CLIENT: "Müşteri", CRM: "Müşteri ilişkileri", APPOINTMENT: "Randevu", COLOR_TARGET: "Hedef renk",
+ STOCK_COUNT: "Stok sayımı", STOCK_INTAKE: "Stok girişi", STOCK_USAGE: "Ürün kullanımı", PAYMENT: "Ödeme", EXPENSE: "Gider", CASH_CLOSE: "Kasa kapanışı",
+};
+const conflictLabels: Record<ConflictType, string> = {
+ VERSION_CHANGED: "Kayıt değişti; güncel sürümü inceleyin", CONTROL_EPOCH_CHANGED: "Uygulama kontrolü değişti",
+ AUTHORITY_EXPIRED: "Yetki yeniden doğrulanmalı", WORKSPACE_CHANGED: "Çalışma alanı değişti", PAYLOAD_CHANGED: "Taslak içeriği değişti",
+ DEPENDENCY_FAILED: "Bağlı taslak tamamlanamadı", AVAILABILITY_CHANGED: "Randevu uygunluğu değişti", SUBSCRIPTION_CHANGED: "Abonelik koşulları değişti",
+ STOCK_CHANGED: "Stok durumu değişti", CASH_CHANGED: "Kasa durumu değişti", VALIDATION_FAILED: "Taslak bilgilerini kontrol edin",
+};
 const labels: Record<OfflineDraft["status"], string> = { LOCAL: "Yerel taslak", PENDING_SYNC: "Gönderilmeyi bekliyor", SYNCING: "Gönderiliyor", SYNCED: "Sunucu kabul etti", CONFLICT: "Çakışma · inceleyin", REJECTED: "Sunucu reddetti", REVIEW_REQUIRED: "Güncel kayıtla inceleme gerekli", DEPENDENCY_BLOCKED: "Önce bağlı taslağı tamamlayın" };
 export function OfflineDraftPanel({ entityId, onSynced, silent = false }: { entityId?: string; onSynced?: (drafts: OfflineDraft[]) => void; silent?: boolean }) {
  const [drafts, setDrafts] = useState<OfflineDraft[]>([]), [message, setMessage] = useState(""), [busy, setBusy] = useState(false);
@@ -62,7 +73,7 @@ export function OfflineDraftPanel({ entityId, onSynced, silent = false }: { enti
   <p className="salon-muted">{conflicts} çakışma · {failures} inceleme/ret · en eski bekleyen {oldest} dk</p>
   {message && <p role="status">{message}</p>}
   <button type="button" className="button button-secondary" disabled={busy} onClick={() => void sync()}>{busy ? "Gönderiliyor…" : "Taslakları senkronize et"}</button>
-  {pending.map(d => <article key={d.draft_id} className="salon-notice"><strong>{labels[d.status]}</strong><p>{d.domain} · {d.conflict ?? "Sunucunun güncel kontrolleri uygulanacak"}</p>
+  {pending.map(d => <article key={d.draft_id} className="salon-notice"><strong>{labels[d.status]}</strong><p>{domainLabels[d.domain]} · {d.conflict ? conflictLabels[d.conflict] : "Sunucunun güncel kontrolleri uygulanacak"}</p>
    <details><summary>Taslağı incele</summary><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{JSON.stringify(d.payload, null, 2)}</pre></details>
    <button type="button" className="button button-secondary" disabled={busy} onClick={() => void discard(d.draft_id)}>Taslağı sil</button>
   </article>)}

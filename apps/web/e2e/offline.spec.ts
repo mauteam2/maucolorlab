@@ -186,7 +186,7 @@ test("captured appointment intent rejects a slot booked while disconnected", asy
  await online(page); await page.reload(); const result = page.waitForResponse(r => new URL(r.url()).pathname === "/api/salon" && r.request().method() === "POST");
  await page.getByRole("button", { name: "Taslakları senkronize et" }).click(); const response = await result;
  expect(response.status()).toBe(409); expect((await response.json()).code).toBe("STAFF_DOUBLE_BOOKED");
- await expect(page.getByText("APPOINTMENT · AVAILABILITY_CHANGED")).toBeVisible();
+ await expect(page.getByText("Randevu · Randevu uygunluğu değişti")).toBeVisible();
  const snapshot = await (await page.request.get(`/api/salon?from=${date}&to=${date}`)).json(); expect(snapshot.data.appointments).toHaveLength(1);
  await page.screenshot({ path: info.outputPath("phase-8-appointment-conflict.png"), fullPage: true }); await f.account.cleanup();
 });
@@ -203,7 +203,7 @@ test("stock and cash preparations stay review-only after movements and subscript
  await offline(page); await page.getByRole("button", { name: "Yerel taslak olarak koru" }).click(); await expect(page.getByText(/Taslak cihazda şifreli korundu/)).toBeVisible();
  await online(page); const count = randomUUID(); await stock({ type: "COUNT_CREATE", id: count, lines: [{ stock_item_id: item, lot_id: null, counted_quantity: 95 }], reason: "Freshly reviewed count" });
  await stock(movement("RECEIPT", 10)); expect((await stock({ type: "COUNT_CONFIRM", id: count, reason: "Reject stale count" }, 409)).code).toBe("STOCK_COUNT_STALE");
- await page.getByRole("button", { name: "Taslakları senkronize et" }).click(); await expect(page.getByText("STOCK_COUNT · Sunucunun güncel kontrolleri uygulanacak")).toBeVisible();
+ await page.getByRole("button", { name: "Taslakları senkronize et" }).click(); await expect(page.getByText("Stok sayımı · Sunucunun güncel kontrolleri uygulanacak")).toBeVisible();
  expect((await (await page.request.get(`/api/stock?item_id=${item}`)).json()).data.items[0].on_hand).toBe(110);
  await finance({ type: "CURRENCY_SET", currency: "TRY", expected_version: 0, reason: "Synthetic finance initialization" }); const cash = randomUUID();
  await finance({ type: "CASH_OPEN", id: cash, currency: "TRY", opening_cash_minor: "10000", reason: "Synthetic measured opening" });
@@ -216,7 +216,7 @@ test("stock and cash preparations stay review-only after movements and subscript
  configure(f.context.organization_id, "SUSPENDED");
  expect((await stock(movement("RECEIPT", 1), 409)).code).toBe("SUBSCRIPTION_RESTRICTED");
  await page.reload(); await page.getByRole("button", { name: "Taslakları senkronize et" }).click();
- await expect(page.getByText("CASH_CLOSE · Sunucunun güncel kontrolleri uygulanacak")).toBeVisible();
+ await expect(page.getByText("Kasa kapanışı · Sunucunun güncel kontrolleri uygulanacak")).toBeVisible();
  const state = (await (await page.request.get("/api/finance")).json()).data;
  expect(state.cash_sessions.find((s: { id: string }) => s.id === cash).status).toBe("CLOSING_REVIEW"); expect(state.documents.filter((d: { type: string }) => d.type === "PAYMENT")).toHaveLength(1);
  await page.setViewportSize({ width: info.project.name === "chromium" ? 1440 : 320, height: 900 });
