@@ -10,3 +10,5 @@ const labels: Record<string, string> = {
  LIVE_USAGE: "Canlı uygulama kullanımı", MATERIAL_RECONCILIATION: "Malzeme mutabakatı", LIVE_TERMINAL: "Sonlandırılmış uygulama",
 };
 export const operationalStatus = (value: string) => labels[value] ?? "İncelenecek kayıt";
+const units: Record<string, string> = { GRAM: "g", MILLILITER: "ml", UNIT: "adet", COUNT: "adet", MINUTES: "dk", SECONDS: "sn" };
+export const operationalUnit = (value: string | null) => units[value ?? ""] ?? "Birim bilinmiyor";

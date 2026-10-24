@@ -32,6 +32,10 @@
 .salon-card .salon-card {box-shadow:none;}
 .salon-layout .button {border-radius:var(--radius-control);font-size:13px;min-height:44px;padding:10px 16px;line-height:1.4;}
 .salon-layout .button-primary {background:var(--ink);box-shadow:none;}
+.salon-layout button.text-link {appearance:none;border:0;background:transparent;color:var(--copper);font:600 13px/1.4 var(--font-sans);min-height:44px;padding:8px 0;margin-top:0;text-align:left;text-decoration:underline;text-underline-offset:4px;cursor:pointer;justify-self:start;}
+.salon-layout button.text-link:hover:not(:disabled) {color:var(--ink);}
+.salon-layout .clients-page > nav.dossier-links {display:flex;}
+.salon-layout .stock-action {display:grid;gap:6px;}
 .salon-layout :is(input,select,textarea) {font-family:var(--font-sans);font-size:14px;border-radius:var(--radius-control);max-width:100%;min-width:0;}
 .salon-layout :is(input,select) {min-height:44px;}
 .salon-layout :is(input[type=checkbox],input[type=radio]) {min-height:0;}

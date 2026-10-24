@@ -14,6 +14,11 @@ async function capture(page: Page, info: TestInfo, screen: string) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${screen}: ${width}px overflow`).toBe(true);
   await expect(page.locator("#main-content")).toBeVisible();
   await expect(page.locator('.salon-sidebar [aria-current="page"]')).toHaveCount(1);
+  if (screen === "profile") {
+   const workspaces = page.getByRole("navigation", { name: "Müşteri çalışma alanları" });
+   await expect(workspaces.getByRole("link", { name: "Renk planı ve reçete →" })).toBeVisible();
+   await expect(workspaces.getByRole("link", { name: "Canlı seans geçmişi →" })).toBeVisible();
+  }
   if ([1440, 390, 320].includes(width)) await page.screenshot({ path: info.outputPath(`ui-ux-${screen}-${width}.png`), fullPage: true });
  }
 }
