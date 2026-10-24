@@ -72,6 +72,9 @@ Local development previews: `apps/web/captures/reports/ui-ux-preview-{screen}-{1
 
 ## Tests
 
+- With Zod 4.6.6, CI `40075599081` on `76859836b6ab3dceb4444ebc42d01ced97f68d01` passed the production audit, Web lint/typecheck/build, all 1,573 Web unit tests, Android, contracts/secrets, and database/RLS/concurrency. Four catalog scenarios and all ten design/intro scenarios passed without retries, including the six-width authenticated workspace checks and the 1,500 ms intro. The offline group then returned 18 passes and two failures in the newly added session API assertion after workspace selection. That assertion now uses the open browser's same-origin session and explicitly requires HTTP 200 before checking all three scope IDs; remaining privacy checks are unchanged. Dedicated design captures now have a separate output directory so later Playwright invocations cannot clear them. Follow-up verification remains required.
+- Local post-Zod lint/typecheck passed. The full local unit run returned 1,518 passes but two worker-start timeouts (Color Engine and Risk invariants); it is not a passing full run. The same complete 1,573-test suite passed in the CI environment above. No timeout or security gate was loosened.
+
 - Initial UI commit `4ce4d00f540d9d0d68b24a8fdc5bd7f5f284c248`, CI `39971994034`: Database/RLS/concurrency, Android, contracts and secret scan passed. Android executed 200 unit tests. Web lint and typecheck passed.
 - Web CI stopped at the unchanged production dependency vulnerability gate, before unit/build/E2E stages. They are **not** counted as CI passes.
 - Local typecheck and a production build passed during the iteration. The first full local unit run suffered worker-start/time-budget failures (1,464 passed, 10 failed, seven worker errors); it is not a passing result. A repeat after targeted fixture/presentation corrections is pending at the time of this report.

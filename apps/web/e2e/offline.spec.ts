@@ -157,10 +157,14 @@ test("switching organization conceals the original encrypted scope and restores 
  // Verify both visible fields and the authoritative scope, not their punctuation.
  await expect(chooser.locator(".today-context").getByText("Synthetic Other Salon", { exact: true })).toBeVisible();
  await expect(chooser.locator(".today-context").getByText("Other Branch · Salon Sahibi", { exact: true })).toBeVisible();
- const selectedScope = await (await chooser.request.get("/api/session")).json();
- expect(selectedScope.context.organization_id).toBe(organization);
- expect(selectedScope.context.location_id).toBe(location);
- expect(selectedScope.context.membership_id).toBe(member);
+ const selectedScope = await chooser.evaluate(async () => {
+  const response = await fetch("/api/session", { credentials: "same-origin", cache: "no-store" });
+  return { status: response.status, body: await response.json() };
+ });
+ expect(selectedScope.status).toBe(200);
+ expect(selectedScope.body.context.organization_id).toBe(organization);
+ expect(selectedScope.body.context.location_id).toBe(location);
+ expect(selectedScope.body.context.membership_id).toBe(member);
  await expect(chooser.getByRole("region", { name: "Yerel taslaklar" })).toHaveCount(0);
  await expect(page.getByText("Özel bilgiler gizlendi", { exact: false })).toBeVisible();
  await expect(page.getByRole("region", { name: "Yerel taslaklar" })).toHaveCount(0); expect((await storageShape(page)).count).toBe(1);
