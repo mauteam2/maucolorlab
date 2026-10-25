@@ -93,6 +93,8 @@ jobs:
         run: npx playwright test e2e/color-registry.spec.ts --workers=1 --retries=0
       - name: Professional workspace layouts and preserved sign-in intro must pass without retries
         run: npx playwright test e2e/design-deepening.spec.ts e2e/sign-in-intro.spec.ts --workers=1 --retries=0 --output=test-results-design
+      - name: Redesigned client navigation and salon interactions must pass without retries
+        run: npx playwright test e2e/clients.spec.ts e2e/client-crm.spec.ts e2e/salon-operations.spec.ts --workers=1 --retries=0
       - name: Phase 8 offline browser journeys must pass without retries
         run: npx playwright test e2e/offline.spec.ts --workers=1 --retries=0
       - name: Phase 9 security journeys must pass without retries

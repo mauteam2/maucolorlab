@@ -6,7 +6,9 @@ import { login, seedAccount, expectReady } from "./local-auth";
 // and the production hard-delete prohibition must not be weakened for fixture cleanup.
 async function start(page: Page) {
   const account = await seedAccount(); await login(page, account); await expectReady(page);
-  await page.getByRole("link", { name: "Müşteriler", exact: true }).click();
+  const menu = page.getByRole("button", { name: "Menü", exact: true });
+  if (await menu.isVisible()) await menu.click();
+  await page.getByRole("navigation", { name: "Ana gezinti" }).getByRole("link", { name: "Müşteriler bölümü", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Müşteriler", exact: true })).toBeVisible();
   return account;
 }
