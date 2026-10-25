@@ -44,6 +44,17 @@ export async function verifyLiveSession(page:Page,browser:Browser,info:TestInfo,
   await recoveredPage.setViewportSize(info.project.name==="chromium"?{width:1440,height:1000}:{width:320,height:800});
   expect(await recoveredPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await recoveredPage.screenshot({path:info.outputPath(`phase-8-controller-recovery-${info.project.name}.png`),fullPage:true});
+  // Capture the device that actually owns control, as well as the readonly handoff view below.
+  for(const width of [1440,1280,1024,768,390,320]){
+   await recoveredPage.setViewportSize({width,height:1000});
+   await expect(recoveredPage.getByRole("button",{name:"Seansı duraklat",exact:true})).toBeEnabled();
+   await expect(recoveredPage.getByLabel("Dip kalan süre")).toBeVisible();
+   expect(await recoveredPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+   if([1440,390,320].includes(width)){
+    await recoveredPage.evaluate(()=>{if(document.activeElement instanceof HTMLElement)document.activeElement.blur();window.scrollTo(0,0);});
+    await recoveredPage.screenshot({path:info.outputPath(`ui-ux-live-${width}.png`),fullPage:true});
+   }
+  }
  } finally {await recoveredPage.close();configure(recoveryContext.organization_id,"ACTIVE");}
  await page.getByRole("button",{name:"Güncel kaydı yükle"}).click();await expect(page.getByText(`Uygulama sürüyor · Sürüm ${s.recordVersion}`,{exact:true})).toBeVisible();
  // The open offline workflow keeps timestamp timers and stores local drafts.
