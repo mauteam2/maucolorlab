@@ -1,0 +1,76 @@
+name: ELIFORA hosted UI staging verification
+on:
+  push:
+    branches: [codex/ui-ux-hosted-verification]
+permissions:
+  contents: read
+concurrency:
+  group: ui-ux-staging-hosted-smoke
+  cancel-in-progress: false
+env:
+  UI_SHA: 9fb0dba7c18f9bbfd320860259e7a5f8f913194b
+  UI_CI: '40198843636'
+jobs:
+  candidate:
+    name: Protected candidate browser checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      UI_BYPASS: ${{ secrets.ELIFORA_UI_SMOKE_BYPASS }}
+      UI_EMAIL: ${{ secrets.ELIFORA_UI_SMOKE_EMAIL }}
+      UI_PASSWORD: ${{ secrets.ELIFORA_UI_SMOKE_PASSWORD }}
+      UI_MODE: candidate
+      UI_ORIGIN: https://elifora-staging-oh3sa3hdu-elifora.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+        working-directory: apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Verify exact UI release against protected hosted staging
+        run: node scripts/verify-hosted-ui.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hosted-ui-candidate
+          path: |
+            apps/web/captures/reports/ui-ux-hosted-candidate-*.png
+            apps/web/captures/reports/ui-ux-staging-*.json
+          retention-days: 14
+  canonical:
+    name: Protected canonical browser checks
+    needs: candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      UI_BYPASS: ${{ secrets.ELIFORA_UI_SMOKE_BYPASS }}
+      UI_EMAIL: ${{ secrets.ELIFORA_UI_SMOKE_EMAIL }}
+      UI_PASSWORD: ${{ secrets.ELIFORA_UI_SMOKE_PASSWORD }}
+      UI_MODE: canonical
+      UI_ORIGIN: https://elifora-staging.vercel.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+        working-directory: apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Wait for guarded alias promotion and verify canonical application
+        run: node scripts/verify-hosted-ui.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hosted-ui-canonical
+          path: |
+            apps/web/captures/reports/ui-ux-hosted-canonical-*.png
+            apps/web/captures/reports/ui-ux-staging-*.json
+          retention-days: 14
