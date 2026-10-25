@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { StatusBadge } from "./professional-ui";
 import { liveLabel } from "@/lib/live/display";
+import { toneDescription } from "@/lib/color/taxonomy";
 import { SalonFrame,SalonHeading,SalonCard } from "./salon-frame";
 import { OfflineDraftPanel } from "./offline-draft-panel";
 import { tenantContextSchema,workspaceReference,type ActiveTenantContext } from "@/lib/tenant/context";
@@ -65,9 +66,9 @@ function CompletionEditor({session,disabled,act}:{session:LiveSession;disabled:b
  const labels={colorAccuracy:"Renk doğruluğu",uniformity:"Bölgesel eşitlik",hairIntegrity:"Saç bütünlüğü",processEfficiency:"İşlem verimliliği",formulaStability:"Formül kararlılığı"};
  return <SalonCard title="Zorunlu sonuç incelemesi">{session.status==="COMPLETION_REVIEW"?<button className="button button-primary" disabled={disabled} onClick={()=>void act({type:"COMPLETE"})}>Seansı tamamla ve Hair Passport’a ekle</button>:<>
  <p>Gerçek kullanım, süre ve sapmaları inceleyin. Bölgesel sonucu profesyonel olarak doğrulayın.</p>
- {session.targetSnapshot.definition.regions.map(r=><p key={r.regionId}>Hedef bölge {r.regionId}: {r.preserve?"Mevcut rengi koru":`Seviye ${r.level} · ${r.toneFamily}`}</p>)}
+ {session.targetSnapshot.definition.regions.map(r=><p key={r.regionId}>Hedef bölge {r.regionId}: {r.preserve?"Mevcut rengi koru":`Seviye ${r.level} · ${toneDescription(r)}`}</p>)}
  <label>Ulaşılan seviye<input type="number" min="1" max="12" value={level} onChange={e=>setLevel(e.target.value)}/></label><label>Ulaşılan ton<input value={tone} onChange={e=>setTone(e.target.value)}/></label>
- {(Object.keys(labels) as (keyof typeof labels)[]).map(key=><label key={key}>{labels[key]}<select value={profile[key]} onChange={e=>setProfile({...profile,[key]:e.target.value as typeof profile[typeof key]})}>{["UNKNOWN","ACCEPTABLE","CONCERN","UNACCEPTABLE"].map(value=><option key={value}>{value}</option>)}</select></label>)}
+ {(Object.keys(labels) as (keyof typeof labels)[]).map(key=><label key={key}>{labels[key]}<select value={profile[key]} onChange={e=>setProfile({...profile,[key]:e.target.value as typeof profile[typeof key]})}>{["UNKNOWN","ACCEPTABLE","CONCERN","UNACCEPTABLE"].map(value=><option key={value} value={value}>{liveLabel(value)}</option>)}</select></label>)}
  <label>Profesyonel değerlendirme<textarea value={assessment} onChange={e=>setAssessment(e.target.value)}/></label><label className="hp-check"><input type="checkbox" checked={reviewed} onChange={e=>setReviewed(e.target.checked)}/>Gerçek kullanım, süre, sapmalar ve bölgesel sonucu inceledim.</label>
  <button className="button button-primary" disabled={disabled||!level||!tone||!assessment||!reviewed} onClick={()=>void act({type:"COMPLETION_REVIEW",outcome:{regionalResults:[...new Set(session.bowls.filter(b=>(b.usedGrams??0)>0||session.steps.some(st=>st.bowlId===b.id&&st.status!=="SUPERSEDED")).flatMap(b=>b.regionIds))].map(regionId=>({regionId,achievedLevel:Number(level),achievedTone:tone,uniformity:profile.uniformity,hairIntegrity:profile.hairIntegrity,assessment})),profile,professionalAssessment:assessment,deviationsReviewed:true}})}>Sonuç incelemesini kaydet</button></>}</SalonCard>;
 }
