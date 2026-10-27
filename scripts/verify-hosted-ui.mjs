@@ -29,7 +29,7 @@ try {
  await page.goto(origin+'/sign-in');
  await page.getByLabel('E-posta').fill(email);
  await page.getByLabel('Parola',{exact:true}).fill(password);
- await page.getByRole('button',{name:'Oturum aÃ§',exact:true}).click();
+ await page.getByRole('button',{name:'Oturum aç',exact:true}).click();
  await page.waitForURL(origin+'/workspace');
  checks.push('real hosted sign-in and workspace context');
  if(mode==='canonical') {
@@ -80,22 +80,22 @@ try {
  await page.getByLabel('Marka veya seri ara').fill('Color Touch');
  await page.getByLabel('Pazar',{exact:true}).selectOption('US');
  await page.getByRole('button',{name:'Filtrele',exact:true}).click();
- await expect(page.getByRole('status')).toContainText('1 bÃ¶lgesel kayÄ±t');
- const unavailable='Bu seri ELIFORA kataloÄŸunda yer alÄ±yor ancak doÄŸrulanmÄ±ÅŸ teknik reÃ§ete desteÄŸi henÃ¼z yayÄ±nlanmadÄ±.';
+ await expect(page.getByRole('status')).toContainText('1 bölgesel kayıt');
+ const unavailable='Bu seri ELIFORA kataloğunda yer alıyor ancak doğrulanmış teknik reçete desteği henüz yayınlanmadı.';
  await expect(page.getByText(unavailable,{exact:true})).toBeVisible();
- await page.locator('summary').filter({hasText:'1 resmÃ® kaynak'}).click();
+ await page.locator('summary').filter({hasText:'1 resmî kaynak'}).click();
  await expect(page.getByText(/SHA-256:/)).toBeVisible();
  checks.push('catalog filter and official source fingerprint');
  await page.goto(origin+'/workspace/colorlab');
  await page.getByText('Listelenen serileri incele',{exact:true}).click();
- await page.getByLabel('Listelenen seri').selectOption({label:'Keune Â· Tinta Color Â· GB'});
+ await page.getByLabel('Listelenen seri').selectOption({label:'Keune · Tinta Color · GB'});
  await expect(page.getByText(unavailable,{exact:true})).toBeVisible();
  checks.push('ColorLab discovery does not enable unverified recipe');
  await page.setViewportSize({width:320,height:1000});
- await page.getByRole('button',{name:'MenÃ¼',exact:true}).click();
- await expect(page.getByRole('link',{name:'Marka kÃ¼tÃ¼phanesi bÃ¶lÃ¼mÃ¼'})).toBeVisible();
+ await page.getByRole('button',{name:'Menü',exact:true}).click();
+ await expect(page.getByRole('link',{name:'Marka kütüphanesi bölümü'})).toBeVisible();
  await page.keyboard.press('Escape');
- await expect(page.getByRole('button',{name:'MenÃ¼',exact:true})).toBeFocused();
+ await expect(page.getByRole('button',{name:'Menü',exact:true})).toBeFocused();
  checks.push('mobile menu keyboard focus recovery');
  await save('hosted-'+mode,{status:'PASS',mode,origin,sourceHead:sha,ci,checks,captures,scope:'SYNTHETIC_HOSTED_UI_SMOKE',domainMutations:false,pilotGo:false});
  console.log(JSON.stringify({mode,status:'PASS',checks:checks.length,captures:captures.length}));
