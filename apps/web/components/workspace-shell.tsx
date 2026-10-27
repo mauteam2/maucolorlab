@@ -2,15 +2,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SalonFrame } from "./salon-frame";
-import { ActionItem, LoadingState } from "./professional-ui";
+import { LoadingState } from "./professional-ui";
 import { type ActiveTenantContext, tenantContextSchema } from "@/lib/tenant/context";
 import { tr } from "@/lib/i18n/tr";
 import { OfflineDraftPanel } from "./offline-draft-panel";
 import { PrivacyActionForm } from "./privacy-action-form";
 import { logout } from "@/app/sign-in/actions";
 import { changeWorkspace } from "@/app/workspaces/actions";
-import { SalonOperations } from "./salon-operations";
-import { ReportingWorkspace } from "./reporting-workspace";
+import { TodayDashboard } from "./today-dashboard";
 export function WorkspaceShell() {
   // Router/back-forward caches can retain old server payloads. Start concealed on every mount.
   const [context, setContext] = useState<ActiveTenantContext | null>(null);
@@ -44,17 +43,13 @@ export function WorkspaceShell() {
       window.removeEventListener("pageshow", verify); document.removeEventListener("visibilitychange", hide); };
   }, []);
   return <SalonFrame active="dashboard" context={context} workspace={context?.organization_name}><main className="salon-main" id="main-content">
-    {context ? <><div className="today-heading"><div><span className="ui-eyebrow">Salon çalışma alanı</span><h1>Bugün</h1><p className="lead">Günün planı, teknik hazırlık ve takip gerektiren kayıtlar.</p></div><div className="today-context"><strong>{context.organization_name}</strong><p>{context.location_name} · {tr.roles[context.role]}</p><PrivacyActionForm action={changeWorkspace}><button className="text-link">{tr.change}</button></PrivacyActionForm></div></div>
-      <div className="today-actions">
-      {context.permissions.includes("clients.create") && <ActionItem href="/workspace/clients/new" title="Müşteri ekle" icon="clients">Yeni müşteri kaydı oluşturun.</ActionItem>}
-      {context.permissions.includes("color_plan.read") && <ActionItem href="/workspace/colorlab" title="Renk çalışması" icon="brush">Saç analiziyle teknik planı hazırlayın.</ActionItem>}
-      {context.permissions.includes("crm.read") && <ActionItem href="/workspace/clients?view=actions" title="Takip merkezi" icon="clock">Müşteri takibini ve açık aksiyonları inceleyin.</ActionItem>}
-      </div>{context.permissions.includes("salon.read")&&<SalonOperations section="dashboard"/>}</>
+    {context ? <TodayDashboard context={context} />
       : <LoadingState label={failed ? tr.network : tr.loading}/>}
-    {context?.permissions.includes("reports.read") && <ReportingWorkspace embedded />}
     {failed && <a href="/workspace" className="text-link">{tr.retry}</a>}
-    {context?.role === "owner" && <Link prefetch={false} className="button button-secondary" href="/workspace/settings/pilot">Kontrollü pilot kurulum kılavuzu</Link>}
+    <footer className="today-utilities">{context?.role === "owner" && <Link prefetch={false} className="text-link" href="/workspace/settings/pilot">Kontrollü pilot kurulum kılavuzu</Link>}
+      {context && <PrivacyActionForm action={changeWorkspace}><button className="text-link">{tr.change}</button></PrivacyActionForm>}
+      <PrivacyActionForm action={logout}><button className="text-link">{tr.logout}</button></PrivacyActionForm>
+    </footer>
     <OfflineDraftPanel />
-    <PrivacyActionForm action={logout}><button className="button button-primary">{tr.logout}</button></PrivacyActionForm>
   </main></SalonFrame>;
 }

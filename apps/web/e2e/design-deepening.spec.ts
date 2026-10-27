@@ -57,7 +57,11 @@ test("professional workspaces preserve usable layout at six viewport widths", as
   ]) {
    await page.goto(path!);
    await expect(page.locator(ready!).first()).toBeVisible();
-   if (screen === "dashboard") await expect(page.locator(".report-metrics")).toBeVisible();
+   if (screen === "dashboard") {
+    await expect(page.getByRole("region", { name: "Bugünün ajandası" })).toBeVisible();
+    await page.locator(".today-business > summary").click();
+    await expect(page.locator(".report-metrics")).toBeVisible();
+   }
    await capture(page, info, screen!);
   }
   await page.getByRole("button", { name: "Menü", exact: true }).click();

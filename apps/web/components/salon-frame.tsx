@@ -42,6 +42,9 @@ export function SalonFrame({ children, active, workspace, context, preview = fal
  const identity = context === undefined ? verified : context;
  const navigation = salonSections.filter(section => preview ? !["live", "catalog", "stock"].includes(section.id) : !section.permission || identity?.permissions.includes(section.permission));
  const [open, setOpen] = useState(false);
+ useEffect(() => {
+  if (open) document.querySelector<HTMLAnchorElement>("#salon-mobile-nav a")?.focus();
+ }, [open]);
  const [query, setQuery] = useState("");
  const [privacyLocked, setPrivacyLocked] = useState(false);
  useEffect(() => {
@@ -54,20 +57,22 @@ export function SalonFrame({ children, active, workspace, context, preview = fal
  }, [preview]);
  const current = salonSections.find(section => section.id === active)!;
  if (privacyLocked) return <main className="container"><BrandLogo /><p role="status">Oturum veya çalışma alanı değişti. Özel bilgiler gizlendi; şifreli taslaklar korunuyor.</p><a className="button" href="/workspace">Çalışma alanını yeniden aç</a></main>;
- return <div className="salon-layout" onKeyDown={event => { if (event.key === "Escape" && open) { setOpen(false); menuButton.current?.focus(); } }}>
+ return <div className="salon-layout" data-workspace={!preview} onKeyDown={event => { if (event.key === "Escape" && open) { setOpen(false); menuButton.current?.focus(); } }}>
   <a className="skip-link" href="#main-content">İçeriğe geç</a>
   <aside className="salon-sidebar" data-open={open}>
    <Link className="salon-brand" href={preview ? "/preview/salon/dashboard" : "/workspace"} aria-label="ELIFORA ana sayfa"><BrandLogo /></Link>
+   {!preview && <div className="salon-mobile-context">{identity ? <><strong>{identity.organization_name}</strong><span>{identity.location_name} · {tr.roles[identity.role]}</span></> : <span>Çalışma alanı doğrulanıyor</span>}<button className="text-link" onClick={() => { setOpen(false); menuButton.current?.focus(); }}>Menüyü kapat</button></div>}
    <nav id="salon-mobile-nav" aria-label="Ana gezinti">{navigation.map((section, index) => <Fragment key={section.id}>
     {navigation[index - 1]?.group !== section.group && <span className="salon-nav-group">{section.group}</span>}
     <Link prefetch={false} href={preview ? `/preview/salon/${section.id}` : section.href} aria-label={`${section.label} bölümü`} aria-current={active === section.id ? "page" : undefined} onClick={() => setOpen(false)}><SalonIcon name={section.icon as SalonIconName}/><span>{section.label}</span></Link>
    </Fragment>)}</nav>
-   <Link className="salon-workspace-link" prefetch={false} href={preview ? "/preview/salon/settings" : "/workspaces?choose=1"}><SalonIcon name="home" /><span>{workspace ?? "Salon çalışma alanı"}</span><SalonIcon name="arrow" /></Link>
+   <div className="salon-account-context">{!preview && identity && <><span className="salon-account-role">{tr.roles[identity.role]}</span><strong>{identity.organization_name}</strong><small>{identity.location_name}</small></>}
+   <Link className="salon-workspace-link" prefetch={false} href={preview ? "/preview/salon/settings" : "/workspaces?choose=1"}><SalonIcon name="home" /><span>{preview ? workspace ?? "Salon çalışma alanı" : "Çalışma alanını değiştir"}</span><SalonIcon name="arrow" /></Link></div>
   </aside>
   <div className="salon-body">
    <header className="salon-topbar">
     <button ref={menuButton} className="salon-menu button button-secondary" aria-expanded={open} aria-controls="salon-mobile-nav" onClick={() => setOpen(!open)}>Menü</button>
-    <div className="salon-breadcrumb">Çalışma alanı <span>/</span> <strong>{current.label}</strong></div>
+    <div className="salon-breadcrumb"><span className="salon-context-label">{preview ? "Çalışma alanı" : "ELIFORA / Çalışma alanı"}</span><strong>{current.label}</strong></div>
     {preview ? <span className="salon-preview-tag">Tasarım önizlemesi · örnek veriler</span> : identity?.permissions.includes("clients.read") ? <form className="salon-global-search" action="/workspace/clients"><SalonIcon name="search" /><input aria-label="Müşteri ara" name="query" type="search" maxLength={80} placeholder="Müşteri adı veya telefon ara" value={query} onChange={event => setQuery(event.target.value)} /><button aria-label="Müşteri aramasını aç" type="submit"><SalonIcon name="arrow" /></button></form> : null}
     <span className="salon-identity"><span className="salon-avatar"><SalonIcon name="home" /></span><span>{identity?.organization_name ?? workspace ?? "ELIFORA"}{identity && <small>{identity.location_name} · {tr.roles[identity.role]}</small>}</span></span>
    </header>
