@@ -7,7 +7,7 @@
 .salon-layout[data-workspace=true] .salon-sidebar [aria-current=page] {background:#e7d9cc;color:var(--ink);font-weight:650;}
 .salon-layout[data-workspace=true] .salon-sidebar [aria-current=page]::before {content:"";position:absolute;inset:9px auto 9px 0;width:3px;background:var(--ink);}
 .salon-layout[data-workspace=true] .salon-sidebar [aria-current=page] svg {color:var(--ink);}
-.salon-layout[data-workspace=true] .salon-nav-group {padding:19px 12px 7px;font-size:9px;letter-spacing:.18em;}
+.salon-layout[data-workspace=true] .salon-nav-group {padding:19px 12px 7px;font-size:9px;letter-spacing:.18em;color:var(--ink-secondary);}
 .salon-layout[data-workspace=true] .salon-nav-group:first-child {padding-top:0;}
 .salon-account-context {margin-top:auto;padding-top:28px;}
 .salon-account-context>strong,.salon-account-context>small,.salon-account-role {display:block;padding-inline:12px;overflow-wrap:anywhere;}
