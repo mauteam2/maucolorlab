@@ -70,7 +70,7 @@ try {
    await expect(page.locator('.report-metrics')).toBeVisible();
    await expect(page.locator('.salon-operations-columns')).toBeVisible();
   }
-  await expect(page.getByText(/^(?:Çalışma alanı doğrulanıyor|Rapor yükleniyor|CRM bilgileri yükleniyor)/)).toHaveCount(0);
+  await expect(page.getByText(/yükleniyor|doğrulanıyor/iu)).toHaveCount(0);
   await expect(page.locator('.salon-sidebar [aria-current="page"]')).toHaveCount(1);
   for (const width of [1440,1280,1024,768,390,320]) {
    await page.setViewportSize({width,height:1000});
