@@ -43,3 +43,9 @@ it("Escape closes navigation and restores keyboard focus", () => {
  const button=screen.getByRole("button",{name:"Menü"});fireEvent.click(button);fireEvent.keyDown(button,{key:"Escape"});
  expect(button).toHaveAttribute("aria-expanded","false");expect(button).toHaveFocus();
 });
+it("keeps organization identity independently readable from location and role after scope selection", () => {
+ render(<SalonFrame active="dashboard" context={{...salonFixture().context,organization_name:"Synthetic Other Salon",location_name:"Other Branch"}}><main/></SalonFrame>);
+ const identity=document.querySelector(".today-context")!;
+ expect(identity.querySelector(".salon-organization-name")).toHaveTextContent(/^Synthetic Other Salon$/);
+ expect(identity.querySelector("small")).toHaveTextContent(/^Other Branch · Salon Sahibi$/);
+});

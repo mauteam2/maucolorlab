@@ -28,6 +28,7 @@
 .salon-layout[data-workspace=true] .salon-identity .salon-avatar {width:28px;height:28px;background:none;border:1px solid var(--champagne);border-radius:3px;}
 .salon-layout[data-workspace=true] .salon-identity .salon-avatar svg {width:16px;}
 .salon-layout[data-workspace=true] .salon-identity small {font-size:10px;margin-top:3px;}
+.salon-organization-name {font-weight:550;}
 .today-workspace .today-heading {display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin:0 0 20px;}
 .today-workspace .today-heading h1 {font-size:42px;margin:0;line-height:1;}
 .today-workspace .ui-eyebrow {margin:0 0 10px;font-size:9px;}

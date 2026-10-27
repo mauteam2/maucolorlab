@@ -70,6 +70,7 @@ async function capture(page: Page, info: TestInfo, state: string) {
         await page.locator(`.${section} > summary`).click();
       }
       await expect(page.getByText("Benzer kayıt incelemesi", { exact: true })).toBeVisible();
+      await page.evaluate(async () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); window.scrollTo(0, 0); await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r()))); });
       await page.screenshot({ path: info.outputPath(`ui-ux-pass1-preparation-${width}.png`), fullPage: true });
       for (const section of ["today-technical", "today-action-center"]) await page.locator(`.${section} > summary`).click();
     }

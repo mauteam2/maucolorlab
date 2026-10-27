@@ -74,7 +74,7 @@ export function SalonFrame({ children, active, workspace, context, preview = fal
     <button ref={menuButton} className="salon-menu button button-secondary" aria-expanded={open} aria-controls="salon-mobile-nav" onClick={() => setOpen(!open)}>Menü</button>
     <div className="salon-breadcrumb"><span className="salon-context-label">{preview ? "Çalışma alanı" : "ELIFORA / Çalışma alanı"}</span><strong>{current.label}</strong></div>
     {preview ? <span className="salon-preview-tag">Tasarım önizlemesi · örnek veriler</span> : identity?.permissions.includes("clients.read") ? <form className="salon-global-search" action="/workspace/clients"><SalonIcon name="search" /><input aria-label="Müşteri ara" name="query" type="search" maxLength={80} placeholder="Müşteri adı veya telefon ara" value={query} onChange={event => setQuery(event.target.value)} /><button aria-label="Müşteri aramasını aç" type="submit"><SalonIcon name="arrow" /></button></form> : null}
-    <span className={`salon-identity${!preview && active === "dashboard" ? " today-context" : ""}`}><span className="salon-avatar"><SalonIcon name="home" /></span><span>{identity?.organization_name ?? workspace ?? "ELIFORA"}{identity && <small>{identity.location_name} · {tr.roles[identity.role]}</small>}</span></span>
+    <span className={`salon-identity${!preview && active === "dashboard" ? " today-context" : ""}`}><span className="salon-avatar"><SalonIcon name="home" /></span><span><strong className="salon-organization-name">{identity?.organization_name ?? workspace ?? "ELIFORA"}</strong>{identity && <small>{identity.location_name} · {tr.roles[identity.role]}</small>}</span></span>
    </header>
    {children}
   </div>
