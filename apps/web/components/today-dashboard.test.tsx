@@ -23,6 +23,7 @@ it("uses authoritative status before planned time and excludes terminal appointm
   expect(nextAppointment([{ ...f.a, status: "CANCELLED" }, later], "2026-10-12T07:30:00Z")?.id).toBe(later.id);
   expect(nextAppointment([later, { ...f.a, status: "IN_SERVICE" }], "2026-10-12T12:00:00Z")?.id).toBe(f.a.id);
   expect(nextAppointment([{ ...f.a, status: "COMPLETED" }], "2026-10-12T06:00:00Z")).toBeNull();
+  expect(nextAppointment([{ ...f.a, end_at: "2026-10-12T10:00:00+03:00" }], "2026-10-12T07:01:00Z")).toBeNull();
 });
 it("selects the salon local day across a UTC date boundary and sorts its time rail", () => {
   const f = salonFixture(), early = { ...f.a, id: salonId(302), start_at: "2026-10-11T22:30:00Z" };
@@ -72,6 +73,13 @@ it("never accepts a foreign workspace snapshot", async () => {
   render(<TodayDashboard context={f.context} />);
   await screen.findByText("Günün ajandası alınamadı.");
   expect(screen.queryByText("Synthetic client")).toBeNull();
+});
+it("does not present an older appointment-version precheck as current preparation", async () => {
+  const f = setup(); f.preparation.appointment_version = 2;
+  render(<TodayDashboard context={f.context} />);
+  const current = await screen.findByRole("region", { name: "Şimdi ve sırada" });
+  await waitFor(() => expect(within(current).getByText("Kontrol alınamadı")).toBeVisible());
+  expect(screen.queryByText("Hair Passport eksik")).toBeNull();
 });
 it("shows a compact empty agenda without fabricated next service or technical count", async () => {
   const f = setup(); f.snapshot.appointments = [];

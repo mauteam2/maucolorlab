@@ -18,12 +18,12 @@ export function technicalAccess(context: ActiveTenantContext) {
 export function dayAppointments(data: SalonSnapshot, now: string) {
   const day = localDate(now, data.location.timezone);
   return data.appointments.filter(a => localDate(a.start_at, data.location.timezone) === day)
-    .sort((a, b) => a.start_at.localeCompare(b.start_at) || a.id.localeCompare(b.id));
+    .sort((a, b) => Date.parse(a.start_at) - Date.parse(b.start_at) || a.id.localeCompare(b.id));
 }
 export function nextAppointment(items: Appointment[], now: string) {
   // Actual workflow status wins over planned time. Never label a booked slot as in service.
   return items.find(a => a.status === "IN_SERVICE") ?? items.find(a => a.status === "ARRIVED") ??
-    items.find(a => ["DRAFT", "CONFIRMED"].includes(a.status) && a.end_at > now) ?? null;
+    items.find(a => ["DRAFT", "CONFIRMED"].includes(a.status) && Date.parse(a.end_at) > Date.parse(now)) ?? null;
 }
 export function useTodayData(context: ActiveTenantContext) {
   const [salon, setSalon] = useState<ReadState<SalonSnapshot>>(empty);
@@ -61,7 +61,7 @@ export function useTodayData(context: ActiveTenantContext) {
           if (data.location.id !== context.location_id || data.location.organization_id !== context.organization_id) throw new Error();
           const day = localDate(data.evaluated_at, data.location.timezone);
           // A dense three-day interval must not hide today's records behind the server page cap.
-          if (data.has_more) data = salonSnapshot.parse(await read(`/api/salon?from=${day}&to=${day}`));
+          if (data.has_more || day < from || day > to) data = salonSnapshot.parse(await read(`/api/salon?from=${day}&to=${day}`));
           if (data.location.id !== context.location_id || data.location.organization_id !== context.organization_id || data.appointments.some(a => a.organization_id !== context.organization_id || a.location_id !== context.location_id)) throw new Error();
           if (!current()) return;
           setSalon({ data, error: false }); setNow(data.evaluated_at);

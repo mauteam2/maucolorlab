@@ -50,11 +50,29 @@ async function fixture(page: Page) {
 async function capture(page: Page, info: TestInfo, state: string) {
   for (const width of [1440, 1280, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
-    await page.evaluate(async () => { window.scrollTo(0, 0); await document.fonts.ready; if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
+    await page.evaluate(async () => { window.scrollTo(0, 0); await document.fonts.ready; if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); await new Promise<void>(r => requestAnimationFrame(() => requestAnimationFrame(() => r()))); });
     await expect(page.getByRole("heading", { name: "Bugün", exact: true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${state} ${width}px`).toBe(true);
     await expect(page.locator('.salon-sidebar [aria-current="page"]')).toHaveCount(1);
+    expect(await page.locator(".today-operational-agenda time").evaluateAll(times => times.every(time => {
+      const range = document.createRange(); range.selectNodeContents(time.firstChild!);
+      return range.getBoundingClientRect().height <= parseFloat(getComputedStyle(time).fontSize) * 1.5;
+    })), `Unbroken time labels at ${width}px`).toBe(true);
+    expect(await page.locator(".today-agenda-open").evaluateAll(links => links.every(link => {
+      const rect = link.getBoundingClientRect(); return rect.width >= 44 && rect.height >= 44;
+    })), `Agenda touch targets at ${width}px`).toBe(true);
     if ([1440, 1024, 390, 320].includes(width)) await page.screenshot({ path: info.outputPath(`ui-ux-pass1-${state}-${width}.png`), fullPage: true });
+    if (state === "operational" && width < 600) {
+      const current = page.getByRole("region", { name: "Şimdi ve sırada" });
+      expect(await current.getByRole("heading").evaluate(el => el.getBoundingClientRect().bottom < innerHeight)).toBe(true);
+      for (const section of ["today-technical", "today-action-center"]) {
+        await expect(page.locator(`.${section}`)).not.toHaveAttribute("open");
+        await page.locator(`.${section} > summary`).click();
+      }
+      await expect(page.getByText("Benzer kayıt incelemesi", { exact: true })).toBeVisible();
+      await page.screenshot({ path: info.outputPath(`ui-ux-pass1-preparation-${width}.png`), fullPage: true });
+      for (const section of ["today-technical", "today-action-center"]) await page.locator(`.${section} > summary`).click();
+    }
   }
 }
 test("Today real operational day prioritizes current client, preparation, action and mobile keyboard", async ({ page, browser }, info) => {
@@ -67,7 +85,9 @@ test("Today real operational day prioritizes current client, preparation, action
     await expect(current.getByText("Şimdi · uygulamada")).toBeVisible();
     await expect(page.getByText("2/2 kontrol alındı")).toBeVisible();
     await expect(current.getByText("Hair Passport eksik")).toBeVisible();
+    if ((await page.locator(".today-action-center").getAttribute("open")) === null) await page.locator(".today-action-center > summary").click();
     await expect(page.getByText("Benzer kayıt incelemesi", { exact: true })).toBeVisible();
+    if ((page.viewportSize()?.width ?? 1440) < 600) await page.locator(".today-action-center > summary").click();
     await expect(page.locator(".today-operational-agenda > li")).toHaveCount(5);
     await expect(page.locator(".today-operational-agenda > li time")).toHaveText(["09:3060 dk", "11:0060 dk", "13:3060 dk", "15:0060 dk", "16:3060 dk"]);
     await capture(page, info, "operational");
@@ -102,7 +122,9 @@ test("Today empty real tenant remains compact with factual absence and accessibl
   try {
     await login(page, account); await expectReady(page);
     await expect(page.getByText("Bugün henüz randevu yok.")).toBeVisible();
+    if ((await page.locator(".today-action-center").getAttribute("open")) === null) await page.locator(".today-action-center > summary").click();
     await expect(page.getByText("Görünen listede açık takip aksiyonu yok.")).toBeVisible();
+    if ((page.viewportSize()?.width ?? 1440) < 600) await page.locator(".today-action-center > summary").click();
     await expect(page.getByRole("link", { name: "Randevuyu aç" })).toHaveCount(0);
     await capture(page, info, "empty");
   } finally { await account.cleanup(); }

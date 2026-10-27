@@ -1,17 +1,28 @@
 "use client";
 import Link from "next/link";
+import { useEffect, useRef, type ReactNode } from "react";
 import type { ActiveTenantContext } from "@/lib/tenant/context";
 import type { Appointment } from "@/lib/salon/model";
 import { localTime } from "@/lib/salon/engine";
 import { appointmentLabels, precheckLabels } from "@/lib/salon/labels";
 import { actionLabels } from "@/lib/crm/labels";
 import { reportMoney } from "@/lib/reporting/model";
-import { tr } from "@/lib/i18n/tr";
 import { StatusBadge } from "./professional-ui";
 import { SalonIcon } from "./salon-icon";
 import { dayAppointments, nextAppointment, technicalAccess, useTodayData, type Preparation, type TodayAction } from "./today-data";
 
 const appointmentLink = (a: Appointment) => `/workspace/appointments?appointment_id=${a.id}`;
+function TodayDisclosure({ className, title, hint, children, icon }: { className: string; title: string; hint: string; children: ReactNode; icon?: boolean }) {
+  const ref = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const query = window.matchMedia("(max-width:600px)");
+    const update = () => { if (ref.current) ref.current.open = !query.matches; };
+    update(); query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return <details ref={ref} className={`today-secondary ${className}`} open><summary><span>{icon && <SalonIcon name="brush" />}{title}</span><small>{hint}</small></summary>{children}</details>;
+}
 function preparationLabel(value: Preparation | null | undefined) {
   if (value === undefined) return "Henüz doğrulanmadı";
   if (value === null) return "Kontrol alınamadı";
@@ -35,7 +46,7 @@ function NowNext({ a, context, preparation }: { a: Appointment | null; context: 
     {a ? <><div className="today-focus-content"><div className="today-focus-time"><time dateTime={a.start_at}>{localTime(a.start_at, a.timezone)}</time><small>{localTime(a.end_at, a.timezone)} bitiş · planlanan</small></div>
       <div className="today-focus-person"><h2>{a.client_name}</h2><p>{a.service_name}</p><span className="today-staff"><SalonIcon name="team" />{a.staff_display_name}</span></div><StatusBadge tone={active || arrived ? "success" : "neutral"}>{appointmentLabels[a.status]}</StatusBadge></div>
       {technicalAccess(context) && (a.colorlab_required || a.hair_passport_required || a.precheck_required) && <p className="today-focus-readiness"><SalonIcon name="brush" />{preparationLabel(preparation[a.id])}<small>Teknik hazırlık · işlem onayı değildir</small></p>}
-      <AppointmentLinks a={a} context={context} /></> : <div className="today-focus-empty"><h2>Günün sıradaki adımı size açık.</h2><p>Şu an salonda veya ilerleyen saatte bekleyen randevu görünmüyor.</p><Link className="button button-secondary" href="/workspace/appointments">Randevu planını aç</Link></div>}
+      <AppointmentLinks a={a} context={context} /></> : <div className="today-focus-empty"><h2>Bekleyen randevu yok.</h2><p>Şu an salonda veya ilerleyen saatte bekleyen randevu görünmüyor.</p><Link className="button button-secondary" href="/workspace/appointments">Randevu planını aç</Link></div>}
   </section>;
 }
 function Agenda({ items, context, preparation, selected }: { items: Appointment[]; context: ActiveTenantContext; preparation: Record<string, Preparation | null>; selected?: string }) {
@@ -52,7 +63,8 @@ function Agenda({ items, context, preparation, selected }: { items: Appointment[
 function TechnicalPreparation({ items, preparation, context }: { items: Appointment[]; preparation: Record<string, Preparation | null>; context: ActiveTenantContext }) {
   const relevant = items.filter(a => (a.colorlab_required || a.hair_passport_required || a.precheck_required) && !["COMPLETED", "CANCELLED", "NO_SHOW"].includes(a.status));
   const checked = relevant.filter(a => preparation[a.id]);
-  return <details className="today-secondary today-technical" open><summary><span><SalonIcon name="brush" />Teknik hazırlık</span><small>{checked.length}/{relevant.length} kontrol alındı</small></summary>
+  const attention = checked.filter(a => preparation[a.id]?.statuses.some(s => s !== "READY")).length;
+  return <TodayDisclosure className="today-technical" title="Teknik hazırlık" icon hint={`${checked.length}/${relevant.length} kontrol alındı${attention ? ` · ${attention} inceleme` : ""}`}>
     <div className="today-disclosure-body"><p className="today-section-note">Renk zekâsı · mevcut ön kontrol kayıtları</p>
       {relevant.length ? <ul className="today-preparation-list">{relevant.slice(0, 8).map(a => {
         const value = preparation[a.id];
@@ -63,7 +75,7 @@ function TechnicalPreparation({ items, preparation, context }: { items: Appointm
       {relevant.length > 8 && <p className="today-section-note">İlk 8 randevu gösteriliyor. Diğer hazırlıkları takvimden inceleyin.</p>}
       <p className="today-section-note">Eksik bildirilmemesi kimyasal işlem onayı değildir. Güncel kararı teknik çalışma alanında inceleyin.</p>
       {context.permissions.includes("color_plan.read") && <Link className="today-section-link" href="/workspace/colorlab">ColorLab çalışma alanı <span aria-hidden="true">↗</span></Link>}
-    </div></details>;
+    </div></TodayDisclosure>;
 }
 const actionReason: Record<TodayAction["kind"], string> = {
   REBOOK: "Dönüş takibi kaydedildi; yeni randevudan önce güncel durumu inceleyin.", WIN_BACK: "İlişki takibi açık; iletişim tercihlerini kontrol edin.", CARE_CHECK: "Bakım kontrolü için açık takip kaydı var.", COLOR_FOLLOWUP: "Renk sonucunun takibi için açık kayıt var.", RECOVERY_REASSESSMENT: "Teknik yeniden değerlendirme takibi açık.", DUPLICATE_REVIEW: "Benzer müşteri kayıtlarının insan incelemesi bekleniyor.",
@@ -78,9 +90,8 @@ export function TodayDashboard({ context }: { context: ActiveTenantContext }) {
   const business = ["owner", "manager"].includes(context.role) && can("reports.read");
   const revenue = report.data?.metrics.find(m => m.name === "recognized_net_revenue" && m.unit === "MONEY");
   return <div className="today-workspace">
-    <div className="today-heading"><div><span className="ui-eyebrow">Günlük salon akışı</span><h1>Bugün</h1><p className="today-date">{date ?? "Gün doğrulanıyor"}</p>
+    <div className="today-heading"><div><h1>Bugün</h1><p className="today-date">{date ?? "Gün doğrulanıyor"}</p>
       {salon.data && <div className="today-day-summary"><span><strong>{salon.data.has_more ? "En az " : ""}{counted.length}</strong> randevu</span><span><strong>{counted.filter(a => a.colorlab_required).length}</strong> renk servisi</span><span>{salon.data.location.timezone}</span></div>}</div>
-      <div className="today-context"><strong>{context.organization_name}</strong><p>{context.location_name} · {tr.roles[context.role]}</p></div>
     </div>
     <nav className="today-command-strip" aria-label="Günlük hızlı işlemler"><span>Çalışmaya başla</span>
       {can("color_plan.read") && <Link href="/workspace/colorlab"><SalonIcon name="brush" />Renk çalışması <span aria-hidden="true">↗</span></Link>}
@@ -92,10 +103,10 @@ export function TodayDashboard({ context }: { context: ActiveTenantContext }) {
       {!can("salon.read") && <div className="today-compact-empty">Randevu ajandasını görme yetkiniz yok. Erişiminize açık çalışma alanlarını menüden seçebilirsiniz.</div>}
     </div><aside className="today-context-column" aria-label="Hazırlık ve takip">
       {technicalAccess(context) && salon.data && <TechnicalPreparation items={items} preparation={preparation} context={context} />}
-      {can("crm.read") && <details className="today-secondary today-action-center" open><summary><span>Aksiyon merkezi</span><small>{actions.data ? `${visibleActions.length}${actions.data.has_more ? "+" : ""} açık` : "Takip"}</small></summary><div className="today-disclosure-body">
+      {can("crm.read") && <TodayDisclosure className="today-action-center" title="Aksiyon merkezi" hint={actions.data ? `${visibleActions.length}${actions.data.has_more ? "+" : ""} açık` : "Takip"}><div className="today-disclosure-body">
         {actions.error ? <p role="alert">Takip kayıtları alınamadı. <button className="text-link" onClick={refresh}>Yeniden dene</button></p> : !actions.data ? <p role="status">Aksiyonlar yükleniyor…</p> : visibleActions.length ? <ul className="today-action-list">{visibleActions.map(a => <li key={a.id}><div><strong>{actionLabels[a.kind]}</strong><time dateTime={a.due_at}>{new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: salon.data?.location.timezone ?? "UTC" }).format(new Date(a.due_at))}</time></div><p>{actionReason[a.kind]}</p><Link className="text-link" href={`/workspace/clients/${a.client_id}`}>Güncel profili incele <span aria-hidden="true">→</span></Link></li>)}</ul> : <p className="today-compact-empty">Görünen listede açık takip aksiyonu yok.</p>}
         <Link className="today-section-link" href="/workspace/clients?view=actions">Takip merkezini aç <span aria-hidden="true">↗</span></Link>
-      </div></details>}
+      </div></TodayDisclosure>}
       {business && <details className="today-secondary today-business"><summary><span>İşletme bağlamı</span><small>Bugün</small></summary><div className="today-disclosure-body report-metrics">
         {report.error ? <p role="alert">İşletme özeti alınamadı. <button className="text-link" onClick={refresh}>Yeniden dene</button></p> : !report.data ? <p role="status">İşletme özeti yükleniyor…</p> : <><div className="today-revenue"><span>Tanınan net gelir</span><strong>{can("finance.view") && revenue ? reportMoney(revenue.value, report.data.currency) : "Görünür gelir verisi yok"}</strong></div><p className="today-section-note">{report.data.period.first_date} · {report.data.period.timezone}. Depozito hizmet geliri değildir. Bu değer tahsilat veya muhasebe kârı değildir.</p><p className="today-section-note">{report.data.freshness.status === "CURRENT" ? "Kaynak görünümü güncel" : "Kaynak görünümü güncelleme bekliyor"}</p>
           {report.data.insights.filter(i => can("stock.view") && i.metric === "low_stock" || can("cost.view") && i.metric === "unknown_transactions").map(i => <Link className="today-section-link" key={i.code} href={i.metric === "low_stock" ? "/workspace/stock" : "/workspace/finance/profitability"}>{i.value} {i.metric === "low_stock" ? "ürün stok eşiğinin altında" : "kaydın doğrudan maliyeti bilinmiyor"} <span aria-hidden="true">→</span></Link>)}<Link className="today-section-link" href="/workspace/reports">Kaynak raporunu aç <span aria-hidden="true">↗</span></Link></>}
