@@ -93,6 +93,16 @@ jobs:
         run: npx playwright test e2e/color-registry.spec.ts --workers=1 --retries=0
       - name: Professional workspace layouts and preserved sign-in intro must pass without retries
         run: npx playwright test e2e/design-deepening.spec.ts e2e/visual-productization.spec.ts e2e/sign-in-intro.spec.ts --workers=1 --retries=0 --output=test-results-design
+      - name: Retain focused visual acceptance before longer regression journeys
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-productization-pass-1
+          path: |
+            apps/web/test-results-design/**/ui-ux-pass1-*.png
+            apps/web/test-results-design/**/error-context.md
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Redesigned client navigation and salon interactions must pass without retries
         run: npx playwright test e2e/clients.spec.ts e2e/client-crm.spec.ts e2e/salon-operations.spec.ts --workers=1 --retries=0
       - name: Phase 8 offline browser journeys must pass without retries
