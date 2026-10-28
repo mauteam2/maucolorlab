@@ -56,3 +56,9 @@ it("selecting the already active customer preserves the verified target editor",
  expect(screen.getByRole("button",{name:"Hedefi kaydet"})).toBeVisible();
  expect(screen.queryByText("Güvenli çalışma alanı yükleniyor…")).toBeNull();
 });
+it("mobile work steps change presentation without saving or inventing a second target engine",async()=>{
+ setup();const view=render(<ColorWorkspace initialClientId={client.id}/>);await screen.findByRole("button",{name:"Hedefi kaydet"});
+ fireEvent.click(screen.getByRole("button",{name:"Kanıtı incele →"}));expect(view.container.querySelector(".cl-workstation")).toHaveAttribute("data-stage","2");
+ fireEvent.click(screen.getByRole("button",{name:"Kanıt"}));expect(view.container.querySelector(".cl-workstation")).toHaveAttribute("data-stage","2");
+ expect(vi.mocked(fetch).mock.calls.every(([url])=>url==="/api/session"||url==="/api/clients")).toBe(true);
+});

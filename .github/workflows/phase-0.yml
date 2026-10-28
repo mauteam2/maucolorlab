@@ -92,7 +92,7 @@ jobs:
       - name: Global catalog discovery and regional non-execution must pass without retries
         run: npx playwright test e2e/color-registry.spec.ts --workers=1 --retries=0
       - name: Professional workspace layouts and preserved sign-in intro must pass without retries
-        run: npx playwright test e2e/design-deepening.spec.ts e2e/visual-productization.spec.ts e2e/sign-in-intro.spec.ts --workers=1 --retries=0 --output=test-results-design
+        run: npx playwright test e2e/design-deepening.spec.ts e2e/visual-productization.spec.ts e2e/colorlab-productization.spec.ts e2e/sign-in-intro.spec.ts --workers=1 --retries=0 --output=test-results-design
       - name: Retain focused visual acceptance before longer regression journeys
         if: always()
         uses: actions/upload-artifact@v4
@@ -103,6 +103,16 @@ jobs:
             apps/web/test-results-design/**/error-context.md
           if-no-files-found: ignore
           retention-days: 7
+      - name: Retain authenticated ColorLab Pass 2 acceptance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-productization-pass-2
+          path: |
+            apps/web/test-results-design/**/ui-ux-pass2-*.png
+            apps/web/test-results-design/**/error-context.md
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Redesigned client navigation and salon interactions must pass without retries
         run: npx playwright test e2e/clients.spec.ts e2e/client-crm.spec.ts e2e/salon-operations.spec.ts --workers=1 --retries=0
       - name: Phase 8 offline browser journeys must pass without retries
@@ -111,6 +121,14 @@ jobs:
         run: npx playwright test e2e/security.spec.ts --workers=1 --retries=0
       - name: ColorLab expanded targets and verified controlled recipe must pass without retries
         run: npx playwright test e2e/color-pilot.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
+      - name: Retain governed disposable controlled formulation capture
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-productization-pass-2-formulation
+          path: apps/web/test-results/**/ui-ux-pass2-controlled-formulation-1440.png
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Phase 5B browser journeys must pass without retries
         run: npx playwright test e2e/costing.spec.ts e2e/controlled-recipe.spec.ts --workers=1 --retries=0
       - name: Phase 10 empty-tenant pilot workflow and private feedback must pass without retries
@@ -143,6 +161,7 @@ jobs:
             apps/web/test-results/**/phase-9-*.png
             apps/web/test-results/**/phase-9-*.json
             apps/web/test-results/**/color-pilot-*.png
+            apps/web/test-results/**/ui-ux-pass2-*.png
             apps/web/test-results/**/color-pilot-*.json
             apps/web/test-results/**/phase-10-*.png
             apps/web/test-results/**/phase-10-*.json

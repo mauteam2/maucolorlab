@@ -43,6 +43,7 @@ export async function controlledRecipeJourney(page:Page,browser:Browser,info:Tes
  for(let index=0;index<3;index++)if(!await regions.nth(index).locator("legend").innerText().then(text=>text.startsWith("Dip")))await regions.nth(index).getByLabel("Mevcut rengi koru").check();
  performanceAt=Date.now();const planResponse=page.waitForResponse(r=>r.url().endsWith("/color-plans")&&r.request().method()==="POST");
  await page.getByRole("button",{name:"Renk planı oluştur",exact:true}).click();const generated=await planResponse;expect(generated.ok(),await generated.text()).toBeTruthy();const plan=(await generated.json()).data;expect(plan.result.status).toBe("DRAFT");hooks?.onMeasurement?.("plan-ui-create-evaluate-sign-store",Date.now()-performanceAt);
+ await page.getByRole("navigation",{name:"ColorLab çalışma adımları"}).getByRole("button",{name:"Reçete",exact:true}).click();
  const panel=page.getByRole("region",{name:"Kontrollü marka reçetesi"});await expect(panel).toBeVisible();await expect(panel.getByLabel("Doğrulanmış katalog")).toHaveValue(catalogId);
  await panel.getByRole("button",{name:"Uyumlu tonları getir"}).click();await expect(panel.getByText(/Dip beyaz oranı: %90/)).toBeVisible();
  const opts=await page.request.post("/api/controlled-brand-recipes/options",{headers,data:{client_id:client.id,plan_id:plan.id,catalog_id:catalogId}});expect(opts.ok(),await opts.text()).toBeTruthy();const candidates=(await opts.json()).data.candidates;expect(candidates.every((c:{developerName:string})=>c.developerName.includes("9%"))).toBe(true);
@@ -51,6 +52,7 @@ export async function controlledRecipeJourney(page:Page,browser:Browser,info:Tes
  const savedResponse=page.waitForResponse(r=>r.url().endsWith("/api/controlled-brand-recipes")&&r.request().method()==="POST");await panel.getByRole("button",{name:"Kontrollü taslağı kaydet",exact:true}).click();const saved=await savedResponse;expect(saved.ok(),await saved.text()).toBeTruthy();const v1=(await saved.json()).data;
  expect(v1.result).toMatchObject({colorGrams:30.15,developerGrams:30.15,totalGrams:60.3,executable:false,professionalReviewRequired:true});expect(v1.result.selected.processingMinutes).toEqual({min:30,max:45});
  await expect(panel.getByText("60.3 g").first()).toBeVisible();
+ const previousViewport=page.viewportSize();await page.setViewportSize({width:1440,height:1000});await page.evaluate(async()=>{if(document.activeElement instanceof HTMLElement)document.activeElement.blur();window.scrollTo(0,0);await document.fonts.ready;});await page.screenshot({path:info.outputPath("ui-ux-pass2-controlled-formulation-1440.png"),fullPage:true});if(previousViewport)await page.setViewportSize(previousViewport);
  const original=JSON.parse(saved.request().postData()!);expect((await(await page.request.post("/api/controlled-brand-recipes",{headers,data:original})).json()).data.id).toBe(v1.id);
  expect((await page.request.post("/api/controlled-brand-recipes",{headers,data:{...original,color_grams:31}})).status()).toBe(409);
  for(const field of ["white_ratio","developer_grams","processing_minutes","executable","organization_id"]){expect((await page.request.post("/api/controlled-brand-recipes",{headers,data:{...original,request_id:randomUUID(),[field]:true}})).status()).toBe(400);}
@@ -71,7 +73,7 @@ export async function controlledRecipeJourney(page:Page,browser:Browser,info:Tes
  for(let index=0;index<3;index++)if(!await expandedRegions.nth(index).locator("legend").innerText().then(text=>text.startsWith("Dip")))await expandedRegions.nth(index).getByLabel("Mevcut rengi koru").check();
  const expandedResponse=page.waitForResponse(r=>r.url().endsWith("/color-plans")&&r.request().method()==="POST");await page.getByRole("button",{name:"Renk planı oluştur",exact:true}).click();const expanded=await expandedResponse;expect(expanded.ok(),await expanded.text()).toBe(true);
  expect((await expanded.json()).data.result.status).toBe("DRAFT");
- await page.getByRole("region",{name:"Kontrollü marka reçetesi"}).getByRole("button",{name:"Uyumlu tonları getir"}).click();
+ await page.getByRole("navigation",{name:"ColorLab çalışma adımları"}).getByRole("button",{name:"Reçete",exact:true}).click();await page.getByRole("region",{name:"Kontrollü marka reçetesi"}).getByRole("button",{name:"Uyumlu tonları getir"}).click();
  await expect(page.getByText("Bu hedef için doğrulanmış marka eşlemesi yok",{exact:true})).toBeVisible();
  expect((await(await page.request.get(`/api/controlled-brand-recipes/${v1.id}?client_id=${client.id}`)).json()).data.result.snapshots.colorEngine).toBe(v1.result.snapshots.colorEngine);
  const foreign=await seedAccount(),foreignContext=await browser.newContext({baseURL:"http://127.0.0.1:4173"});

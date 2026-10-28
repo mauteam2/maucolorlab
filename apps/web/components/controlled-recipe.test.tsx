@@ -24,3 +24,9 @@ it("loss of validated context hides a pending result",async()=>{
  let resolve!:(value:Response)=>void;create.mockImplementationOnce(()=>new Promise<Response>(r=>{resolve=r;}));
  const view=render(<ControlledRecipe {...props}/>);await waitFor(()=>expect(screen.getByLabelText("Doğrulanmış katalog")).toHaveValue(record.catalogId));fireEvent.click(screen.getByRole("button",{name:"Uyumlu tonları getir"}));await screen.findByText("Source-qualified options",{exact:false});select();fireEvent.click(screen.getByRole("button",{name:"Kontrollü taslağı kaydet"}));await waitFor(()=>expect(create).toHaveBeenCalled());view.rerender(<ControlledRecipe {...props} enabled={false}/>);resolve(Response.json({data:record,correlationId}));await waitFor(()=>expect(screen.queryByText("60.3 g")).toBeNull());expect(screen.getByLabelText("Kontrollü marka reçetesi")).not.toBeVisible();
 });
+it("an unavailable published catalog stays useful without implying official recipe chemistry",async()=>{
+ fetcher.mockImplementation(async()=>Response.json({data:[],correlationId}));render(<ControlledRecipe {...props}/>);
+ expect(screen.getByRole("status")).toHaveTextContent("Doğrulanmış katalog durumu alınıyor");
+ await screen.findByText("Yayımlanmış doğrulanmış pilot katalog bulunamadı.");expect(screen.getByRole("button",{name:"Uyumlu tonları getir"})).toBeDisabled();
+ expect(screen.queryByLabelText("Boya miktarı (g)")).toBeNull();expect(screen.queryByText(/doğrulanmış 1:1/)).toBeNull();expect(create).not.toHaveBeenCalled();
+});

@@ -7,6 +7,7 @@ test("simple targets cover brunette, caramel, copper and blonde through one cano
  expect((await options.json()).data.levels).toHaveLength(10);
  const picker=page.getByRole("region",{name:"Hızlı hedef oluşturucu"}),flow=Date.now();
  for(const [label,level] of [["Soğuk kahve",5],["Sıcak kahve",5],["Karamel",7],["Bakır",7],["Bej sarı",9],["Soğuk sarı",9]] as const){
+  await page.getByRole("navigation",{name:"ColorLab çalışma adımları"}).getByRole("button",{name:"Hedef",exact:true}).click();
   await picker.getByRole("button",{name:label,exact:true}).click();const plan=await generatePilotPlan(page);
   expect(plan.result.engineVersion).toBe("color-engine/1.1.0");expect(plan.result.status).toBe("DRAFT");expect(plan.result.targetInterpretation.regions.every((r:{level:number})=>r.level===level)).toBe(true);expect(plan.result.recipeDraft.executionStatus).toBe("REQUIRES_BRAND_ADAPTER");
  }
@@ -35,5 +36,5 @@ test("lighter target requires a qualified strand test even with other physical e
 });
 test("multi-session retains the desired target and makes reassessment an explicit next step",async({page})=>{
  test.setTimeout(120000);await colorPilotFixture(page,{current:4});await page.getByRole("region",{name:"Hızlı hedef oluşturucu"}).getByRole("button",{name:"Bej sarı",exact:true}).click();
- const p=await generatePilotPlan(page);expect(p.result.feasibility).toBe("MULTI_SESSION");expect(p.result.targetInterpretation.regions.every((r:{level:number})=>r.level===9)).toBe(true);await expect(page.getByText("Seanslar arasında yeniden değerlendirme",{exact:true})).toBeVisible();await expect(page.getByText(/Ulaşılabilir ara hedefi tutam testi/)).toBeVisible();
+ const p=await generatePilotPlan(page);expect(p.result.feasibility).toBe("MULTI_SESSION");expect(p.result.targetInterpretation.regions.every((r:{level:number})=>r.level===9)).toBe(true);await page.getByRole("navigation",{name:"ColorLab çalışma adımları"}).getByRole("button",{name:"Strateji",exact:true}).click();await expect(page.getByText("Seanslar arasında yeniden değerlendirme",{exact:true})).toBeVisible();await expect(page.getByText(/Ulaşılabilir ara hedefi tutam testi/)).toBeVisible();
 });

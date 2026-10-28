@@ -7,23 +7,28 @@ import { toneLabels } from "@/lib/color/taxonomy";
 import type { HairSnapshot } from "@/lib/hair-passport/contracts";
 import { regionName } from "@/lib/hair-passport/display";
 import { hairTr } from "@/lib/i18n/hair-tr";
+import { HairSwatch } from "./colorlab/hair-swatch";
+import { displaySwatch } from "./colorlab/visual-direction";
 export function ColorTargetPicker({definition,snapshot,disabled,onChange}:{definition:TargetDefinition;snapshot:HairSnapshot;disabled:boolean;onChange:(next:TargetDefinition)=>void}){
- const [level,setLevel]=useState(7),[family,setFamily]=useState("NATURAL"),[scope,setScope]=useState("ALL");
+ const [level,setLevel]=useState(7),[family,setFamily]=useState("NATURAL"),[scope,setScope]=useState("ALL"),[advanced,setAdvanced]=useState(false);
  function selected(p:typeof presets[number]){
   const patch=familyPatch(p.family),regions=definition.regions.filter(r=>scope==="ALL"||r.regionId===scope);
   return level===p.level&&family===p.family&&regions.length>0&&regions.every(r=>!r.preserve&&r.level===p.level&&r.toneFamily===patch.toneFamily&&r.warmth===patch.warmth&&[...r.mixedFamilies].sort().join()===patch.mixedFamilies?.join());
  }
  function apply(preset?:string){
   const choice=presets.find(p=>p.id===preset);if(choice){setLevel(choice.level);setFamily(choice.family);}
-  onChange({...definition,regions:definition.regions.map(r=>scope!=="ALL"&&r.regionId!==scope?r:preset?presetRegion(preset,r):{...r,preserve:false,level,...familyPatch(family),toneIntent:"CHANGE"})});
+  onChange({...definition,regions:definition.regions.map(r=>scope!=="ALL"&&r.regionId!==scope?r:preset?presetRegion(preset,r):{...r,preserve:false,level,...(family==="BLUE"||family==="GREEN"?{toneFamily:family,mixedFamilies:[]}:familyPatch(family)),toneIntent:"CHANGE"})});
  }
- return <section aria-label="Hızlı hedef oluşturucu" className="color-target-picker"><h3>Hedefinizi tanımlayın</h3><p className="salon-muted">Önce derinlik, sonra ton yönü. Bunlar istediğiniz renk sonucunu tarif eder; üretici tonu değildir.</p>
- <fieldset disabled={disabled}><legend>Hızlı başlangıçlar</legend><div className="color-preset-list">{presets.map(p=><button key={p.id} type="button" className="button button-secondary" aria-pressed={selected(p)} onClick={()=>apply(p.id)}>{p.label}</button>)}</div></fieldset>
- <div className="salon-form-grid"><label>Hedef derinlik<select aria-label="Hedef derinlik" disabled={disabled} value={level} onChange={e=>setLevel(Number(e.target.value))}>{levelLabels.map((label,i)=><option key={i} value={i+1}>{i+1} · {label}</option>)}</select></label><label>Uygulanacak bölge<select aria-label="Uygulanacak bölge" disabled={disabled} value={scope} onChange={e=>setScope(e.target.value)}><option value="ALL">Tüm aktif bölgeler</option>{definition.regions.map(r=><option key={r.regionId} value={r.regionId}>{regionName(snapshot,r.regionId)}</option>)}</select></label></div>
- <fieldset disabled={disabled}><legend>Hedef ton yönü</legend><div className="color-family-list">{families.map(f=><label key={f.id} className="color-family-option"><input type="radio" name="target-family" checked={family===f.id} onChange={()=>setFamily(f.id)}/><span className="color-family-chip" style={{backgroundColor:f.color}} aria-hidden="true"/>{f.label}</label>)}</div></fieldset>
- <p className="salon-muted">Renk örnekleri yalnız ton ailesini anlatır; sonuç simülasyonu değildir. Birleşik ton yönleri yoğunluk veya karışım oranı belirtmez.</p>
- <button type="button" className="button button-secondary" disabled={disabled} onClick={()=>apply()}>Yapılandırılmış hedefi uygula</button>
- <p>Farklı dip, boy ve uç hedeflerini aşağıda ayrı ayrı düzenleyebilirsiniz.</p></section>;
+ const visibleFamilies = [...families.map(f=>({id:f.id as string,label:f.label as string,tones:f.tones as readonly string[]})),...(advanced?[{id:"BLUE",label:"Mavi yansıma",tones:["BLUE"]},{id:"GREEN",label:"Yeşil yansıma",tones:["GREEN"]}]:[])];
+ return <section aria-label="Hızlı hedef oluşturucu" className="color-target-picker cl-chart"><div className="cl-section-heading"><div><span className="ui-eyebrow">01 / Hedef kartelası</span><h2>Derinlik. Ton. Yön.</h2></div><label>Uygulanacak bölge<select aria-label="Uygulanacak bölge" disabled={disabled} value={scope} onChange={e=>setScope(e.target.value)}><option value="ALL">Tüm aktif bölgeler</option>{definition.regions.map(r=><option key={r.regionId} value={r.regionId}>{regionName(snapshot,r.regionId)}</option>)}</select></label></div>
+ <fieldset disabled={disabled} className="cl-depth-selector"><legend>Derinlik ölçeği</legend><div className="cl-depth-scale">{levelLabels.map((label,i)=><label key={label} className="cl-depth-choice"><input type="radio" name="target-depth" aria-label={`${i+1} · ${label}`} checked={level===i+1} onChange={()=>setLevel(i+1)}/><HairSwatch direction={displaySwatch(i+1)}/><strong>{i+1}</strong><span>{label}</span></label>)}</div></fieldset>
+ <div className="cl-selection-caption"><label>Hedef derinlik<select aria-label="Hedef derinlik" disabled={disabled} value={level} onChange={e=>setLevel(Number(e.target.value))}>{levelLabels.map((label,i)=><option key={i} value={i+1}>{i+1} · {label}</option>)}</select></label><p><strong>{level} · {levelLabels[level-1]}</strong><span>Önce derinliği, sonra ton yönünü seçin.</span></p></div>
+ <fieldset disabled={disabled}><legend>Hedef ton yönü</legend><div className="cl-tone-grid">{visibleFamilies.map(f=><label key={f.id} className="cl-tone-choice"><input type="radio" name="target-family" aria-label={f.label} checked={family===f.id} onChange={()=>setFamily(f.id)}/><HairSwatch direction={displaySwatch(level,f.tones)}/><span><strong>{level} <span aria-hidden="true">/</span> {f.label}</strong><small>Temsili ton yönü</small></span><i aria-hidden="true">{family===f.id?"✓":""}</i></label>)}</div></fieldset>
+ <button type="button" className="text-link" aria-expanded={advanced} disabled={disabled} onClick={()=>setAdvanced(!advanced)}>{advanced?"Ek yansıma yönlerini kapat":"Ek yansıma yönleri · mavi / yeşil"}</button>
+ <p className="cl-caption">Kartela seçim taslağıdır; hedefe uygulandığında değerlendirmeye katılır. Görseller üretici tonu veya sonuç simülasyonu değildir. Birleşik yönler yoğunluk, baskınlık veya karışım oranı belirtmez.</p>
+ <button type="button" className="button button-primary cl-apply" disabled={disabled} onClick={()=>apply()}>Yapılandırılmış hedefi uygula <span aria-hidden="true">→</span></button>
+ <fieldset disabled={disabled} className="cl-presets"><legend>Hızlı başlangıçlar</legend><div className="color-preset-list">{presets.map(p=><button key={p.id} type="button" className="button button-secondary" aria-pressed={selected(p)} onClick={()=>apply(p.id)}>{p.label}</button>)}</div></fieldset>
+ </section>;
 }
 export function ColorTargetSummary({definition,snapshot}:{definition:TargetDefinition;snapshot:HairSnapshot}){
  return <section aria-label="Değerlendirme öncesi hedef özeti" className="salon-notice"><h3>Değerlendirmeden önce</h3>{definition.regions.map(r=>{

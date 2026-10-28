@@ -13,6 +13,7 @@ export function ControlledRecipe({clientId,planId,reference,enabled,canCreate,st
  const [options,setOptions]=useState<ReturnType<typeof controlledOptions.parse>|null>(null),[pair,setPair]=useState(""),[grams,setGrams]=useState("");
  const [history,setHistory]=useState<Saved[]>([]),[saved,setSaved]=useState<Saved|null>(null),[parent,setParent]=useState<Saved|null>(null);
  const [busy,setBusy]=useState(false),[error,setError]=useState<string|null>(null),[refresh,setRefresh]=useState(0);
+ const [catalogState,setCatalogState]=useState<"LOADING"|"READY"|"ERROR">("LOADING");
  const generation=useRef(0),nonce=useRef<string|null>(null);
  useEffect(()=>{
   const generationRef=generation,current=++generationRef.current,controller=new AbortController();
@@ -21,8 +22,8 @@ export function ControlledRecipe({clientId,planId,reference,enabled,canCreate,st
    const [a,b]=await Promise.all([fetch("/api/controlled-brand-recipes/catalogs",{cache:"no-store",signal:controller.signal}),fetch(`/api/controlled-brand-recipes?client_id=${clientId}`,{cache:"no-store",signal:controller.signal})]);
    const [ca,hi]=await Promise.all([a.json(),b.json()]);if(!a.ok||!b.ok)throw new Error(ca.code??hi.code);
    const list=controlledCatalogs.parse(ca.data),records=storedControlledRecipe.array().parse(hi.data);
-   if(current!==generation.current)return;setCatalogs(list);setCatalogId(old=>list.some(c=>c.id===old)?old:list[0]?.id??"");setHistory(records);setError(null);
-  }catch(e){if(current===generation.current&&!controller.signal.aborted)setError(errors[e instanceof Error?e.message:""]??"Bağlantı kurulamadı. Yeniden deneyin.");}}
+   if(current!==generation.current)return;setCatalogs(list);setCatalogId(old=>list.some(c=>c.id===old)?old:list[0]?.id??"");setHistory(records);setError(null);setCatalogState("READY");
+  }catch(e){if(current===generation.current&&!controller.signal.aborted){setCatalogState("ERROR");setError(errors[e instanceof Error?e.message:""]??"Bağlantı kurulamadı. Yeniden deneyin.");}}}
   void load();return()=>{++generationRef.current;controller.abort();};
  },[clientId,planId,reference,enabled,refresh]);
  function edit(){nonce.current=null;setSaved(null);setError(null);}
@@ -43,10 +44,11 @@ export function ControlledRecipe({clientId,planId,reference,enabled,canCreate,st
  }
  const candidate=options?.candidates.find(c=>`${c.productId}:${c.developerId}`===pair);
  return <section hidden={!enabled} aria-label="Kontrollü marka reçetesi" className="recipe-document"><SalonCard title="Kontrollü marka reçetesi">
- <p>IGORA ROYAL ABSOLUTES · Dip yenileme. Ton ve boya gramı uzman seçiminizdir. Sistem doğrulanmış 1:1 oranını hesaplar; uygulama izni vermez.</p>
+ <p>{catalogs.length>0?"IGORA ROYAL ABSOLUTES · Dip yenileme. Ton ve boya gramı uzman seçiminizdir. Sistem doğrulanmış 1:1 oranını hesaplar; uygulama izni vermez.":"Üretici, seri ve kaynak sürümü yayımlanmış katalogdan doğrulanır. Ton ve boya gramı uzman tarafından girilir; oran hesabı uygulama izni vermez."}</p>
  {error&&<p className="salon-notice" role="alert">{error}<button className="button button-secondary" onClick={()=>setRefresh(x=>x+1)}>Geçmişi yeniden yükle</button></p>}
  <div className="salon-form-grid"><label>Doğrulanmış katalog<select disabled={busy} value={catalogId} onChange={e=>{setCatalogId(e.target.value);setOptions(null);setPair("");edit();}}><option value="">Yayımlanmış katalog seçin</option>{catalogs.map(c=><option key={c.id} value={c.id}>IGORA ROYAL ABSOLUTES · Sürüm {c.version}</option>)}</select></label><div className="salon-toolbar"><button className="button button-secondary" disabled={busy||!catalogId} onClick={()=>void request(false)}>Uyumlu tonları getir</button></div></div>
- {!catalogs.length&&<p className="salon-muted">Yayımlanmış doğrulanmış pilot katalog bulunamadı.</p>}
+ {catalogState==="LOADING"&&<p role="status">Doğrulanmış katalog durumu alınıyor…</p>}
+ {catalogState==="READY"&&!catalogs.length&&<p className="salon-muted">Yayımlanmış doğrulanmış pilot katalog bulunamadı.</p>}
  {options&&<><h3>{availability[options.status]}</h3>{options.status==="NO_VERIFIED_MATCH"&&<p>Teknik stratejiyi inceleyebilirsiniz; doğrulanmış üretici reçetesi bu hedef için mevcut değil. Kanıtları ve gerekli fiziksel testleri tamamlayın; ürün kapsamını teknik sorumlu ile değerlendirin.</p>}<p role="status" className="salon-notice">{options.explanation}{options.whiteRatio!==null&&` Dip beyaz oranı: %${Math.round(options.whiteRatio*10000)/100}.`}</p>{options.status==="OPTIONS_FOR_REVIEW"&&<><div className="salon-form-grid"><label>Uzman ton ve geliştirici seçimi<select disabled={busy} value={pair} onChange={e=>{setPair(e.target.value);edit();}}><option value="">Seçin</option>{options.candidates.map(c=><option key={`${c.productId}:${c.developerId}`} value={`${c.productId}:${c.developerId}`}>{c.manufacturerCode} · {c.developerName}</option>)}</select></label><label>Boya miktarı (g)<input disabled={busy} type="number" min="0.01" max="1000" step="0.01" inputMode="decimal" value={grams} onChange={e=>{setGrams(e.target.value);edit();}}/></label></div>
  {candidate&&<><p><strong>{candidate.displayName} · {candidate.developerName}</strong></p><p className="salon-muted">Resmi karışım oranı {candidate.mixingRatio} · Belgelendirilmiş süre aralığı {candidate.processingMinutes.min}–{candidate.processingMinutes.max} dakika. Tek bir süre veya doz önerisi üretilmez.</p></>}
  {candidate&&stockEnabled&&<RecipeStockAvailability key={`${candidate.productId}:${candidate.developerId}:${reference}`} productId={candidate.productId} developerId={candidate.developerId} reference={reference}/>}
