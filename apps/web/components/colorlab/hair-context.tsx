@@ -1,6 +1,12 @@
 import Link from "next/link";
 import type { HairSnapshot } from "@/lib/hair-passport/contracts";
 import { orderedRegions, regionName, displayValue } from "@/lib/hair-passport/display";
+export function HairOrientation({snapshot,onInspect}:{snapshot:HairSnapshot;onInspect:()=>void}) {
+ return <section className="cl-hair-orientation" aria-label="Bölgesel saç özeti"><div>{orderedRegions(snapshot).filter(r=>r.status==="ACTIVE").map(region=>{
+  const a=region.assessment,o=a.state==="ASSESSED"?a.observation:null;
+  return <span key={region.id}><strong>{regionName(snapshot,region.id)}</strong><span>{o?`${displayValue("natural_level",o.natural_level)} / ${displayValue("perceived_level",o.perceived_level)} · Beyaz ${displayValue("grey_ratio",o.grey_ratio)}`:"Mevcut derinlik ve beyaz bilinmiyor"}</span><small>{!o||o.chemical_history.state!=="KNOWN"?"Kimyasal geçmiş bilinmiyor":"Kimyasal geçmiş kayıtlı · inceleyin"}</small></span>;
+ })}</div><button type="button" className="text-link" onClick={onInspect}>Saç kanıtını incele ↗</button></section>;
+}
 export function HairContext({snapshot, clientId}:{snapshot:HairSnapshot|null;clientId:string}) {
  const regions=snapshot?orderedRegions(snapshot).filter(r=>r.status==="ACTIVE"):[];
  return <section className="cl-hair-context" aria-label="Saç ve kanıt bağlamı"><div className="cl-context-heading"><span className="ui-eyebrow">Saç bağlamı</span><Link href={`/workspace/clients/${clientId}/hair-passport`} prefetch={false}>Hair Passport {snapshot?`· v${snapshot.passport.version}`:"oluştur"} <span aria-hidden="true">↗</span></Link></div>

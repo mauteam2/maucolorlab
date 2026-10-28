@@ -14,7 +14,7 @@ export function displaySwatch(level: number | null, tones: readonly string[] = [
  const lower = Math.floor(level) - 1, upper = Math.min(9, lower + 1), fraction = level - Math.floor(level);
  const base = rgb(neutralDepth[lower]!).map((v, i) => v + (rgb(neutralDepth[upper]!)[i]! - v) * fraction);
  const adjusted = base.map((v, i) => v + tones.reduce((sum, t) => sum + toneDirection[t]![i]!, 0) / tones.length);
- return { kind: "ILLUSTRATIVE", shadow: hex(adjusted.map(v => v * .68)), body: hex(adjusted), light: hex(adjusted.map(v => v + 25)) };
+ return { kind: "ILLUSTRATIVE", shadow: hex(adjusted.map(v => v * .78)), body: hex(adjusted), light: hex(adjusted.map(v => v + 14)) };
 }
 export function targetDisplaySwatch(target: RegionalColorTarget): DisplayDirection {
  if (target.preserve || target.toneFamily === null) return { kind: "UNKNOWN" };

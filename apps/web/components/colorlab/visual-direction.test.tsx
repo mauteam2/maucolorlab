@@ -19,6 +19,9 @@ it("ten illustrative depth directions are distinct and tones adapt to the select
  expect(new Set(Array.from({length:10},(_,i)=>JSON.stringify(displaySwatch(i+1)))).size).toBe(10);
  expect(displaySwatch(5,["COPPER"])).not.toEqual(displaySwatch(8,["COPPER"]));expect(displaySwatch(7,["NEUTRAL"])).not.toEqual(displaySwatch(7,["ASH_COOL"]));
 });
+it("a passport with no active regions has an explicit empty state and no invented target",()=>{
+ const f=colorFixture();render(<TargetDirection definition={{...f.target.definition,regions:[]}} snapshot={f.snapshot.pages[0]!}/>);expect(screen.getByRole("heading",{name:"Aktif bölge gerekli"})).toBeVisible();
+});
 it("rendering every display direction leaves canonical engine target, metadata and recipe semantics identical",()=>{
  const f=colorFixture({fullTests:true}),before=JSON.stringify(f),recipe=JSON.stringify(controlled),plan=evaluateColorPlanning(f.snapshot,f.confidence,f.risk,f.target);
  for(let level=1;level<=10;level++)for(const tone of ["NEUTRAL","ASH_COOL","VIOLET","BLUE","GREEN","GOLD_WARM","COPPER","RED"])displaySwatch(level,[tone]);

@@ -4,10 +4,13 @@ import { colorPilotFixture, generatePilotPlan } from "./color-pilot-flow";
 const step=(page:Page,name:string)=>page.getByRole("navigation",{name:"ColorLab çalışma adımları"}).getByRole("button",{name,exact:true});
 async function capture(page:Page,info:TestInfo,state:string,width:number) {
  await page.setViewportSize({width,height:1000});await expect(page.getByText(/Güvenli çalışma alanı yükleniyor/)).toHaveCount(0);
+ await page.getByRole("heading",{name:"Renk çalışma alanı",exact:true}).click();
  await page.evaluate(async()=>{if(document.activeElement instanceof HTMLElement)document.activeElement.blur();window.scrollTo(0,0);await document.fonts.ready;await new Promise<void>(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>r())));});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${state} ${width}px`).toBe(true);
  await expect(page.locator('.salon-sidebar [aria-current="page"]')).toHaveCount(1);
- await page.screenshot({path:info.outputPath(`ui-ux-pass2-${state}-${width}.png`),fullPage:true});
+ await expect(page.locator(".skip-link")).not.toBeInViewport();
+ await page.screenshot({path:info.outputPath(`ui-ux-pass2-${state}-${width}.png`)});
+ if(width===1440||width===320)await page.screenshot({path:info.outputPath(`ui-ux-pass2-${state}-${width}-full.png`),fullPage:true});
 }
 test("original visual chart stays canonical, keyboard operable and practical at 1440/390/320",async({page},info)=>{
  test.setTimeout(180000);const f=await colorPilotFixture(page);

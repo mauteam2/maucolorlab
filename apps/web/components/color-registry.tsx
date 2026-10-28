@@ -71,7 +71,7 @@ export function CatalogDiscoverySelector() {
  return <SalonCard title="Marka ve seri keşfi"><details onToggle={event => { if (event.currentTarget.open) setEnabled(true); }}><summary onClick={() => setEnabled(true)}>Listelenen serileri incele</summary><p>Bu seçim bilgi amaçlıdır; kontrollü reçetenin üretici seçimini değiştirmez.</p>
   {enabled && !page && !error && <p role="status">Seriler yükleniyor…</p>}{error && <p role="alert">{error}</p>}
   <label>Listelenen seri<select value={selected} onChange={event => setSelected(event.target.value)}><option value="">Seri inceleyin</option>{page?.items.map(item => <option key={item.id} value={item.id}>{item.brand} · {item.line} · {item.region}</option>)}</select></label>
-  {entry && <p role="status">{entry.recipeSupport ? "Yayınlanmış destek mevcut; kontrollü reçetede bağlama özel doğrulama gerekir." : unsupportedRegistryMessage}</p>}
+  {entry && <div className="cl-registry-context"><StatusBadge tone={entry.recipeSupport?"success":"unknown"}>{discoveryLabels[entry.state]}</StatusBadge><p>{entry.sources.length} resmî kaynak · Pazar: {market(entry.region)} · Son teknik inceleme: {entry.lastReviewedAt?new Date(entry.lastReviewedAt).toLocaleDateString("tr-TR"):"Henüz yapılmadı"}</p><p role="status">{entry.recipeSupport ? "Yayınlanmış destek mevcut; kontrollü reçetede bağlama özel doğrulama gerekir." : unsupportedRegistryMessage}</p></div>}
   </details>
   <Link href="/workspace/catalog" className="button button-secondary">Marka kütüphanesini aç</Link>
  </SalonCard>;

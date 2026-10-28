@@ -62,3 +62,8 @@ it("mobile work steps change presentation without saving or inventing a second t
  fireEvent.click(screen.getByRole("button",{name:"Kanıt"}));expect(view.container.querySelector(".cl-workstation")).toHaveAttribute("data-stage","2");
  expect(vi.mocked(fetch).mock.calls.every(([url])=>url==="/api/session"||url==="/api/clients")).toBe(true);
 });
+it("a missing passport keeps the hair step visible instead of a blank mobile target",async()=>{
+ setup();const loaded=await vi.mocked(loadPassport).getMockImplementation()!(client.id,{},new AbortController().signal);vi.mocked(loadPassport).mockResolvedValue({...loaded,snapshot:null});
+ const view=render(<ColorWorkspace initialClientId={client.id}/>);await screen.findByText("Renk hedefi için önce Hair Passport oluşturun.");
+ expect(view.container.querySelector(".cl-workstation")).toHaveAttribute("data-stage","0");expect(screen.getByRole("button",{name:"Hedef"})).toBeDisabled();expect(screen.getByRole("link",{name:/Hair Passport oluştur/})).toHaveAttribute("href",`/workspace/clients/${client.id}/hair-passport`);
+});
