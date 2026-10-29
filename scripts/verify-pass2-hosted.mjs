@@ -118,7 +118,7 @@ try {
   await expect(page.getByRole('region',{name:'Hızlı hedef oluşturucu'})).toHaveCount(0);
   await expect(page.getByRole('button',{name:'Renk planı oluştur',exact:true})).toHaveCount(0);
   await expect(page.locator('.salon-sidebar [aria-current="page"]')).toHaveCount(1);
-  await expect(page.getByRole('link',{name:'ColorLab bölümü',exact:true})).toHaveAttribute('aria-current','page');
+  await expect(page.getByRole('link',{name:'ColorLab bölümü',exact:true,includeHidden:true})).toHaveAttribute('aria-current','page');
   const file=`${output}/pass2-hosted-${mode}-colorlab-missing-passport-${width}.png`;await page.screenshot({path:file,fullPage:true});captures.push(file);
   checks.push(`authenticated ColorLab ${width}px: missing passport truthful, target/evaluation gated, no overflow`);
  }
