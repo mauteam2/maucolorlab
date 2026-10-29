@@ -47,4 +47,5 @@ it("risk, evidence confidence and feasibility remain separate authoritative conc
  const f=colorFixture({allUnknown:true}),plan=evaluateColorPlanning(f.snapshot,f.confidence,f.risk,f.target);render(<ColorPlanReview plan={plan} snapshot={f.snapshot.pages[0]!} clientId={f.target.clientId}/>);
  expect(screen.getByLabelText("Risk değerlendirmesi")).toBeVisible();expect(screen.getByLabelText("Kanıt güveni")).toBeVisible();expect(screen.getByLabelText("Teknik uygulanabilirlik")).toBeVisible();
  expect(within(screen.getByLabelText("Kanıt güveni")).getByText(/başarı olasılığı değildir/)).toBeVisible();expect(screen.getByRole("link",{name:/Eksik kanıtı ve fiziksel testleri/})).toHaveAttribute("href",`/workspace/clients/${f.target.clientId}/hair-passport`);
+ expect(screen.getByText("Güncel bölgesel saç kanıtı henüz değerlendirilemedi.")).toBeVisible();
 });

@@ -40,8 +40,14 @@ export function ColorWorkspace({initialClientId}:{initialClientId?:string}={}) {
  const [offset, setOffset] = useState(0);
  const [stage, setStage] = useState(initialClientId?1:0);
  const [expert, setExpert] = useState(false);
+ const workflow = useRef<HTMLElement>(null);
  const steps = ["Saç", "Hedef", "Kanıt", "Değerlendirme", "Strateji", "Reçete"];
  function navigate(next: number) { setStage(next); requestAnimationFrame(()=>document.getElementById(`cl-stage-${next}`)?.scrollIntoView({block:"start"})); }
+ useEffect(()=>{
+  const center=()=>{const nav=workflow.current,button=nav?.querySelector<HTMLButtonElement>('button[aria-current="step"]');if(nav&&button){const a=nav.getBoundingClientRect(),b=button.getBoundingClientRect();nav.scrollLeft+=b.left-a.left-(nav.clientWidth-b.width)/2;}};
+  const frame=requestAnimationFrame(center);window.addEventListener("resize",center);
+  return()=>{cancelAnimationFrame(frame);window.removeEventListener("resize",center);};
+ },[stage,visible]);
  const reference = useRef<string | null>(null);
  const generation = useRef(0);
  const requestIds = useRef<{ target: string; plan: string } | null>(null);
@@ -118,7 +124,7 @@ export function ColorWorkspace({initialClientId}:{initialClientId?:string}={}) {
  <section className="cl-client-bar" aria-label="Renk çalışması müşterisi"><div><span className="ui-eyebrow">Müşteri / çalışma bağlamı</span><select aria-label="Renk planı müşterisi" value={clientId} onChange={event=>{if(event.target.value===clientId)return;++generation.current;setVisible(false);setLoaded(null);setDefinition(null);setTargetId(null);setPlan(null);setPlanId(null);requestIds.current=null;setStage(1);setClientId(event.target.value);}}><option value="">Müşteri seçin</option>{loaded&&!directory?.items.some(item=>item.id===clientId)&&<option value={clientId}>{loaded.client.full_name}</option>}{directory?.items.map(client=><option key={client.id} value={client.id}>{client.full_name}</option>)}</select></div>
  {loaded&&<div className="cl-client-status"><strong>{loaded.snapshot?`Hair Passport · v${loaded.snapshot.passport.version}`:"Hair Passport eksik"}</strong><span>{loaded.snapshot?`${loaded.snapshot.regions.filter(r=>r.status==="ACTIVE").length} aktif bölge · kanıt motor tarafından değerlendirilecek`:"Teknik değerlendirme için saç kaydı gerekli"}</span></div>}
  <details className="cl-client-search"><summary>Müşteri bul / sayfala</summary><form className="salon-toolbar" onSubmit={event=>{event.preventDefault();setOffset(0);setQuery(String(new FormData(event.currentTarget).get("query")??""));}}><input name="query" type="search" maxLength={80} aria-label="Müşteri adı veya telefon" placeholder="Ad veya telefon ile ara"/><button className="button button-secondary">Ara</button></form><div className="salon-toolbar"><button className="button button-secondary" disabled={!offset} onClick={()=>setOffset(Math.max(0,offset-25))}>Önceki</button><span>Sayfa {offset/25+1}</span><button className="button button-secondary" disabled={!directory?.has_more||offset>=10000} onClick={()=>setOffset(offset+25)}>Sonraki</button></div></details></section>
- <nav className="cl-workflow" aria-label="ColorLab çalışma adımları">{steps.map((name,index)=><button key={name} type="button" aria-current={stage===index?"step":undefined} disabled={index>0&&!loaded?.snapshot} onClick={()=>navigate(index)}><span aria-hidden="true">{String(index+1).padStart(2,"0")}</span>{name}</button>)}</nav>
+ <nav ref={workflow} className="cl-workflow" aria-label="ColorLab çalışma adımları">{steps.map((name,index)=><button key={name} type="button" aria-current={stage===index?"step":undefined} disabled={index>0&&!loaded?.snapshot} onClick={()=>navigate(index)}><span aria-hidden="true">{String(index+1).padStart(2,"0")}</span>{name}</button>)}</nav>
  {!loaded&&<section className="cl-start"><span className="ui-eyebrow">Profesyonel renk çalışması</span><h2>Her renk yönü, saçın kendi kanıtıyla başlar.</h2><p>Bir müşteri seçerek Hair Passport bağlamını ve hedef kartelasını açın. Teknik değerlendirme öncesinde bilinmeyen bilgiler görünür kalır.</p><CatalogDiscoverySelector/></section>}
  {loaded&&<>
  {loaded.snapshot&&<HairOrientation snapshot={loaded.snapshot} onInspect={()=>navigate(0)}/>}

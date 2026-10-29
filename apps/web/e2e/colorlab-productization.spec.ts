@@ -9,6 +9,7 @@ async function capture(page:Page,info:TestInfo,state:string,width:number) {
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${state} ${width}px`).toBe(true);
  await expect(page.locator('.salon-sidebar [aria-current="page"]')).toHaveCount(1);
  await expect(page.locator(".skip-link")).not.toBeInViewport();
+ await expect(page.locator('.cl-workflow button[aria-current="step"]')).toBeInViewport({ratio:1});
  await page.screenshot({path:info.outputPath(`ui-ux-pass2-${state}-${width}.png`)});
  if(width===1440||width===320)await page.screenshot({path:info.outputPath(`ui-ux-pass2-${state}-${width}-full.png`),fullPage:true});
 }
