@@ -1,0 +1,44 @@
+name: ELIFORA Pass2 populated protected staging verification
+on:
+  push:
+    branches: [codex/pass2-populated-staging-verification]
+permissions:
+  contents: read
+concurrency:
+  group: pass2-populated-hosted-verification
+  cancel-in-progress: false
+jobs:
+  populated:
+    name: Real protected staging synthetic ColorLab states
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      UI_ORIGIN: https://elifora-staging.vercel.app
+      UI_SHA: ef36f937f13bc6a44c2a94ba237301e70ce78d8d
+      UI_CI: '40873986501'
+      UI_BYPASS: ${{ secrets.ELIFORA_PASS2_POPULATED_BYPASS }}
+      UI_EMAIL: ${{ secrets.ELIFORA_PASS2_POPULATED_EMAIL }}
+      UI_PASSWORD: ${{ secrets.ELIFORA_PASS2_POPULATED_PASSWORD }}
+      UI_OTHER_EMAIL: ${{ secrets.ELIFORA_PASS2_POPULATED_OTHER_EMAIL }}
+      UI_OTHER_PASSWORD: ${{ secrets.ELIFORA_PASS2_POPULATED_OTHER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+        working-directory: apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Verify all twelve authenticated states on unchanged protected staging
+        run: node scripts/verify-pass2-populated-hosted.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hosted-ui-pass2-populated
+          path: |
+            apps/web/captures/reports/pass2-populated-*.png
+            apps/web/captures/reports/pass2-populated-*.json
+          retention-days: 14
