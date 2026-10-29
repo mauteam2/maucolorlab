@@ -30,3 +30,7 @@ it("an unavailable published catalog stays useful without implying official reci
  await screen.findByText("Yayımlanmış doğrulanmış pilot katalog bulunamadı.");expect(screen.getByRole("button",{name:"Uyumlu tonları getir"})).toBeDisabled();
  expect(screen.queryByLabelText("Boya miktarı (g)")).toBeNull();expect(screen.queryByText(/doğrulanmış 1:1/)).toBeNull();expect(create).not.toHaveBeenCalled();
 });
+it("a saved authoritative receipt is not described as an empty history during the refresh",async()=>{
+ await ready();select();fireEvent.click(screen.getByRole("button",{name:"Kontrollü taslağı kaydet"}));await screen.findByText("60.3 g");
+ expect(screen.queryByText("Henüz kayıt yok.")).toBeNull();expect(screen.getByText("Kaydedilen sürüm mevcut; geçmiş listesi yenileniyor…")).toBeVisible();
+});

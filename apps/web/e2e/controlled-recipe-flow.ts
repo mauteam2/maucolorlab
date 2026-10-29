@@ -52,6 +52,7 @@ export async function controlledRecipeJourney(page:Page,browser:Browser,info:Tes
  const savedResponse=page.waitForResponse(r=>r.url().endsWith("/api/controlled-brand-recipes")&&r.request().method()==="POST");await panel.getByRole("button",{name:"Kontrollü taslağı kaydet",exact:true}).click();const saved=await savedResponse;expect(saved.ok(),await saved.text()).toBeTruthy();const v1=(await saved.json()).data;
  expect(v1.result).toMatchObject({colorGrams:30.15,developerGrams:30.15,totalGrams:60.3,executable:false,professionalReviewRequired:true});expect(v1.result.selected.processingMinutes).toEqual({min:30,max:45});
  await expect(panel.getByText("60.3 g").first()).toBeVisible();
+ await expect(panel.locator("details>summary").filter({hasText:"Sürüm 1"})).toBeVisible();
  const previousViewport=page.viewportSize();await page.setViewportSize({width:1440,height:1000});await page.evaluate(async()=>{if(document.activeElement instanceof HTMLElement)document.activeElement.blur();window.scrollTo(0,0);await document.fonts.ready;});await page.screenshot({path:info.outputPath("ui-ux-pass2-controlled-formulation-1440.png"),fullPage:true});if(previousViewport)await page.setViewportSize(previousViewport);
  const original=JSON.parse(saved.request().postData()!);expect((await(await page.request.post("/api/controlled-brand-recipes",{headers,data:original})).json()).data.id).toBe(v1.id);
  expect((await page.request.post("/api/controlled-brand-recipes",{headers,data:{...original,color_grams:31}})).status()).toBe(409);
