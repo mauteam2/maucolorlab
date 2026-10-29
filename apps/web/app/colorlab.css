@@ -70,3 +70,19 @@
  .cl-composition {display:flex;flex-direction:column;gap:24px;}.cl-intelligence {display:block;order:-1;width:100%;}.cl-primary {width:100%;}.cl-workstation[data-stage="2"] .cl-intelligence {display:none;}.cl-workstation[data-stage="4"] .cl-intelligence {order:1;}.cl-workstation[data-stage="1"] .cl-review-signals,.cl-workstation[data-stage="1"] .cl-plan-state,.cl-workstation[data-stage="1"] .cl-awaiting {display:none;}
  .cl-workstation[data-stage="3"] .cl-strategy {display:block;}.cl-direction {padding-top:16px;}.cl-direction-hero {margin-bottom:12px;gap:20px;}.cl-direction-hero .cl-hair-large {width:65px;height:105px;}.cl-direction-hero h2 {font-size:25px;}.cl-depth-number {font-size:30px;}.cl-direction>.cl-caption {font-size:9px;margin-bottom:0;}.cl-regional-comparison {margin-top:12px;}.cl-regional-comparison summary {font-size:10px;}.cl-primary .cl-why>h3,.cl-primary .cl-strategy>h3:first-of-type {font-size:30px;}.cl-primary .cl-reason-chain p {font-size:12px;}.cl-primary .cl-reason-chain strong {font-size:12px;}
 }
+/* In review, decisions precede the illustrative reference; the reference is not a safety signal. */
+.cl-workstation:is([data-stage="3"],[data-stage="4"]) .cl-intelligence {display:flex;flex-direction:column;}
+.cl-workstation:is([data-stage="3"],[data-stage="4"]) .cl-intelligence>.cl-plan-state {order:0;margin:0 0 14px;padding-top:0;}
+.cl-workstation:is([data-stage="3"],[data-stage="4"]) .cl-intelligence>.cl-review-signals {order:1;margin:0 0 24px;}
+.cl-workstation:is([data-stage="3"],[data-stage="4"]) .cl-intelligence>.cl-direction {order:2;}
+.cl-review-signals .cl-evaluation {display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px;}
+.cl-review-signals .cl-evaluation>.ui-eyebrow,.cl-review-signals .cl-interpreted-target {grid-column:1/-1;}
+.cl-review-signals .cl-interpreted-target {order:5;margin-top:10px;}
+.cl-review-signals :is(.cl-risk,.cl-confidence,.cl-feasibility) {margin-top:12px;padding-block:12px;border-top:2px solid var(--cl-rule);}
+.cl-intelligence .cl-review-signals :is(h3,.ui-notice>strong) {font-size:17px;line-height:1.3;margin:0 0 12px;overflow-wrap:anywhere;}
+.cl-review-signals .ui-status {font-size:11px;padding:4px 6px;}.cl-review-signals :is(.cl-risk,.cl-confidence,.cl-feasibility) p {font-size:10px;line-height:1.5;}
+@media(max-width:700px) {
+ .cl-title {margin-bottom:10px;}.cl-title h1 {font-size:28px;margin:4px 0;}.cl-title p {display:none;}.cl-title .ui-eyebrow {font-size:9px;}
+ .cl-client-bar {grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;}.cl-client-bar>div:first-child {grid-column:1/-1;}.cl-client-bar>div:first-child>.ui-eyebrow {display:none;}.cl-client-status {display:block;}.cl-client-status span {margin-top:4px;}.cl-client-search {font-size:9px;max-width:116px;}.cl-client-search[open] {grid-column:1/-1;max-width:none;}.cl-client-search summary {font-size:9px;min-height:40px;}
+ .cl-review-signals .cl-evaluation {grid-template-columns:1fr;}.cl-review-signals :is(.cl-risk,.cl-confidence,.cl-feasibility) {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;margin-top:8px;padding-block:12px;}.cl-intelligence .cl-review-signals :is(h3,.ui-notice>strong) {font-size:22px;margin:0;}.cl-review-signals :is(.cl-risk,.cl-confidence,.cl-feasibility) p {flex-basis:100%;font-size:11px;line-height:1.5;margin:3px 0;}.cl-review-signals .ui-status {font-size:12px;}.cl-review-signals .cl-feasibility .ui-notice {width:100%;}.cl-review-signals .cl-feasibility .ui-notice p {margin-top:8px;}
+}
