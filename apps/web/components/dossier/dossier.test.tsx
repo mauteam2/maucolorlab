@@ -11,7 +11,7 @@ import { hairTr as t } from "@/lib/i18n/hair-tr";
 const loader=vi.hoisted(()=>vi.fn());
 vi.mock("@/lib/hair-passport/load",()=>({loadPassport:loader}));
 import { CurrentHairFacts,RegionEvidenceMap } from "./hair-facts";
-import { EvidenceAssessment } from "./assessment";
+import { EvidenceAssessment,assessmentTargetLabel } from "./assessment";
 import { ClientTechnicalSummary } from "./client-technical-summary";
 import { ClientColorJourney,visibleTechnicalEvents } from "./color-journey";
 import { RecordsDisclosure } from "./records-disclosure";
@@ -73,3 +73,7 @@ it("the bounded dated journey links source records without claiming a successful
 it("mobile record disclosure has an intentional native keyboard-accessible control",async()=>{
  vi.stubGlobal("matchMedia",vi.fn(()=>({matches:true,addEventListener:vi.fn(),removeEventListener:vi.fn()})));render(<RecordsDisclosure label="3 fiziksel test"><p>Kaynak ayrıntısı</p></RecordsDisclosure>);const summary=screen.getByText("3 fiziksel test"),details=summary.closest("details")!;await waitFor(()=>expect(details.open).toBe(false));fireEvent.click(summary);await waitFor(()=>expect(details.open).toBe(true));expect(screen.getByText("Kaynak ayrıntısı")).toBeVisible();
 });
+
+it("missing standard and unavailable regional evidence targets are explicit without crashing",()=>{const s=snapshot();expect(assessmentTargetLabel(s,"MISSING:ROOT")).toBe("Dip · bölge kaydı eksik");expect(assessmentTargetLabel(s,"MID_LENGTHS")).toBe("Orta Uzunluklar · bölge kaydı eksik");expect(assessmentTargetLabel(s,crypto.randomUUID())).toBe("Bölge kaydı mevcut görünümde yok");});
+
+it("malformed evidence detail remains unavailable rather than crashing the dossier",async()=>{const f=assessmentFixture();f.fetcher.mockImplementation(async(url:string)=>new Response(JSON.stringify(url==="/api/session"?{context:f.context}:{data:url.includes("confidence")?{...f.confidence,conflicts:[{field:"porosity"}]}:f.risk})));render(<EvidenceAssessment snapshot={f.input.pages[0]!} reference={f.reference}/>);await screen.findByText(/Kanıt değerlendirmesi doğrulanamadı/);expect(screen.queryByText("Teknik planlamaya geçilebilir")).toBeNull();});
