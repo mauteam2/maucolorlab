@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 120">
+  <!-- Original longitudinal strand lines, not a manufacturer color sample. -->
+  <defs><pattern id="strands" width="5" height="120" patternUnits="userSpaceOnUse"><path d="M.6-8C4 28-2 78 .6 128" fill="none" stroke="white" stroke-opacity=".16" stroke-width=".55"/><path d="M3-8C6 32 .2 76 3 128" fill="none" stroke="black" stroke-opacity=".14" stroke-width=".45"/></pattern></defs>
+  <path fill="url(#strands)" d="M0 0h80v120H0z"/>
+</svg>

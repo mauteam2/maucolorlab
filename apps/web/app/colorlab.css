@@ -54,7 +54,7 @@
 }
 @media(prefers-reduced-motion:reduce) {.cl-workflow,.cl-depth-scale {scroll-behavior:auto;}}
 .cl-hair-swatch[data-visual=ILLUSTRATIVE] {border-radius:0;mask:url('/colorlab/hair-strand-mask.svg') center/100% 100% no-repeat;}
-.cl-hair-swatch[data-visual=ILLUSTRATIVE]>span {background:repeating-radial-gradient(ellipse at 170% 35%,transparent 0 2.5px,#ffffff14 2.5px 3px,transparent 3px 4px,#00000012 4px 4.6px),linear-gradient(100deg,var(--strand-shadow),var(--strand-body) 28%,var(--strand-light) 57%,var(--strand-body) 79%,var(--strand-shadow));}
+.cl-hair-swatch[data-visual=ILLUSTRATIVE]>span {background:url('/colorlab/hair-strand-texture.svg') center/100% 100% no-repeat,linear-gradient(100deg,var(--strand-shadow),var(--strand-body) 28%,var(--strand-light) 57%,var(--strand-body) 79%,var(--strand-shadow));}
 
 /* One active work surface on every screen; the same target and signals remain in view. */
 .cl-workstation [data-cl-step] {display:none;}
@@ -75,7 +75,7 @@
 .cl-workstation:is([data-stage="3"],[data-stage="4"]) .cl-intelligence>.cl-plan-state {order:0;margin:0 0 14px;padding-top:0;}
 .cl-workstation:is([data-stage="3"],[data-stage="4"]) .cl-intelligence>.cl-review-signals {order:1;margin:0 0 24px;}
 .cl-workstation:is([data-stage="3"],[data-stage="4"]) .cl-intelligence>.cl-direction {order:2;}
-.cl-review-signals .cl-evaluation {display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px;}
+.cl-intelligence .cl-review-signals .cl-evaluation {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px;}
 .cl-review-signals .cl-evaluation>.ui-eyebrow,.cl-review-signals .cl-interpreted-target {grid-column:1/-1;}
 .cl-review-signals .cl-interpreted-target {order:5;margin-top:10px;}
 .cl-review-signals :is(.cl-risk,.cl-confidence,.cl-feasibility) {margin-top:12px;padding-block:12px;border-top:2px solid var(--cl-rule);}
@@ -84,5 +84,5 @@
 @media(max-width:700px) {
  .cl-title {margin-bottom:10px;}.cl-title h1 {font-size:28px;margin:4px 0;}.cl-title p {display:none;}.cl-title .ui-eyebrow {font-size:9px;}
  .cl-client-bar {grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;}.cl-client-bar>div:first-child {grid-column:1/-1;}.cl-client-bar>div:first-child>.ui-eyebrow {display:none;}.cl-client-status {display:block;}.cl-client-status span {margin-top:4px;}.cl-client-search {font-size:9px;max-width:116px;}.cl-client-search[open] {grid-column:1/-1;max-width:none;}.cl-client-search summary {font-size:9px;min-height:40px;}
- .cl-review-signals .cl-evaluation {grid-template-columns:1fr;}.cl-review-signals :is(.cl-risk,.cl-confidence,.cl-feasibility) {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;margin-top:8px;padding-block:12px;}.cl-intelligence .cl-review-signals :is(h3,.ui-notice>strong) {font-size:22px;margin:0;}.cl-review-signals :is(.cl-risk,.cl-confidence,.cl-feasibility) p {flex-basis:100%;font-size:11px;line-height:1.5;margin:3px 0;}.cl-review-signals .ui-status {font-size:12px;}.cl-review-signals .cl-feasibility .ui-notice {width:100%;}.cl-review-signals .cl-feasibility .ui-notice p {margin-top:8px;}
+ .cl-intelligence .cl-review-signals .cl-evaluation {grid-template-columns:1fr;}.cl-review-signals :is(.cl-risk,.cl-confidence,.cl-feasibility) {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;margin-top:8px;padding-block:12px;}.cl-intelligence .cl-review-signals :is(h3,.ui-notice>strong) {font-size:22px;margin:0;}.cl-review-signals :is(.cl-risk,.cl-confidence,.cl-feasibility) p {flex-basis:100%;font-size:11px;line-height:1.5;margin:3px 0;}.cl-review-signals .ui-status {font-size:12px;}.cl-review-signals .cl-feasibility .ui-notice {width:100%;}.cl-review-signals .cl-feasibility .ui-notice p {margin-top:8px;}
 }
