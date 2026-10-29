@@ -1,0 +1,15 @@
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { recordedValues } from "./hair-facts";
+import { loadPassport } from "@/lib/hair-passport/load";
+import { formatHairDate, orderedRegions, displayValue, regionName } from "@/lib/hair-passport/display";
+export function ClientTechnicalSummary({clientId,reference,permissions}:{clientId:string;reference:string;permissions:string[]}){
+ const [data,setData]=useState<Awaited<ReturnType<typeof loadPassport>>|null>(null),[failed,setFailed]=useState(false);
+ const allowed=permissions.includes("hair_passport.read");
+ useEffect(()=>{let alive=true;const controller=new AbortController();queueMicrotask(async()=>{if(!alive)return;setData(null);setFailed(false);if(!allowed||document.hidden||!navigator.onLine)return;try{const next=await loadPassport(clientId,{},AbortSignal.any([controller.signal,AbortSignal.timeout(15000)]));if(next.workspaceReference!==reference)throw Error();if(alive&&!document.hidden&&navigator.onLine)setData(next);}catch{if(alive)setFailed(true);}});return()=>{alive=false;controller.abort();};},[clientId,reference,allowed]);
+ if(!allowed)return null;
+ const verified=data?.workspaceReference===reference&&data.client.id===clientId?data:null;
+ const snapshot=verified?.snapshot,regions=snapshot?orderedRegions(snapshot).filter(r=>r.status==="ACTIVE"):[];
+ return <section className="dossier-client-technical" aria-label="Müşterinin teknik dosya özeti"><div><span className="ui-eyebrow">Teknik dosya</span><h2>{failed?"Teknik kayıt doğrulanamadı":!verified?"Saç kaydı doğrulanıyor":snapshot?"Mevcut saçın kayıtlı kanıtı":"Hair Passport henüz yok"}</h2>{failed?<p role="status">Teknik özet doğrulanamadı. Tam dosyayı açarak erişimi yeniden doğrulayın.</p>:snapshot?<p>{regions.length} aktif bölge · {regions.filter(r=>r.assessment.state==="ASSESSED").length} bölgede gözlem kayıtlı<br/>Son kayıt güncellemesi: {formatHairDate(snapshot.passport.updated_at)}</p>:verified?<p>Planlama öncesinde saçın mevcut durumu ve bilinmeyen bilgiler kaydedilmeli.</p>:<p role="status">Yetkili teknik kayıt yükleniyor…</p>}{snapshot&&<div className="dossier-mini-regions">{regions.filter(r=>["ROOT","MID_LENGTHS","ENDS"].includes(r.type)).map(r=>{const v=recordedValues(r.assessment);return <div key={r.id}><strong>{regionName(snapshot,r.id)}</strong><span>Seviye: {v?displayValue("perceived_level",v.perceived_level):"Değerlendirilmedi"}</span><span>Gözeneklilik: {v?displayValue("porosity",v.porosity):"Değerlendirilmedi"}</span><span>Esneklik: {v?displayValue("elasticity",v.elasticity):"Değerlendirilmedi"}</span></div>;})}</div>}<p className="dossier-caption">Kayıt bulunması güvenlik veya uygulama onayı değildir. Ayrıntılı kanıt Hair Passport içindedir.</p></div><nav aria-label="Teknik dosyada devam"><Link prefetch={false} className="button button-primary" href={`/workspace/clients/${clientId}/hair-passport`}>Hair Passport&apos;ı aç →</Link>{verified?.client.status==="ACTIVE"&&permissions.includes("color_plan.read")&&<Link prefetch={false} href={`/workspace/colorlab?client_id=${clientId}`}>ColorLab&apos;da plan oluştur →</Link>}</nav></section>;
+}

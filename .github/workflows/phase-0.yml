@@ -92,7 +92,7 @@ jobs:
       - name: Global catalog discovery and regional non-execution must pass without retries
         run: npx playwright test e2e/color-registry.spec.ts --workers=1 --retries=0
       - name: Professional workspace layouts and preserved sign-in intro must pass without retries
-        run: npx playwright test e2e/design-deepening.spec.ts e2e/visual-productization.spec.ts e2e/colorlab-productization.spec.ts e2e/sign-in-intro.spec.ts --workers=1 --retries=0 --output=test-results-design
+        run: npx playwright test e2e/design-deepening.spec.ts e2e/visual-productization.spec.ts e2e/colorlab-productization.spec.ts e2e/dossier-productization.spec.ts e2e/sign-in-intro.spec.ts --workers=1 --retries=0 --output=test-results-design
       - name: Retain focused visual acceptance before longer regression journeys
         if: always()
         uses: actions/upload-artifact@v4
@@ -110,6 +110,17 @@ jobs:
           name: visual-productization-pass-2
           path: |
             apps/web/test-results-design/**/ui-ux-pass2-*.png
+            apps/web/test-results-design/**/error-context.md
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Retain authenticated Client Profile and Hair Passport Pass 3 acceptance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-productization-pass-3
+          path: |
+            apps/web/test-results-design/**/ui-ux-pass3-*.png
+            apps/web/test-results-design/**/ui-ux-pass3-*.json
             apps/web/test-results-design/**/error-context.md
           if-no-files-found: ignore
           retention-days: 14

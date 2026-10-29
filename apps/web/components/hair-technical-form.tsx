@@ -11,8 +11,9 @@ export function HairTechnicalForm({ draft, change, errors, prefix }: { draft: Te
  function update(key: TechnicalKey, next: Partial<TechnicalDraft["values"][TechnicalKey]>) {
   change({ ...draft, values: { ...draft.values, [key]: { ...draft.values[key], ...next } } });
  }
+ const groups = [{title:"Güncel renk ve beyaz oranı",keys:["natural_level","perceived_level","grey_ratio","tone"]},{title:"Saç yapısı ve bütünlüğü",keys:["thickness","density","porosity","elasticity"]},{title:"Kimyasal geçmiş",keys:["cosmetic_color_history","bleach_history","chemical_history"]}];
  return <><p id={`${prefix}-help`} className="hp-muted">{e.fieldHelp}</p><div className="hp-form-fields">
-  {technicalFields.map(({ key, kind }) => {
+  {groups.map(group=><fieldset className="hp-technical-group" key={group.title}><legend>{group.title}</legend><div className="hp-form-fields">{technicalFields.filter(field=>group.keys.includes(field.key)).map(({ key, kind }) => {
    const id = `${prefix}-${key}`, field = draft.values[key];
    const states: TechnicalState[] = kind === "level" ? ["KNOWN", "UNKNOWN", "NOT_ASSESSED"] : ["KNOWN", "UNKNOWN", "NOT_ASSESSED", "NOT_APPLICABLE"];
    const choices = key in enumValues ? enumValues[key as keyof typeof enumValues] : null;
@@ -29,11 +30,11 @@ export function HairTechnicalForm({ draft, change, errors, prefix }: { draft: Te
     </>}
     {errors[key] && <span role="alert" className="hp-field-error">{errors[key]}</span>}
    </div>;
-  })}
-  {(["technical_notes", "integrity_notes"] as const).map(key => <div className="hp-form-field" key={key}>
+  })}</div></fieldset>)}
+  <fieldset className="hp-technical-group"><legend>Profesyonel notlar</legend><div className="hp-form-fields">{(["technical_notes", "integrity_notes"] as const).map(key => <div className="hp-form-field" key={key}>
    <label htmlFor={`${prefix}-${key}`}>{t.fields[key]}</label>
    <textarea id={`${prefix}-${key}`} value={draft[key]} maxLength={key === "technical_notes" ? 4000 : 2000} onChange={event => change({ ...draft, [key]: event.target.value })} aria-invalid={Boolean(errors[key])} />
    {errors[key] && <span role="alert" className="hp-field-error">{errors[key]}</span>}
-  </div>)}
+  </div>)}</div></fieldset>
  </div></>;
 }

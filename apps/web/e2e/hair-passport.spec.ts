@@ -26,6 +26,7 @@ test("real passport navigation, regions, tests, history pagination and revoked a
  await expect(page.getByRole("heading", { name: client.full_name })).toBeVisible();
  for (const name of ["Dip", "Orta Uzunluklar", "Uçlar"]) await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
  await expect(page.getByRole("heading", { name: /Özel bölge/ })).toBeVisible();
+ for(const section of ["hp-tests","hp-history"]){const details=page.locator(`#${section} .dossier-record-disclosure`);if(!await details.getAttribute("open").then(v=>v!==null))await details.locator(":scope > summary").click();}
  await expect(page.getByText("Sentetik tutam gözlemi")).toBeVisible();
  await expect(page.getByText(/Yaklaşık ·/).first()).toBeVisible();
  await expect(page.getByText("Tarih bilinmiyor")).toBeVisible();

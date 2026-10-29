@@ -11,6 +11,7 @@ import { type ActiveTenantContext, tenantContextSchema, workspaceReference } fro
 import { type Candidate, type Client, type Directory, clientDetail, clientDirectory, duplicateCandidate, clientErrorText } from "@/lib/clients/contracts";
 import { formatClientDate as date } from "@/lib/clients/display";
 import { hairTr } from "@/lib/i18n/hair-tr";
+import { ClientTechnicalSummary } from "./dossier/client-technical-summary";
 import { ClientCrm } from "./client-crm";
 import { ClientCrmDirectory } from "./client-crm-directory";
 
@@ -117,7 +118,7 @@ export function ClientWorkspace({ route }: { route: string }) {
   function changeField(field: keyof Draft, value: string) {
     setDraft(previous => previous && { ...previous, [field]: value, request_id: crypto.randomUUID() }); setReview(null); setError(null);
   }
-  return <SalonFrame active="clients" context={visible ? context : null} workspace={visible ? context?.organization_name : undefined}><main id="main-content" className="narrow-page clients-page"><OfflineDraftPanel entityId={route==="new"?undefined:client?.id}/>
+  return <SalonFrame active="clients" context={visible ? context : null} workspace={visible ? context?.organization_name : undefined}><main id="main-content" className={`narrow-page clients-page ${route!=="directory"&&route!=="new"?"dossier-profile":""}`}><OfflineDraftPanel entityId={route==="new"?undefined:client?.id}/>
     <nav aria-label="Müşteri gezintisi"><Link prefetch={false} href="/workspace">Çalışma alanı</Link><span aria-hidden="true"> / </span><Link prefetch={false} href="/workspace/clients">Müşteriler</Link></nav>
     {error && <div role="alert" className="client-notice"><p>{clientErrorText[error.code] ?? "Erişim doğrulanamadı. Yeniden deneyin."}</p>{error.correlationId && <small>İşlem: {error.correlationId}</small>}
       <div><button className="button button-secondary" onClick={() => void verify()}>Yeniden dene</button></div>
@@ -135,7 +136,7 @@ export function ClientWorkspace({ route }: { route: string }) {
         <div className="client-actions"><button className="button button-secondary" disabled={checking || !filter.offset} onClick={() => setFilter({ ...filter, offset: Math.max(0, filter.offset - 25) })}>Önceki</button><span>Sayfa {filter.offset / 25 + 1}</span><button className="button button-secondary" disabled={checking || !directory?.has_more || filter.offset >= 10000} onClick={() => setFilter({ ...filter, offset: filter.offset + 25 })}>Sonraki</button></div></>}
       </> : <>
         <h1>{route === "new" ? "Yeni müşteri" : draft ? "Müşteriyi düzenle" : "Müşteri profili"}</h1>
-        {client && !draft && <div className="salon-card salon-profile-banner"><span className="salon-avatar" aria-hidden="true">{client.full_name.split(" ").map(part => part[0]).slice(0,2).join("")}</span><div><h2>{client.full_name}</h2><span className="salon-muted">Son güncelleme: {date(client.updated_at)}</span></div></div>}
+        {client && !draft && <header className="dossier-profile-header"><div><span className="ui-eyebrow">Müşteri dosyası</span><h2>{client.full_name}</h2><p>{client.phone}{client.email&&` · ${client.email}`}</p></div><span className="dossier-caption">Son kayıt güncellemesi: {date(client.updated_at)}</span></header>}
         {draft ? <form className="auth-form client-form" onSubmit={event => { event.preventDefault(); save(); }}><LocalIntentButton domain="CLIENT" entityId={client?.id} baseVersion={client?.version} prepare={()=>({operation:route==="new"?"create":"update",payload:{...draft,phone_region:"TR",...(route==="new"?{}:{client_id:route})}})}/>
           <fieldset disabled={saving || !!review}><legend>Temel bilgiler</legend>
             <label htmlFor="full-name">Ad Soyad *</label><input id="full-name" autoComplete="name" required minLength={2} maxLength={160} value={draft.full_name} onChange={event => changeField("full_name", event.target.value)} />
@@ -148,7 +149,8 @@ export function ClientWorkspace({ route }: { route: string }) {
         </form> : client && <>
           <p className="client-status">{client.status === "ACTIVE" ? "Aktif müşteri" : "Arşivde"}</p>
           {context?.permissions.includes("hair_passport.read") && <nav className="hp-tabs" aria-label={hairTr.navigation}><span aria-current="page">{hairTr.overview}</span><Link prefetch={false} href={`/workspace/clients/${client.id}/hair-passport`}>{hairTr.title}</Link></nav>}
-          <nav className="dossier-links" aria-label="Müşteri çalışma alanları">{context?.permissions.includes("color_plan.read") && <Link prefetch={false} href={`/workspace/colorlab?client_id=${client.id}`}>Renk planı ve reçete →</Link>}{context?.permissions.includes("live_session.view") && <Link prefetch={false} href={`/workspace/live-sessions?client_id=${client.id}`}>Canlı seans geçmişi →</Link>}</nav><dl className="client-details"><dt>Telefon</dt><dd>{client.phone}</dd><dt>E-posta</dt><dd>{client.email ?? "Eklenmedi"}</dd><dt>Doğum Tarihi</dt><dd>{client.birth_date ? date(client.birth_date) : "Eklenmedi"}</dd><dt>Oluşturma</dt><dd>{date(client.created_at)}</dd><dt>Son güncelleme</dt><dd>{date(client.updated_at)}</dd></dl>
+          <nav className="dossier-links" aria-label="Müşteri çalışma alanları">{context?.permissions.includes("color_plan.read") && <Link prefetch={false} href={`/workspace/colorlab?client_id=${client.id}`}>Renk planı ve reçete →</Link>}{context?.permissions.includes("live_session.view") && <Link prefetch={false} href={`/workspace/live-sessions?client_id=${client.id}`}>Canlı seans geçmişi →</Link>}</nav><details className="dossier-contact"><summary>İletişim ve kayıt bilgileri</summary><dl className="client-details"><dt>Telefon</dt><dd>{client.phone}</dd><dt>E-posta</dt><dd>{client.email ?? "Eklenmedi"}</dd><dt>Doğum Tarihi</dt><dd>{client.birth_date ? date(client.birth_date) : "Eklenmedi"}</dd><dt>Oluşturma</dt><dd>{date(client.created_at)}</dd><dt>Son güncelleme</dt><dd>{date(client.updated_at)}</dd></dl></details>
+          {context&&!context.permissions.includes("crm.read")&&<ClientTechnicalSummary key={`${canonicalClientId??client.id}:${workspaceReference(context)}`} clientId={canonicalClientId??client.id} reference={workspaceReference(context)} permissions={context.permissions}/>}
           {context?.permissions.includes("crm.read")&&<ClientCrm clientId={client.id} context={context} onCanonicalClientId={setCanonicalClientId}/>}
           {context?.permissions.includes("finance.view") && <FinanceContextPanel clientId={client.id} context={context}/>}
           <div className="client-actions">{client.status === "ACTIVE" && context?.permissions.includes("clients.update") && <button className="button button-primary" disabled={saving || checking} onClick={() => setDraft({ full_name: client.full_name, phone: client.phone, email: client.email ?? "", birth_date: client.birth_date ?? "", expected_version: client.version, request_id: crypto.randomUUID() })}>Düzenle</button>}

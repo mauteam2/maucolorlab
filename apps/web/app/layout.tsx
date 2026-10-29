@@ -13,6 +13,7 @@ import "./pilot.css";
 import "./professional.css";
 import "./workspace-composition.css";
 import "./colorlab.css";
+import "./dossier.css";
 
 export const metadata: Metadata = {
   title: {
