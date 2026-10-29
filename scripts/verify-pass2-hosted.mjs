@@ -20,7 +20,7 @@ try {
    const url=new URL(request.url());
    if(url.hostname===host&&url.pathname.startsWith('/api/')&&!['GET','HEAD','OPTIONS'].includes(request.method())) {
     const body=request.postDataJSON();
-    if(url.pathname!=='/api/clients'||!['list','detail'].includes(body?.operation)) {forbiddenBusinessRequests.push({path:url.pathname,method:request.method()});return route.abort('blockedbyclient');}
+    const readOnly=(url.pathname==='/api/clients'&&['list','detail'].includes(body?.operation))||(url.pathname==='/api/crm/read'&&body?.operation==='actions'); if(!readOnly) {forbiddenBusinessRequests.push({path:url.pathname,method:request.method(),operation:body?.operation??null});return route.abort('blockedbyclient');}
    }delete headers['x-vercel-protection-bypass'];
    if(new URL(request.url()).hostname===host)headers['x-vercel-protection-bypass']=bypass;
    await route.continue({headers});
@@ -137,5 +137,5 @@ try {
  await s.context.close();
  await save('hosted-'+mode,{status:'PASS_READ_ONLY_HOSTED_SMOKE',requestedColorLabStates:'BLOCKED_NO_EXISTING_PASSPORT_TARGET_OR_PLAN',requestedWidths:[1440,390,320],businessMutationsObserved:forbiddenBusinessRequests.length,mode,origin,sourceHead:sha,ci,checks,captures,scope:'SYNTHETIC_HOSTED_UI_SMOKE',domainMutations:false,pilotGo:false,permissionCoverage:'hosted owner allow + unauth deny + cross-tenant deny + forged workspace deny; restricted-role matrix in accepted exact-SHA CI',hostedState:'existing synthetic tenant: zero passports, targets and plans; no domain fixtures created'});
  console.log(JSON.stringify({mode,status:'PASS',checks:checks.length,captures:captures.length}));
-}catch(error){await save('hosted-failure-'+mode,{status:'FAIL',mode,error:clean(error.message),checks});console.log(JSON.stringify({mode,status:'FAIL',error:clean(error.message)}));process.exitCode=1;}
+}catch(error){await save('hosted-failure-'+mode,{status:'FAIL',mode,error:clean(error.message),checks,blockedRequests:forbiddenBusinessRequests});console.log(JSON.stringify({mode,status:'FAIL',error:clean(error.message)}));process.exitCode=1;}
 finally{await browser?.close();}
