@@ -42,7 +42,7 @@ test("directory, validation, normal create, name/phone search, edit, archive and
   await page.screenshot({ path: testInfo.outputPath("client-form.png"), fullPage: true });
   await page.getByRole("button", { name: "Müşteri Oluştur" }).click();
   await expect(page.getByRole("heading", { name: "Ayşe Yılmaz", exact: true })).toBeVisible();
-  await expect(page.getByText("+905321234567", { exact: true })).toBeVisible();
+  await expect(page.locator(".dossier-profile-header").getByText("+905321234567", { exact: true })).toBeVisible();
   const clientUrl = page.url();
   await page.screenshot({ path: testInfo.outputPath("client-detail.png"), fullPage: true });
   await page.getByRole("button", { name: "Düzenle", exact: true }).click();
@@ -83,7 +83,7 @@ test("phone duplicates open existing, explicitly allow separate people, and rech
   await expect(page.getByRole("heading", { name: "Benzer müşteri bulundu" })).toBeVisible();
   await page.getByRole("button", { name: "Farklı kişi olduğunu onaylıyorum" }).click();
   await expect(page.getByRole("heading", { name: "Selin Ak", exact: true })).toBeVisible();
-  await expect(page.getByText("+905321112233", { exact: true })).toBeVisible();
+  await expect(page.locator(".dossier-profile-header").getByText("+905321112233", { exact: true })).toBeVisible();
 });
 test("foreign URL and forged ownership are denied; revoked membership conceals the directory", async ({ page, browser }) => {
   test.setTimeout(90000);
