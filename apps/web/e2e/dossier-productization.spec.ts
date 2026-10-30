@@ -14,7 +14,7 @@ async function capture(page:Page,info:TestInfo,state:string,width:number,anchor?
  const name=`ui-ux-pass3-${state}-${width}`;await page.screenshot({path:info.outputPath(`${name}.png`)});await page.screenshot({path:info.outputPath(`${name}-full.png`),fullPage:true});
  await writeFile(info.outputPath(`${name}.json`),JSON.stringify({source:"REAL_AUTHENTICATED_DISPOSABLE_SUPABASE",appSha:process.env.GITHUB_SHA??"local-uncommitted",runId:process.env.GITHUB_RUN_ID??null,project:info.project.name,state,width,height,route:new URL(page.url()).pathname,anchor:anchor??null,capturedAt:new Date().toISOString()},null,2));
 }
-async function readyPassport(page:Page,base:string){await page.goto(`/workspace/clients/${base.split("/").at(-1)}/hair-passport`);await expect(page.getByText("Kanıt güveni",{exact:true})).toBeVisible();}
+async function readyPassport(page:Page,base:string){await page.goto(`/workspace/clients/${base.split("/").at(-1)}/hair-passport`);await expect(page.locator(".dossier-assessment")).toHaveAttribute("data-assessment","verified");}
 test("client dossier and current-evidence passport remain practical at 1440/390/320 and edit only on intent",async({page},info)=>{
  test.setTimeout(240000);const f=await colorPilotFixture(page,{variation:true,variationRegion:"ROOT",high:true});
  try{
@@ -29,7 +29,7 @@ test("client dossier and current-evidence passport remain practical at 1440/390/
   await page.goto(`/workspace/clients/${f.client.id}`);await expect(page.getByText("Mevcut saçın kayıtlı kanıtı",{exact:true})).toBeVisible();await expect(page.locator(".dossier-timeline li").first()).toBeVisible();
   await expect(page.locator(".dossier-profile-header")).toBeVisible();await expect(page.locator(".dossier-profile-header .salon-avatar")).toHaveCount(0);
   for(const width of [1440,390,320])await capture(page,info,"client-profile",width);
-  await readyPassport(page,f.base);await expect(page.locator(".hp-editor")).toHaveCount(0);await expect(page.getByRole("button",{name:"Kaydet",exact:true})).toHaveCount(0);
+  await page.setViewportSize({width:1440,height:1000});await readyPassport(page,f.base);await expect(page.locator(".hp-editor")).toHaveCount(0);await expect(page.getByRole("button",{name:"Kaydet",exact:true})).toHaveCount(0);
   const map=page.getByLabel("Bölgesel saç değerlendirmesi");await expect(map.locator('[data-region="ROOT"]')).toContainText("4");await expect(map.locator('[data-region="ENDS"]')).toContainText("7");await expect(page.getByText("Eksik kanıt",{exact:true})).toBeVisible();
   for(const width of [1440,390,320])await capture(page,info,"hair-passport",width);
   const mobileRecords=page.locator("#hp-tests .dossier-record-disclosure");await expect(mobileRecords).not.toHaveAttribute("open","");
@@ -38,7 +38,7 @@ test("client dossier and current-evidence passport remain practical at 1440/390/
   await capture(page,info,"regional-technical",1440,"#hp-regions");
   await page.getByRole("button",{name:"Genel durumu düzenle",exact:true}).click();await expect(page.locator("#hp-editor-title")).toBeFocused();
   await expect(page.getByRole("group",{name:"Kimyasal geçmiş",exact:true})).toBeVisible();
-  for(const width of [1440,320])await capture(page,info,"hair-passport-edit",width,".hp-editor");
+  for(const width of [1440,320])await capture(page,info,"hair-passport-edit",width,"#hp-editor-title");
   // No change is saved by entering or leaving edit mode.
   const before=(await(await page.request.get(`${f.base}/hair-passport`)).json()).data;await page.getByRole("button",{name:"Vazgeç",exact:true}).click();await expect(page.getByRole("button",{name:"Genel durumu düzenle",exact:true})).toBeFocused();const after=(await(await page.request.get(`${f.base}/hair-passport`)).json()).data;expect(after.passport.version).toBe(before.passport.version);
   await page.getByRole("link",{name:"ColorLab’da plan oluştur →",exact:true}).click();await expect(page.getByLabel("Renk planı müşterisi")).toHaveValue(f.client.id);
@@ -53,11 +53,11 @@ test("explicit UNKNOWN, missing evidence, conflicting records and expired proven
    const r=await page.request.post(`${f.base}/hair-passport/observations`,{headers:f.headers,data:{request_id:randomUUID(),...payload}});expect(r.ok(),await r.text()).toBe(true);
   }
   const c=await page.request.get(`${f.base}/hair-passport/confidence`);expect(c.ok(),await c.text()).toBe(true);const canonical=(await c.json()).data;expect(canonical.conflicts.length).toBeGreaterThan(0);expect(canonical.staleEvidence.length).toBeGreaterThan(0);
-  await readyPassport(page,f.base);await expect(page.getByText(`${canonical.conflicts.length} çelişkili kanıt`,{exact:true})).toBeVisible();await page.getByText("Çelişki ve güncellik ayrıntıları",{exact:true}).click();await capture(page,info,"conflicting-stale-evidence",1440,".dossier-assessment");
+  await page.setViewportSize({width:1440,height:1000});await readyPassport(page,f.base);await expect(page.getByText(`${canonical.conflicts.length} çelişkili kanıt`,{exact:true})).toBeVisible();await page.getByText("Çelişki ve güncellik ayrıntıları",{exact:true}).click();await capture(page,info,"conflicting-stale-evidence",1440,".dossier-assessment");
   s=await read();const midDetails=page.locator(`#region-${mid.id} details`);await midDetails.locator(":scope > summary").click();await expect(midDetails.getByText("Geçerlilik tarihi geçti")).toBeVisible();await capture(page,info,"expired-source-provenance",1440,`#region-${mid.id}`);
   const r=await page.request.post("/api/clients",{headers:f.headers,data:{operation:"create",payload:{full_name:"Sentetik bilinmeyen teknik dosya",phone:"05329995522",request_id:randomUUID()}}});expect(r.ok(),await r.text()).toBe(true);const client=(await r.json()).data,base=`/api/clients/${client.id}`;
-  const hp=await page.request.post(`${base}/hair-passport`,{headers:f.headers,data:{request_id:randomUUID()}});expect(hp.ok(),await hp.text()).toBe(true);const empty=(await(await page.request.get(`${base}/hair-passport`)).json()).data;
-  const unknown=await page.request.post(`${base}/hair-passport/observations`,{headers:f.headers,data:{request_id:randomUUID(),expected_version:empty.regions[0].version,region_id:empty.regions[0].id,technical:{perceived_level:{state:"UNKNOWN",value:null},grey_ratio:{state:"KNOWN",value:0},porosity:{state:"UNKNOWN",value:null},elasticity:{state:"NOT_ASSESSED",value:null}},evidence:{source:"PROFESSIONAL_VERIFIED",attestation:"PERSONALLY_ASSESSED"}}});expect(unknown.ok(),await unknown.text()).toBe(true);
+  const hp=await page.request.post(`${base}/hair-passport`,{headers:f.headers,data:{request_id:randomUUID()}});expect(hp.ok(),await hp.text()).toBe(true);const empty=(await(await page.request.get(`${base}/hair-passport`)).json()).data;const unknownRoot=empty.regions.find((r:{type:string})=>r.type==="ROOT");expect(unknownRoot).toBeTruthy();
+  const unknown=await page.request.post(`${base}/hair-passport/observations`,{headers:f.headers,data:{request_id:randomUUID(),expected_version:unknownRoot.version,region_id:unknownRoot.id,technical:{perceived_level:{state:"UNKNOWN",value:null},grey_ratio:{state:"KNOWN",value:0},porosity:{state:"UNKNOWN",value:null},elasticity:{state:"NOT_ASSESSED",value:null}},evidence:{source:"PROFESSIONAL_VERIFIED",attestation:"PERSONALLY_ASSESSED"}}});expect(unknown.ok(),await unknown.text()).toBe(true);
   await readyPassport(page,base);await expect(page.getByText("Eksik bilgi nedeniyle planlama durduruldu",{exact:true})).toBeVisible();await expect(page.getByLabel("Bölgesel saç değerlendirmesi").locator('[data-region="ROOT"]')).toContainText("Bilinmiyor");for(const width of [1440,320])await capture(page,info,"unknown-missing-evidence",width);
  }finally{await f.account.cleanup();}
 });
