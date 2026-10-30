@@ -46,6 +46,8 @@ test("records three test types, retains older tests, and enforces read-only acce
  await expect(page.locator("#hp-tests .hp-records > li")).toHaveCount(3);
  await page.reload();
  await expect(page.locator("#hp-tests .hp-records > li")).toHaveCount(3);
+ const records = page.locator("#hp-tests .dossier-record-disclosure");
+ if (await records.getAttribute("open") === null) await records.locator(":scope > summary").click();
  for (const name of ["Porozite Testi", "Elastikiyet Testi", "Tutam Testi"]) await expect(page.locator("#hp-tests").getByRole("heading", { name })).toBeVisible();
  await expect(page.locator("#hp-tests")).toContainText("Dip");
  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

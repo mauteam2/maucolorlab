@@ -62,8 +62,15 @@ test("offline Hair conflict preserves original intent and never rebases onto con
  await expect(page.getByRole("heading", { name: "Synthetic Offline Client" })).toBeVisible();
  const rejected = page.waitForResponse(r => new URL(r.url()).pathname === f.path && r.request().method() === "PATCH");
  await page.getByRole("button", { name: "Taslakları senkronize et" }).click(); expect((await rejected).status()).toBe(409);
- await expect(page.getByText("Çakışma · inceleyin")).toBeVisible(); await expect(page.locator("#hp-core")).toContainText("5");
+ await expect(page.getByText("Çakışma · inceleyin")).toBeVisible();
+ // The dossier intentionally separates editing from the authoritative read canvas.
+ // A rejected sync must retain the original intent, not replace it with the remote value.
+ await expect(form.getByLabel("Doğal seviye · Değer")).toHaveValue("8");
  await page.getByText("Taslağı incele").click(); await expect(page.locator("pre")).toContainText('"expected_version": 1');
+ await form.getByRole("button", { name: "Vazgeç" }).click();
+ await expect(page.locator("#hp-core")).toContainText("5");
+ await expect(page.getByText("Çakışma · inceleyin")).toBeVisible();
+ await expect(page.locator("pre")).toContainText('"expected_version": 1');
  await page.screenshot({ path: info.outputPath("phase-8-offline-conflict.png"), fullPage: true }); await f.account.cleanup();
 });
 test("accepted Hair append with lost response replays once after browser reload", async ({ page }, info) => {

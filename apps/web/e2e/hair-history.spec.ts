@@ -59,6 +59,8 @@ test("records exact, approximate and unknown history without replacing older eve
  await expect(page.locator("#hp-history .hp-records > li")).toHaveCount(3);
  await page.reload();
  await expect(page.locator("#hp-history .hp-records > li")).toHaveCount(3);
+ const records = page.locator("#hp-history .dossier-record-disclosure");
+ if (await records.getAttribute("open") === null) await records.locator(":scope > summary").click();
  for (const name of ["Boya", "Açma / Açıcı İşlemi", "Toner / Gloss"]) await expect(page.locator("#hp-history").getByRole("heading", { name })).toBeVisible();
  const lightening = page.locator("#hp-history .hp-records > li").filter({ has: page.getByRole("heading", { name: "Açma / Açıcı İşlemi", exact: true }) });
  await expect(lightening).toHaveCount(1);
