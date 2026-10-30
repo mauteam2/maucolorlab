@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      UI_ORIGIN: https://elifora-staging-q9m64prhg-elifora.vercel.app
-      UI_MODE: candidate
+      UI_ORIGIN: https://elifora-staging.vercel.app
+      UI_MODE: canonical
       UI_KNOWN_ID: 83036105-98d0-4d32-8683-aec57a449140
       UI_UNKNOWN_ID: 69fc82e3-bf4d-415e-90d0-a6df9248b8e8
       UI_FOREIGN_ID: 364905b4-4743-439f-b20e-580a41a236c3
