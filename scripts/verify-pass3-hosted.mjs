@@ -14,7 +14,7 @@ const save=(name,data)=>writeFile(`${out}/pass3-hosted-${mode}-${name}.json`,JSO
 const clean=x=>[bypass,password,receptionPassword,email,receptionEmail].reduce((s,v)=>s.replaceAll(v,'[REDACTED]'),String(x));
 function allowed(path,body){
  if(path==='/api/clients')return ['list','detail'].includes(body?.operation)||(mode==='candidate'&&body?.operation==='create'&&body.payload?.full_name?.startsWith('SYNTHETIC QA ONLY - Pass3')&&['+12025550147','+12025550182'].includes(body.payload?.phone));
- if(path==='/api/crm/read')return body?.operation==='actions';
+ if(path==='/api/crm/read')return ['list','summary','options','timeline','notes','appointments','actions','duplicates','merge_review'].includes(body?.operation);
  if(mode!=='candidate')return false;
  if(path==='/api/crm')return body?.type==='NOTE_SAVE'&&ids.has(body.client_id)&&body.body===note&&body.visibility==='PRIVATE_MANAGEMENT';
  const m=path.match(/^\/api\/clients\/([a-f0-9-]+)\/hair-passport(?:\/(?:observations|tests|history|regions))?$/);return !!m&&ids.has(m[1]);
@@ -41,7 +41,7 @@ try{
  async function snapshot(id){const r=await get(`/api/clients/${id}/hair-passport`);expect(r.status()).toBe(200);return (await r.json()).data;}
  async function fixture(kind,phone){const c=await post('/api/clients',{operation:'create',payload:{full_name:`SYNTHETIC QA ONLY - Pass3 ${kind==='KNOWN'?'Regional Review':'UNKNOWN Evidence'}`,phone,phone_region:'US',request_id:randomUUID()}});ids.add(c.id);manifest.clients.push({id:c.id,kind});await save('manifest',manifest);await post(`/api/clients/${c.id}/hair-passport`,{request_id:randomUUID()});return c.id;}
  let known=knownInput,unknown=unknownInput;
- if(mode==='candidate'){
+ if(mode==='candidate'&&!knownInput&&!unknownInput){
   const existing=await s.context.request.post(origin+'/api/clients',{headers,data:{operation:'list',payload:{query:'SYNTHETIC QA ONLY - Pass3',limit:20,offset:0}}});
   if(existing.ok()){const b=await existing.json();const rows=b.data?.items??[];if(rows.length)throw Error('EXISTING_PASS3_FIXTURES_REQUIRE_EXPLICIT_REUSE');}
   known=await fixture('KNOWN','+12025550147');

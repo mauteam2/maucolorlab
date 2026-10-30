@@ -15,6 +15,8 @@ jobs:
     env:
       UI_ORIGIN: https://elifora-staging-q9m64prhg-elifora.vercel.app
       UI_MODE: candidate
+      UI_KNOWN_ID: 83036105-98d0-4d32-8683-aec57a449140
+      UI_UNKNOWN_ID: 69fc82e3-bf4d-415e-90d0-a6df9248b8e8
       UI_FOREIGN_ID: 364905b4-4743-439f-b20e-580a41a236c3
       UI_FOREIGN_REFERENCE: 986a484f-2aca-46c6-bec0-5c41f28889af:a5e4ea0b-32b5-4f87-a555-cdba3fa1dccc
       UI_BYPASS: ${{ secrets.ELIFORA_PASS3_BYPASS }}
