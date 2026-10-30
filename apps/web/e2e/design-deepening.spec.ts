@@ -47,8 +47,8 @@ test("professional workspaces preserve usable layout at six viewport widths", as
   for (const [screen, path, ready] of [
    ["dashboard", "/workspace", ".today-heading"],
    ["clients", "/workspace/clients", ".crm-client-card"],
-   ["profile", `/workspace/clients/${client.id}`, ".salon-profile-banner"],
-   ["hair-passport", `/workspace/clients/${client.id}/hair-passport`, ".hp-region-map"],
+   ["profile", `/workspace/clients/${client.id}`, ".dossier-profile-header"],
+   ["hair-passport", `/workspace/clients/${client.id}/hair-passport`, ".dossier-region-map"],
    ["catalog", "/workspace/catalog", ".registry-record"],
    ["appointments", "/workspace/appointments", ".salon-operations-columns"],
    ["stock", "/workspace/stock", ".stock-table"],

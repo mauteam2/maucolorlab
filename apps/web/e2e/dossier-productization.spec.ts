@@ -16,7 +16,7 @@ async function capture(page:Page,info:TestInfo,state:string,width:number,anchor?
 }
 async function readyPassport(page:Page,base:string){await page.goto(`/workspace/clients/${base.split("/").at(-1)}/hair-passport`);await expect(page.getByText("Kanıt güveni",{exact:true})).toBeVisible();}
 test("client dossier and current-evidence passport remain practical at 1440/390/320 and edit only on intent",async({page},info)=>{
- test.setTimeout(240000);const f=await colorPilotFixture(page,{variation:true,high:true});
+ test.setTimeout(240000);const f=await colorPilotFixture(page,{variation:true,variationRegion:"ROOT",high:true});
  try{
   const save=async(command:object)=>{const r=await page.request.post("/api/salon",{headers:f.headers,data:{mutation_id:randomUUID(),...command}});expect(r.ok(),await r.text()).toBe(true);return (await r.json()).data;};
   await save({type:"HOURS_SAVE",expected_version:0,days:Array.from({length:7},(_,i)=>({day:i+1,closed:false,opens:540,closes:1080}))});
@@ -27,7 +27,7 @@ test("client dossier and current-evidence passport remain practical at 1440/390/
    const h=await page.request.post(`${f.base}/hair-passport/history`,{headers:f.headers,data:{request_id:randomUUID(),category,performed_on:{state:"EXACT",value:date},product:{state:"UNKNOWN",value:null},description,evidence:{source:"HISTORICAL"}}});expect(h.ok(),await h.text()).toBe(true);
   }
   await page.goto(`/workspace/clients/${f.client.id}`);await expect(page.getByText("Mevcut saçın kayıtlı kanıtı",{exact:true})).toBeVisible();await expect(page.locator(".dossier-timeline li").first()).toBeVisible();
-  await expect(page.locator(".salon-profile-banner .salon-avatar")).toHaveCount(0);
+  await expect(page.locator(".dossier-profile-header")).toBeVisible();await expect(page.locator(".dossier-profile-header .salon-avatar")).toHaveCount(0);
   for(const width of [1440,390,320])await capture(page,info,"client-profile",width);
   await readyPassport(page,f.base);await expect(page.locator(".hp-editor")).toHaveCount(0);await expect(page.getByRole("button",{name:"Kaydet",exact:true})).toHaveCount(0);
   const map=page.getByLabel("Bölgesel saç değerlendirmesi");await expect(map.locator('[data-region="ROOT"]')).toContainText("4");await expect(map.locator('[data-region="ENDS"]')).toContainText("7");await expect(page.getByText("Eksik kanıt",{exact:true})).toBeVisible();
@@ -45,11 +45,11 @@ test("client dossier and current-evidence passport remain practical at 1440/390/
  }finally{await f.account.cleanup();}
 });
 test("explicit UNKNOWN, missing evidence, conflicting records and expired provenance stay honest",async({page},info)=>{
- test.setTimeout(240000);const f=await colorPilotFixture(page,{variation:true});
+ test.setTimeout(240000);const f=await colorPilotFixture(page,{variation:true,variationRegion:"ROOT"});
  try{
   const read=async()=>(await(await page.request.get(`${f.base}/hair-passport`)).json()).data;
   let s=await read();const root=s.regions.find((r:{type:string})=>r.type==="ROOT"),mid=s.regions.find((r:{type:string})=>r.type==="MID_LENGTHS");
-  for(const payload of [{region_id:root.id,expected_version:root.version,technical:{perceived_level:{state:"KNOWN",value:9}},evidence:{source:"PROFESSIONAL_VERIFIED",attestation:"PERSONALLY_ASSESSED",confidence:{state:"KNOWN",value:1}}},{region_id:mid.id,expected_version:mid.version,technical:{perceived_level:{state:"UNKNOWN",value:null},porosity:{state:"KNOWN",value:"HIGH"},elasticity:{state:"UNKNOWN",value:null}},evidence:{source:"PHYSICAL_TEST",observed_at:{state:"KNOWN",value:new Date(Date.now()-60*86400000).toISOString()},relevant_until:new Date(Date.now()-30*86400000).toISOString(),confidence:{state:"KNOWN",value:.9},context:"Sentetik süresi geçmiş ölçüm kaydı"}}]){
+  for(const payload of [{region_id:root.id,expected_version:root.version,technical:{perceived_level:{state:"KNOWN",value:9},porosity:{state:"KNOWN",value:"HIGH"}},evidence:{source:"PROFESSIONAL_VERIFIED",attestation:"PERSONALLY_ASSESSED",confidence:{state:"KNOWN",value:1}}},{region_id:mid.id,expected_version:mid.version,technical:{perceived_level:{state:"UNKNOWN",value:null},porosity:{state:"KNOWN",value:"HIGH"},elasticity:{state:"UNKNOWN",value:null}},evidence:{source:"PHYSICAL_TEST",observed_at:{state:"KNOWN",value:new Date(Date.now()-60*86400000).toISOString()},relevant_until:new Date(Date.now()-30*86400000).toISOString(),confidence:{state:"KNOWN",value:.9},context:"Sentetik süresi geçmiş ölçüm kaydı"}}]){
    const r=await page.request.post(`${f.base}/hair-passport/observations`,{headers:f.headers,data:{request_id:randomUUID(),...payload}});expect(r.ok(),await r.text()).toBe(true);
   }
   const c=await page.request.get(`${f.base}/hair-passport/confidence`);expect(c.ok(),await c.text()).toBe(true);const canonical=(await c.json()).data;expect(canonical.conflicts.length).toBeGreaterThan(0);expect(canonical.staleEvidence.length).toBeGreaterThan(0);

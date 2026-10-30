@@ -1,7 +1,7 @@
 import { expect,type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { seedAccount,login,expectReady } from "./local-auth";
-export async function colorPilotFixture(page:Page,change:{current?:number;high?:boolean;strand?:boolean;variation?:boolean}={}){
+export async function colorPilotFixture(page:Page,change:{current?:number;high?:boolean;strand?:boolean;variation?:boolean;variationRegion?:"ROOT"|"MID_LENGTHS"|"ENDS"}={}){
  const account=await seedAccount();await login(page,account);await expectReady(page);
  const context=(await(await page.request.get("/api/session")).json()).context;
  const headers={origin:"http://127.0.0.1:4173","x-workspace-reference":`${context.membership_id}:${context.location_id}`};
@@ -9,9 +9,10 @@ export async function colorPilotFixture(page:Page,change:{current?:number;high?:
  const client=(await created.json()).data,base=`/api/clients/${client.id}`;
  const hp=await page.request.post(`${base}/hair-passport`,{headers,data:{request_id:randomUUID()}});expect(hp.ok(),await hp.text()).toBe(true);
  const snapshot=(await(await page.request.get(`${base}/hair-passport`)).json()).data;
+ const variedRegion=change.variationRegion?snapshot.regions.find((r:{id:string;type:string})=>r.type===change.variationRegion)?.id:snapshot.regions[0]?.id;
  for(const region_id of [null,...snapshot.regions.map((r:{id:string})=>r.id)]){
   const current=(await(await page.request.get(`${base}/hair-passport`)).json()).data;
-  const technical={natural_level:{state:"KNOWN",value:change.current??7},perceived_level:{state:"KNOWN",value:change.variation&&region_id===snapshot.regions[0].id?4:change.current??7},grey_ratio:{state:"KNOWN",value:.9},porosity:{state:"KNOWN",value:change.high?"HIGH":"MEDIUM"},elasticity:{state:"KNOWN",value:change.high?"LOW":"NORMAL"},thickness:{state:"KNOWN",value:"FINE"},density:{state:"KNOWN",value:"MEDIUM"},cosmetic_color_history:{state:"KNOWN",value:"Professionally assessed synthetic history"},bleach_history:{state:"KNOWN",value:"Professionally assessed synthetic history"},chemical_history:{state:"KNOWN",value:"Professionally assessed synthetic history"}};
+  const technical={natural_level:{state:"KNOWN",value:change.current??7},perceived_level:{state:"KNOWN",value:change.variation&&region_id===variedRegion?4:change.current??7},grey_ratio:{state:"KNOWN",value:.9},porosity:{state:"KNOWN",value:change.high?"HIGH":"MEDIUM"},elasticity:{state:"KNOWN",value:change.high?"LOW":"NORMAL"},thickness:{state:"KNOWN",value:"FINE"},density:{state:"KNOWN",value:"MEDIUM"},cosmetic_color_history:{state:"KNOWN",value:"Professionally assessed synthetic history"},bleach_history:{state:"KNOWN",value:"Professionally assessed synthetic history"},chemical_history:{state:"KNOWN",value:"Professionally assessed synthetic history"}};
   const expected_version=region_id===null?current.passport.version:current.regions.find((r:{id:string})=>r.id===region_id).version;
   const observed=await page.request.post(`${base}/hair-passport/observations`,{headers,data:{request_id:randomUUID(),expected_version,region_id,technical,evidence:{source:"PROFESSIONAL_VERIFIED",attestation:"PERSONALLY_ASSESSED",confidence:{state:"KNOWN",value:1}}}});expect(observed.ok(),await observed.text()).toBe(true);
   for(const type of ["POROSITY","ELASTICITY",...(change.strand===false?[]:["STRAND"])]){
