@@ -1,0 +1,50 @@
+name: ELIFORA Pass3 protected staging verification
+on:
+  push:
+    branches: [codex/pass3-protected-staging-verification]
+permissions:
+  contents: read
+concurrency:
+  group: pass3-protected-hosted
+  cancel-in-progress: false
+jobs:
+  hosted:
+    name: Actual authenticated Pass3 protected staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      UI_ORIGIN: https://elifora-staging-q9m64prhg-elifora.vercel.app
+      UI_MODE: candidate
+      UI_FOREIGN_ID: 364905b4-4743-439f-b20e-580a41a236c3
+      UI_FOREIGN_REFERENCE: 986a484f-2aca-46c6-bec0-5c41f28889af:a5e4ea0b-32b5-4f87-a555-cdba3fa1dccc
+      UI_BYPASS: ${{ secrets.ELIFORA_PASS3_BYPASS }}
+      UI_EMAIL: ${{ secrets.ELIFORA_PASS3_OWNER_EMAIL }}
+      UI_PASSWORD: ${{ secrets.ELIFORA_PASS3_OWNER_PASSWORD }}
+      UI_RECEPTION_EMAIL: ${{ secrets.ELIFORA_PASS3_RECEPTION_EMAIL }}
+      UI_RECEPTION_PASSWORD: ${{ secrets.ELIFORA_PASS3_RECEPTION_PASSWORD }}
+      UI_PUBLIC_KEY: ${{ secrets.ELIFORA_PASS3_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify application source is exactly the accepted revision
+        run: |
+          git fetch origin cb690ad33c783bdf0456ee821ed17ec38eacf9aa --depth=1
+          git diff --exit-code cb690ad33c783bdf0456ee821ed17ec38eacf9aa HEAD -- apps/web apps/android supabase contracts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+        working-directory: apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Verify actual protected staging using normal application login
+        run: node scripts/verify-pass3-hosted.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pass3-protected-hosted
+          path: |
+            apps/web/captures/reports/pass3-hosted-*.png
+            apps/web/captures/reports/pass3-hosted-*.json
+          retention-days: 14
