@@ -78,7 +78,7 @@
 .live-workspace .live-cockpit:is([data-state=COMPLETED],[data-state=CANCELLED],[data-state=ABORTED]) .live-record-tools { order:3; }
 @media(max-width:899px) {
  .live-workspace { padding-bottom:calc(100px + env(safe-area-inset-bottom)); }
- .live-workspace .live-grid { display:flex; flex-direction:column; gap:0; }
+ .live-workspace .live-cockpit:not([data-state=COMPLETED]):not([data-state=CANCELLED]):not([data-state=ABORTED]),.live-workspace .live-grid { display:contents; }
  .live-workspace .live-grid > * { width:100%; }
  .live-workspace .live-client-line { gap:8px 14px; padding-bottom:12px; }
  .live-workspace .live-client-line h1 { font-size:18px; }

@@ -35,8 +35,12 @@ export async function verifyLiveCockpit(page:Page,info:TestInfo,clientId:string,
   await page.goto(`/workspace/live-sessions?client_id=${clientId}&session_id=${s.id}`);
   await expect(page.getByRole("heading",{name:"SYNTHETIC · Dip arka bölüm uygulaması",exact:true})).toBeVisible();
   await expect(page.locator(".live-region-strip")).toContainText("DİP");
+  await expect(page.locator(".live-region-strip")).toContainText("ORTA");
+  await expect(page.locator(".live-region-strip")).toContainText("UÇLAR");
   await expect(page.getByLabel("Dip işleme hatırlatıcısı kalan süre")).toBeVisible();
   for(const width of [1440,390,320])await capture("active",width);
+  const action=page.locator(".live-execution-bar button");await action.focus();await page.keyboard.press("Enter");await expect(page.getByRole("dialog")).toBeVisible();
+  const beforeCancel=(await(await page.request.get(base)).json()).data.recordVersion;await page.getByRole("button",{name:"Vazgeç",exact:true}).click();await expect(action).toBeFocused();expect((await(await page.request.get(base)).json()).data.recordVersion).toBe(beforeCancel);
   for(const width of [1440,320])await capture("timer",width);
   await capture("regional",1440,".live-region-strip");
   await page.locator(".live-mix > details > summary").click();await capture("formulation",1440,".live-mix");

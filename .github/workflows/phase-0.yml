@@ -89,6 +89,19 @@ jobs:
       - run: node scripts/verify-browser-bundle.mjs
         working-directory: .
       - run: npx playwright install --with-deps chromium
+      - name: Live execution cockpit must pass without retries
+        run: npx playwright test e2e/live-cockpit.spec.ts --workers=1 --retries=0 --output=test-results-pass4
+      - name: Retain authenticated Live cockpit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-productization-pass-4
+          path: |
+            apps/web/test-results-pass4/**/pass4-*.png
+            apps/web/test-results-pass4/**/pass4-*.json
+            apps/web/test-results-pass4/**/error-context.md
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Global catalog discovery and regional non-execution must pass without retries
         run: npx playwright test e2e/color-registry.spec.ts --workers=1 --retries=0
       - name: Professional workspace layouts and preserved sign-in intro must pass without retries
