@@ -1,4 +1,5 @@
 .live-workspace .live-cockpit { --live-rule:#dfc9b9; --live-ink:#3b2432; --live-copper:#986043; color:var(--live-ink); padding-bottom:32px; }
+.live-workspace :is(button,input,select,textarea,a,summary) { scroll-margin-block:130px; }
 .live-workspace .live-client-line { display:flex; flex-wrap:wrap; gap:14px 28px; align-items:center; padding:0 0 20px; border-bottom:1px solid var(--live-rule); }
 .live-workspace .live-client-line h1 { font:600 clamp(20px,2vw,27px)/1.25 var(--font-sans,Arial,sans-serif); margin:5px 0 0; }
 .live-workspace .live-client-line nav { display:flex; gap:18px; margin-left:auto; font-size:14px; }
@@ -10,6 +11,7 @@
 .live-workspace .live-current h2 { font:500 clamp(25px,2.6vw,36px)/1.25 Georgia,serif; margin:9px 0 15px; max-width:31ch; }
 .live-workspace .live-current-meta { display:flex; gap:12px 20px; flex-wrap:wrap; font-size:14px; }
 .live-workspace .live-current-meta strong { color:#754630; letter-spacing:.07em; }
+.live-workspace .live-critical-brief { margin:10px 0 0; padding-left:10px; border-left:3px solid #9a5b35; color:#713c25; font-size:14px; font-weight:600; }
 .live-workspace .live-timer-watch { grid-column:2; grid-row:1; background:#eee1d5; border-top:3px solid #3b2432; padding:17px 18px; margin-top:24px; display:grid; gap:8px; }
 .live-workspace .live-timer-watch.is-due { border-color:#963a28; background:#fae7dc; }
 .live-workspace .live-timer-line { display:flex; gap:15px; justify-content:space-between; align-items:center; }
@@ -77,10 +79,10 @@
 .live-workspace .live-cockpit:is([data-state=COMPLETED],[data-state=CANCELLED],[data-state=ABORTED]) .live-mix { grid-row:1; margin-top:24px; }
 .live-workspace .live-cockpit:is([data-state=COMPLETED],[data-state=CANCELLED],[data-state=ABORTED]) .live-record-tools { order:3; }
 @media(max-width:899px) {
- .live-workspace { padding-bottom:calc(100px + env(safe-area-inset-bottom)); }
+ .salon-main.live-workspace { padding-bottom:calc(140px + env(safe-area-inset-bottom)); }
  .live-workspace .live-cockpit:not([data-state=COMPLETED]):not([data-state=CANCELLED]):not([data-state=ABORTED]),.live-workspace .live-grid { display:contents; }
  .live-workspace .live-grid > * { width:100%; }
- .live-workspace .live-client-line { gap:8px 14px; padding-bottom:12px; }
+ .live-workspace .live-client-line { gap:8px 14px; padding-bottom:8px; }
  .live-workspace .live-client-line h1 { font-size:18px; }
  .live-workspace .live-client-line > div:first-child { width:100%; min-width:0; }
  .live-workspace .live-client-line h1 { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -88,9 +90,10 @@
  .live-workspace .live-client-line .live-pause { font-size:13px; padding:8px 10px; min-height:44px; max-width:100px; }
  .live-workspace .live-client-line .ui-eyebrow { display:none; }
  .live-workspace .live-state { border:0; padding:0; display:flex; flex-wrap:wrap; gap:5px 10px; font-size:13px; }
+ .live-workspace .live-state .live-version { display:none; }
  .live-workspace .live-client-line nav { display:none; }
- .live-workspace .live-current { order:1; padding:16px 0 12px; }
- .live-workspace .live-current h2 { font:600 23px/1.25 Arial,sans-serif; margin:6px 0 10px; }
+ .live-workspace .live-current { order:1; padding:12px 0 8px; }
+ .live-workspace .live-current h2 { font:600 22px/1.25 Arial,sans-serif; margin:5px 0 8px; }
  .live-workspace .live-current-meta { gap:5px 12px; font-size:13px; }
  .live-workspace .live-current-meta > span:last-child { display:none; }
  .live-workspace .live-timer-watch { order:2; position:sticky; top:0; z-index:15; padding:9px 12px; margin:0; border-top-width:2px; box-shadow:0 3px 0 #f7f1eb; }
@@ -99,6 +102,8 @@
  .live-workspace .live-timer-actions { margin-top:0; }
  .live-workspace .live-timer-actions .button { min-height:44px; padding:8px 14px; }
  .live-workspace .live-timer-line > div { font-size:14px; }
+ .live-workspace .live-timer-line > div { flex:1; min-width:0; }
+ .live-workspace .live-timer-line > div strong { font-size:13px; }
  .live-workspace .live-mix { order:3; padding:13px 0; margin-top:14px; }
  .live-workspace .live-section-line h2 { font-size:19px; }
  .live-workspace .live-shade { font-size:16px; margin-top:8px; }

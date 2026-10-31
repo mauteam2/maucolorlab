@@ -18,7 +18,11 @@ import { timerElapsed } from "@/lib/live/engine";
 import { draftable,storeDraft,readDrafts,removeDraft,reconcileDraft,type Draft } from "@/lib/live/offline";
 const statusLabels:Record<string,string>={PREPARING:"Hazırlanıyor",READY:"Başlamaya hazır",IN_PROGRESS:"Uygulama sürüyor",PAUSED:"Duraklatıldı",CHECKPOINT_REQUIRED:"Kontrol gerekli",COMPLETION_REVIEW:"Sonuç incelemesi",COMPLETED:"Tamamlandı",CANCELLED:"İptal edildi",ABORTED:"Güvenlik nedeniyle sonlandırıldı"};
 const errors:Record<string,string>={...saasErrorMessages,SESSION_START_BLOCKED_STALE_INPUT:"Saç, reçete veya katalog değişti. Güncel renk planıyla yeni reçete oluşturun.",LIVE_SESSION_CONFLICT:"Aynı kayıtta başka değişiklik var. Taslağı ve güncel kaydı karşılaştırıp yeniden karar verin.",LIVE_CONTROLLER_CONFLICT:"Kontrol başka cihazda. Kontrol devri gereklidir.",LIVE_CHECKPOINT_REQUIRED:"Zorunlu kontrol tamamlanmadan ilerlenemez.",LIVE_COMPLETION_INCOMPLETE:"Adımlar, kontroller, sayaçlar, kullanım ve bölgesel sonucu tamamlayın.",FORBIDDEN:"Bu işlem için yetkiniz yok."};
-export function LiveSessionWorkspace({clientId,recipeId,sessionId}:{clientId:string;recipeId?:string;sessionId?:string}){
+type LiveWorkspaceProps={clientId:string;recipeId?:string;sessionId?:string};
+export function LiveSessionWorkspace(props:LiveWorkspaceProps){
+ return <LiveSessionClient key={`${props.clientId}:${props.sessionId??"new"}:${props.recipeId??""}`} {...props}/>;
+}
+function LiveSessionClient({clientId,recipeId,sessionId}:LiveWorkspaceProps){
  const router=useRouter();
  const [ctx,setCtx]=useState<ActiveTenantContext|null>(null),[session,setSession]=useState<LiveSession|null>(null),[sessions,setSessions]=useState<LiveSession[]>([]),[online,setOnline]=useState(true),[busy,setBusy]=useState(false),[refreshing,setRefreshing]=useState(true),[error,setError]=useState(""),[review,setReview]=useState(""),[accepted,setAccepted]=useState(false),[note,setNote]=useState(""),[cancelReason,setCancelReason]=useState(""),[drafts,setDrafts]=useState<Draft[]>([]),[now,setNow]=useState(0),[clientName,setClientName]=useState("");
  const [device,setDevice]=useState(""),[clock,setClock]=useState<LiveClockSample|null>(null),[recoveryReason,setRecoveryReason]=useState("");const readAbort=useRef<AbortController|null>(null),reference=useRef(""),generation=useRef(0),pending=useRef<{key:string;mutation_id:string;command?:LiveCommand}|null>(null);

@@ -21,6 +21,7 @@ export async function verifyLiveCockpit(page:Page,info:TestInfo,clientId:string,
    const current=await page.locator(".live-current").boundingBox(),timer=await page.locator(".live-timer-watch").boundingBox(),action=await page.locator(".live-execution-bar .button").boundingBox();
    expect(current!.y).toBeLessThan(page.viewportSize()!.height);expect(timer!.y).toBeLessThan(page.viewportSize()!.height);
    expect(action!.height).toBeGreaterThanOrEqual(48);if(width<600){expect(action!.y+action!.height).toBeLessThanOrEqual(page.viewportSize()!.height);expect(action!.y).toBeGreaterThan(timer!.y+timer!.height);}
+   if(width<600){const actual=await page.locator(".live-prepared > span").first().boundingBox();expect(actual!.y+actual!.height).toBeLessThanOrEqual(action!.y);}
   }
   captures.push({state,width,path,sessionId:s.id,source:"REAL_AUTHENTICATED_DISPOSABLE_DATABASE"});
  }
@@ -41,6 +42,7 @@ export async function verifyLiveCockpit(page:Page,info:TestInfo,clientId:string,
   for(const width of [1440,390,320])await capture("active",width);
   const action=page.locator(".live-execution-bar button");await action.focus();await page.keyboard.press("Enter");await expect(page.getByRole("dialog")).toBeVisible();
   const beforeCancel=(await(await page.request.get(base)).json()).data.recordVersion;await page.getByRole("button",{name:"Vazgeç",exact:true}).click();await expect(action).toBeFocused();expect((await(await page.request.get(base)).json()).data.recordVersion).toBe(beforeCancel);
+  await page.locator("#live-usage > summary").click();await page.getByLabel("Kullanım açıklaması").scrollIntoViewIfNeeded();const pinned=await page.locator(".live-timer-watch").boundingBox();expect(pinned!.y).toBeGreaterThanOrEqual(0);expect(pinned!.y+pinned!.height).toBeLessThan(page.viewportSize()!.height-100);await page.locator("#live-usage > summary").click();
   for(const width of [1440,320])await capture("timer",width);
   await capture("regional",1440,".live-region-strip");
   await page.locator(".live-mix > details > summary").click();await capture("formulation",1440,".live-mix");
