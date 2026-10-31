@@ -7,7 +7,7 @@ import { join } from "node:path";
 import { seedAccount,login,expectReady } from "./local-auth";
 import { verifyLiveSession } from "./live-session-flow";
 
-export async function controlledRecipeJourney(page:Page,browser:Browser,info:TestInfo,accountFactory=seedAccount,hooks?:{onMeasurement?:(journey:string,elapsedMs:number)=>void;afterLogin?:()=>Promise<void>;afterLive?:(clientId:string,headers:Record<string,string>)=>Promise<void>}){
+export async function controlledRecipeJourney(page:Page,browser:Browser,info:TestInfo,accountFactory=seedAccount,hooks?:{liveCockpit?:boolean;onMeasurement?:(journey:string,elapsedMs:number)=>void;afterLogin?:()=>Promise<void>;afterLive?:(clientId:string,headers:Record<string,string>)=>Promise<void>}){
  test.setTimeout(240000);
  page.setDefaultTimeout(15000);
  const lock=join(tmpdir(),"elifora-pilot-browser-governance-lock");let locked=false;const start=Date.now();
@@ -65,7 +65,7 @@ export async function controlledRecipeJourney(page:Page,browser:Browser,info:Tes
  await panel.screenshot({path:info.outputPath("client-controlled-panel-desktop.png")});
  await page.setViewportSize({width:320,height:900});await panel.scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath("client-controlled-320.png")});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:info.outputPath("client-controlled-320-full.png"),fullPage:true});
  await panel.screenshot({path:info.outputPath("client-controlled-panel-320.png")});
- await verifyLiveSession(page,browser,info,client.id,v2.id,headers);await hooks?.afterLive?.(client.id,headers);
+ await verifyLiveSession(page,browser,info,client.id,v2.id,headers,hooks?.liveCockpit);await hooks?.afterLive?.(client.id,headers);
  // A broader desired target remains useful but never invents a catalog mapping.
  await page.goto(`/workspace/colorlab?client_id=${client.id}`);
  await page.getByRole("region",{name:"Hızlı hedef oluşturucu"}).getByRole("button",{name:"Karamel",exact:true}).click();
