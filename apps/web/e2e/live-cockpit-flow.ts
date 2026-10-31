@@ -13,8 +13,10 @@ export async function verifyLiveCockpit(page:Page,info:TestInfo,clientId:string,
  const captures:Record<string,unknown>[]=[],metrics:Record<string,unknown>={source:"REAL_AUTHENTICATED_DISPOSABLE_DATABASE",applicationSha:process.env.ELIFORA_RELEASE_SHA??null,notCanonicalStaging:true,unsupportedCrossRegionRecipeNotInvented:true};
  async function capture(state:string,width:number,anchor?:string) {
   await page.setViewportSize({width,height:width===390?844:width===320?900:1000});
+  await page.mouse.move(width-1,1);
   await page.evaluate(async()=>{if(document.activeElement instanceof HTMLElement)document.activeElement.blur();await document.fonts.ready;window.scrollTo(0,0);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));});
   if(anchor)await page.locator(anchor).scrollIntoViewIfNeeded();
+  if(width===1440&&["active","formulation","blocked","multi-timer"].includes(state)){const action=await page.locator(".live-execution-bar .button").boundingBox();expect(action!.y+action!.height).toBeLessThanOrEqual(page.viewportSize()!.height);}
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   const path=info.outputPath(`pass4-${state}-${width}.png`);await page.screenshot({path});await page.screenshot({path:info.outputPath(`pass4-${state}-${width}-full.png`),fullPage:true});
   if(["active","timer"].includes(state)) {

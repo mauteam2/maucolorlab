@@ -6,7 +6,8 @@ import { timerElapsed } from "@/lib/live/engine";
 export function cockpitState(s: LiveSession, now: number) {
  const steps = [...s.steps].sort((a,b)=>a.sequenceIndex-b.sequenceIndex);
  const current = steps.find(st=>st.status==="IN_PROGRESS") ?? steps.find(st=>st.status==="PENDING");
- const bowl = s.bowls.find(b=>b.id===current?.bowlId);
+ const displayed = current ?? steps.findLast(st=>st.status==="COMPLETED");
+ const bowl = s.bowls.find(b=>b.id===displayed?.bowlId);
  const recipe = s.recipes.find(r=>r.id===(bowl?.recipeId??s.currentRecipeId))!;
  const currentRecipe = s.recipes.find(r=>r.id===s.currentRecipeId)!;
  const unresolved = s.riskEvents.filter(e=>!e.resolvedAt);
