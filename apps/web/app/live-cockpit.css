@@ -7,6 +7,8 @@
 .live-workspace .live-state span { color:#6a545e; }
 .live-workspace .live-grid { display:grid; grid-template-columns:minmax(0,2fr) minmax(290px,1fr); column-gap:36px; align-items:start; }
 .live-workspace .live-grid > * { min-width:0; }
+.live-workspace .live-execution-column { grid-column:1; }
+.live-workspace .live-context-column { grid-column:2; }
 .live-workspace .live-current { grid-column:1; padding:25px 0 19px; }
 .live-workspace .live-current h2 { font:500 clamp(25px,2.6vw,36px)/1.25 Georgia,serif; margin:9px 0 15px; max-width:31ch; }
 .live-workspace .live-current-meta { display:flex; gap:12px 20px; flex-wrap:wrap; font-size:14px; }
@@ -82,6 +84,11 @@
 .live-workspace .live-cockpit:is([data-state=COMPLETED],[data-state=CANCELLED],[data-state=ABORTED]) .live-mix { grid-row:1; margin-top:24px; }
 .live-workspace .live-cockpit:is([data-state=COMPLETED],[data-state=CANCELLED],[data-state=ABORTED]) .live-record-tools { order:3; }
 @media(max-width:899px) {
+ .salon-main.live-workspace:has(.live-cockpit) { display:flex; flex-direction:column; gap:0; }
+ .live-workspace .live-execution-column,.live-workspace .live-context-column { display:contents; }
+ .live-workspace .live-record-tools { order:9; }
+ .live-workspace .live-refresh { order:10; }
+ .salon-main.live-workspace > .salon-card { order:11; }
  .live-workspace .live-secondary-timer { display:none; }
  .salon-main.live-workspace { padding-bottom:calc(140px + env(safe-area-inset-bottom)); }
  .live-workspace .live-cockpit:not([data-state=COMPLETED]):not([data-state=CANCELLED]):not([data-state=ABORTED]),.live-workspace .live-grid { display:contents; }
