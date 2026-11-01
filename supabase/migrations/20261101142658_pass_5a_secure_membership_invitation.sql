@@ -66,6 +66,11 @@ begin
  end if;
  select * into m from public.salon_memberships where id=p_membership_id and user_id=auth.uid() for update;
  if not found then return jsonb_build_object('code','INVITATION_NOT_FOUND');end if;
+ -- Bind legitimate owned targets even when current eligibility rejects them.
+ -- A failed archive/revocation response must not let the caller reuse this
+ -- request for a different target; foreign/absent locators are never recorded.
+ insert into app_private.membership_acceptance_receipts(actor_id,request_id,membership_id)
+  values(auth.uid(),p_request_id,m.id) on conflict(actor_id,request_id) do nothing;
  -- A concurrent reviewed scope edit invalidates the earlier archive fence.
  if m.organization_id is distinct from org.id or (m.location_id is not null and m.location_id is distinct from loc.id) then
   return jsonb_build_object('code','INVITATION_UNAVAILABLE');end if;
@@ -79,8 +84,6 @@ begin
   insert into public.audit_events(actor_user_id,organization_id,action,entity_type,entity_id,correlation_id,metadata)
    values(auth.uid(),m.organization_id,'membership.invite_accepted','salon_memberships',m.id,p_correlation_id,jsonb_build_object('request_id',p_request_id));
  end if;
- insert into app_private.membership_acceptance_receipts(actor_id,request_id,membership_id)
-  values(auth.uid(),p_request_id,m.id) on conflict(actor_id,request_id) do nothing;
  -- Never replay a stored ACTIVE snapshot after revocation/archive/scope change.
  view:=app_private.membership_invitation_view(m);
  return jsonb_build_object('data',view,'correlationId',p_correlation_id);

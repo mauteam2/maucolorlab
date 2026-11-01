@@ -17,6 +17,7 @@ insert into public.salon_memberships(id,organization_id,location_id,user_id,role
  ('ab530000-0000-4000-8000-000000000003','ab510000-0000-4000-8000-000000000002',null,'ab500000-0000-4000-8000-000000000001','manager','invited',null),
  ('ab530000-0000-4000-8000-000000000004','ab510000-0000-4000-8000-000000000001',null,'ab500000-0000-4000-8000-000000000003','owner','invited',null);
 create temporary table invitation_before as select to_jsonb(m) as data from public.salon_memberships m where id='ab530000-0000-4000-8000-000000000001';
+create temporary table invitation_seats_before as select count(distinct user_id) as seats from public.salon_memberships where organization_id='ab510000-0000-4000-8000-000000000001' and status in ('active','invited');
 create temporary table invitation_results(key text primary key,data jsonb);
 grant all on invitation_results to authenticated;
 create function pg_temp.accept_invite(mid uuid,rid uuid default 'ab540000-0000-4000-8000-000000000001') returns jsonb language sql as $$
@@ -61,6 +62,7 @@ select is(public.read_my_membership_invitations('ab530000-0000-4000-8000-0000000
 reset role;
 select is((select status from public.salon_memberships where id='ab530000-0000-4000-8000-000000000001'),'active','persisted state is active');
 select ok((select joined_at is not null from public.salon_memberships where id='ab530000-0000-4000-8000-000000000001'),'authoritative joined_at set');
+select is((select count(distinct user_id) from public.salon_memberships where organization_id='ab510000-0000-4000-8000-000000000001' and status in ('active','invited')),(select seats from invitation_seats_before),'reserved distinct-person seat count unchanged after acceptance and retries');
 select is((select to_jsonb(m)-array['status','joined_at','updated_at'] from public.salon_memberships m where id='ab530000-0000-4000-8000-000000000001'),(select data-array['status','joined_at','updated_at'] from invitation_before),'role scope user invitation attribution unchanged');
 select is((select count(*) from public.audit_events where action='membership.invite_accepted' and entity_id='ab530000-0000-4000-8000-000000000001'),1::bigint,'only first transition audited');
 select ok((select actor_user_id='ab500000-0000-4000-8000-000000000001' and organization_id='ab510000-0000-4000-8000-000000000001' and correlation_id='ab550000-0000-4000-8000-000000000001' and metadata=jsonb_build_object('request_id','ab540000-0000-4000-8000-000000000001'::uuid) from public.audit_events where action='membership.invite_accepted' and entity_id='ab530000-0000-4000-8000-000000000001'),'audit contains actor entity org correlation and only request provenance');
@@ -76,7 +78,8 @@ reset role;
 update public.organizations set archived_at=now() where id='ab510000-0000-4000-8000-000000000002';
 set local role authenticated;
 select is(public.read_my_membership_invitations('ab530000-0000-4000-8000-000000000003')->'data'->0->>'state','ORGANIZATION_UNAVAILABLE','own archived org context explicit');
-select is(pg_temp.accept_invite('ab530000-0000-4000-8000-000000000003',gen_random_uuid())->>'code','INVITATION_UNAVAILABLE','archived organization cannot be accepted');
+select is(pg_temp.accept_invite('ab530000-0000-4000-8000-000000000003','ab540000-0000-4000-8000-000000000005')->>'code','INVITATION_UNAVAILABLE','archived organization cannot be accepted');
+select is(pg_temp.accept_invite('ab530000-0000-4000-8000-000000000001','ab540000-0000-4000-8000-000000000005')->>'code','INVITATION_REPLAY_CONFLICT','failed own unavailable request cannot be transferred to another owned target');
 reset role;
 update public.organizations set archived_at=null where id='ab510000-0000-4000-8000-000000000002';
 update public.locations set archived_at=now() where id='ab520000-0000-4000-8000-000000000002';

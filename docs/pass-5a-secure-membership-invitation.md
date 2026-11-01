@@ -64,6 +64,9 @@ Already-active own membership returns current canonical data, preserves joined_a
 adds no acceptance audit. New request IDs may bind to that same active target; they
 do not activate it twice. A receipt is request provenance, never cached authority.
 Current revocation/archive status wins even when replaying an earlier success.
+Legitimate owned targets rejected by current archive/revocation eligibility also
+retain their request binding; a failed request cannot be repurposed to another
+owned membership. Foreign/absent targets create no receipt and reveal no owner.
 
 ## Concurrency
 
