@@ -465,3 +465,27 @@ invalid=copy.deepcopy(registry_fixture)
 invalid['items'][0].update(state='PUBLISHED',region='UNKNOWN',recipeSupport=True,catalogId=invalid['items'][0]['id'],ruleCount=58)
 assert list(registry_validator.iter_errors(invalid))
 print('PASS: global catalog discovery DTOs; six nonpublished states and UNKNOWN cannot claim governed recipe support')
+
+# Pass 5A recipient-bound membership capability: one shared contract, no role or
+# scope authority from the caller, no private identity fields in display DTOs.
+invitations=json.loads((root/'contracts/membership-invitations.schemas.json').read_text(encoding='utf-8'))
+for name,schema in invitations.items():
+    Draft202012Validator.check_schema(schema)
+    assert contract['components']['schemas'][name]==schema
+safe_invite={'membership_id':identifier,'organization_name':'Synthetic Salon','location_name':'Main','role_code':'reception','status':'invited','state':'PENDING','invited_at':'2026-11-01T09:00:00Z','joined_at':None}
+invite_validator=Draft202012Validator(invitations['MembershipInvitation'],format_checker=FormatChecker())
+invite_validator.validate(safe_invite)
+for state,status,joined in [('ACTIVE','active','2026-11-01T10:00:00Z'),('REVOKED','revoked',None),('ORGANIZATION_UNAVAILABLE','invited',None),('LOCATION_UNAVAILABLE','invited',None)]:
+    invite_validator.validate(safe_invite|{'state':state,'status':status,'joined_at':joined})
+for field in ('user_id','organization_id','location_id','permissions','token','audit_metadata'):
+    assert list(invite_validator.iter_errors(safe_invite|{field:identifier})),field
+for change in ({'state':'ACTIVE'},{'status':'active'},{'joined_at':'2026-11-01T10:00:00Z'},{'state':'REVOKED'}):
+    assert list(invite_validator.iter_errors(safe_invite|change)),change
+for name,valid in [('MembershipInvitationAcceptBody',{'request_id':identifier}),('MembershipInvitationAcceptCommand',{'membership_id':identifier,'request_id':identifier}),('MembershipInvitationAcceptRpc',{'p_membership_id':identifier,'p_request_id':identifier,'p_correlation_id':identifier})]:
+    validator=Draft202012Validator(invitations[name],format_checker=FormatChecker());validator.validate(valid)
+    for field in ('user_id','organization_id','location_id','role','status'):
+        assert list(validator.iter_errors(valid|{field:identifier})),(name,field)
+assert contract['paths']['/api/membership-invitations']['get']['security']==[{'sessionCookie':[]}]
+assert set(contract['paths']['/api/membership-invitations/{membershipId}'])=={'get','post'}
+assert all(code in errors for code in ('INVITATION_NOT_FOUND','INVITATION_REVOKED','INVITATION_UNAVAILABLE','INVITATION_REPLAY_CONFLICT'))
+print('PASS: recipient-bound invitation DTOs, authoritative state consistency, minimal acceptance inputs and 25 authority/projection rejection cases')

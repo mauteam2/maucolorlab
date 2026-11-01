@@ -75,9 +75,12 @@ recovery through the existing PKCE flow, login/logout, refresh and global sessio
 revocation against hosted mail. Record delivery and callback timestamps without
 tokens or email bodies. Local Inbucket does not prove hosted email. Team provider
 invitation and application membership are separate: existing CREATE_MEMBER reserves
-a quota seat; a reviewed operator activates only the confirmed invited identity,
-using the existing membership lifecycle and audit. A member must never grant
-themselves a role from an invite URL or user metadata.
+a quota seat. Pass 5A lets an already-authenticated recipient explicitly accept only
+their existing invited membership through the audited identity-bound RPC. Initial
+OWNER admission remains operator-only. This capability neither sends hosted email
+nor proves delivery/callback acceptance; its migration is not yet on canonical
+staging. A member must never grant themselves a role from an invite URL or user
+metadata.
 
 Supabase references reviewed 2026-10-19: [production checklist](https://supabase.com/docs/guides/platform/going-into-prod),
 [email templates](https://supabase.com/docs/guides/auth/auth-email-templates).

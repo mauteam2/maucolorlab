@@ -10,6 +10,159 @@ servers:
   - url: /
     description: ELIFORA web origin.
 paths:
+  /api/membership-invitations:
+    get:
+      operationId: listMyMembershipInvitations
+      summary: Read only the current authenticated identity pending invitations, without
+        requiring a workspace
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Identity-bound current result; private, no-store
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipInvitationReadResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /api/membership-invitations/{membershipId}:
+    get:
+      operationId: readMyMembershipInvitation
+      summary: Read own current invitation state; foreign and absent are indistinguishable
+      security:
+      - sessionCookie: []
+      parameters:
+      - in: path
+        name: membershipId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Identity-bound current result; private, no-store
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipInvitationReadResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+    post:
+      operationId: acceptMyMembershipInvitation
+      summary: Explicitly accept own existing invited membership; same-origin, immutable
+        actor/request binding, fresh workspace bootstrap
+      security:
+      - sessionCookie: []
+      parameters:
+      - in: path
+        name: membershipId
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembershipInvitationAcceptBody'
+      responses:
+        '200':
+          description: Identity-bound current result; private, no-store
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipInvitationAcceptanceResult'
+        '400':
+          $ref: '#/components/responses/AccessError'
+        '401':
+          $ref: '#/components/responses/AccessError'
+        '403':
+          $ref: '#/components/responses/AccessError'
+        '404':
+          $ref: '#/components/responses/AccessError'
+        '409':
+          $ref: '#/components/responses/AccessError'
+        '503':
+          $ref: '#/components/responses/AccessError'
+  /rest/v1/rpc/read_my_membership_invitations:
+    post:
+      operationId: read_my_membership_invitations
+      summary: Null locator lists own pending invitations; specific locator returns
+        own active/revoked/archive state
+      servers:
+      - url: http://127.0.0.1:54321
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembershipInvitationReadRpc'
+      responses:
+        '200':
+          description: JSON data (read array or accepted safe invitation plus correlationId),
+            or stable code; no workspace fabricated by RPC
+        '401':
+          description: Missing or revoked provider session
+        '403':
+          description: EXECUTE privilege denied
+  /rest/v1/rpc/accept_my_membership_invitation:
+    post:
+      operationId: accept_my_membership_invitation
+      summary: auth.uid-bound invited to active; no role/scope/user authority; current-state
+        replay
+      servers:
+      - url: http://127.0.0.1:54321
+      security:
+      - bearerAuth: []
+        publishableKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembershipInvitationAcceptRpc'
+      responses:
+        '200':
+          description: JSON data (read array or accepted safe invitation plus correlationId),
+            or stable code; no workspace fabricated by RPC
+        '401':
+          description: Missing or revoked provider session
+        '403':
+          description: EXECUTE privilege denied
   /api/color-registry:
     get:
       operationId: readColorRegistry
@@ -4814,6 +4967,204 @@ components:
         type: string
         format: uuid
   schemas:
+    MembershipInvitation:
+      type: object
+      additionalProperties: false
+      required:
+      - membership_id
+      - organization_name
+      - location_name
+      - role_code
+      - status
+      - invited_at
+      - joined_at
+      - state
+      properties:
+        membership_id:
+          type: string
+          format: uuid
+        organization_name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        location_name:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 160
+          - type: 'null'
+        role_code:
+          enum:
+          - owner
+          - manager
+          - colorist
+          - assistant
+          - reception
+        status:
+          enum:
+          - invited
+          - active
+          - revoked
+        invited_at:
+          type: string
+          format: date-time
+        joined_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+        state:
+          enum:
+          - PENDING
+          - ACTIVE
+          - REVOKED
+          - ORGANIZATION_UNAVAILABLE
+          - LOCATION_UNAVAILABLE
+      allOf:
+      - if:
+          properties:
+            status:
+              const: active
+        then:
+          properties:
+            joined_at:
+              type: string
+              format: date-time
+      - if:
+          properties:
+            status:
+              const: invited
+        then:
+          properties:
+            joined_at:
+              type: 'null'
+      - if:
+          properties:
+            state:
+              const: PENDING
+        then:
+          properties:
+            status:
+              enum:
+              - invited
+      - if:
+          properties:
+            state:
+              const: ACTIVE
+        then:
+          properties:
+            status:
+              enum:
+              - active
+      - if:
+          properties:
+            state:
+              const: REVOKED
+        then:
+          properties:
+            status:
+              enum:
+              - revoked
+      - if:
+          properties:
+            state:
+              const: ORGANIZATION_UNAVAILABLE
+        then:
+          properties:
+            status:
+              enum:
+              - invited
+              - active
+      - if:
+          properties:
+            state:
+              const: LOCATION_UNAVAILABLE
+        then:
+          properties:
+            status:
+              enum:
+              - invited
+              - active
+    MembershipInvitationAcceptBody:
+      type: object
+      additionalProperties: false
+      required:
+      - request_id
+      properties:
+        request_id:
+          type: string
+          format: uuid
+    MembershipInvitationAcceptCommand:
+      type: object
+      additionalProperties: false
+      required:
+      - membership_id
+      - request_id
+      properties:
+        membership_id:
+          type: string
+          format: uuid
+        request_id:
+          type: string
+          format: uuid
+    MembershipInvitationAcceptRpc:
+      type: object
+      additionalProperties: false
+      required:
+      - p_membership_id
+      - p_request_id
+      - p_correlation_id
+      properties:
+        p_membership_id:
+          type: string
+          format: uuid
+        p_request_id:
+          type: string
+          format: uuid
+        p_correlation_id:
+          type: string
+          format: uuid
+    MembershipInvitationReadRpc:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        p_membership_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+    MembershipInvitationReadResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - correlationId
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MembershipInvitation'
+        correlationId:
+          type: string
+          format: uuid
+    MembershipInvitationAcceptanceResult:
+      type: object
+      additionalProperties: false
+      required:
+      - data
+      - correlationId
+      - workspaces
+      properties:
+        data:
+          $ref: '#/components/schemas/MembershipInvitation'
+        correlationId:
+          type: string
+          format: uuid
+        workspaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActiveTenantContext'
     RiskBand:
       type: string
       enum:
@@ -7777,6 +8128,10 @@ components:
     ErrorCode:
       type: string
       enum:
+      - INVITATION_NOT_FOUND
+      - INVITATION_REVOKED
+      - INVITATION_UNAVAILABLE
+      - INVITATION_REPLAY_CONFLICT
       - UNAUTHENTICATED
       - SESSION_EXPIRED
       - MEMBERSHIP_REQUIRED

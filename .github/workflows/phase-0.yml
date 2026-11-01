@@ -91,6 +91,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Live execution cockpit must pass without retries
         run: npx playwright test e2e/live-cockpit.spec.ts --workers=1 --retries=0 --output=test-results-pass4
+      - name: Recipient-bound invitation acceptance must pass without retries
+        run: npx playwright test e2e/membership-invitations.spec.ts --workers=1 --retries=0
       - name: Retain authenticated Live cockpit evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -273,6 +275,16 @@ jobs:
       - name: Review actual migrated function owners, grants and RLS
         run: python scripts/verify-security-database.py
       - run: supabase test db
+      - name: Membership invitation real acceptance, replay, revocation and archive races
+        run: python scripts/test-membership-invitation-concurrency.py
+      - name: Retain membership invitation concurrency evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass-5a-invitation-database-verification
+          path: ${{ runner.temp }}/pass-5a-invitation-concurrency.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Global discovery intake races retain conditional versions
         run: python scripts/test-color-registry-concurrency.py
       - name: Global catalog concurrency evidence

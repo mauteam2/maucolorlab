@@ -1,0 +1,322 @@
+{
+  "MembershipInvitation": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "membership_id",
+      "organization_name",
+      "location_name",
+      "role_code",
+      "status",
+      "invited_at",
+      "joined_at",
+      "state"
+    ],
+    "properties": {
+      "membership_id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "organization_name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160
+      },
+      "location_name": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "role_code": {
+        "enum": [
+          "owner",
+          "manager",
+          "colorist",
+          "assistant",
+          "reception"
+        ]
+      },
+      "status": {
+        "enum": [
+          "invited",
+          "active",
+          "revoked"
+        ]
+      },
+      "invited_at": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "joined_at": {
+        "anyOf": [
+          {
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "state": {
+        "enum": [
+          "PENDING",
+          "ACTIVE",
+          "REVOKED",
+          "ORGANIZATION_UNAVAILABLE",
+          "LOCATION_UNAVAILABLE"
+        ]
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "status": {
+              "const": "active"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "joined_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "status": {
+              "const": "invited"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "joined_at": {
+              "type": "null"
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "state": {
+              "const": "PENDING"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "status": {
+              "enum": [
+                "invited"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "state": {
+              "const": "ACTIVE"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "status": {
+              "enum": [
+                "active"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "state": {
+              "const": "REVOKED"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "status": {
+              "enum": [
+                "revoked"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "state": {
+              "const": "ORGANIZATION_UNAVAILABLE"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "status": {
+              "enum": [
+                "invited",
+                "active"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "state": {
+              "const": "LOCATION_UNAVAILABLE"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "status": {
+              "enum": [
+                "invited",
+                "active"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "MembershipInvitationAcceptBody": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "request_id"
+    ],
+    "properties": {
+      "request_id": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  },
+  "MembershipInvitationAcceptCommand": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "membership_id",
+      "request_id"
+    ],
+    "properties": {
+      "membership_id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "request_id": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  },
+  "MembershipInvitationAcceptRpc": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "p_membership_id",
+      "p_request_id",
+      "p_correlation_id"
+    ],
+    "properties": {
+      "p_membership_id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "p_request_id": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "p_correlation_id": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  },
+  "MembershipInvitationReadRpc": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [],
+    "properties": {
+      "p_membership_id": {
+        "anyOf": [
+          {
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    }
+  },
+  "MembershipInvitationReadResult": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "correlationId"
+    ],
+    "properties": {
+      "data": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/MembershipInvitation"
+        }
+      },
+      "correlationId": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  },
+  "MembershipInvitationAcceptanceResult": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "data",
+      "correlationId",
+      "workspaces"
+    ],
+    "properties": {
+      "data": {
+        "$ref": "#/components/schemas/MembershipInvitation"
+      },
+      "correlationId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "workspaces": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ActiveTenantContext"
+        }
+      }
+    }
+  }
+}

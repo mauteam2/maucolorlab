@@ -45,11 +45,12 @@ Color Engine entitlement and bounded usage before business operations.
 Only real salon-provided configuration belongs in the real tenant. No example
 staff, fake balances, demo clients or synthetic recipe records. Reserve team seats
 using existing owner `CREATE_MEMBER` after provider identity exists; invited status
-is not active authorization. Activation/revocation remains the reviewed membership
-lifecycle, with operator reason/correlation audit and no role from user metadata.
-The existing product does not send/accept hosted team invitation emails itself;
-the controlled provider/operator step is explicit and must be exercised before
-claiming multi-user onboarding readiness.
+is not active authorization. Pass 5A adds recipient-bound acceptance of that existing
+membership after normal provider authentication, with immutable request binding and
+`membership.invite_accepted` audit. Role and scope remain database-derived. Revocation
+remains the reviewed existing membership lifecycle. Initial OWNER provisioning is
+unchanged. No hosted team email delivery or invite/onboarding UI is implemented by
+Pass 5A; those separate gates must be exercised before claiming readiness.
 
 ## Colorist workflow
 

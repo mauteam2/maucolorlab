@@ -4448,6 +4448,75 @@
         "apps/web/lib/brand/registry-model.test.ts",
         "scripts/verify-security-database.py"
       ]
+    },
+    "app_private.membership_invitation_view": {
+      "source": "supabase/migrations/20261101142658_pass_5a_secure_membership_invitation.sql",
+      "signature": "m public.salon_memberships",
+      "security_definer": false,
+      "definition_sha256": "31e39a1a8577bd7123f86a8fe0b7abd483c5e6c7781a6f9528d28402ff0fb66e",
+      "domain": "membership invitation lifecycle",
+      "authentication": "verified provider identity and authoritative active session; auth.uid only",
+      "membership": "existing row must belong to auth.uid; pending is not tenant authorization",
+      "location_scope": "existing relational scope; archive fences on organization/location; no client scope authority",
+      "permission": "recipient self-accept only; existing role_permissions applies after active transition",
+      "entitlement": "existing CREATE_MEMBER reserves seat; acceptance creates no new seat or billing usage",
+      "allowed_roles": "all five existing roles only on their own pre-created membership",
+      "access": "READ_PENDING_OR_OWN_STATE",
+      "idempotency": "read-only projection of current own membership",
+      "audit": "first invited-to-active transition emits membership.invite_accepted; retry never duplicates it",
+      "direct_client_callable": false,
+      "evidence": [
+        "supabase/tests/membership_invitation.test.sql",
+        "scripts/test-membership-invitation-concurrency.py",
+        "apps/web/lib/membership-invitations/service.test.ts",
+        "apps/web/e2e/membership-invitations.spec.ts"
+      ]
+    },
+    "public.read_my_membership_invitations": {
+      "source": "supabase/migrations/20261101142658_pass_5a_secure_membership_invitation.sql",
+      "signature": "p_membership_id uuid default null",
+      "security_definer": true,
+      "definition_sha256": "dfd8e53046839b8159d32d0256a76787b92848ad55fcf756b426d37f6c180676",
+      "domain": "membership invitation lifecycle",
+      "authentication": "verified provider identity and authoritative active session; auth.uid only",
+      "membership": "existing row must belong to auth.uid; pending is not tenant authorization",
+      "location_scope": "existing relational scope; archive fences on organization/location; no client scope authority",
+      "permission": "recipient self-accept only; existing role_permissions applies after active transition",
+      "entitlement": "existing CREATE_MEMBER reserves seat; acceptance creates no new seat or billing usage",
+      "allowed_roles": "all five existing roles only on their own pre-created membership",
+      "access": "READ_PENDING_OR_OWN_STATE",
+      "idempotency": "read-only projection of current own membership",
+      "audit": "first invited-to-active transition emits membership.invite_accepted; retry never duplicates it",
+      "direct_client_callable": true,
+      "evidence": [
+        "supabase/tests/membership_invitation.test.sql",
+        "scripts/test-membership-invitation-concurrency.py",
+        "apps/web/lib/membership-invitations/service.test.ts",
+        "apps/web/e2e/membership-invitations.spec.ts"
+      ]
+    },
+    "public.accept_my_membership_invitation": {
+      "source": "supabase/migrations/20261101142658_pass_5a_secure_membership_invitation.sql",
+      "signature": "p_membership_id uuid,p_request_id uuid,p_correlation_id uuid",
+      "security_definer": true,
+      "definition_sha256": "5b3f6b0acfacc83517e2fdca3cfd604477fc93d1d1a72775f00dabb03746d0fe",
+      "domain": "membership invitation lifecycle",
+      "authentication": "verified provider identity and authoritative active session; auth.uid only",
+      "membership": "existing row must belong to auth.uid; pending is not tenant authorization",
+      "location_scope": "existing relational scope; archive fences on organization/location; no client scope authority",
+      "permission": "recipient self-accept only; existing role_permissions applies after active transition",
+      "entitlement": "existing CREATE_MEMBER reserves seat; acceptance creates no new seat or billing usage",
+      "allowed_roles": "all five existing roles only on their own pre-created membership",
+      "access": "ACCEPT_OWN_EXISTING_MEMBERSHIP",
+      "idempotency": "actor/request immutable target binding plus recipient advisory and membership row lock; state rechecked before retry",
+      "audit": "first invited-to-active transition emits membership.invite_accepted; retry never duplicates it",
+      "direct_client_callable": true,
+      "evidence": [
+        "supabase/tests/membership_invitation.test.sql",
+        "scripts/test-membership-invitation-concurrency.py",
+        "apps/web/lib/membership-invitations/service.test.ts",
+        "apps/web/e2e/membership-invitations.spec.ts"
+      ]
     }
   },
   "routes": {
@@ -5825,6 +5894,69 @@
         "apps/web/lib/brand/registry-model.test.ts",
         "scripts/verify-security-database.py"
       ]
+    },
+    "GET /api/membership-invitations": {
+      "source": "apps/web/app/api/membership-invitations/route.ts",
+      "definition_sha256": "268d4958da37f72c63877e9cd69603fc31305d7406110a81541220e3d741184e",
+      "domain": "membership invitation lifecycle",
+      "authentication": "verified provider identity and authoritative active session; auth.uid only",
+      "membership": "existing row must belong to auth.uid; pending is not tenant authorization",
+      "location_scope": "existing relational scope; archive fences on organization/location; no client scope authority",
+      "permission": "recipient self-accept only; existing role_permissions applies after active transition",
+      "entitlement": "existing CREATE_MEMBER reserves seat; acceptance creates no new seat or billing usage",
+      "allowed_roles": "all five existing roles only on their own pre-created membership",
+      "access": "READ_PENDING_OR_OWN_STATE",
+      "idempotency": "read-only projection of current own membership",
+      "audit": "first invited-to-active transition emits membership.invite_accepted; retry never duplicates it",
+      "direct_client_callable": true,
+      "evidence": [
+        "supabase/tests/membership_invitation.test.sql",
+        "scripts/test-membership-invitation-concurrency.py",
+        "apps/web/lib/membership-invitations/service.test.ts",
+        "apps/web/e2e/membership-invitations.spec.ts"
+      ]
+    },
+    "GET /api/membership-invitations/[membershipId]": {
+      "source": "apps/web/app/api/membership-invitations/[membershipId]/route.ts",
+      "definition_sha256": "3a7953ac38db474fb6210d39f7a1c4b79facb41a51772f984aa01f0c8748feb7",
+      "domain": "membership invitation lifecycle",
+      "authentication": "verified provider identity and authoritative active session; auth.uid only",
+      "membership": "existing row must belong to auth.uid; pending is not tenant authorization",
+      "location_scope": "existing relational scope; archive fences on organization/location; no client scope authority",
+      "permission": "recipient self-accept only; existing role_permissions applies after active transition",
+      "entitlement": "existing CREATE_MEMBER reserves seat; acceptance creates no new seat or billing usage",
+      "allowed_roles": "all five existing roles only on their own pre-created membership",
+      "access": "READ_PENDING_OR_OWN_STATE",
+      "idempotency": "read-only projection of current own membership",
+      "audit": "first invited-to-active transition emits membership.invite_accepted; retry never duplicates it",
+      "direct_client_callable": true,
+      "evidence": [
+        "supabase/tests/membership_invitation.test.sql",
+        "scripts/test-membership-invitation-concurrency.py",
+        "apps/web/lib/membership-invitations/service.test.ts",
+        "apps/web/e2e/membership-invitations.spec.ts"
+      ]
+    },
+    "POST /api/membership-invitations/[membershipId]": {
+      "source": "apps/web/app/api/membership-invitations/[membershipId]/route.ts",
+      "definition_sha256": "3a7953ac38db474fb6210d39f7a1c4b79facb41a51772f984aa01f0c8748feb7",
+      "domain": "membership invitation lifecycle",
+      "authentication": "verified provider identity and authoritative active session; auth.uid only",
+      "membership": "existing row must belong to auth.uid; pending is not tenant authorization",
+      "location_scope": "existing relational scope; archive fences on organization/location; no client scope authority",
+      "permission": "recipient self-accept only; existing role_permissions applies after active transition",
+      "entitlement": "existing CREATE_MEMBER reserves seat; acceptance creates no new seat or billing usage",
+      "allowed_roles": "all five existing roles only on their own pre-created membership",
+      "access": "ACCEPT_OWN_EXISTING_MEMBERSHIP",
+      "idempotency": "actor/request immutable target binding plus recipient advisory and membership row lock; state rechecked before retry",
+      "audit": "first invited-to-active transition emits membership.invite_accepted; retry never duplicates it",
+      "direct_client_callable": true,
+      "evidence": [
+        "supabase/tests/membership_invitation.test.sql",
+        "scripts/test-membership-invitation-concurrency.py",
+        "apps/web/lib/membership-invitations/service.test.ts",
+        "apps/web/e2e/membership-invitations.spec.ts"
+      ]
     }
   },
   "actions": {
@@ -6078,7 +6210,8 @@
     "20261020143354_phase_10_photo_command_policies.sql": "36ccfb23ad817f75b8bf1b1cd04276e8363657fecac8ed01a17f692e7d8d91e0",
     "20261021130128_global_catalog_discovery_registry.sql": "8aeeb9637e99f2c17a79d45369e65b9d3f6b7d04929162ba93f30e9d9fd7f293",
     "20261021130803_global_catalog_official_source_intake.sql": "cada8d415c6229dc3bf5c7e699086287217f40d59e596b95d4c4c190572a7983",
-    "20261021144458_global_catalog_reference_scope.sql": "e5aad627e1a656856d8eeb66f68f31ec5579747c8703e93cc52cd656588b0ee6"
+    "20261021144458_global_catalog_reference_scope.sql": "e5aad627e1a656856d8eeb66f68f31ec5579747c8703e93cc52cd656588b0ee6",
+    "20261101142658_pass_5a_secure_membership_invitation.sql": "0969bde186ae4f3154e7a9a5662a2cbcae7c0c617df195ae7ad2765070be8322"
   },
   "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data",
   "disposable_ci_functions": {
