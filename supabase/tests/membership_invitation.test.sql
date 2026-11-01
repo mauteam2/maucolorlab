@@ -29,6 +29,7 @@ select ok(not has_function_privilege('service_role','public.read_my_membership_i
 select ok(not has_function_privilege('authenticated','app_private.membership_invitation_view(public.salon_memberships)','EXECUTE'),'projection helper is private');
 select ok(not has_table_privilege('authenticated','app_private.membership_acceptance_receipts','SELECT'),'private receipts are not client-readable');
 select is(pg_temp.accept_invite('ab530000-0000-4000-8000-000000000001')->>'code','UNAUTHENTICATED','missing auth.uid rejected even under privileged SQL');
+select is(public.read_my_membership_invitations()->>'code','UNAUTHENTICATED','read also requires auth.uid');
 set local role anon;
 select throws_ok($$select public.accept_my_membership_invitation(null,null,null)$$,'42501',null,'actual anon role rejected');
 reset role;
@@ -39,10 +40,15 @@ select ok(not app_private.user_has_permission('ab510000-0000-4000-8000-000000000
 select is((select count(*) from public.organizations),0::bigint,'base tenant RLS still hides invited organization');
 select is((select count(*) from public.salon_memberships),0::bigint,'ordinary membership RLS not widened for invites');
 select is(jsonb_array_length(public.read_my_membership_invitations()->'data'),2,'only own pending invitations returned');
+select ok(not exists(select 1 from jsonb_array_elements(public.read_my_membership_invitations()->'data') item where item->>'membership_id'='ab530000-0000-4000-8000-000000000002'),'own pending list contains no foreign membership locator');
+select is((select array_agg(key order by key) from jsonb_object_keys(public.read_my_membership_invitations()->'data'->0) as fields(key)),array['invited_at','joined_at','location_name','membership_id','organization_name','role_code','state','status']::text[],'database DTO exposes exactly approved safe fields');
+select throws_ok($$update public.salon_memberships set status='active',joined_at=now()$$,'42501',null,'pending recipient cannot bypass acceptance by direct table write');
 select is(public.read_my_membership_invitations('ab530000-0000-4000-8000-000000000002')->>'code','INVITATION_NOT_FOUND','foreign state lookup is non-enumerating');
 select is(public.read_my_membership_invitations('ab530000-0000-4000-8000-000000000099')->>'code','INVITATION_NOT_FOUND','absent state lookup matches foreign');
 select is(pg_temp.accept_invite('ab530000-0000-4000-8000-000000000002')->>'code','INVITATION_NOT_FOUND','foreign accept matches absent');
 select is(pg_temp.accept_invite('ab530000-0000-4000-8000-000000000099')->>'code','INVITATION_NOT_FOUND','absent accept is non-enumerating');
+select is(public.read_my_membership_invitations('ab530000-0000-4000-8000-000000000002'),public.read_my_membership_invitations('ab530000-0000-4000-8000-000000000099'),'complete foreign and absent read responses are identical, including all fields');
+select is(pg_temp.accept_invite('ab530000-0000-4000-8000-000000000002'),pg_temp.accept_invite('ab530000-0000-4000-8000-000000000099'),'complete foreign and absent acceptance responses are identical, including all fields');
 select is(public.accept_my_membership_invitation('ab530000-0000-4000-8000-000000000001',null,gen_random_uuid())->>'code','VALIDATION_FAILED','missing request identifier denied');
 select is(public.accept_my_membership_invitation('ab530000-0000-4000-8000-000000000001',gen_random_uuid(),null)->>'code','VALIDATION_FAILED','missing correlation denied');
 insert into invitation_results values('first',pg_temp.accept_invite('ab530000-0000-4000-8000-000000000001'));
@@ -80,6 +86,7 @@ update public.organizations set archived_at=now() where id='ab510000-0000-4000-8
 set local role authenticated;
 select is(public.read_my_membership_invitations('ab530000-0000-4000-8000-000000000003')->'data'->0->>'state','ORGANIZATION_UNAVAILABLE','own archived org context explicit');
 select is(pg_temp.accept_invite('ab530000-0000-4000-8000-000000000003','ab540000-0000-4000-8000-000000000005')->>'code','INVITATION_UNAVAILABLE','archived organization cannot be accepted');
+select is((select count(*) from public.list_workspace_contexts()),0::bigint,'archived organization rejection grants no usable workspace');
 select is(pg_temp.accept_invite('ab530000-0000-4000-8000-000000000001','ab540000-0000-4000-8000-000000000005')->>'code','INVITATION_REPLAY_CONFLICT','failed own unavailable request cannot be transferred to another owned target');
 reset role;
 update public.organizations set archived_at=null where id='ab510000-0000-4000-8000-000000000002';
@@ -88,6 +95,7 @@ select set_config('request.jwt.claim.sub','ab500000-0000-4000-8000-000000000002'
 set local role authenticated;
 select is(public.read_my_membership_invitations('ab530000-0000-4000-8000-000000000002')->'data'->0->>'state','LOCATION_UNAVAILABLE','archived scoped location explicit');
 select is(pg_temp.accept_invite('ab530000-0000-4000-8000-000000000002')->>'code','INVITATION_UNAVAILABLE','archived scoped location acceptance blocked');
+select is((select count(*) from public.list_workspace_contexts()),0::bigint,'archived location rejection grants no usable workspace');
 reset role;
 select is((select status from public.salon_memberships where id='ab530000-0000-4000-8000-000000000002'),'invited','archive does not silently change scope/status');
 update public.locations set archived_at=null where id='ab520000-0000-4000-8000-000000000002';
