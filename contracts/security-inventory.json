@@ -4499,7 +4499,7 @@
       "source": "supabase/migrations/20261101142658_pass_5a_secure_membership_invitation.sql",
       "signature": "p_membership_id uuid,p_request_id uuid,p_correlation_id uuid",
       "security_definer": true,
-      "definition_sha256": "13ef9a0275ad80835486515b647d787e217f6b39f4bd70d84ce95906a5dc6c85",
+      "definition_sha256": "4ab722b59bcb70a0721db6af8e1e7abf921e347c6e889370fb247c7d87896ed9",
       "domain": "membership invitation lifecycle",
       "authentication": "verified provider identity and authoritative active session; auth.uid only",
       "membership": "existing row must belong to auth.uid; pending is not tenant authorization",
@@ -6211,7 +6211,7 @@
     "20261021130128_global_catalog_discovery_registry.sql": "8aeeb9637e99f2c17a79d45369e65b9d3f6b7d04929162ba93f30e9d9fd7f293",
     "20261021130803_global_catalog_official_source_intake.sql": "cada8d415c6229dc3bf5c7e699086287217f40d59e596b95d4c4c190572a7983",
     "20261021144458_global_catalog_reference_scope.sql": "e5aad627e1a656856d8eeb66f68f31ec5579747c8703e93cc52cd656588b0ee6",
-    "20261101142658_pass_5a_secure_membership_invitation.sql": "edcab8a58db1632f5144af0160fcaf7abe4a1a90874cde3ae2be224ee91e7191"
+    "20261101142658_pass_5a_secure_membership_invitation.sql": "f434daf36f3f86f9876644d893152cc008070138d3dfea664997de51c8739d11"
   },
   "implicit_http_methods": "HEAD inherits GET security; framework OPTIONS returns methods only, no tenant data",
   "disposable_ci_functions": {

@@ -58,7 +58,8 @@ are preserved. No membership, organization, location, plan or entitlement is cre
 
 ## Idempotency
 
-A private RLS-protected immutable receipt binds `(actor_id,request_id)` to one target,
+A private RLS-protected immutable receipt carries explicit organization ownership
+and binds `(actor_id,request_id)` to one target,
 across organizations. Different-target reuse returns `INVITATION_REPLAY_CONFLICT`.
 Already-active own membership returns current canonical data, preserves joined_at and
 adds no acceptance audit. New request IDs may bind to that same active target; they

@@ -1,6 +1,7 @@
 -- Recipient-bound membership lifecycle only. No email/token/signup/provisioning.
 create table app_private.membership_acceptance_receipts (
  actor_id uuid not null, request_id uuid not null,
+ organization_id uuid not null references public.organizations(id) on delete restrict,
  membership_id uuid not null references public.salon_memberships(id) on delete restrict,
  created_at timestamptz not null default statement_timestamp(),
  primary key(actor_id,request_id)
@@ -69,8 +70,8 @@ begin
  -- Bind legitimate owned targets even when current eligibility rejects them.
  -- A failed archive/revocation response must not let the caller reuse this
  -- request for a different target; foreign/absent locators are never recorded.
- insert into app_private.membership_acceptance_receipts(actor_id,request_id,membership_id)
-  values(auth.uid(),p_request_id,m.id) on conflict(actor_id,request_id) do nothing;
+ insert into app_private.membership_acceptance_receipts(actor_id,request_id,organization_id,membership_id)
+  values(auth.uid(),p_request_id,m.organization_id,m.id) on conflict(actor_id,request_id) do nothing;
  -- A concurrent reviewed scope edit invalidates the earlier archive fence.
  if m.organization_id is distinct from org.id or (m.location_id is not null and m.location_id is distinct from loc.id) then
   return jsonb_build_object('code','INVITATION_UNAVAILABLE');end if;
