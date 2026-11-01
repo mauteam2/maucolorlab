@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      UI_ORIGIN: https://elifora-staging-5wboxqolj-elifora.vercel.app
-      UI_MODE: candidate
+      UI_ORIGIN: https://elifora-staging.vercel.app
+      UI_MODE: canonical
       UI_BYPASS: ${{ secrets.ELIFORA_PASS4_BYPASS }}
       UI_EMAIL: ${{ secrets.ELIFORA_PASS4_QA_EMAIL }}
       UI_PASSWORD: ${{ secrets.ELIFORA_PASS4_QA_PASSWORD }}
