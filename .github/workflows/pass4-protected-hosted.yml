@@ -1,0 +1,47 @@
+name: ELIFORA Pass4 protected staging verification
+on:
+  push:
+    branches: [codex/pass4-protected-staging-verification]
+permissions:
+  contents: read
+concurrency:
+  group: pass4-protected-hosted
+  cancel-in-progress: false
+jobs:
+  hosted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      UI_ORIGIN: https://elifora-staging-5wboxqolj-elifora.vercel.app
+      UI_MODE: candidate
+      UI_BYPASS: ${{ secrets.ELIFORA_PASS4_BYPASS }}
+      UI_EMAIL: ${{ secrets.ELIFORA_PASS4_QA_EMAIL }}
+      UI_PASSWORD: ${{ secrets.ELIFORA_PASS4_QA_PASSWORD }}
+      UI_RECEPTION_EMAIL: ${{ secrets.ELIFORA_PASS4_RECEPTION_EMAIL }}
+      UI_RECEPTION_PASSWORD: ${{ secrets.ELIFORA_PASS4_RECEPTION_PASSWORD }}
+      UI_PUBLIC_KEY: ${{ secrets.ELIFORA_PASS4_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact accepted application tree
+        run: |
+          git fetch origin 346306a41601be8d28c00d5ecf4015ebb9c8a5ae --depth=1
+          git diff --exit-code 346306a41601be8d28c00d5ecf4015ebb9c8a5ae HEAD -- apps/web apps/android supabase contracts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+        working-directory: apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Verify actual protected staging and disclose unavailable Live execution
+        run: node scripts/verify-pass4-hosted.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-productization-pass-4-hosted
+          path: |
+            apps/web/captures/reports/pass4-hosted-*.png
+            apps/web/captures/reports/pass4-hosted-*.json
+          retention-days: 14
