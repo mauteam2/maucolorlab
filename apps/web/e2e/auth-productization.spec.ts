@@ -37,6 +37,13 @@ test("branded sign-in, password semantics, neutral recovery and public signup bo
   for (const width of [1440, 390, 320]) await capture(page, info, "sign-in", width);
   expect(await page.getByLabel("E-posta", { exact: true }).getAttribute("autocomplete")).toBe("username");
   const password = page.getByLabel("Parola", { exact: true }); expect(await password.getAttribute("autocomplete")).toBe("current-password");
+  const fieldContrast = await password.evaluate(input => {
+    const style=getComputedStyle(input);
+    const luminance=(color:string)=>{const rgb=color.match(/[\d.]+/g)!.slice(0,3).map(Number).map(v=>{const s=v/255;return s<=.04045?s/12.92:Math.pow((s+.055)/1.055,2.4);});return .2126*rgb[0]!+.7152*rgb[1]!+.0722*rgb[2]!;};
+    const border=luminance(style.borderLeftColor),surface=luminance(style.backgroundColor);
+    return (Math.max(border,surface)+.05)/(Math.min(border,surface)+.05);
+  });
+  expect(fieldContrast).toBeGreaterThanOrEqual(3);
   await page.getByRole("button", { name: "Parolayı göster", exact: true }).click(); await expect(password).toHaveAttribute("type", "text");
   await page.getByRole("button", { name: "Parolayı gizle", exact: true }).click(); await expect(password).toHaveAttribute("type", "password");
   await page.getByLabel("E-posta", { exact: true }).focus(); await page.keyboard.press("Tab"); await expect(password).toBeFocused();
