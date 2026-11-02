@@ -8,7 +8,7 @@ export const accessMessages = {
   NETWORK_ERROR: { title: "Bağlantıyı kontrol edelim", description: "Şu anda erişim bilgilerinizi doğrulayamıyoruz. Bağlantınızı kontrol edip yeniden deneyin." },
   RELEASE_NOT_READY: { title: "Çalışma alanı şu anda kullanılamıyor", description: "Erişim doğrulaması tamamlanamadı. Biraz sonra yeniden deneyin." },
 } as const;
-export function accessMessage(code: string) { return accessMessages[code as keyof typeof accessMessages] ?? accessMessages.NETWORK_ERROR; }
+export function accessMessage(code: string) { return Object.hasOwn(accessMessages, code) ? accessMessages[code as keyof typeof accessMessages] : accessMessages.NETWORK_ERROR; }
 // A locator is never a return authority. Only this fixed, authenticated landing
 // is carried across sign-in; no caller URL, role, tenant or membership is stored.
 export function signInDestination(value: unknown) { return value === "/invitations" ? "/invitations" : "/entry"; }
