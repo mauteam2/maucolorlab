@@ -2,9 +2,10 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
-import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import { devices, expect, test, type Page, type TestInfo } from "@playwright/test";
 import { seedAccount, login, expectReady } from "./local-auth";
 const origin = "http://127.0.0.1:4173";
+function reviewOptions(info: TestInfo) { return { ...devices[info.project.name === "mobile-chromium" ? "Pixel 7" : "Desktop Chrome"], baseURL: origin, reducedMotion: "reduce" as const }; }
 function provider() {
   const status = JSON.parse(readFileSync(process.env.ELIFORA_TEST_STATUS_FILE!, "utf8"));
   if (status.API_URL !== "http://127.0.0.1:54321") throw Error("Disposable local Auth required");
@@ -53,7 +54,7 @@ test("branded sign-in, password semantics, neutral recovery and public signup bo
 
 test("staff reviews own invitation, no workspace before acceptance, double-submit and canonical retry", async ({ page, browser }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" }); const f = await invite(page);
-  const isolated = await browser.newContext({ baseURL: origin, reducedMotion: "reduce" });
+  const isolated = await browser.newContext(reviewOptions(info));
   try {
     const staff = await isolated.newPage(); await login(staff, f); await expect(staff).toHaveURL(/\/invitations$/);
     await expect(staff.getByText("Renk Uzmanı / Kuaför", { exact: true })).toBeVisible();
@@ -80,7 +81,7 @@ test("staff reviews own invitation, no workspace before acceptance, double-submi
 
 test("revoked, unavailable and foreign invitation states never offer unsafe acceptance", async ({ page, browser }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" }); const f = await invite(page, "reception");
-  const isolated = await browser.newContext({ baseURL: origin, reducedMotion: "reduce" });
+  const isolated = await browser.newContext(reviewOptions(info));
   try {
     const staff = await isolated.newPage(); await login(staff, f); await expect(staff).toHaveURL(/\/invitations$/);
     await page.goto(`/invite/${f.id}`); await expect(page.getByRole("heading", { name: "Bu davet kullanılamıyor" })).toBeVisible(); const foreign = await page.locator("#main-content").innerText();
@@ -113,7 +114,7 @@ test("initial owner goes directly to Today, uses existing setup, selects real wo
     await page.goto("/workspace"); await expect(page).toHaveURL(/\/sign-in\?reason=SESSION_EXPIRED/); await capture(page, info, "session-expired", 390);
   } finally { await owner.cleanup(); }
   const multiple = await seedAccount(2);
-  try { await login(page, multiple); await expect(page).toHaveURL(/\/workspaces$/); await capture(page, info, "workspace-selector", 1440); await page.getByRole("button", { name: /Studio E2E.*Bolu/ }).click(); await expectReady(page); }
+  try { await login(page, multiple); await expect(page).toHaveURL(/\/workspaces$/); for(const width of [1440,390,320]) await capture(page, info, "workspace-selector", width); await page.getByRole("button", { name: /Studio E2E.*Bolu/ }).click(); await expectReady(page); }
   finally { await multiple.cleanup(); }
 });
 
@@ -128,12 +129,12 @@ test("authenticated no-access and real provider recovery session preserve identi
     const ssr = createServerClient(status.API_URL, status.ANON_KEY, { cookies: { getAll: () => [], setAll: values => { cookies.push(...values); } } });
     const verified = await ssr.auth.verifyOtp({ token_hash: link.data.properties.hashed_token, type: "recovery" });
     if (verified.error || !verified.data.session) throw Error("Provider recovery verification failed");
-    const recovery = await browser.newContext({ baseURL: origin, reducedMotion: "reduce" });
+    const recovery = await browser.newContext(reviewOptions(info));
     try {
       try { await recovery.addCookies(cookies.map(c => ({ name: c.name, value: c.value, url: origin, httpOnly: c.options.httpOnly ?? false, secure: c.options.secure ?? false, sameSite: typeof c.options.sameSite === "string" ? c.options.sameSite === "strict" ? "Strict" as const : c.options.sameSite === "none" ? "None" as const : "Lax" as const : "Lax" as const }))); }
       catch { throw Error("Synthetic recovery cookie setup failed"); }
       const reset = await recovery.newPage(); await reset.goto("/auth/update-password"); await expect(reset.getByRole("heading", { name: "Yeni parola belirleyin" })).toBeVisible(); await capture(reset, info, "reset-password", 390);
-      await reset.getByLabel("Yeni parola", { exact: true }).fill(`New-${randomUUID()}!`); await reset.getByLabel("Parolayı doğrulayın", { exact: true }).fill("Different-password!"); await reset.getByRole("button", { name: "Parolayı güncelle" }).click(); await expect(reset.getByRole("alert")).toContainText("Parolalar eşleşmiyor");
+      await reset.getByLabel("Yeni parola", { exact: true }).fill(`New-${randomUUID()}!`); await reset.getByLabel("Parolayı doğrulayın", { exact: true }).fill("Different-password!"); await reset.getByRole("button", { name: "Parolayı güncelle" }).click(); await expect(reset.locator("#main-content").getByRole("alert")).toContainText("Parolalar eşleşmiyor");
       const next = `New-${randomUUID()}!`; await reset.getByLabel("Yeni parola", { exact: true }).fill(next); await reset.getByLabel("Parolayı doğrulayın", { exact: true }).fill(next); await reset.getByRole("button", { name: "Parolayı güncelle" }).click(); await expect(reset.getByRole("status")).toContainText("Parolanız güncellendi. Yeniden oturum açın.");
       expect((await admin.from("salon_memberships").select("id").eq("user_id", account.userId)).data).toEqual([]);
     } finally { await recovery.close(); }
