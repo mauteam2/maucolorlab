@@ -1,5 +1,5 @@
 import { ColorWorkspace } from "@/components/color-workspace";
-import { verifiedClientContext } from "@/lib/clients/service";
+import { verifiedPageContext as verifiedClientContext } from "@/lib/auth-entry/server";
 import { z } from "zod";
 import { notFound } from "next/navigation";
 export default async function ColorLabPage({searchParams}:{searchParams:Promise<Record<string,string|string[]|undefined>>}) {

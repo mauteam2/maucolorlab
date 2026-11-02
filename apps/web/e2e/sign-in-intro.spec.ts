@@ -50,7 +50,7 @@ test("reduced motion shows the complete, usable login immediately", async ({ pag
   await page.goto("/sign-in");
   await page.waitForFunction(() => sessionStorage.getItem("elifora.sign-in-intro.v1") === "played");
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-intro", "complete");
-  await expect(page.getByLabel("Parola")).toBeEditable();
+  await expect(page.getByLabel("Parola", { exact: true })).toBeEditable();
   expect(await page.locator("[data-intro]").evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
   expect(await page.evaluate(() => sessionStorage.getItem("elifora.sign-in-intro.v1"))).toBe("played");
 });

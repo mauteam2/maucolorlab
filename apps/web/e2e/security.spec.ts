@@ -35,7 +35,7 @@ test("foreign appointment UUID and revoked authority never expose readiness",asy
 });
 test("security headers and callback destinations resist injection without identity enumeration",async({page})=>{
  const response=await page.goto("/auth/recovery");expect(response?.headers()["content-security-policy"]).toContain("frame-ancestors 'none'");expect(response?.headers()["x-content-type-options"]).toBe("nosniff");expect(response?.headers()["cache-control"]).toContain("no-store");
- await page.getByLabel("E-posta",{exact:true}).fill(`unknown-${randomUUID()}@elifora.test`);await page.getByRole("button",{name:"Kurtarma bağlantısı gönder"}).click();await expect(page.getByText("Bu adres için kurtarma mümkünse e-posta gönderilecektir.")).toBeVisible();
+ await page.getByLabel("E-posta",{exact:true}).fill(`unknown-${randomUUID()}@elifora.test`);await page.getByRole("button",{name:"Kurtarma bağlantısı iste"}).click();await expect(page.getByText("İsteğiniz alındı. Bu adres için kurtarma açıksa, sonraki adımları e-postanızdan takip edebilirsiniz.")).toBeVisible();
  const callback=await page.request.get("/auth/recovery/callback?code=fake&next=https://evil.test",{maxRedirects:0});expect(callback.status()).toBe(307);expect(callback.headers().location).toBe("http://127.0.0.1:4173/sign-in?reason=RECOVERY_INVALID");expect(callback.headers()["referrer-policy"]).toBe("no-referrer");
 });
 test("provider session revoke rejects an unexpired JWT at the actual Data API boundary",async({page})=>{

@@ -46,7 +46,7 @@ export function WorkspaceShell() {
     {context ? <TodayDashboard context={context} />
       : <LoadingState label={failed ? tr.network : tr.loading}/>}
     {failed && <a href="/workspace" className="text-link">{tr.retry}</a>}
-    <footer className="today-utilities">{context?.role === "owner" && <Link prefetch={false} className="text-link" href="/workspace/settings/pilot">Kontrollü pilot kurulum kılavuzu</Link>}
+    <footer className="today-utilities">{context?.role === "owner" && <><Link prefetch={false} className="text-link" href="/welcome">Salon başlangıç rehberi</Link><Link prefetch={false} className="text-link" href="/workspace/settings/pilot">Kontrollü pilot kurulum kılavuzu</Link></>}
       {context && <PrivacyActionForm action={changeWorkspace}><button className="text-link">{tr.change}</button></PrivacyActionForm>}
       <PrivacyActionForm action={logout}><button className="text-link">{tr.logout}</button></PrivacyActionForm>
     </footer>

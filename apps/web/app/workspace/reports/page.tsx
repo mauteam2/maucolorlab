@@ -1,4 +1,4 @@
-import { verifiedClientContext } from "@/lib/clients/service";
+import { verifiedPageContext as verifiedClientContext } from "@/lib/auth-entry/server";
 import { ReportingWorkspace } from "@/components/reporting-workspace";
 import { reportRequest } from "@/lib/reporting/model";
 export default async function ReportsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

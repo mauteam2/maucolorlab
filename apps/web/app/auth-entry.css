@@ -1,0 +1,58 @@
+/* Auth-only entry surfaces. The accepted salon workspace and intro geometry stay scoped elsewhere. */
+.entry-surface { --entry-plum:#3b2432; --entry-copper:#6e4b3a; --entry-line:#e8d8cc; color-scheme:light; min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding:64px 32px 24px; color:var(--entry-plum); background:#f7f1eb; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+.entry-layout { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); align-items:center; gap:clamp(48px,7vw,104px); width:min(100%,1104px); margin:auto; }
+.entry-brand { min-width:0; text-align:center; }
+.entry-wordmark { display:block; width:min(100%,388px); margin:auto; }
+.entry-brand-caption { color:#786b6c; font-size:13px; letter-spacing:.025em; margin:14px 0 0; }
+.entry-brand-detail { display:flex; justify-content:center; align-items:center; gap:12px; margin:42px 0 28px; }
+.entry-brand-detail span { width:24px; height:29px; border-radius:70% 25% 65% 30%; transform:rotate(18deg); background:#3b2432; }
+.entry-brand-detail span:nth-child(2) { background:#6e4b3a; }.entry-brand-detail span:nth-child(3) { background:#b98562; }.entry-brand-detail span:nth-child(4) { background:#d3ad91; }.entry-brand-detail span:nth-child(5) { background:#e8d8cc; }
+.entry-controlled { max-width:31ch; margin:22px auto 0; color:#786b6c; font-size:12px!important; font-weight:400; line-height:1.7; text-align:center; }
+.entry-card { min-width:0; padding:clamp(28px,3.4vw,48px); border:1px solid var(--entry-line); border-radius:18px; background:#fffdfb; box-shadow:0 16px 60px #6e4b3a06; }
+.entry-card h1 { margin:0; max-width:none; font-family:Georgia,"Times New Roman",serif; font-size:clamp(28px,2.8vw,39px); font-weight:400; line-height:1.15; letter-spacing:-.035em; overflow-wrap:anywhere; }
+.entry-card h2 { font-family:Georgia,"Times New Roman",serif; font-size:28px; font-weight:400; letter-spacing:-.025em; margin:18px 0 20px; overflow-wrap:anywhere; }
+.entry-kicker { color:#6e4b3a; text-transform:uppercase; letter-spacing:.17em; font-size:10px; font-weight:600; margin:0 0 17px; }
+.entry-lead { color:#786b6c; font-size:14px; line-height:1.75; margin:15px 0 0; }
+.entry-footer { display:flex; gap:14px; align-items:center; justify-content:center; margin:38px 0 0; color:#786b6c; font-size:10px; letter-spacing:.06em; }
+.entry-footer span+span::before { content:""; display:inline-block; width:3px; height:3px; background:#b98562; border-radius:50%; margin:0 14px 2px 0; }
+.entry-state-icon { display:grid; place-items:center; width:48px; height:48px; background:#f4e8de; color:#6e4b3a; border:1px solid #e8d8cc; border-radius:50%; font-size:24px; margin-bottom:24px; }
+.entry-context { margin:0; display:grid; gap:0; }
+.entry-context>div { display:grid; grid-template-columns:100px minmax(0,1fr); gap:12px; padding:12px 0; border-top:1px solid #eee2d9; font-size:13px; line-height:1.6; }
+.entry-context dt { color:#786b6c; }.entry-context dd { margin:0; overflow-wrap:anywhere; }
+.entry-invitations { display:grid; gap:18px; margin:26px 0 0; }
+.entry-invitation { min-width:0; padding:24px; border:1px solid #e8d8cc; border-radius:12px; background:#fdfaf7; }
+.entry-invitation-top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.entry-salon-symbol { display:grid; place-items:center; width:43px; height:43px; flex:none; color:#6e4b3a; background:#f0e0d3; border-radius:50%; font-family:Georgia,serif; font-size:24px; }
+.entry-badge { font-size:11px; line-height:1.4; padding:6px 10px; border:1px solid #d5bca8; color:#6e4b3a; border-radius:50px; text-align:center; }
+.entry-badge-muted { color:#756968; border-color:#d7cbc5; background:#f0ebe7; }
+.entry-invite-note { color:#786b6c; font-size:12px; line-height:1.75; margin:20px 0 16px; }
+.entry-accept, .entry-confirmation .button { width:100%; min-height:48px; font-size:14px; margin-top:8px; }
+.entry-feedback { padding:14px 16px; border:1px solid #d6baa8; border-radius:8px; background:#f7ede4; color:#563c37; font-size:13px; line-height:1.7; margin:20px 0 12px; overflow-wrap:anywhere; }
+.entry-feedback p { margin:0; }.entry-feedback h3 { font-size:15px; font-weight:600; margin:0 0 8px; }
+.entry-confirmation { padding-top:20px; border-top:1px solid #e8d8cc; margin-top:12px; }
+.entry-confirmation h3 { margin:0; font-size:17px; font-weight:500; }.entry-confirmation p { font-size:13px; line-height:1.75; color:#786b6c; }
+.entry-actions { display:grid; gap:16px; margin-top:28px; }.entry-actions .button { min-height:48px; }
+.entry-text-button { border:0; background:none; color:#6e4b3a; font:inherit; font-size:13px; text-decoration:underline; text-underline-offset:4px; cursor:pointer; min-height:44px; padding:8px 0; }
+.entry-bottom-actions { display:flex; align-items:center; flex-wrap:wrap; justify-content:space-between; gap:10px 20px; margin-top:24px; border-top:1px solid #e8d8cc; padding-top:14px; font-size:12px; }
+.entry-bottom-actions a { display:inline-flex; align-items:center; min-height:44px; text-underline-offset:4px; }.entry-bottom-actions form { margin:0; }
+.entry-workspace-options { max-width:none; margin:26px 0 0; gap:12px; }
+.entry-workspace-options form { min-width:0; }.entry-workspace-options .workspace-option { position:relative; padding:20px 48px 20px 20px; background:#fdfaf7; border-radius:10px; gap:5px; }
+.entry-workspace-options .workspace-option strong { font-family:Georgia,serif; font-size:22px; font-weight:400; }.entry-workspace-options .workspace-option span,.entry-workspace-options .workspace-option small { font-size:12px; color:#786b6c; }
+.entry-option-arrow { position:absolute; right:20px; top:calc(50% - 12px); font-size:22px!important; color:#6e4b3a!important; }
+.entry-invite-link { display:flex; justify-content:space-between; align-items:center; gap:12px; color:#6e4b3a; padding:16px 0 0; margin-top:20px; font-size:13px; text-underline-offset:4px; }.entry-invite-link span { display:grid; place-items:center; min-width:23px; height:23px; border-radius:50%; background:#f0e0d3; }
+.entry-muted { color:#786b6c; font-size:12px; line-height:1.7; }
+.auth-form .entry-field { display:grid; gap:10px; min-width:0; }
+.auth-form input { width:100%; min-width:0; min-height:50px; border:1px solid #9d8072; background:#fffdfb; color:#3b2432; font:inherit; font-size:16px; }
+.auth-form input[aria-invalid=true] { border-color:#9d4a43; }.auth-form input:focus-visible { outline-color:#6e4b3a; }
+.entry-password { position:relative; min-width:0; }.entry-password input { padding-right:54px; }
+.auth-form .entry-password button.auth-reveal { display:grid; place-items:center; position:absolute; right:3px; top:3px; width:44px; min-height:44px; height:44px; margin:0; padding:0; background:none; color:#6e4b3a; border:0; border-radius:6px; }
+.auth-form .entry-password button.auth-reveal:hover:not(:disabled) { background:#f4e8de; }
+.entry-sign-in-form>.text-link { margin-top:8px; min-height:44px; display:flex; justify-content:center; align-items:center; font-size:13px; font-weight:400; }.entry-sign-in-form>.entry-controlled { margin-top:2px; max-width:36ch; }
+.entry-card .auth-form { max-width:none; margin:26px 0 0; gap:16px; }.entry-card .auth-form label { font-size:13px; font-weight:500; }.entry-card .auth-form input { border-radius:8px; padding:12px; }.entry-card .auth-form .entry-password input { padding-right:54px; }
+.entry-card .auth-form .button { width:100%; min-height:48px; margin-top:8px; font-size:14px; }
+.entry-form-help { color:#786b6c; font-size:12px; line-height:1.6; margin:0; }
+.entry-private-lock { margin:auto; width:min(100%,440px); text-align:center; }.entry-private-lock>[data-brand-logo] { display:block; width:260px; max-width:100%; margin:auto auto 40px; }.entry-private-lock h1 { font:400 30px/1.2 Georgia,serif; }.entry-private-lock p { font-size:14px; line-height:1.7; color:#786b6c; }
+.entry-owner-links { display:grid; gap:10px; margin-top:24px; }.entry-owner-links a { display:block; padding:16px; border:1px solid #e8d8cc; border-radius:10px; text-decoration:none; background:#fdfaf7; }.entry-owner-links strong { font-size:14px; font-weight:500; }.entry-owner-links span { display:block; font-size:12px; line-height:1.6; color:#786b6c; margin-top:6px; }
+.entry-owner-summary { margin-top:26px; padding-top:18px; border-top:1px solid #e8d8cc; }.entry-owner-summary p { font-size:13px; line-height:1.7; margin:8px 0; }
+@media(max-width:720px) { .entry-surface { padding:30px 16px 20px; justify-content:flex-start; }.entry-layout { display:flex; flex-direction:column; gap:26px; max-width:448px; margin:0 auto; }.entry-brand { width:100%; }.entry-wordmark { width:250px; max-width:100%; }.entry-brand-caption { font-size:12px; margin-top:8px; }.entry-brand-detail,.entry-brand>.entry-controlled { display:none; }.entry-card { width:100%; padding:26px 22px; border-radius:14px; }.entry-card h1 { font-size:29px; }.entry-card h2 { font-size:25px; }.entry-invitation { padding:18px 16px; }.entry-context>div { grid-template-columns:76px minmax(0,1fr); gap:10px; font-size:12px; }.entry-context dd { font-size:13px; }.entry-footer { margin-top:28px; }.entry-lead { font-size:13px; }.entry-invitation-top { gap:8px; }.entry-badge { font-size:10px; }.entry-owner-links a { padding:14px; } }
+@media(max-width:350px) { .entry-surface { padding-inline:12px; }.entry-card { padding:24px 18px; }.entry-card h1 { font-size:27px; }.entry-wordmark { width:232px; }.entry-invitation { padding-inline:13px; } }

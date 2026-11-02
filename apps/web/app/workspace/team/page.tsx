@@ -1,3 +1,3 @@
 import { SalonOperations } from "@/components/salon-operations";
-import { verifiedClientContext } from "@/lib/clients/service";
+import { verifiedPageContext as verifiedClientContext } from "@/lib/auth-entry/server";
 export default async function TeamPage() {await verifiedClientContext("salon.read");return <SalonOperations section="team"/>;}

@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getPublicEnvironment } from "@/lib/env/public";
+import { signInDestination } from "@/lib/auth-entry/presentation";
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   const env = getPublicEnvironment();
@@ -17,8 +18,12 @@ export async function proxy(request: NextRequest) {
   });
   const { data: { user }, error } = await client.auth.getUser();
   if (request.method === "GET" && request.nextUrl.pathname === "/sign-in" && user && !error) {
+    // The existing Data API session hook is authoritative after global logout.
+    // A still-valid access JWT must not cause sign-in -> entry -> expired loops.
+    const session = await client.rpc("list_workspace_contexts");
+    if (session.error) { response.headers.set("Cache-Control", "private, no-store"); return response; }
     const destination = request.nextUrl.clone();
-    destination.pathname = "/workspaces";
+    destination.pathname = signInDestination(request.nextUrl.searchParams.get("returnTo"));
     destination.search = "";
     const redirect = NextResponse.redirect(destination);
     // Preserve cookies refreshed by the existing verified-session flow.

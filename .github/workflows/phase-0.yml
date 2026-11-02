@@ -89,6 +89,18 @@ jobs:
       - run: node scripts/verify-browser-bundle.mjs
         working-directory: .
       - run: npx playwright install --with-deps chromium
+      - name: Auth and invitation productization must pass without retries
+        run: npx playwright test e2e/auth-productization.spec.ts --workers=1 --retries=0 --output=test-results-auth-entry
+      - name: Retain real Auth and invitation productization screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-productization-pass-5b
+          path: |
+            apps/web/test-results-auth-entry/**/ui-ux-pass5b-*.png
+            apps/web/test-results-auth-entry/**/error-context.md
+          if-no-files-found: error
+          retention-days: 14
       - name: Live execution cockpit must pass without retries
         run: npx playwright test e2e/live-cockpit.spec.ts --workers=1 --retries=0 --output=test-results-pass4
       - name: Recipient-bound invitation acceptance must pass without retries

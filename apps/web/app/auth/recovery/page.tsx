@@ -1,3 +1,3 @@
 import { AccountRecoveryForm } from "@/components/account-recovery-form";
-import { AppShell } from "@/components/app-shell";
-export default function RecoveryPage(){return <AppShell><main id="main-content" className="hero"><h1>Hesap kurtarma</h1><AccountRecoveryForm/></main></AppShell>;}
+import { AuthFrame } from "@/components/auth-frame";
+export default function RecoveryPage(){return <AuthFrame section="Hesap kurtarma"><h1 id="entry-heading">Parolanızı yenileyin</h1><p className="entry-lead">Yetkilendirilmiş hesabınıza ait e-posta adresini girin. Kurtarma isteğinizi bu adresle kontrol edelim.</p><AccountRecoveryForm/></AuthFrame>;}

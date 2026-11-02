@@ -14,6 +14,7 @@ import "./professional.css";
 import "./workspace-composition.css";
 import "./colorlab.css";
 import "./dossier.css";
+import "./auth-entry.css";
 
 export const metadata: Metadata = {
   title: {

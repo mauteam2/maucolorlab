@@ -1,23 +1,30 @@
 import { beforeEach, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
-const mocks = vi.hoisted(() => ({ getUser: vi.fn(), client: vi.fn() }));
+const mocks = vi.hoisted(() => ({ getUser: vi.fn(), rpc: vi.fn(), client: vi.fn() }));
 vi.mock("@supabase/ssr", () => ({ createServerClient: mocks.client }));
 vi.mock("@/lib/env/public", () => ({ getPublicEnvironment: () => ({ NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "local-test-publishable-key" }) }));
 import { proxy } from "./proxy";
 beforeEach(() => {
   mocks.getUser.mockReset();
+  mocks.rpc.mockReset(); mocks.rpc.mockResolvedValue({ data: [], error: null });
   mocks.client.mockImplementation((_url, _key, options) => {
     options.cookies.setAll([{ name: "sb-local-auth-token", value: "synthetic-refresh-cookie", options: { httpOnly: true } }], {});
-    return { auth: { getUser: mocks.getUser } };
+    return { auth: { getUser: mocks.getUser }, rpc: mocks.rpc };
   });
 });
 it("redirects a server-verified session before the login or intro is rendered, preserving refreshed cookies", async () => {
   mocks.getUser.mockResolvedValue({ data: { user: { id: "synthetic-user" } }, error: null });
   const response = await proxy(new NextRequest("http://localhost:3001/sign-in?reason=SESSION_EXPIRED"));
   expect(response.status).toBe(307);
-  expect(response.headers.get("location")).toBe("http://localhost:3001/workspaces");
+  expect(response.headers.get("location")).toBe("http://localhost:3001/entry");
   expect(response.cookies.get("sb-local-auth-token")?.value).toBe("synthetic-refresh-cookie");
   expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+});
+it("does not loop a revoked provider session back from sign-in into expired entry", async () => {
+  mocks.getUser.mockResolvedValue({ data: { user: { id: "synthetic-user" } }, error: null });
+  mocks.rpc.mockResolvedValue({ data: null, error: { code: "PT401" } });
+  const response = await proxy(new NextRequest("http://localhost:3001/sign-in?reason=SESSION_EXPIRED"));
+  expect(response.headers.get("location")).toBeNull(); expect(mocks.rpc).toHaveBeenCalledWith("list_workspace_contexts");
 });
 it.each([
   { data: { user: null }, error: null },

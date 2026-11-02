@@ -1,5 +1,5 @@
 import { ClientWorkspace } from "@/components/client-workspace";
-import { verifiedClientContext } from "@/lib/clients/service";
+import { verifiedPageContext as verifiedClientContext } from "@/lib/auth-entry/server";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 export default async function ClientPage({ params }: { params: Promise<{ clientId: string }> }) {

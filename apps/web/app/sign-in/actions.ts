@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { selectionCookie } from "@/lib/tenant/context";
+import { signInDestination } from "@/lib/auth-entry/presentation";
 export async function signIn(_state: { code: string }, form: FormData): Promise<{ code: string; correlationId?: string }> {
   const correlationId = crypto.randomUUID();
   const input = z.object({ email: z.email(), password: z.string().min(1).max(1024) }).safeParse({
@@ -16,7 +17,7 @@ export async function signIn(_state: { code: string }, form: FormData): Promise<
     if (error) return { code: error.status === 400 || error.status === 422 ? "INVALID_CREDENTIALS" : "NETWORK_ERROR", correlationId };
   } catch { return { code: "NETWORK_ERROR", correlationId }; }
   (await cookies()).delete(selectionCookie);
-  redirect("/workspaces");
+  redirect(signInDestination(form.get("returnTo")));
 }
 export async function logout() {
   const client = await createClient();

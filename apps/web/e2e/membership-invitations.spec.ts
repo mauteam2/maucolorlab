@@ -22,7 +22,7 @@ test("authenticated invited recipient accepts through real service and fresh wor
   const isolated = await browser.newContext({ baseURL: origin });
   try {
     const invited = await isolated.newPage(); await login(invited, { email, password });
-    await expect(invited).toHaveURL(/\/workspaces$/);
+    await expect(invited).toHaveURL(/\/invitations$/);
     const pending = await isolated.request.get("/api/membership-invitations");
     expect(pending.status(), await pending.text()).toBe(200);
     const list = (await pending.json()).data;

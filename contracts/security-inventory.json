@@ -6000,7 +6000,7 @@
     },
     "apps/web/app/sign-in/actions.ts#signIn": {
       "source": "apps/web/app/sign-in/actions.ts",
-      "definition_sha256": "7a45575d15210f6778b901265d12e911e8bf0d005a8ebfaabdaa981ed1321d5f",
+      "definition_sha256": "3889a3118b57494686680bd446fa7dc94e88694ae0f2f291034ecb6b01c0bff9",
       "domain": "auth",
       "authentication": "provider PKCE/session for recovery completion; generic recovery request and workspace-reset are public",
       "membership": "not applicable to identity-only actions; workspace selection resolves fresh membership",
@@ -6014,12 +6014,14 @@
       "direct_client_callable": true,
       "evidence": [
         "apps/web/lib/security/security.test.ts",
-        "apps/web/e2e/auth.spec.ts"
+        "apps/web/e2e/auth.spec.ts",
+        "apps/web/lib/auth-entry/server.test.ts",
+        "apps/web/e2e/auth-productization.spec.ts"
       ]
     },
     "apps/web/app/sign-in/actions.ts#logout": {
       "source": "apps/web/app/sign-in/actions.ts",
-      "definition_sha256": "7a45575d15210f6778b901265d12e911e8bf0d005a8ebfaabdaa981ed1321d5f",
+      "definition_sha256": "3889a3118b57494686680bd446fa7dc94e88694ae0f2f291034ecb6b01c0bff9",
       "domain": "auth",
       "authentication": "provider PKCE/session for recovery completion; generic recovery request and workspace-reset are public",
       "membership": "not applicable to identity-only actions; workspace selection resolves fresh membership",
@@ -6033,7 +6035,9 @@
       "direct_client_callable": true,
       "evidence": [
         "apps/web/lib/security/security.test.ts",
-        "apps/web/e2e/auth.spec.ts"
+        "apps/web/e2e/auth.spec.ts",
+        "apps/web/lib/auth-entry/server.test.ts",
+        "apps/web/e2e/auth-productization.spec.ts"
       ]
     },
     "apps/web/app/workspaces/actions.ts#selectWorkspace": {

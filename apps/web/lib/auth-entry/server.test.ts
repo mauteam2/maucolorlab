@@ -1,0 +1,27 @@
+import { beforeEach, expect, it, vi } from "vitest";
+const m = vi.hoisted(() => ({ bootstrap: vi.fn(), read: vi.fn(), context: vi.fn(), reference: undefined as string | undefined }));
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => m.reference ? { value: m.reference } : undefined }) }));
+vi.mock("next/navigation", () => ({ redirect: (path: string) => { throw Error("REDIRECT " + path); } }));
+vi.mock("@/lib/tenant/bootstrap", async original => ({ ...await original<object>(), bootstrap: m.bootstrap }));
+vi.mock("@/lib/clients/service", () => ({ verifiedClientContext: m.context }));
+vi.mock("@/lib/membership-invitations/service", () => ({ readMyInvitations: m.read }));
+import { entryDestination, pageEntryError, verifiedPageContext } from "./server";
+import { AccessError } from "@/lib/tenant/bootstrap";
+import { accessMessage, signInDestination } from "./presentation";
+const ctx = { membership_id: "a", location_id: "b", role: "owner" };
+beforeEach(() => { vi.resetAllMocks(); m.reference = undefined; m.bootstrap.mockResolvedValue([]); m.read.mockResolvedValue({ data: [] }); });
+it.each(["owner", "manager", "colorist", "assistant", "reception"])("keeps normal one-context %s routing ahead of pending invite discovery", async role => {
+  m.bootstrap.mockResolvedValue([{ ...ctx, role }]); m.read.mockResolvedValue({ data: [{ state: "PENDING" }] });
+  expect(await entryDestination()).toBe("/workspace"); expect(m.read).not.toHaveBeenCalled();
+});
+it("leaves multiple active contexts to existing deliberate workspace choice", async () => { m.bootstrap.mockResolvedValue([ctx, { ...ctx, location_id: "c" }]); expect(await entryDestination()).toBe("/workspaces"); expect(m.read).not.toHaveBeenCalled(); });
+it("honors a verified selected context and rejects stale cookie references", async () => { m.bootstrap.mockResolvedValue([ctx]); m.reference = "foreign:scope"; expect(await entryDestination()).toBe("/auth/workspace-reset"); m.reference = "a:b"; expect(await entryDestination()).toBe("/workspace"); });
+it("routes identity-only invited staff into review, never a workspace", async () => { m.read.mockResolvedValue({ data: [{ state: "PENDING" }] }); expect(await entryDestination()).toBe("/invitations"); });
+it("gives an authenticated identity without either capability a no-access surface", async () => { expect(await entryDestination()).toBe("/workspaces"); });
+it("does not treat invitation read failures as an empty successful discovery", async () => { m.read.mockRejectedValue(new AccessError("NETWORK_ERROR", 503)); await expect(entryDestination()).rejects.toMatchObject({ code: "NETWORK_ERROR" }); });
+it.each(["SESSION_EXPIRED", "UNAUTHENTICATED"])("routes %s to normal authentication", code => { expect(() => pageEntryError(new AccessError(code, 401))).toThrow("/sign-in?reason=" + code); });
+it.each(["MEMBERSHIP_REQUIRED", "MEMBERSHIP_REVOKED", "TENANT_CONTEXT_INVALID", "FORBIDDEN"])("keeps %s a distinct presentation state", code => { expect(() => pageEntryError(new AccessError(code, 403))).toThrow("/auth/access?reason=" + code); expect(accessMessage(code).description).not.toContain(code); });
+it("preserves API/domain errors while adapting page-only denial", async () => { m.context.mockRejectedValue(new AccessError("FORBIDDEN", 403)); await expect(verifiedPageContext("live_session.view")).rejects.toThrow("/auth/access?reason=FORBIDDEN"); expect(m.context).toHaveBeenCalledWith("live_session.view"); });
+it("never reflects unrecognized error data", () => { const e = new Error("private provider diagnostic"); expect(() => pageEntryError(e)).toThrow(e); expect(accessMessage("private diagnostic").description).not.toContain("private diagnostic"); });
+it.each([undefined, "https://evil.example", "//evil.example", "/invite/arbitrary", "/workspace?role=owner", ["/invitations"]])("rejects untrusted return destination %j", value => { expect(signInDestination(value)).toBe("/entry"); });
+it("permits only the non-authoritative invitation-list return", () => { expect(signInDestination("/invitations")).toBe("/invitations"); });
